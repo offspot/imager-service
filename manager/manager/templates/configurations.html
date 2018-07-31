@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>New Configuration</h3>
+<p>Create a new Plug Configuration from scratch or start by importing an existing JSON file. Anyway, you'll be able to edit it afterwards.</p>
+<form method="POST" enctype="multipart/form-data" class="form-check form-check-inline">
+{% csrf_token %}
+	<a href="{% url 'add_configuration' %}" class="btn btn-primary form-check-input">Create New</a>
+	{{ form.file }}<button class="btn btn-outline-primary form-check-input">Import file</button>
+	{% if form.errors %}{{ form.errors }}{% endif %}
+</form>
+<p></p>
+
+<h3>{{ user.profile.organization }}'s configurations</h3>
+{% if configurations|length %}
+<ul>
+	{% for configuration in configurations %}
+	<li><a href="{% url 'edit_configuration' configuration.id %}">{{ configuration }}</a></li>
+	{% endfor %}
+</ul>
+{% else %}
+<p>hum, there's no existing configuration. Why don't you <a href="{% url 'add_configuration' %}">create one</a>.</p>
+{% endif %}
+{% endblock %}

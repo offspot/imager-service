@@ -1,0 +1,77 @@
+{% load static %}<html>
+<head>
+	<meta charset="utf-8">
+	<title>{% block title %}Kiwix Plug Cardshop{% endblock %}</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">	
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="shortcut icon" href="{% static 'img/kiwix-icon.png' %}" type="image/jpeg">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<style type="text/css">
+		.success { color: #155724; }
+		.warning { color: #856404; }
+		.danger { color: #721c24; }
+		.info { color: #0c5460; }
+		.primary { color: #004085; }
+		.package-tag { margin-right: 0.25em; }
+		header {
+			position: fixed;
+			top: 0;
+			width: 100%;
+			background-color: white;
+			z-index: 1;
+		}
+		.container {
+			margin-top: 5em;
+		}
+		#configMenuTabHolder {
+		 	position: fixed;
+			top: 5em;
+			width: 88%;
+			background-color: white;
+			z-index: 1;
+		 }
+		form {
+			position: relative;
+			margin-top: 9em;
+		}
+		{% block css %}{% endblock %}
+	</style>
+</head>
+<body>
+	<header>
+	<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+      <h5 class="my-0 mr-md-auto font-weight-normal">Kiwix Plug Cardshop</h5>
+      <nav class="my-2 my-md-0 mr-md-3">
+      	<a class="p-2 text-dark" href="{% url 'configurations' %}">Configurations</a>
+        <a class="p-2 text-dark" href="{% url 'orders' %}">Orders</a>
+        {% if user.is_staff %}<a class="p-2 text-dark" href="{% url 'organizations' %}">Admin</a>{% endif %}
+        {% if user.is_staff %}<a class="p-2 text-dark" href="{% url 'tokens' %}">Tokens</a>{% endif %}
+      </nav>
+      {% if user.is_authenticated %}<a class="btn btn-outline-primary" href="{% url 'logout' %}">Sign out ({{ user.profile.organization }})</a>{% else %}<a class="btn btn-outline-primary" href="{% url 'login' %}">Sign in</a>{% endif %}
+    </div>
+	</header>
+	
+	<div class="container">
+		{% block content %}{% endblock %}
+	</div>
+	<script
+		src="https://code.jquery.com/jquery-3.3.1.min.js"
+		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+		crossorigin="anonymous"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+		integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+		crossorigin="anonymous"></script>
+	<script
+		src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+		integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+		crossorigin="anonymous"></script>
+	<script type="text/javascript">
+		$( document ).ready(function() {
+    		console.log( "ready!" );
+    		{% block javascript %}{% endblock %}
+		});
+	</script>
+</body>
+</html>

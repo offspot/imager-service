@@ -1,0 +1,32 @@
+{
+    "project": "cardshop-manager",
+    "services": [
+        {
+            "id": "frontend",
+            "apps": [
+                {
+                    "id": "manager",
+                    "domain": {
+                        "uri": "cardshop.plug.kiwix.org"
+                    },
+                    "mem": 512,
+                    "image": "kiwix/cardshop-manager",
+                    "instances": 1,
+                    "port_mappings": [
+                        {
+                            "container_port": 80
+                        }
+                    ],
+                    "env": {
+                    },
+                    "volumes": [
+	                    {
+	                        "container_path": "/data",
+	                        "size": "8GB"
+	                    }
+                	]
+                }
+            ]
+        }
+    ]
+}
