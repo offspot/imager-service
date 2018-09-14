@@ -106,3 +106,4 @@ venv.bak/
 
 # cardshop
 /manager-data
+/docker_data
