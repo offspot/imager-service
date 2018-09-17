@@ -9,7 +9,7 @@ system_password = os.getenv(
     "SYSTEM_PASSWORD",
     "".join([random.choice(string.ascii_letters + string.digits) for _ in range(32)]),
 )
-url = "amqp://{username}:{password}@rabbit:5672/cardshop".format(
+url = "amqps://{username}:{password}@rabbit:5672/cardshop".format(
     username=system_username, password=system_password
 )
 celery = Celery(main="cardshop", broker=url)
