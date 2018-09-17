@@ -103,7 +103,10 @@ class Upload(Operation):
                 if path.is_file() and path.suffix == ".zim":
                     self._safe_upload(path)
                     path.unlink()
-            self.zim_files_dir.rmdir()
+            try:
+                self.zim_files_dir.rmdir()
+            except OSError:
+                pass
             self.success = True
         except HTTPError as e:
             self.success = False
@@ -113,8 +116,7 @@ class Upload(Operation):
             self.error = Error("upload.ftp.ConnectionRefusedError", message=str(e))
 
     def _get_token(self):
-        return  # skip auth for now
-        url = "https://{host}/api/auth/authorize".format(host=self.dispatcher_host)
+        url = "https://{host}/auth/authorize".format(host=self.dispatcher_host)
         headers = {"username": self.username, "password": self.password}
         request = Request(url, headers=headers, method="POST")
 
@@ -150,10 +152,10 @@ class Upload(Operation):
 if __name__ == "__main__":
     uploader = Upload(
         Path(sys.argv[1]),
-        "Setting.dispatcher_host",
-        "localhost",
+        "api.demo.plug.kiwix.org",
+        "warehouse.demo.plug.kiwix.org",
         21,
-        "Setting.username",
-        "Setting.password",
+        "admin",
+        "admin_pass",
     )
     uploader.execute()
