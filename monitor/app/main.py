@@ -23,10 +23,10 @@ if __name__ == "__main__":
     try:
         system_username = "system"
         system_password = os.getenv("SYSTEM_PASSWORD", "")
-        url = "amqps://{username}:{password}@rabbit:5672/cardshop".format(
+        url = "amqp://{username}:{password}@rabbit:5671/cardshop".format(
             username=system_username, password=system_password
         )
-        celery = Celery(broker=url)
+        celery = Celery(broker=url, broker_use_ssl=True)
         with celery.connection() as connection:
             recv = celery.events.Receiver(connection, handlers={"*": process_event})
             recv.capture(limit=None, timeout=None, wakeup=True)
