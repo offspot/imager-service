@@ -32,6 +32,12 @@ class Initializer:
                 "username": username,
                 "password_hash": generate_password_hash(password),
                 "scope": {
+                    "users": {
+                        "read": True,
+                        "create": True,
+                        "delete": True,
+                        "update": True,
+                    },
                     "user_management": {
                         "change_username": True,
                         "change_email": True,
