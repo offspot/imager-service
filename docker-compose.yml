@@ -1,4 +1,4 @@
-version: '1'
+version: '3'
 services:
   rabbit:
     build:
@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     volumes:
-      - /etc/letsencrypt/live/rabbit:/etc/letsencrypt/live/rabbit
+      - /etc/letsencrypt:/etc/letsencrypt
       - ./docker_data/rabbitmq:/var/lib/rabbitmq
     ports:
       - 5671:5671
