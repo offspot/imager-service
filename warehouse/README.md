@@ -41,3 +41,15 @@ docker run -p 21:21 -p 28011-28090:28011-28090 \
 | TOKEN_VALIDATION_URL |             | url used to validate file uploading token                                       |
 | MASQUERADE_ADDRESS   |             | IP address in PASV reply, set when warehouse is running behind a NAT or gateway |
 | FILE_STORAGE_DIR     | /files      | the directory where all zim files are stored inside the container               |
+
+## Nginx frontend for downloads
+server {
+    server_name warehouse.cardshop.demo.plug.kiwix.org;
+    autoindex on;
+    root /var/www/warehouse.cardshop.plug.kiwix.org/;
+
+    location / {
+        autoindex on;
+        autoindex_format json;
+    }
+}

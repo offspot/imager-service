@@ -24,9 +24,6 @@ class Authorizer(DummyAuthorizer):
         :raises AuthenticationFailed: if token is not valid or cannot contact cardshop scheduler
         """
 
-        # TODO: use authentication once schduler is deployed
-        return True
-
         headers = {"access-token": token}
         request = urllib.request.Request(
             self.token_validation_url, headers=headers, method="POST"
