@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - 127.0.0.1:28000:8000
+      - 127.0.0.1:28000:80
     links:
       - rabbit
       - mongo
