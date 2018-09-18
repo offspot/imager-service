@@ -1,11 +1,20 @@
-FROM tiangolo/uwsgi-nginx:python3.6
+FROM python:3.7.0-stretch
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+   rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install -U pip setuptools
+RUN pip3 install uwsgi
 
 COPY src /usr/src/flask
+COPY src/entrypoint.sh /entrypoint.sh
 
+RUN chmod 755 /entrypoint.sh
 RUN pip install -r /usr/src/flask/requirements.txt
 
-ENV UWSGI_INI /usr/src/flask/uwsgi.ini
 WORKDIR /usr/src/flask
+EXPOSE 8000
 
-RUN chmod +x ./start.sh
-CMD ["./start.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/usr/local/bin/uwsgi", "--ini", "/usr/src/flask/uwsgi.ini"]

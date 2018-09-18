@@ -1,4 +1,4 @@
-FROM python:latest
+FROM python:3.7.0-slim-stretch
 
 WORKDIR /usr/src
 COPY ./app /usr/src/app

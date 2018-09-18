@@ -1,5 +1,4 @@
-# use python image so we can control (and upgrade) python version
-FROM python:3.6-slim-stretch
+FROM python:3.7.0-slim-stretch
 
 LABEL maintainer=rgaudin
 
