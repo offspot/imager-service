@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     volumes:
-      - /etc/letsencrypt:/etc/letsencrypt
+      - ./ssl:/root/ssl
       - ./docker_data/rabbitmq:/var/lib/rabbitmq
     ports:
       - 5671:5671
