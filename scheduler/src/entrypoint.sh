@@ -4,6 +4,6 @@
 /entrypoint.sh
 
 # execute our prestart script"
-cd /usr/src/flask && python3 prestart.py && cd -
+cd /usr/src/flask && python prestart.py && cd -
 
 exec "$@"

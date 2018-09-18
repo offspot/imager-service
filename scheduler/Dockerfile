@@ -11,3 +11,4 @@ ENV UWSGI_INI /usr/src/flask/uwsgi.ini
 WORKDIR /usr/src/flask
 
 ENTRYPOINT ["/scheduler-entrypoint.sh"]
+CMD ["/usr/bin/supervisord"]
