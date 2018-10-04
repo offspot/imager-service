@@ -38,11 +38,6 @@ class Initializer:
                         "delete": True,
                         "update": True,
                     },
-                    "user_management": {
-                        "change_username": True,
-                        "change_email": True,
-                        "change_password": True,
-                    },
                     "task": {"create": True, "delete": True},
                 },
             }
