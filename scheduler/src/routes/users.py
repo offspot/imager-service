@@ -56,6 +56,12 @@ def collection(user: dict):
         except ValidationError as error:
             raise errors.BadRequest(error.message)
 
+        if Users().count({"username": request_json["username"]}):
+            raise errors.BadRequest("Username is already taken.")
+
+        if Users().count({"email": request_json["email"]}):
+            raise errors.BadRequest("Email is already registered.")
+
         # generate password hash
         password = request_json.pop("password")
         request_json["password_hash"] = generate_password_hash(password)
