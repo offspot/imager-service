@@ -15,7 +15,6 @@ from manager.pibox.util import human_readable_size, ONE_GB
 from manager.pibox.content import get_collection, get_required_image_size
 
 
-
 def packages_for_language(request, lang_code):
     def _filter(package):
         return {k: v for k, v in package.items()

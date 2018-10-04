@@ -1,0 +1,72 @@
+[
+{
+    "model": "manager.media",
+    "pk": 1,
+    "fields": {
+        "name": "8GB",
+        "kind": "standard",
+        "size": 8,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 2,
+    "fields": {
+        "name": "16GB",
+        "kind": "standard",
+        "size": 16,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 3,
+    "fields": {
+        "name": "32GB",
+        "kind": "standard",
+        "size": 32,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 4,
+    "fields": {
+        "name": "64GB",
+        "kind": "standard",
+        "size": 64,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 5,
+    "fields": {
+        "name": "128GB",
+        "kind": "standard",
+        "size": 128,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 6,
+    "fields": {
+        "name": "200\u00a0GB",
+        "kind": "standard",
+        "size": 200,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 7,
+    "fields": {
+        "name": "256GB",
+        "kind": "standard",
+        "size": 256,
+        "units_coef": 1.0
+    }
+}
+]

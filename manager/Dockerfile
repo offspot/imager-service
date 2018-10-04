@@ -40,7 +40,7 @@ RUN /usr/sbin/nginx
 
 WORKDIR /app/
 
-EXPOSE 80
+EXPOSE 80 443
 ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["/usr/local/bin/uwsgi", "--ini", "/app/uwsgi.ini"]

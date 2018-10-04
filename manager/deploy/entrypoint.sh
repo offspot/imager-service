@@ -20,6 +20,7 @@ fi
 
 # always migrate & collect static file
 python3 ./manage.py migrate
+python3 ./manage.py loaddata manager/fixtures/media.json
 python3 ./manage.py collectstatic --no-input
 
 # create user on first run

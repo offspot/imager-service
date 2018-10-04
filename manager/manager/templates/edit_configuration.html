@@ -105,7 +105,7 @@
 			</div>
 			<div class="form-group col-md-4">
 			  <label for="plugContentEdupiResources">EduPi Resources</label>
-			  <input type="text" name="plugContentEdupiResources" id="config_edupi_resources" aria-describedby="plugContentEdupiResourcesHelp" class="changes-size form-control" placeholder="URL to a ZIP file" value="{{ config.content.edupi_resources }}" />
+			  <input type="text" name="plugContentEdupiResources" id="config_edupi_resources" aria-describedby="plugContentEdupiResourcesHelp" class="changes-size form-control" placeholder="URL to a ZIP file" value="{{ config.content.edupi_resources|default_if_none:"" }}" />
 			  <small id="plugContentEdupiResourcesHelp" class="form-text text-muted">ZIP folder archive of documents to initialize EduPi with</small>
 			</div>
 			<div class="form-group col-md-4">
