@@ -27,9 +27,7 @@ SECRET_KEY = 's245*pzp1poz*#_!&$65&ld!f)5de2eshwc*!8w(2#5d&w0b=0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost',
-                 'cardshop.lan',
-                 'cardshop.plug.kiwix.org']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
