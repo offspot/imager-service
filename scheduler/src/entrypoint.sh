@@ -1,9 +1,7 @@
 #!/bin/sh
 
-# run parent's entrypoint
-/entrypoint.sh
-
 # execute our prestart script"
-cd /usr/src/flask && python prestart.py && cd -
+cd /app && python prestart.py && cd -
 
-exec "$@"
+# run parent's entrypoint
+exec /entrypoint.sh "$@"
