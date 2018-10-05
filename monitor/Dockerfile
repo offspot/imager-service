@@ -1,8 +1,11 @@
 FROM python:3.7.0-slim-stretch
 
-WORKDIR /usr/src
-COPY ./app /usr/src/app
+ENV SYSTEM_PASSWORD system
 
-RUN pip3 install -r ./app/requirements.txt
+COPY ./app /app
+WORKDIR /app
 
-ENTRYPOINT ["python3", "app/main.py"]
+RUN pip3 install -U pip
+RUN pip3 install -r /app/requirements.txt
+
+CMD ["python3", "/app/main.py"]
