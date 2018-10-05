@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # execute our prestart script"
 python /app/prestart.py
