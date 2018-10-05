@@ -15,7 +15,7 @@ RUN pip install -r /app/requirements.txt
 ENV UWSGI_INI /app/uwsgi.ini
 WORKDIR /app
 
-RUN systemctl disable supervisor
+RUN rm -rf /lib/systemd/system/supervisor.service
 
 ENTRYPOINT ["/scheduler-entrypoint.sh"]
 EXPOSE 80 443

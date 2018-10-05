@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# execute our prestart script"
+echo "execute our prestart script"
 python /app/prestart.py
 
-# run parent's entrypoint
+echo "run parent's entrypoint"
 exec /entrypoint.sh "$@"
