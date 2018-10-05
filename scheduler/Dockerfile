@@ -16,6 +16,8 @@ ENV UWSGI_INI /app/uwsgi.ini
 WORKDIR /app
 
 RUN rm -rf /lib/systemd/system/supervisor.service
+RUN update-rc.d -f supervisor remove
+RUN rm -f /etc/init.d/supervisor
 
 ENTRYPOINT ["/scheduler-entrypoint.sh"]
 EXPOSE 80 443
