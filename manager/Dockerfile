@@ -1,46 +1,37 @@
-FROM python:3.7.0-slim-stretch
+FROM tiangolo/uwsgi-nginx:python3.6
 
-LABEL maintainer=rgaudin
-
-RUN mkdir -p /data
-VOLUME /data
 ENV DATA_DIR /data
+ENV CARDSHOP_API_URL https://api.cardshop.hotspot.kiwix.org
+ENV MANAGER_API_TOKEN NOT_SET
+ENV ADMIN_PASSWORD admin
 
-RUN apt-get update && \
-    apt-get upgrade -y && \ 	
-    apt-get install -y \
-    libmagic1 \
-	nginx-full \
-	build-essential \
-	sqlite3 && \
-   rm -rf /var/lib/apt/lists/*
+VOLUME /data
 
-RUN pip3 install -U pip setuptools
+# update pip
+RUN pip install -U pip setuptools
 
-# install uwsgi early as it takes time (package version not OK)
-RUN pip3 install uwsgi
-
-COPY requirements.txt /app/
-RUN pip3 install -r /app/requirements.txt
-
-# copy configuration files
-COPY deploy/nginx.conf /etc/nginx/sites-available/default
-COPY deploy/uwsgi_params /app/
-COPY deploy/uwsgi.ini /app/
-COPY deploy/entrypoint.sh /entrypoint.sh
-RUN chmod 755 /entrypoint.sh
+COPY nginx.conf /etc/nginx/conf.d/
 
 # copy app code
+RUN rm -rf /app
+COPY requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
+
 COPY manage.py /app/manage.py
 COPY manager /app/manager
 COPY contents.json /app/contents.json
 
-# start nginx so it sets up www-data
-RUN /usr/sbin/nginx
+COPY uwsgi.ini /app/uwsgi.ini
+COPY entrypoint.sh /manager-entrypoint.sh
+RUN chmod 755 /manager-entrypoint.sh
 
-WORKDIR /app/
+ENV UWSGI_INI /app/uwsgi.ini
+WORKDIR /app
 
+RUN rm -rf /lib/systemd/system/supervisor.service
+RUN update-rc.d -f supervisor remove
+RUN rm -f /etc/init.d/supervisor
+
+ENTRYPOINT ["/manager-entrypoint.sh"]
 EXPOSE 80 443
-ENTRYPOINT ["/entrypoint.sh"]
-
-CMD ["/usr/local/bin/uwsgi", "--ini", "/app/uwsgi.ini"]
+CMD ["/usr/bin/supervisord"]

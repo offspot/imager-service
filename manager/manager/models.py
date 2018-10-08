@@ -5,6 +5,7 @@
 import json
 
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 
 from manager.pibox.util import ONE_GB
@@ -20,10 +21,9 @@ class Organization(models.Model):
     def create_kiwix(cls):
         if cls.objects.filter(slug="kiwix").count():
             return cls.objects.get(slug="kiwix")
-        return cls.objects.create(slug="kiwix",
-                                  name="Kiwix",
-                                  email="reg@kiwix.org",
-                                  units=100000)
+        return cls.objects.create(
+            slug="kiwix", name="Kiwix", email="reg@kiwix.org", units=100000
+        )
 
     def __str__(self):
         return self.name
@@ -40,17 +40,18 @@ class Profile(models.Model):
         if User.objects.filter(username="admin").count():
             user = User.objects.get(username="admin")
         else:
-            user = User.objects.create_superuser(username="admin",
-                                                 email=organization.email,
-                                                 password="admin")
+            user = User.objects.create_superuser(
+                username="admin",
+                email=organization.email,
+                password=settings.ADMIN_PASSWORD,
+            )
         if cls.objects.filter(user=user).count():
             return cls.objects.get(user=user)
 
         return cls.objects.create(user=user, organization=organization)
 
     def __str__(self):
-        return "{user} ({org})".format(user=str(self.user),
-                                       org=str(self.organization))
+        return "{user} ({org})".format(user=str(self.user), org=str(self.organization))
 
 
 class Address(models.Model):
@@ -66,7 +67,8 @@ class Address(models.Model):
 
 class Media(models.Model):
     class Meta:
-        unique_together = (('kind', 'size'), )
+        unique_together = (("kind", "size"),)
+
     name = models.CharField(max_length=50)
     kind = models.CharField(max_length=50)
     size = models.IntegerField()
@@ -75,8 +77,7 @@ class Media(models.Model):
     @classmethod
     def get_min_for(cls, size):
         try:
-            return cls.objects.filter(size__gte=size // ONE_GB) \
-                .order_by('size').first()
+            return cls.objects.filter(size__gte=size // ONE_GB).order_by("size").first()
         except cls.DoesNotExist:
             return None
 
@@ -95,7 +96,7 @@ class Media(models.Model):
 class Configuration(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    config = models.TextField(default='{}')
+    config = models.TextField(default="{}")
     updated_on = models.DateTimeField(auto_now=True)
 
     @classmethod
@@ -109,11 +110,9 @@ class Configuration(models.Model):
     def json_config(self):
         return json.loads(self.config)
 
-
     @property
     def min_media(self):
         return Media.objects.all()[0]
-
 
     @property
     def min_units(self):
@@ -124,15 +123,11 @@ class Configuration(models.Model):
 
 
 class Order(models.Model):
-    CREATED = 'created'
-    PENDING = 'pending'
-    COMPLETED = 'completed'
+    CREATED = "created"
+    PENDING = "pending"
+    COMPLETED = "completed"
 
-    STATUSES = {
-        CREATED: "Created",
-        PENDING: "Pending",
-        COMPLETED: "Completed",
-    }
+    STATUSES = {CREATED: "Created", PENDING: "Pending", COMPLETED: "Completed"}
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     address = models.ForeignKey(Address, on_delete=models.PROTECT)
@@ -151,8 +146,9 @@ class OrderItem(models.Model):
     quantity = models.IntegerField()
 
     def __str__(self):
-        return "OrderItem #{id} (Order #{order})".format(id=self.id,
-                                                         order=self.order.id)
+        return "OrderItem #{id} (Order #{order})".format(
+            id=self.id, order=self.order.id
+        )
 
     @property
     def units(self):
