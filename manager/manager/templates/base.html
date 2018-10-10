@@ -1,7 +1,7 @@
 {% load static %}<html>
 <head>
 	<meta charset="utf-8">
-	<title>{% block title %}Kiwix Plug Cardshop{% endblock %}</title>
+	<title>{% block title %}Kiwix Hotspot Cardshop{% endblock %}</title>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">	
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link rel="shortcut icon" href="{% static 'img/kiwix-icon.png' %}" type="image/jpeg">
@@ -14,6 +14,11 @@
 		.info { color: #0c5460; }
 		.primary { color: #004085; }
 		.package-tag { margin-right: 0.25em; }
+		.message-debug, .messages .debug { color:#818182;background-color:#fefefe;border-color:#fdfdfe; }
+		.message-info, .messages .info { color:#0c5460;background-color:#d1ecf1;border-color:#bee5eb; }
+		.message-success, .messages .success { color:#155724;background-color:#d4edda;border-color:#c3e6cb; }
+		.message-warning, .messages .warning { color:#856404;background-color:#fff3cd;border-color:#ffeeba; }
+		.message-error, .messages .error { color:#721c24;background-color:#f8d7da;border-color:#f5c6cb; }
 		header {
 			position: fixed;
 			top: 0;
@@ -22,38 +27,50 @@
 			z-index: 1;
 		}
 		.container {
-			margin-top: 5em;
+			margin-top: 6em;
 		}
 		#configMenuTabHolder {
-		 	position: fixed;
-			top: 5em;
+		 	/*position: fixed;*/
+			/*top: 5em;*/
 			width: 88%;
 			background-color: white;
 			z-index: 1;
 		 }
-		form {
+		form.edit-config {
 			position: relative;
-			margin-top: 9em;
+			/*margin-top: 9em;*/
 		}
 		input[type=file] { height: auto; }
+		.branding {
+			max-width: 80%;
+		}
+		.branding.favicon {
+			max-width: 64px;
+		}
 		{% block css %}{% endblock %}
 	</style>
 </head>
 <body>
 	<header>
 	<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-      <h5 class="my-0 mr-md-auto font-weight-normal">Kiwix Plug Cardshop</h5>
+      <h5 class="my-0 mr-md-auto font-weight-normal"><a href="{% url "home" %}">Kiwix Hotspot Cardshop</a></h5>
       <nav class="my-2 my-md-0 mr-md-3">
       	<a class="p-2 text-dark" href="{% url 'configurations' %}">Configurations</a>
         <a class="p-2 text-dark" href="{% url 'orders' %}">Orders</a>
-        {% if user.is_staff %}<a class="p-2 text-dark" href="{% url 'organizations' %}">Admin</a>{% endif %}
-        {% if user.is_staff %}<a class="p-2 text-dark" href="{% url 'tokens' %}">Tokens</a>{% endif %}
+        {% if user.is_staff %}<a class="p-2 text-dark" href="{% url 'admin' %}">Admin</a>{% endif %}
+        {% if user.is_staff %}<a class="p-2 text-dark" href="{% url 'scheduler' %}">Scheduler</a>{% endif %}
       </nav>
-      {% if user.is_authenticated %}<a class="btn btn-outline-primary" href="{% url 'logout' %}">Sign out ({{ user.profile.organization }})</a>{% else %}<a class="btn btn-outline-primary" href="{% url 'login' %}">Sign in</a>{% endif %}
+      {% if user.is_authenticated %}<a class="btn btn-outline-primary" href="{% url 'logout' %}">Sign out ({{ user.username }}@{{ user.profile.organization.slug }})</a>{% else %}<a class="btn btn-outline-primary" href="{% url 'login' %}">Sign in</a>{% endif %}
     </div>
 	</header>
-	
+
 	<div class="container">
+		{% if messages %}
+		<div class="messages">
+			{% for message in messages %}<p class="alert {{ message.tags }}">{{ message|safe }}</p>{% endfor %}
+		</div>
+		{% endif %}
+
 		{% block content %}{% endblock %}
 	</div>
 	<script

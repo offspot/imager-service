@@ -1,0 +1,19 @@
+{% include "_label_for.html" with field=field size=size %}
+{% if use_raw %}<br />{{ field }}{% else %}
+<input type="{% if type %}{{ type }}{% else %}text{% endif %}"
+	   id="{{ field.id_for_label }}"
+	   class="{% if changes_size or size %} changes-size{% endif %}{% if type != "checkbox" %} form-control{% endif %}{% if field.errors %} alert alert-danger{% endif %}"
+	   {% if type == "checkbox" %}
+	   		data-toggle="toggle" {% if field.value %}checked="checked"{% endif %}
+	   {% else %}
+	   		value="{{ field.value|default_if_none:"" }}"
+   	   {% endif %}
+	   {% if placeholder %} placeholder="{{ placeholder }}"{% endif %}
+	   name="{{ field.html_name }}"
+	   {% if field.help_text %}
+	   		aria-describedby="{{ field.id_for_label }}Help"
+	   {% endif %}/>
+{% if field.help_text %}
+	<small id="{{ field.id_for_label }}Help" class="form-text text-muted">{{ field.help_text|safe }}</small>
+{% endif %}
+{% endif %}

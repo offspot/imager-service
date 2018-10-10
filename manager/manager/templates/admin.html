@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load manager %}
+
+{% block content %}
+<h3>Organizations</h3>
+<p>Organizations holds the configurations, orders and units.</p>
+{% if organizations %}
+<table class="table table-striped">
+	<thead><tr><th>Slug</th><th>Name</th><th>Channel</th><th>Email</th><th>Units</th></tr></thead>
+	<tbody>
+	{% for organization in organizations %}
+	<tr><th><a href="{% url "admin:manager_organization_change" organization.slug %}"><code>{{ organization.slug }}</code></a></th>
+		<td>{{ organization.name }}</td>
+		<td>{{ organization.channel }}</td>
+		<td><a href="mailto:{{ organization.email }}">{{ organization.email }}</a></td>
+		<td>{{ organization.units }}</td>
+	</tr>
+	{% endfor %}
+	</tbody>
+</table>
+{% else %}
+<p>hum, there's no Organization. That's weird.</p>
+{% endif %}
+<form method="POST" class="form-check form-check-inline">
+	{% csrf_token %}
+	<input type="hidden" name="form" value="org_form">
+	<div class="form-row visual-group">
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=org_form.slug %}{{ org_form.slug|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=org_form.name %}{{ org_form.name|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=org_form.channel %}{{ org_form.channel|as_widget }}</div>
+		<div class="form-group col-md-3">{% include "_label_for.html" with field=org_form.email %}{{ org_form.email|as_widget }}</div>
+		<div class="form-group col-md-1">{% include "_label_for.html" with field=org_form.units %}{{ org_form.units|as_widget }}</div>
+		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Create Organization</button></div>
+	</div>
+</form>
+
+<h3>Manager Users</h3>
+{% if profiles %}
+<table class="table table-striped">
+	<thead><tr><th>Username</th><th>Organization</th><th>Email</th><th>Name</th><th>Active</th></tr></thead>
+	<tbody>
+	{% for profile in profiles %}
+	<tr><th><a href="{% url "admin:auth_user_change" profile.user.id %}"><code>{{ profile.user.username }}</code></a>{% if profile.user.is_staff %} (admin){% endif %}</th>
+		<td>{{ profile.organization }}</td>
+		<td><a href="mailto:{{ profile.user.email }}">{{ profile.user.email }}</a></td>
+		<td>{{ profile.name }}</td>
+		<td><a class="btn btn-sm btn-warning" href="{% url "admin_toggle_account" profile.username %}">{{ profile.user.is_active|yesno }}: {% if profile.user.is_active %}disable{% else %}enable{% endif %}</a></td>
+	</tr>
+	{% endfor %}
+	</tbody>
+</table>
+{% else %}
+<p>hum, there's no User. That's weird.</p>
+{% endif %}
+<form method="POST" class="form-check form-check-inline">
+	{% csrf_token %}
+	<input type="hidden" name="form" value="profile_form">
+	<div class="form-row visual-group">
+		<div class="form-group col-md-1">{% include "_label_for.html" with field=profile_form.organization %}{{ profile_form.organization|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=profile_form.name %}{{ profile_form.name|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=profile_form.email %}{{ profile_form.email|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=profile_form.username %}{{ profile_form.username|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=profile_form.password %}{{ profile_form.password|as_widget }}</div>
+		<div class="form-group col-md-1">{% include "_label_for.html" with field=profile_form.is_admin %}{{ profile_form.is_admin|as_widget }}</div>
+		
+		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Create User</button></div>
+	</div>
+</form>
+
+<h3>Media Sizes</h3>
+{% if medias %}
+<table class="table table-striped">
+	<thead><tr><th>Name</th><th>Kind</th><th>Size</th><th>Units Coef</th></tr></thead>
+	<tbody>
+	{% for media in medias %}
+	<tr><th><a href="{% url "admin:manager_media_change" media.id %}">{{ media.name }}</a></th>
+		<td>{{ media.verbose_kind }}</td>
+		<td>{{ media.bytes|human_size:False }}</a></td>
+		<td>{{ media.units_coef }}</td>
+	</tr>
+	{% endfor %}
+	</tbody>
+</table>
+{% else %}
+<p>hum, there's no Media. That's weird.</p>
+{% endif %}
+<form method="POST" class="form-check form-check-inline">
+	{% csrf_token %}
+	<input type="hidden" name="form" value="media_form">
+	<div class="form-row visual-group">
+		<div class="form-group col-md-3">{% include "_label_for.html" with field=media_form.name %}{{ media_form.name|as_widget }}</div>
+		<div class="form-group col-md-3">{% include "_label_for.html" with field=media_form.kind %}{{ media_form.kind|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=media_form.size %}{{ media_form.size|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=media_form.units_coef %}{{ media_form.units_coef|as_widget }}</div>
+		
+		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add Media</button></div>
+	</div>
+</form>
+
+{% endblock %}
+
+{% block javascript %}
+	$('[data-toggle="popover"]').popover();
+{% endblock %}

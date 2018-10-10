@@ -1,1 +1,33 @@
 {% extends "base.html" %}
+{% load manager %}
+
+{% block content %}
+<h2>Hi {{ user.profile.name }}!</h2>
+<p>Welcome to the Cardshop. Here you can freely import, design and export <strong>Kiwix Hotspot</strong>'s presets (JSON files).</p>
+<p>Should your organization have any <em>units</em> (your <em>balance is currently <strong>{{ user.profile.organization.units }}U</strong>)</em>, you may <em>order physical SD-cards</em> matching your presets !</p>
+<p>If you require assistance, please contact <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
+
+<h2>Your Orders ({{ user.profile.organization }}'s)</h2>
+{% if orders %}
+
+{% else %}
+<p>You don't have any at the moment.</p>
+{% endif %}
+
+<hr />
+
+<h2>Changing your password</h2>
+<form method="POST" class="form-check form-check-inline">
+{% csrf_token %}
+<div class="form-row visual-group">
+	<div class="form-group col-md-3">{% include "_label_for.html" with field=password_form.old_password %}{{ password_form.old_password|as_widget }}</div>
+	<div class="form-group col-md-3">{% include "_label_for.html" with field=password_form.new_password1 %}{{ password_form.new_password1|as_widget }}</div>
+	<div class="form-group col-md-4">{% include "_label_for.html" with field=password_form.new_password2 %}{{ password_form.new_password2|as_widget }}</div>
+	<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Update</button></div>
+</div>
+</form>
+{% endblock %}
+
+{% block javascript %}
+	$('[data-toggle="popover"]').popover();
+{% endblock %}

@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
         "name": "8GB",
-        "kind": "standard",
+        "kind": "regular",
         "size": 8,
         "units_coef": 1.0
     }
@@ -14,7 +14,7 @@
     "pk": 2,
     "fields": {
         "name": "16GB",
-        "kind": "standard",
+        "kind": "regular",
         "size": 16,
         "units_coef": 1.0
     }
@@ -24,7 +24,7 @@
     "pk": 3,
     "fields": {
         "name": "32GB",
-        "kind": "standard",
+        "kind": "regular",
         "size": 32,
         "units_coef": 1.0
     }
@@ -34,7 +34,7 @@
     "pk": 4,
     "fields": {
         "name": "64GB",
-        "kind": "standard",
+        "kind": "regular",
         "size": 64,
         "units_coef": 1.0
     }
@@ -44,7 +44,7 @@
     "pk": 5,
     "fields": {
         "name": "128GB",
-        "kind": "standard",
+        "kind": "regular",
         "size": 128,
         "units_coef": 1.0
     }
@@ -54,7 +54,7 @@
     "pk": 6,
     "fields": {
         "name": "200\u00a0GB",
-        "kind": "standard",
+        "kind": "regular",
         "size": 200,
         "units_coef": 1.0
     }
@@ -64,7 +64,7 @@
     "pk": 7,
     "fields": {
         "name": "256GB",
-        "kind": "standard",
+        "kind": "regular",
         "size": 256,
         "units_coef": 1.0
     }

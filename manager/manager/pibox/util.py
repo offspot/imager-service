@@ -5,6 +5,8 @@
 import os
 import base64
 import hashlib
+import tempfile
+from pathlib import Path
 
 import humanfriendly
 
@@ -50,11 +52,11 @@ def get_temp_folder(in_path):
     return tempfile.mkdtemp(dir=in_path)
 
 
-def relpathto(dest):
+def relpathto(dest, root=None):
     ''' relative path to an absolute one '''
     if dest is None:
         return None
-    return str(Path(dest).relpath())
+    return str(Path(dest).relative_to(root))
 
 
 def b64encode(fpath):

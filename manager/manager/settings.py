@@ -142,17 +142,22 @@ DATABASES = {
     }
 }
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 
+
+MEDIA_ROOT = os.path.join(DATA_DIR, "media")
+MEDIA_URL = "/media/"
 STATIC_ROOT = os.path.join(DATA_DIR, "static")
 STATIC_URL = "/static/"
 LOGIN_URL = "/login"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
+SUPPORT_EMAIL = "stephane@kiwix.org"
 # manager admin account's password
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin")
 # manager's token over the API (/!\)
-MANAGER_API_TOKEN = os.getenv("MANAGER_API_TOKEN", "NOT_SET")
+MANAGER_API_KEY = os.getenv("MANAGER_API_KEY", "manager")
 # API URL
 CARDSHOP_API_URL = os.getenv(
     "CARDSHOP_API_URL", "https://api.cardshop.hotspot.kiwix.org"

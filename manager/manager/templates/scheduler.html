@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>Channels</h3>
+<p>Channels ensures organization-specific workers gets to produce their own cards.</p>
+
+{% if channels %}
+<table class="table table-bordered table-striped">
+	<tr><th>Slug</th><th>Name</th><th>Active</th><th>Private</th></tr>
+	{% for channel in channels %}
+	<tr><th><code>{{channel.slug }}</code></th><td>{{ channel.name }}</td><td>{{ channel.active }}</td><td>{{ channel.private }}</td></tr>
+	{% endfor %}
+</table>
+{% else %}
+<p>hum, there's no existing channel…</p>
+{% endif %}
+
+
+<h3>Users</h3>
+<p>Scheduler Users are not manager users but API consumers.</p>
+{% if users %}
+<table class="table table-bordered table-striped">
+	<tr><th>Username</th><th>Role</th><th>Email</th></tr>
+	{% for user in users %}
+	<tr><th><code>{{user.username }}</code></th><td>{{ user.role }}</td><td>{{ user.email }}</td></tr>
+	{% endfor %}
+</table>
+{% else %}
+<p>hum, there's no existing user…</p>
+{% endif %}
+
+<h3>Orders</h3>
+<p>All orders</p>
+{% if orders %}
+<table class="table table-bordered table-striped">
+	<tr><th>#ID</th><th>Status</th><th>Config</th><th>SD Size</th><th>Quantity</th><th>Client</th><th>Country</th><th>Channel</th></tr>
+	{% for order in orders %}
+	<tr><th><code>{{order.id }}</code></th><td>{{ order.statuses|last }}</td><td>{{ order.config.project_name }}</td>
+		<td>{{ order.sd_size }}</td><td>{{ order.quantity }}</td><td>{{ order.client.name }}</td>
+		<td>{{ order.recipient.country }}</td><td>{{ order.channe }}</td></tr>
+	{% endfor %}
+</table>
+{% else %}
+<p>hum, there's no existing order…</p>
+{% endif %}
+
+{% endblock %}

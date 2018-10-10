@@ -1,0 +1,6 @@
+{% load manager %}
+{% if field.value.name %}
+<a href="{{ field.value.url }}" target="_blank" title="{{ field.value.name|fname }}">
+	{% if is_css %}Open in tab{% else %}<img class="branding {{ class }}" src="{{ field.value.url }}" />{% endif %}
+</a>
+{% endif %}

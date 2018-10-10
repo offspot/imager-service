@@ -1,7 +1,8 @@
-Django==2.0.7
+Django==2.1.2
 humanfriendly==4.12.1
 langcodes==1.4.1
 python-magic==0.4.15
 pytz==2018.5
 PyYAML==3.12
 requests==2.19.1
+jsonfield==2.0.2

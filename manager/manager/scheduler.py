@@ -5,15 +5,18 @@
 import json
 import datetime
 
+from django.conf import settings
+
 import requests
 
 GET = "GET"
 POST = "POST"
 PATCH = "PATCH"
 DELETE = "DELETE"
-URL = "https://api.demo.plug.kiwix.org"
-USERNAME = "admin"
-PASSSWORD = "admin_pass"
+# URL = "https://api.demo.plug.kiwix.org"
+URL = settings.CARDSHOP_API_URL
+USERNAME = "manager"
+PASSSWORD = settings.MANAGER_API_KEY
 TOKEN = None
 TOKEN_EXPIRY = None
 REFRESH_TOKEN = None
@@ -27,7 +30,11 @@ def get_url(path):
 def get_token(username, password):
     req = requests.post(
         url=get_url("/auth/authorize"),
-        headers={"username": username, "password": password},
+        headers={
+            "username": username,
+            "password": password,
+            "Content-type": "application/json",
+        },
     )
     req.raise_for_status()
     return req.json().get("access_token"), req.json().get("refresh_token")
@@ -90,6 +97,25 @@ def query_api(method, path, payload=None):
 
 
 @auth_required
+def test_connection():
+    return query_api(GET, "/users/")
+
+
+def fix_id(item):
+    if not isinstance(item, dict):
+        return item
+    if "id" in item.keys():
+        item.update({"id": item["_id"]})
+    return item
+
+
+def as_items_or_none(success, response):
+    if success and "items" in response:
+        return map(fix_id, response.get("items", []))
+    return None
+
+
+@auth_required
 def get_users_list():
     success, code, response = query_api(GET, "/users/")
     return success, response
@@ -143,6 +169,28 @@ def delete_user(user_id):
     return False, response
 
 
+@auth_required
+def get_channels_list():
+    success, code, response = query_api(GET, "/channels/")
+    return success, response
+
+
+@auth_required
+def add_channel(slug, name, active=True, private=False):
+    payload = {"slug": slug, "name": name, "active": active, "private": private}
+
+    success, code, response = query_api(POST, "/channels/", payload=payload)
+    if not success or "_id" not in response:
+        return False, response
+    return True, response.get("_id")
+
+
+@auth_required
+def get_orders_list():
+    success, code, response = query_api(GET, "/orders/")
+    return success, response
+
+
 def test():
     from pprint import pprint as pp
 
@@ -161,9 +209,22 @@ def test():
     # ret = change_user_password("5ba3d334db414d00212e42c8", "renaud", "rgaudin3")
     # pp(ret)
 
-    print("list users")
-    users = get_users_list()
-    pp(users)
+    authenticate()
+
+    # print("list users")
+    # users = get_users_list()
+    # pp(users)
+
+    print("list channels")
+    ret = get_channels_list()
+    pp(ret)
+
+    # print("add channels")
+    # ret = add_channel("kiwix", "Kiwix", active=True, private=False)
+    # pp(ret)
+
+    # ret = add_channel("orange", "Orange", active=True, private=True)
+    # pp(ret)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,13 @@
+<label for="{{ field.id_for_label }}">
+	{{ field.label }}
+	{% if size %}<span>({{ size }})</span>{% endif %}
+	{% if field.errors %}
+	<i class="fas fa-exclamation-circle danger"
+	   data-container="body"
+	   data-toggle="popover"
+	   data-placement="top"
+	   data-trigger="hover"
+   	   data-content="{% for error in field.errors %}{{ error }}
+{% endfor %}"></i>
+	{% endif %}
+</label>
