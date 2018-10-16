@@ -23,8 +23,9 @@ class AddressForm(forms.ModelForm):
         fields = ["name", "recipient", "email", "phone", "address", "country"]
 
     def __init__(self, *args, **kwargs):
-        kwargs.pop("organization")
+        organization = kwargs.pop("organization")
         super().__init__(*args, **kwargs)
+        self.organization = organization
 
     def phone_clean(self):
         try:
@@ -135,7 +136,7 @@ def orders(request):
         if context[form_key].is_valid():
             try:
                 res = context[form_key].save(commit=False)
-                # res.organization = request.user.profile.organization
+                res.organization = context[form_key].organization
                 res = res.save()
             except Exception as exp:
                 logger.error(exp)

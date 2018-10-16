@@ -24,11 +24,11 @@
 	{% csrf_token %}
 	<input type="hidden" name="form" value="order_form">
 	<div class="form-row visual-group">
-		<div class="form-group col-md-4">{% include "_label_for.html" with field=order_form.config %}{{ order_form.config|as_widget }}</div>
+		<div class="form-group col-md-3">{% include "_label_for.html" with field=order_form.config %}{{ order_form.config|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=order_form.media %}{{ order_form.media|as_widget }}</div>
-		<div class="form-group col-md-1">{% include "_label_for.html" with field=order_form.quantity %}{{ order_form.quantity|as_widget }}</div>
-		<div class="form-group col-md-3">{% include "_label_for.html" with field=order_form.address %}{{ order_form.address|as_widget }}</div>
-		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Place Order</button></div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=order_form.quantity %}{{ order_form.quantity|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=order_form.address %}{{ order_form.address|as_widget }}</div>
+		<div class="form-group col-md-3"><label>-</label><button class="btn btn-primary form-check-input form-control">Place Order</button></div>
 	</div>
 </form>
 
