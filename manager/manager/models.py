@@ -389,7 +389,7 @@ class Organization(models.Model):
         if cls.objects.filter(slug="kiwix").count():
             return cls.objects.get(slug="kiwix")
         return cls.objects.create(
-            slug="kiwix", name="Kiwix", email="reg@kiwix.org", units=100000
+            slug="kiwix", name="Kiwix", email="reg@kiwix.org", units=256000
         )
 
     def __str__(self):

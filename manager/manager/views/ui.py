@@ -47,9 +47,10 @@ class OrderForm(forms.Form):
         self.organization = organization
         self.fields["config"].choices = Configuration.get_choices(self.organization)
         self.fields["address"].choices = Address.get_choices(self.organization)
+        self.fields["media"].choices = Media.get_choices()
 
     config = forms.ChoiceField(choices=[])
-    media = forms.ChoiceField(choices=Media.get_choices())
+    media = forms.ChoiceField(choices=[])
     quantity = forms.IntegerField(min_value=1, max_value=10, initial=1)
     address = forms.ChoiceField(choices=[])
 
