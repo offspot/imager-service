@@ -9,6 +9,8 @@ else
 	FIRSTRUN=0
 fi
 
+mkdir -p ${DATA_DIR}/media
+
 # always migrate & collect static file
 python3 ./manage.py migrate
 python3 ./manage.py loaddata manager/fixtures/media.json
