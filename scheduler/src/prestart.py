@@ -1,5 +1,4 @@
 import os
-import sys
 
 from werkzeug.security import generate_password_hash
 from cerberus import Validator
@@ -9,6 +8,25 @@ from utils import mongo
 
 
 class Initializer:
+    @staticmethod
+    def start():
+        print("Running pre-start initialization...")
+        if bool(os.getenv("RESET_DB", False)):
+            print("removed {} tokens".format(mongo.RefreshTokens().remove({}, False)))
+            print("removed {} users".format(mongo.Users().remove({}, False)))
+            print("removed {} channels".format(mongo.Channels().remove({}, False)))
+            print("removed {} orders".format(mongo.Orders().remove({}, False)))
+            print(
+                "removed {} creator_tasks".format(
+                    mongo.CreatorTasks().remove({}, False)
+                )
+            )
+            print(
+                "removed {} writer_tasks".format(mongo.WriterTasks().remove({}, False))
+            )
+        Initializer.create_database_indexes()
+        Initializer.create_initial_data()
+
     @staticmethod
     def create_database_indexes():
         mongo.Users().create_index(
@@ -22,68 +40,41 @@ class Initializer:
         )
 
     @staticmethod
-    def create_initial_user():
-        all_access = {
-            "scope": {
-                "users": {"read": True, "create": True, "delete": True, "update": True},
-                "channels": {
-                    "read": True,
-                    "create": True,
-                    "delete": True,
-                    "update": True,
-                },
-                "orders": {
-                    "read": True,
-                    "create": True,
-                    "delete": True,
-                    "update": True,
-                },
-                "creator_tasks": {
-                    "read": True,
-                    "create": True,
-                    "delete": True,
-                    "update": True,
-                },
-                "writer_tasks": {
-                    "read": True,
-                    "create": True,
-                    "delete": True,
-                    "update": True,
-                },
-                "task": {"create": True, "delete": True},
-            }
-        }
-
-        users = mongo.Users()
-        if users.find_one() is not None:
+    def create_initial_data():
+        if mongo.Users().find_one() is not None:
+            print("we already have users. not creating initial data")
             return
 
-        for username, password, email in [
-            (
-                os.getenv("INIT_USERNAME", "admin"),
-                os.getenv("INIT_PASSWORD", "admin_pass"),
-                os.getenv("INIT_EMAIL", "reg@kiwix.org"),
+        user_document = {
+            "username": "manager",
+            "password_hash": generate_password_hash(
+                os.getenv("MANAGER_API_KEY", "manager")
             ),
-            ("manager", os.getenv("MANAGER_API_KEY", "manager"), "manager@kiwix.org"),
-        ]:
+            "email": "manager@kiwix.org",
+            "role": mongo.Users.MANAGER_ROLE,
+            "active": True,
+            "scope": {},
+        }
 
-            document = {
-                "username": username,
-                "password_hash": generate_password_hash(password),
-                "email": email,
-            }
+        validator = Validator(mongo.Users.schema)
+        if not validator.validate(user_document):
+            print("user_document is not valid for schema")
+        else:
+            print("created user", mongo.Users().insert_one(user_document))
 
-            document.update(all_access)
-            validator = Validator(mongo.Users.schema)
-            if not validator.validate(document):
-                sys.exit()
-            print(users.insert_one(document))
+        channel_document = {
+            "slug": "kiwix",
+            "name": "Kiwix",
+            "active": True,
+            "private": False,
+        }
+
+        validator = Validator(mongo.Channels.schema)
+        if not validator.validate(channel_document):
+            print("channel_document is not valid for schema")
+        else:
+            print("created user", mongo.Channels().insert_one(channel_document))
 
 
 if __name__ == "__main__":
-    print("Running pre-start initialization...")
-    if False:  # DEBUG
-        nb_removed = mongo.Users().remove({}, False)
-        print("nb_removed", nb_removed)
-    Initializer.create_database_indexes()
-    Initializer.create_initial_user()
+    Initializer.start()

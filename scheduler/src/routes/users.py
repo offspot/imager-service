@@ -4,7 +4,7 @@ from jsonschema import validate, ValidationError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from utils.mongo import Users
-from . import authenticate, bson_object_id, errors
+from . import authenticate, bson_object_id, errors, ensure_user_matches_role, only_for_roles
 
 
 blueprint = Blueprint("user", __name__, url_prefix="/users")
@@ -19,8 +19,7 @@ def collection(user: dict):
 
     if request.method == "GET":
         # check user permission
-        if not user.get("scope", {}).get("users", {}).get("read", False):
-            raise errors.NotEnoughPrivilege()
+        ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
         # unpack url parameters
         skip = request.args.get("skip", default=0, type=int)
@@ -35,8 +34,7 @@ def collection(user: dict):
         return jsonify({"meta": {"skip": skip, "limit": limit}, "items": users})
     elif request.method == "POST":
         # check user permission
-        if not user.get("scope", {}).get("users", {}).get("create", False):
-            raise errors.NotEnoughPrivilege()
+        ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
         # validate request json
         schema = {
@@ -45,9 +43,9 @@ def collection(user: dict):
                 "username": {"type": "string", "minLength": 1},
                 "password": {"type": "string", "minLength": 6},
                 "email": {"type": ["string", "null"]},
-                "scope": {"type": "object"},
+                "role": {"type": "string"},
             },
-            "required": ["username", "password"],
+            "required": ["username", "password", "role"],
             "additionalProperties": False,
         }
         try:
@@ -70,6 +68,27 @@ def collection(user: dict):
         return jsonify({"_id": user_id})
 
 
+@blueprint.route("/<string:user_id>", methods=["PATCH"])
+@authenticate
+@only_for_roles(roles=Users.MANAGER_ROLE)
+@bson_object_id(["user_id"])
+def change_active_status(user_id: ObjectId, user: dict):
+    request_json = request.get_json()
+
+    new_status = request_json.get("active", None)
+    if new_status is None:
+        raise errors.BadRequest()
+
+    user = Users().find_one({"_id": user_id}, {"active": 1})
+    if user is None:
+        raise errors.NotFound()
+
+    Users().update_one(
+        {"_id": ObjectId(user_id)}, {"$set": {"active": bool(new_status)}}
+    )
+    return jsonify({"_id": user_id})
+
+
 @blueprint.route("/<string:user_id>", methods=["GET", "DELETE"])
 @authenticate
 @bson_object_id(["user_id"])
@@ -77,8 +96,7 @@ def document(user_id: ObjectId, user: dict):
     if request.method == "GET":
         # check user permission when not querying current user
         if not user_id == ObjectId(user["_id"]):
-            if not user.get("scope", {}).get("users", {}).get("read", False):
-                raise errors.NotEnoughPrivilege()
+            ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
         user = Users().find_one({"_id": user_id}, {"password_hash": 0})
         if user is None:
@@ -86,10 +104,8 @@ def document(user_id: ObjectId, user: dict):
 
         return jsonify(user)
     elif request.method == "DELETE":
-        # check user permission when not deleting current user
-        if not user_id == ObjectId(user["_id"]):
-            if not user.get("scope", {}).get("users", {}).get("delete", False):
-                raise errors.NotEnoughPrivilege()
+        # only manager can delete a user
+        ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
         deleted_count = Users().delete_one({"_id": user_id}).deleted_count
         if deleted_count == 0:
@@ -104,8 +120,7 @@ def document(user_id: ObjectId, user: dict):
 def change_password(user_id: ObjectId, user: dict):
     # check user permission when not updating current user
     if not user_id == ObjectId(user["_id"]):
-        if not user.get("scope", {}).get("users", {}).get("update", False):
-            raise errors.NotEnoughPrivilege()
+        ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
     request_json = request.get_json()
 

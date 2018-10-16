@@ -14,19 +14,28 @@ class Database(BaseDatabase):
 
 
 class Users(BaseCollection):
+    MANAGER_ROLE = "manager"
+    CREATOR_ROLE = "creator"
+    WRITER_ROLE = "writer"
+    WORKER_ROLES = [CREATOR_ROLE, WRITER_ROLE]
+    ROLES = [MANAGER_ROLE, CREATOR_ROLE, WRITER_ROLE]
+    RABBITMQ_ROLES = WORKER_ROLES + [MANAGER_ROLE]
+
     username = "username"
     email = "email"
     password_hash = "password_hash"
     scope = "scope"
 
     schema = {
-        username: {"type": "string", "regex": "^[a-zA-Z0-9_.+-]+$", "required": True},
-        email: {
+        "username": {"type": "string", "regex": "^[a-zA-Z0-9_.+-]+$", "required": True},
+        "email": {
             "type": "string",
             "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
         },
-        password_hash: {"type": "string", "required": True},
-        scope: {
+        "password_hash": {"type": "string", "required": True},
+        "active": {"type": "boolean", "default": True, "required": True},
+        "role": {"type": "string", "required": True},
+        "scope": {
             "type": "dict",
             "required": True,
             "keyschema": {"type": "string"},
@@ -60,12 +69,6 @@ class Channels(BaseCollection):
 
 
 class Orders(BaseCollection):
-    config = "config"
-    sd_size = "sd_size"
-    quantity = "quantity"
-    client = "client"
-    recipient = "recipient"
-    channel = "channel"
 
     created = "created"
     pending_creator = "pending_creator"
@@ -86,10 +89,11 @@ class Orders(BaseCollection):
     SUCCESS_STATUSES = [shipped]
 
     schema = {
-        config: {"type": "dict", "required": True},
-        sd_size: {"type": "integer", "required": True},
-        quantity: {"type": "integer", "required": True},
-        client: {
+        "config": {"type": "dict", "required": True},
+        "sd_size": {"type": "integer", "required": True},
+        "quantity": {"type": "integer", "required": True},
+        "units": {"type": "integer", "required": True},
+        "client": {
             "type": "dict",
             "required": True,
             "schema": {
@@ -102,7 +106,7 @@ class Orders(BaseCollection):
                 "phone": {"type": "string", "regex": "^\+?[0-9]+$", "required": False},
             },
         },
-        recipient: {
+        "recipient": {
             "type": "dict",
             "required": True,
             "schema": {
@@ -118,8 +122,9 @@ class Orders(BaseCollection):
                 "shipment": {"type": "string", "required": False, "nullable": True},
             },
         },
-        channel: {"type": "string", "required": True},
+        "channel": {"type": "string", "required": True},
         "statuses": {"type": "list"},
+        "logs": {"type": "list", "required": False},
     }
 
     def __init__(self):

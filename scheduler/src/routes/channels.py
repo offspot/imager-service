@@ -2,8 +2,14 @@ from bson import ObjectId
 from flask import Blueprint, request, jsonify, Response
 from jsonschema import validate, ValidationError
 
-from utils.mongo import Channels
-from . import authenticate, bson_object_id, errors
+from utils.mongo import Channels, Users
+from . import (
+    authenticate,
+    bson_object_id,
+    errors,
+    ensure_user_matches_role,
+    only_for_roles,
+)
 
 
 blueprint = Blueprint("channel", __name__, url_prefix="/channels")
@@ -18,8 +24,7 @@ def collection(user: dict):
 
     if request.method == "GET":
         # check user permission
-        if not user.get("scope", {}).get("channels", {}).get("read", False):
-            raise errors.NotEnoughPrivilege()
+        ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
         # unpack url parameters
         skip = request.args.get("skip", default=0, type=int)
@@ -33,8 +38,7 @@ def collection(user: dict):
         return jsonify({"meta": {"skip": skip, "limit": limit}, "items": channels})
     elif request.method == "POST":
         # check user permission
-        if not user.get("scope", {}).get("channels", {}).get("create", False):
-            raise errors.NotEnoughPrivilege()
+        ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
         try:
             request_json = request.get_json()
@@ -55,8 +59,7 @@ def collection(user: dict):
 def document(channel_id: ObjectId, user: dict):
     if request.method == "GET":
         # check user permission when not querying current user
-        if not user.get("scope", {}).get("channels", {}).get("read", False):
-            raise errors.NotEnoughPrivilege()
+        ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
         channel = Channels().find_one({"_id": channel_id}, {})
         if channel is None:
@@ -64,8 +67,7 @@ def document(channel_id: ObjectId, user: dict):
 
         return jsonify(channel)
     elif request.method == "DELETE":
-        if not user.get("scope", {}).get("channels", {}).get("delete", False):
-            raise errors.NotEnoughPrivilege()
+        ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
         deleted_count = Channels().delete_one({"_id": channel_id}).deleted_count
         if deleted_count == 0:
@@ -76,11 +78,11 @@ def document(channel_id: ObjectId, user: dict):
 
 @blueprint.route("/<string:channel_id>", methods=["PATCH"])
 @authenticate
+@only_for_roles(roles=Users.MANAGER_ROLE)
 @bson_object_id(["channel_id"])
 def change_active_status(channel_id: ObjectId, user: dict):
     # check user permission when not updating current user
-    if not user.get("scope", {}).get("channels", {}).get("edit", False):
-            raise errors.NotEnoughPrivilege()
+    ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
     request_json = request.get_json()
 
@@ -93,7 +95,6 @@ def change_active_status(channel_id: ObjectId, user: dict):
         raise errors.NotFound()
 
     Channels().update_one(
-        {"_id": ObjectId(channel_id)},
-        {"$set": {"active": bool(new_status)}},
+        {"_id": ObjectId(channel_id)}, {"$set": {"active": bool(new_status)}}
     )
-    return Response()
+    return jsonify({"_id": channel_id})

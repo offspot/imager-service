@@ -33,13 +33,17 @@ def authorize():
     # check user exists
     user = Users().find_one({"username": username})
     if user is None:
-        raise Unauthorized()
+        raise Unauthorized("Username incorrect")
 
     # check password is valid
     password_hash = user.pop("password_hash")
     is_valid = check_password_hash(password_hash, password)
     if not is_valid:
-        raise Unauthorized()
+        raise Unauthorized("Password incorrect")
+
+    # check that user is active
+    if not user.get("active", False):
+        raise Unauthorized("Account is disabled.")
 
     # generate token
     access_token = AccessToken.encode(user)
@@ -154,8 +158,12 @@ def rabbitmq_user(intention: str):
         else:
             user = Users().find_one(
                 {"username": username},
-                {"_id": 0, "password_hash": 1, "scope.rabbitmq": 1},
+                {"_id": 0, "password_hash": 1},
             )
+            if user is None:
+                return Response("deny")
+            if user.get("role") not in Users.RABBITMQ_ROLES:
+                return Response("deny")
             password_hash = user.get("password_hash", "")
             tags = user.get("scope", {}).get("rabbitmq", [])
             if user is not None and check_password_hash(password_hash, password):

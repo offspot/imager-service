@@ -2,7 +2,14 @@ FROM tiangolo/uwsgi-nginx:python3.6
 
 ENV INIT_USERNAME admin
 ENV INIT_PASSWORD admin_pass
-ENV SYSTEM_PASWORD system
+ENV SYSTEM_PASSWORD system
+ENV MANAGER_API_KEY manager
+ENV SMTP_USERNAME SMTP_USERNAME
+ENV SMTP_PASSWORD SMTP_PASSWORD
+ENV SMTP_HOST smtp.gmail.com
+ENV SMTP_ENCTYPE auto  # auto,tls,ssl,none (defaults to tls)
+ENV SMTP_PORT auto # based on enctype or set for local debug
+ENV SMTP_SKIP_LOGIN 0  # for local debug
 
 RUN rm -rf /app
 COPY src /app

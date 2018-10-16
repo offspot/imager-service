@@ -43,3 +43,22 @@ def bson_object_id(keys: list):
         return wrapper
 
     return decorate
+
+
+def only_for_roles(roles: list = None):
+    def decorate(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            if roles is not None:
+                ensure_user_matches_role(kwargs.get("user"), roles)
+            return f(*args, **kwargs)
+
+        return wrapper
+
+    return decorate
+
+
+def ensure_user_matches_role(user, roles):
+    roles = [roles] if not isinstance(roles, (list, tuple)) else roles
+    if user.get("role") not in roles:
+        raise errors.NotEnoughPrivilege()

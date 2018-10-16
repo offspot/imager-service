@@ -1,0 +1,35 @@
+{% extends "email_base.html" %}
+{% block content %}
+<h2>Order #{{ order.id|short_id }}</h2>
+{% block message %}{% endblock %}
+<table border="0" cellpadding="0" cellspacing="0">
+	<tr>
+		<th>Order ID</th>
+		<td>{{ order._id }}</td>
+	</tr>
+	<tr>
+		<th>Configuration</th>
+		<td>{{ order.config.name }}</td>
+	</tr>
+	<tr>
+		<th>SD-size</th>
+		<td>{{ order.sd_size }}</td>
+	</tr>
+	<tr>
+		<th>Quantity</th>
+		<td>{{ order.quantity }}</td>
+	</tr>
+	<tr>
+		<th>Units</th>
+		<td>{{ order.units }}</td>
+	</tr>
+	<tr>
+		<th>Client</th>
+		<td>{{ order.client.name }}</td>
+	</tr>
+	<tr>
+		<th>Status</th>
+		<td>{{ order.status }}</td>
+	</tr>
+</table>
+{% endblock %}
