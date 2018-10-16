@@ -8,8 +8,8 @@ from django import forms
 from django.http import Http404
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 
+from manager.decorators import staff_required
 from manager.models import Organization, Profile, Media
 
 logger = logging.getLogger(__name__)
@@ -20,9 +20,36 @@ class OrganizationForm(forms.ModelForm):
         model = Organization
         fields = ["slug", "name", "channel", "email", "units"]
 
+    @staticmethod
+    def success_message(result):
+        return "Successfuly created Organization <em>{org}</em>".format(org=result)
+
 
 def get_orgs():
     return [(org.slug, org.name) for org in Organization.objects.all()]
+
+
+class UpdateUnitsForm(forms.Form):
+    organization = forms.ChoiceField(choices=get_orgs)
+    units = forms.IntegerField()
+
+    @staticmethod
+    def success_message(result):
+        return "Successfuly updated units for <em>{org}</em>".format(org=result)
+
+    def clean_organization(self):
+        if Organization.get_or_none(self.cleaned_data.get("organization")) is None:
+            raise forms.ValidationError("Not a valid Organization", code="invalid")
+        return self.cleaned_data.get("organization")
+
+    def save(self):
+        if not self.is_valid():
+            raise ValueError("{cls} is not valid".format(type(self)))
+
+        organization = Organization.get_or_none(self.cleaned_data.get("organization"))
+        organization.units = self.cleaned_data.get("units")
+        organization.save()
+        return organization
 
 
 class ProfileForm(forms.Form):
@@ -31,7 +58,11 @@ class ProfileForm(forms.Form):
     email = forms.EmailField()
     username = forms.CharField(max_length=100)
     password = forms.CharField(max_length=100)
-    is_admin = forms.BooleanField(initial=False, label="admin?")
+    is_admin = forms.BooleanField(initial=False, label="admin?", required=False)
+
+    @staticmethod
+    def success_message(result):
+        return "Successfuly created Manager User <em>{user}</em>".format(user=result)
 
     def clean_username(self):
         if Profile.exists(username=self.cleaned_data.get("username")):
@@ -68,8 +99,12 @@ class MediaForm(forms.ModelForm):
         model = Media
         fields = ["name", "kind", "size", "units_coef"]
 
+    @staticmethod
+    def success_message(result):
+        return "Successfuly created Media <em>{media}</em>".format(media=result)
 
-@login_required
+
+@staff_required
 def dashboard(request):
     context = {
         "organizations": Organization.objects.all(),
@@ -81,6 +116,7 @@ def dashboard(request):
         "org_form": OrganizationForm,
         "profile_form": ProfileForm,
         "media_form": MediaForm,
+        "units_form": UpdateUnitsForm,
     }
 
     # assume GET
@@ -91,17 +127,16 @@ def dashboard(request):
 
         # which form is being saved?
         form_key = request.POST.get("form")
-        print("posting {}".format(form_key))
         context[form_key] = forms_map.get(form_key)(request.POST, prefix=form_key)
 
         if context[form_key].is_valid():
-            print("is_valid")
             try:
-                context[form_key].save()
+                res = context[form_key].save()
             except Exception as exp:
+                logger.error(exp)
                 messages.error(request, "Error while saving… {exp}".format(exp=exp))
             else:
-                messages.success(request, "Successfuly created.")
+                messages.success(request, context[form_key].success_message(res))
                 return redirect("admin")
     else:
         pass
@@ -109,7 +144,7 @@ def dashboard(request):
     return render(request, "admin.html", context)
 
 
-@login_required
+@staff_required
 def toggle_account(request, username):
 
     profile = Profile.get_or_none(username)

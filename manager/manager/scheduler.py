@@ -15,12 +15,21 @@ PATCH = "PATCH"
 DELETE = "DELETE"
 # URL = "https://api.demo.plug.kiwix.org"
 URL = settings.CARDSHOP_API_URL
-USERNAME = "manager"
+USERNAME = settings.MANAGER_API_USERNAME
 PASSSWORD = settings.MANAGER_API_KEY
 TOKEN = None
 TOKEN_EXPIRY = None
 REFRESH_TOKEN = None
 REFRESH_TOKEN_EXPIRY = None
+ROLES = {
+    "manager": "Manager (WebUI)",
+    "creator": "Creator Worker",
+    "writer": "Writer Worker",
+}
+
+
+class SchedulerAPIError(Exception):
+    pass
 
 
 def get_url(path):
@@ -40,18 +49,20 @@ def get_token(username, password):
     return req.json().get("access_token"), req.json().get("refresh_token")
 
 
-def authenticate():
+def authenticate(force=False):
     global TOKEN, REFRESH_TOKEN, TOKEN_EXPIRY, REFRESH_TOKEN_EXPIRY
 
-    if TOKEN is not None and TOKEN_EXPIRY > datetime.datetime.now() + datetime.timedelta(
-        minutes=2
+    if (
+        not force
+        and TOKEN is not None
+        and TOKEN_EXPIRY > datetime.datetime.now() + datetime.timedelta(minutes=2)
     ):
         return
 
     try:
         token, access_token = get_token(username=USERNAME, password=PASSSWORD)
     except Exception as exp:
-        TOKEN, REFRESH_TOKEN, TOKEN_EXPIRY = None
+        TOKEN = REFRESH_TOKEN = TOKEN_EXPIRY = None
     else:
         TOKEN, REFRESH_TOKEN = token, access_token
         TOKEN_EXPIRY = datetime.datetime.now() + datetime.timedelta(minutes=59)
@@ -72,9 +83,13 @@ def get_token_headers():
 
 @auth_required
 def query_api(method, path, payload=None):
-    req = getattr(requests, method.lower(), "get")(
-        url=get_url(path), headers=get_token_headers(), json=payload
-    )
+    try:
+        req = getattr(requests, method.lower(), "get")(
+            url=get_url(path), headers=get_token_headers(), json=payload
+        )
+    except Exception as exp:
+        return (False, "ConnectionError", "ConnectionErrorL -- {}".format(exp))
+
     try:
         resp = req.json() if req.text else {}
     except json.JSONDecodeError:
@@ -104,7 +119,7 @@ def test_connection():
 def fix_id(item):
     if not isinstance(item, dict):
         return item
-    if "id" in item.keys():
+    if "id" not in item.keys() and "_id" in item.keys():
         item.update({"id": item["_id"]})
     return item
 
@@ -129,19 +144,7 @@ def get_user_detail(user_id):
 
 @auth_required
 def add_user(username, email, password, role, is_admin=False):
-    payload = {
-        "username": username,
-        "email": email,
-        "password": password,
-        "scope": {"role": role, "task": {"create": True, "delete": True}},
-    }
-    if is_admin:
-        payload["scope"]["users"] = {
-            "read": True,
-            "create": True,
-            "delete": True,
-            "update": True,
-        }
+    payload = {"username": username, "email": email, "password": password, "role": role}
 
     success, code, response = query_api(POST, "/users/", payload=payload)
     if not success or "_id" not in response:
@@ -170,6 +173,28 @@ def delete_user(user_id):
 
 
 @auth_required
+def change_user_status(user_id, active):
+    payload = {"active": active}
+
+    success, code, response = query_api(
+        PATCH, "/users/{}".format(user_id), payload=payload
+    )
+    if not success or "_id" not in response:
+        return False, response
+    return True, response.get("_id")
+
+
+@auth_required
+def enable_user(user_id):
+    return change_user_status(user_id, True)
+
+
+@auth_required
+def disable_user(user_id):
+    return change_user_status(user_id, False)
+
+
+@auth_required
 def get_channels_list():
     success, code, response = query_api(GET, "/channels/")
     return success, response
@@ -183,6 +208,28 @@ def add_channel(slug, name, active=True, private=False):
     if not success or "_id" not in response:
         return False, response
     return True, response.get("_id")
+
+
+@auth_required
+def change_channel_status(channel_id, active):
+    payload = {"active": active}
+
+    success, code, response = query_api(
+        PATCH, "/channels/{}".format(channel_id), payload=payload
+    )
+    if not success or "_id" not in response:
+        return False, response
+    return True, response.get("_id")
+
+
+@auth_required
+def enable_channel(channel_id):
+    return change_channel_status(channel_id, True)
+
+
+@auth_required
+def disable_channel(channel_id):
+    return change_channel_status(channel_id, False)
 
 
 @auth_required

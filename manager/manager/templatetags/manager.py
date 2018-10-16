@@ -6,6 +6,7 @@ import json
 import base64
 from pathlib import Path
 
+import humanfriendly
 from django import template
 
 from manager.pibox.util import human_readable_size
@@ -19,6 +20,13 @@ def human_size(value, binary=True):
 
 
 register.filter("human_size", human_size)
+
+
+def human_number(value, decimals=0):
+    return humanfriendly.format_number(value, num_decimals=decimals)
+
+
+register.filter("human_number", human_number)
 
 
 def parsed_sname(package):
@@ -53,8 +61,10 @@ register.filter("as_packages", as_packages)
 
 
 def as_widget(field):
+    if not hasattr(field, 'as_widget'):
+        return field
     our_classes = ["form-control"]
-    if field.errors:
+    if getattr(field, 'errors', False):
         our_classes += ["alert", "alert-danger"]
     return field.as_widget(attrs={"class": field.css_classes(" ".join(our_classes))})
 

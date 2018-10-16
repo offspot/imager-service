@@ -1,47 +1,72 @@
 {% extends "base.html" %}
+{% load manager %}
 
 {% block content %}
 <h3>Channels</h3>
-<p>Channels ensures organization-specific workers gets to produce their own cards.</p>
+<p class="info">Channels ensures organization-specific workers gets to produce their own cards.</p>
 
 {% if channels %}
 <table class="table table-bordered table-striped">
 	<tr><th>Slug</th><th>Name</th><th>Active</th><th>Private</th></tr>
 	{% for channel in channels %}
-	<tr><th><code>{{channel.slug }}</code></th><td>{{ channel.name }}</td><td>{{ channel.active }}</td><td>{{ channel.private }}</td></tr>
+	<tr>
+		<th><code>{{channel.slug }}</code></th>
+		<td>{{ channel.name }}</td>
+		<td><a class="btn btn-sm btn-warning" href="{% if channel.active %}{% url "scheduler_disable_channel" channel.id %}{% else %}{% url "scheduler_enable_channel" channel.id %}{% endif %}">{{ channel.active|yesno }}: {% if channel.active %}disable{% else %}enable{% endif %}</a></td>
+		<td>{{ channel.private|yesno }}</td></tr>
 	{% endfor %}
 </table>
+{% elif channels is None %}
+{% include "error.html" with level="warning" message="Could not retrieve channels list…" %}
 {% else %}
-<p>hum, there's no existing channel…</p>
+<p class="info">hum, there's no existing channel…</p>
 {% endif %}
+<form method="POST" class="form-check form-check-inline">
+	{% csrf_token %}
+	<input type="hidden" name="form" value="channel_form">
+	<div class="form-row visual-group">
+		<div class="form-group col-md-4">{% include "_label_for.html" with field=channel_form.slug %}{{ channel_form.slug|as_widget }}</div>
+		<div class="form-group col-md-4">{% include "_label_for.html" with field=channel_form.name %}{{ channel_form.name|as_widget }}</div>
+		<div class="form-group col-md-1">{% include "_label_for.html" with field=channel_form.active %}{{ channel_form.active|as_widget }}</div>
+		<div class="form-group col-md-1">{% include "_label_for.html" with field=channel_form.private %}{{ channel_form.private|as_widget }}</div>
+		
+		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add Channel</button></div>
+	</div>
+</form>
 
 
 <h3>Users</h3>
-<p>Scheduler Users are not manager users but API consumers.</p>
+<p class="info">Scheduler Users are not manager users but API consumers.</p>
 {% if users %}
 <table class="table table-bordered table-striped">
-	<tr><th>Username</th><th>Role</th><th>Email</th></tr>
+	<tr><th>Username</th><th>Role</th><th>Email</th><th>Active</th></tr>
 	{% for user in users %}
-	<tr><th><code>{{user.username }}</code></th><td>{{ user.role }}</td><td>{{ user.email }}</td></tr>
+	<tr>
+		<th><code>{{user.username }}</code></th>
+		<td>{{ user.role }}</td>
+		<td>{{ user.email }}</td>
+		<td><a class="btn btn-sm btn-warning" href="{% if user.active %}{% url "scheduler_disable_user" user.id %}{% else %}{% url "scheduler_enable_user" user.id %}{% endif %}">{{ user.active|yesno }}: {% if user.active %}disable{% else %}enable{% endif %}</a></td>
+	</tr>
 	{% endfor %}
 </table>
+{% elif channels is None %}
+{% include "error.html" with level="warning" message="Could not retrieve users list…" %}
 {% else %}
-<p>hum, there's no existing user…</p>
+<p class="info">hum, there's no existing user…</p>
 {% endif %}
+<form method="POST" class="form-check form-check-inline">
+	{% csrf_token %}
+	<input type="hidden" name="form" value="user_form">
+	<div class="form-row visual-group">
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.role %}{{ user_form.role|as_widget }}</div>
+		<div class="form-group col-md-3">{% include "_label_for.html" with field=user_form.username %}{{ user_form.username|as_widget }}</div>
+		<div class="form-group col-md-3">{% include "_label_for.html" with field=user_form.email %}{{ user_form.email|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.password %}{{ user_form.password|as_widget }}</div>		
+		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add User</button></div>
+	</div>
+</form>
+{% endblock %}
 
-<h3>Orders</h3>
-<p>All orders</p>
-{% if orders %}
-<table class="table table-bordered table-striped">
-	<tr><th>#ID</th><th>Status</th><th>Config</th><th>SD Size</th><th>Quantity</th><th>Client</th><th>Country</th><th>Channel</th></tr>
-	{% for order in orders %}
-	<tr><th><code>{{order.id }}</code></th><td>{{ order.statuses|last }}</td><td>{{ order.config.project_name }}</td>
-		<td>{{ order.sd_size }}</td><td>{{ order.quantity }}</td><td>{{ order.client.name }}</td>
-		<td>{{ order.recipient.country }}</td><td>{{ order.channe }}</td></tr>
-	{% endfor %}
-</table>
-{% else %}
-<p>hum, there's no existing order…</p>
-{% endif %}
-
+{% block javascript %}
+	$('[data-toggle="popover"]').popover();
 {% endblock %}

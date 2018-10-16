@@ -8,7 +8,9 @@ import collections
 from pathlib import Path
 
 import pytz
+import pycountry
 import jsonfield
+import phonenumbers
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -34,7 +36,7 @@ def get_channel_choices():
 
     channels = as_items_or_none(*get_channels_list())
     if channels is None:
-        return ["kiwix"]
+        return [("kiwix", "Kiwix")]
     return [
         (
             channel.get("slug"),
@@ -245,6 +247,13 @@ class Configuration(models.Model):
                     except FileNotFoundError:
                         pass
             raise exp
+
+    @classmethod
+    def get_choices(cls, organization):
+        return [
+            (item.id, item.name)
+            for item in cls.objects.filter(organization=organization)
+        ]
 
     @classmethod
     def get_or_none(cls, id):
@@ -465,11 +474,64 @@ class Profile(models.Model):
 
 
 class Address(models.Model):
+
+    COUNTRIES = collections.OrderedDict(
+        sorted([(c.alpha_2, c.name) for c in pycountry.countries], key=lambda x: x[1])
+    )
+
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name="Address Name")
     recipient = models.CharField(max_length=100)
+    email = models.CharField(max_length=255, blank=True, null=True)
     phone = models.CharField(max_length=30)
     address = models.TextField()
+    country = models.CharField(max_length=50, choices=COUNTRIES.items())
+
+    @classmethod
+    def get_or_none(cls, aid):
+        try:
+            return cls.objects.get(id=aid)
+        except cls.DoesNotExist:
+            return None
+
+    def save(self, *args, **kwargs):
+        self.phone = self.cleaned_phone(self.phone)
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_choices(cls, organization):
+        return [
+            (item.id, item.name)
+            for item in cls.objects.filter(organization=organization)
+        ]
+
+    @property
+    def verbose_country(self):
+        return self.COUNTRIES.get(self.country)
+
+    @property
+    def human_phone(self):
+        return phonenumbers.format_number(
+            phonenumbers.parse(self.phone, None),
+            phonenumbers.PhoneNumberFormat.INTERNATIONAL,
+        )
+
+    @staticmethod
+    def cleaned_phone(number):
+        pn = phonenumbers.parse(number, None)
+        if not phonenumbers.is_possible_number(pn):
+            raise ValueError("Phone Number not possible")
+        return phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.E164)
+
+    def to_payload(self):
+        return {
+            "name": self.recipient,
+            "email": self.email,
+            "phone": self.human_phone,
+            "address": self.address,
+            "country": self.country,
+            "shipment": None,
+        }
 
     def __str__(self):
         return self.name
@@ -490,6 +552,17 @@ class Media(models.Model):
     units_coef = models.FloatField(
         verbose_name="Units", help_text="How much units per GB"
     )
+
+    @classmethod
+    def get_or_none(cls, mid):
+        try:
+            return cls.objects.get(id=mid)
+        except cls.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_choices(cls):
+        return [(item.id, item.name) for item in cls.objects.all()]
 
     @classmethod
     def get_min_for(cls, size):
@@ -519,33 +592,43 @@ class Media(models.Model):
 
 
 class Order(models.Model):
-    CREATED = "created"
-    PENDING = "pending"
+    IN_PROGRESS = "in-progress"
+    FAILED = "failed"
     COMPLETED = "completed"
 
-    STATUSES = {CREATED: "Created", PENDING: "Pending", COMPLETED: "Completed"}
+    STATUSES = {IN_PROGRESS: "In Progress", COMPLETED: "Completed", FAILED: "Failed"}
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    address = models.ForeignKey(Address, on_delete=models.PROTECT)
-
+    scheduler_id = models.UUIDField(unique=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=50, choices=STATUSES.items())
+    created_by = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=50, choices=STATUSES.items(), default=IN_PROGRESS
+    )
+
+    @property
+    def active(self):
+        return self.status == self.IN_PROGRESS
+
+    @property
+    def short_id(self):
+        return self.scheduler_id[:8] + self.scheduler_id[-3:]
 
     def __str__(self):
         return "Order #{id}".format(self.id)
 
 
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    configuration = models.ForeignKey(Configuration, on_delete=models.PROTECT)
-    media = models.ForeignKey(Media, on_delete=models.PROTECT)
-    quantity = models.IntegerField()
+# class OrderItem(models.Model):
+#     order = models.ForeignKey(Order, on_delete=models.CASCADE)
+#     configuration = models.ForeignKey(Configuration, on_delete=models.PROTECT)
+#     media = models.ForeignKey(Media, on_delete=models.PROTECT)
+#     quantity = models.IntegerField()
 
-    def __str__(self):
-        return "OrderItem #{id} (Order #{order})".format(
-            id=self.id, order=self.order.id
-        )
+#     def __str__(self):
+#         return "OrderItem #{id} (Order #{order})".format(
+#             id=self.id, order=self.order.id
+#         )
 
-    @property
-    def units(self):
-        return self.media.units * self.quantity
+#     @property
+#     def units(self):
+#         return self.media.units * self.quantity

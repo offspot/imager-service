@@ -153,10 +153,11 @@ LOGIN_URL = "/login"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
-SUPPORT_EMAIL = "stephane@kiwix.org"
+SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "stephane@kiwix.org")
 # manager admin account's password
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin")
 # manager's token over the API (/!\)
+MANAGER_API_USERNAME = os.getenv("MANAGER_API_USERNAME", "manager")
 MANAGER_API_KEY = os.getenv("MANAGER_API_KEY", "manager")
 # API URL
 CARDSHOP_API_URL = os.getenv(

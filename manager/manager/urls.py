@@ -9,9 +9,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from manager.views import ui
-from manager.views import config
 from manager.views import api
 from manager.views import admin
+from manager.views import config
+from manager.views import scheduler
 
 urlpatterns = (
     [
@@ -43,7 +44,11 @@ urlpatterns = (
         path("orders/", ui.orders, name="orders"),
         path("admin/toggle_account/<str:username>", admin.toggle_account, name="admin_toggle_account"),
         path("admin/", admin.dashboard, name="admin"),
-        path("scheduler/", ui.scheduler, name="scheduler"),
+        path("scheduler/disable_channel/<str:channel_id>", scheduler.channel_disable, name="scheduler_disable_channel"),
+        path("scheduler/enable_channel/<str:channel_id>", scheduler.channel_enable, name="scheduler_enable_channel"),
+        path("scheduler/disable_user/<str:user_id>", scheduler.user_disable, name="scheduler_disable_user"),
+        path("scheduler/enable_user/<str:user_id>", scheduler.user_enable, name="scheduler_enable_user"),
+        path("scheduler/", scheduler.dashboard, name="scheduler"),
         path("", ui.home, name="home"),
     ]
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

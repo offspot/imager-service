@@ -3,7 +3,7 @@
 
 {% block content %}
 <h3>Organizations</h3>
-<p>Organizations holds the configurations, orders and units.</p>
+<p class="info">Organizations holds the configurations, orders and units.</p>
 {% if organizations %}
 <table class="table table-striped">
 	<thead><tr><th>Slug</th><th>Name</th><th>Channel</th><th>Email</th><th>Units</th></tr></thead>
@@ -13,13 +13,18 @@
 		<td>{{ organization.name }}</td>
 		<td>{{ organization.channel }}</td>
 		<td><a href="mailto:{{ organization.email }}">{{ organization.email }}</a></td>
-		<td>{{ organization.units }}</td>
+		<td><form method="POST">{% csrf_token %}
+			<input type="hidden" name="form" value="units_form">
+			<input type="hidden" name="units_form-organization" value="{{ organization.slug }}">
+			<input type="number" name="units_form-units" value="{{ organization.units }}" min="0" max="256000" step="8" class="form-control form-control-inline" /> 
+			<button type="submit" class="btn btn-sm btn-secondary">Update Units</button></form>
+		</td>
 	</tr>
 	{% endfor %}
 	</tbody>
 </table>
 {% else %}
-<p>hum, there's no Organization. That's weird.</p>
+{% include "error.html" with level="warning" message="hum, there's no Organization. That's weird." %}
 {% endif %}
 <form method="POST" class="form-check form-check-inline">
 	{% csrf_token %}
@@ -50,7 +55,7 @@
 	</tbody>
 </table>
 {% else %}
-<p>hum, there's no User. That's weird.</p>
+{% include "error.html" with level="warning" message="hum, there's no User. That's weird." %}
 {% endif %}
 <form method="POST" class="form-check form-check-inline">
 	{% csrf_token %}
@@ -82,7 +87,7 @@
 	</tbody>
 </table>
 {% else %}
-<p>hum, there's no Media. That's weird.</p>
+{% include "error.html" with level="warning" message="hum, there's no Media. That's weird." %}
 {% endif %}
 <form method="POST" class="form-check form-check-inline">
 	{% csrf_token %}
@@ -96,7 +101,6 @@
 		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add Media</button></div>
 	</div>
 </form>
-
 {% endblock %}
 
 {% block javascript %}
