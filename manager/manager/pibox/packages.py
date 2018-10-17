@@ -30,12 +30,14 @@ def get_parsed_package(package):
         tags = [t.strip() for t in tags_str.split(",")]
     else:
         tags = []
+    key = "_".join(package.get("langid").rsplit(".", 1))
     package.update(
         {
-            "hsize": human_readable_size(package.get("size", 0)),
+            "hsize": human_readable_size(package.get("size", 0)).replace(" ", " "),
             "tags": tags,
             "sname": name,
-            "skey": "_".join(package.get("langid").rsplit(".", 1)),
+            "skey": key.replace(".", "__"),
+            "key": key,
         }
     )
     return package

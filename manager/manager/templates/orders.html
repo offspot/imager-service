@@ -24,11 +24,11 @@
 	{% csrf_token %}
 	<input type="hidden" name="form" value="order_form">
 	<div class="form-row visual-group">
-		<div class="form-group col-md-3">{% include "_label_for.html" with field=order_form.config %}{{ order_form.config|as_widget }}</div>
+		<div class="form-group col-md-4">{% include "_label_for.html" with field=order_form.config %}{{ order_form.config|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=order_form.media %}{{ order_form.media|as_widget }}</div>
-		<div class="form-group col-md-2">{% include "_label_for.html" with field=order_form.quantity %}{{ order_form.quantity|as_widget }}</div>
-		<div class="form-group col-md-2">{% include "_label_for.html" with field=order_form.address %}{{ order_form.address|as_widget }}</div>
-		<div class="form-group col-md-3"><label>-</label><button class="btn btn-primary form-check-input form-control">Place Order</button></div>
+		<div class="form-group col-md-1">{% include "_label_for.html" with field=order_form.quantity %}{{ order_form.quantity|as_widget }}</div>
+		<div class="form-group col-md-4">{% include "_label_for.html" with field=order_form.address %}{{ order_form.address|as_widget }}</div>
+		<div class="form-group col-md-1"><label>-</label><button class="btn btn-primary form-check-input form-control">Order</button></div>
 	</div>
 </form>
 
@@ -45,7 +45,7 @@
 		<td><strong>{{ address.recipient }}</strong><br />{{ address.human_phone }}{% if address.email %}<br /><a href="mailto:{{ address.email }}">{{ address.email }}</a>{% endif %}</td>
 		<td>{{ address.address|linebreaks }}</td>
 		<td>{{ address.verbose_country }}</td>
-		<td><button class="btn btn-warning btn-sm">Delete</button></td>
+		<td><a href="{% url 'delete_address' address.id %}" class="btn btn-sm btn-warning" data-toggle="confirmation" data-title="Delete this address?">Delete</a></td>
 	</tr>
 	{% endfor %}
 	</tbody>
@@ -70,4 +70,25 @@
 
 {% block javascript %}
 	$('[data-toggle="popover"]').popover();
+	
+	let medias_choices_url = "{% url "api_medias_choices" 0 %}";
+	let media_select = $("#{{ order_form.media.id_for_label }}");
+	let config_select = $("#{{ order_form.config.id_for_label }}");
+	
+	config_select.on("change", function (e) {
+		let url = medias_choices_url.replace("/0", "/" + $(this).val());
+		console.log(url);
+		$.getJSON(url, function () {})
+			.done(function (data) {
+				console.log(data);
+				media_select.empty();
+				$.each(data, function (key, item) {
+					media_select.append('<option value="'+ item.value +'">'+ item.label +'</option>');
+				});
+			})
+			.fail(function (error) {
+				console.log(error);
+			});
+	});
+	config_select.change();
 {% endblock %}

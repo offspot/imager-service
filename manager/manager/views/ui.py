@@ -5,8 +5,10 @@
 import logging
 
 from django import forms
+from django.http import Http404
 from django.conf import settings
 from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
@@ -35,6 +37,12 @@ class AddressForm(forms.ModelForm):
             raise forms.ValidationError("Invalid Phone Number", code="invalid")
 
         return cleaned_phone
+
+    def save(self, *args, **kwargs):
+        instance = super().save(commit=False)
+        instance.organization = self.organization
+        instance.save()
+        return instance
 
     @classmethod
     def success_message(cls, res):
@@ -71,10 +79,24 @@ class OrderForm(forms.Form):
         media = Media.get_or_none(self.cleaned_data.get("media"))
         if media is None:
             raise forms.ValidationError("Incorrect Media", code="invalid")
+        return media
+
+    def clean(self):
+        cleaned_data = super().clean()
+        config = cleaned_data.get("config")
+        media = cleaned_data.get("media")
+
+        if config is not None and media is not None and not config.can_fit_on(media):
+            min_media = Media.get_min_for(config.size)
+            if min_media is None:
+                msg = "There is no large enough Media for this config."
+                field = "config"
+            else:
+                msg = "Media not large enough for config (use at least {})".format(min_media.name)
+                field = "media"
+            self.add_error(field, msg)
 
     def save(self, *args, **kwargs):
-        if "commit" in kwargs.keys() and not kwargs.get("commit"):
-            return self
         return "**FAKE**"
 
     @classmethod
@@ -135,9 +157,7 @@ def orders(request):
 
         if context[form_key].is_valid():
             try:
-                res = context[form_key].save(commit=False)
-                res.organization = context[form_key].organization
-                res = res.save()
+                res = context[form_key].save()
             except Exception as exp:
                 logger.error(exp)
                 messages.error(request, "Error while saving… {exp}".format(exp=exp))
@@ -148,3 +168,23 @@ def orders(request):
         pass
 
     return render(request, "orders.html", context)
+
+
+@login_required
+def delete_address(request, address_id=None):
+
+    address = Address.get_or_none(address_id)
+    if address is None:
+        raise Http404("Configuration not found")
+
+    if address.organization != request.user.profile.organization:
+        raise HttpResponse("Unauthorized", status=401)
+
+    try:
+        address.delete()
+        messages.success(request, "Successfuly deleted Address <em>{}</em>".format(address))
+    except Exception as exp:
+        logger.error("Unable to delete Address {id}: {exp}".format(id=address.id, exp=exp))
+        messages.error(request, "Unable to delete Address <em>{addr}</em>: -- ref {exp}".format(addr=address, exp=exp))
+
+    return redirect("orders")

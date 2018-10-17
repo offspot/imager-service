@@ -162,3 +162,23 @@ def export_configuration(request, config_id=None):
         config.display_name
     )
     return response
+
+
+@login_required
+def delete_configuration(request, config_id=None):
+
+    config = Configuration.get_or_none(config_id)
+    if config is None:
+        raise Http404("Configuration not found")
+
+    if config.organization != request.user.profile.organization:
+        raise HttpResponse("Unauthorized", status=401)
+
+    try:
+        config.delete()
+        messages.success(request, "Successfuly deleted Configuration <em>{}</em>".format(config))
+    except Exception as exp:
+        logger.error("Unable to delete configuration {id}: {exp}".format(id=config.id, exp=exp))
+        messages.error(request, "Unable to delete Configuration <em>{config}</em>: -- ref {exp}".format(config=config, exp=exp))
+
+    return redirect("configurations")

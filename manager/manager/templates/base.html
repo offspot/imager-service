@@ -48,6 +48,10 @@
 			max-width: 64px;
 		}
 		.form-control-inline { display: inline; width: auto; }
+
+		.ordering { color: #004085; cursor: pointer;  }
+		.ordering i { display: none;  }
+		.ordering.selected i { display: inline; color: black; }
 		{% block css %}{% endblock %}
 	</style>
 </head>
@@ -86,9 +90,16 @@
 		src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
 		integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
 		crossorigin="anonymous"></script>
+	<script
+		type="text/javascript"
+		src="https://cdn.jsdelivr.net/npm/bootstrap-confirmation2/dist/bootstrap-confirmation.min.js"></script>
 	<script type="text/javascript">
 		$( document ).ready(function() {
     		console.log( "ready!" );
+    		$('[data-toggle=confirmation]').confirmation({
+			  rootSelector: '[data-toggle=confirmation]',
+			  singleton: true,
+			});
     		{% block javascript %}{% endblock %}
 		});
 	</script>

@@ -14,7 +14,7 @@
 <h3>{{ user.profile.organization }}'s configurations</h3>
 {% if configurations|length %}
 <table class="table table-striped">
-	<thead><tr><th>Name</th><th>Size</th><th>SD Size (min)</th><th>Updated On</th><th>Export</th></tr></thead>
+	<thead><tr><th>Name</th><th>Size</th><th>SD Size (min)</th><th>Updated On</th><th>Export</th><th>Delete</th></tr></thead>
 	<tbody>
 	{% for configuration in configurations %}
 	<tr><th><a href="{% url 'edit_configuration' configuration.id %}">{{ configuration }}</a></th>
@@ -22,6 +22,7 @@
 		<td>{{ configuration.min_media }}</td>
 		<td>{{ configuration.updated_on }}</td>
 		<td><a href="{% url 'export_configuration' configuration.id %}" class="btn btn-sm btn-secondary">Export</a></td>
+		<td><a href="{% url 'delete_configuration' configuration.id %}" class="btn btn-sm btn-warning" data-toggle="confirmation" data-title="Delete this configuration?">Delete</a></td>
 	</tr>
 	{% endfor %}
 	</tbody>

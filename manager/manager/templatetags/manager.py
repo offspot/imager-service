@@ -16,7 +16,7 @@ register = template.Library()
 
 
 def human_size(value, binary=True):
-    return human_readable_size(value, binary)
+    return human_readable_size(value, binary).replace(" ", " ")
 
 
 register.filter("human_size", human_size)
@@ -65,7 +65,7 @@ def as_widget(field):
         return field
     our_classes = ["form-control"]
     if getattr(field, 'errors', False):
-        our_classes += ["alert", "alert-danger"]
+        our_classes += ["alert-danger"]
     return field.as_widget(attrs={"class": field.css_classes(" ".join(our_classes))})
 
 

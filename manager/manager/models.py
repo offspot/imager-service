@@ -17,7 +17,13 @@ from django.contrib.auth.models import User
 
 from manager.pibox.packages import get_packages_id
 from manager.pibox.data import ideascube_languages
-from manager.pibox.util import ONE_GB, b64encode, b64decode, human_readable_size
+from manager.pibox.util import (
+    ONE_GB,
+    b64encode,
+    b64decode,
+    human_readable_size,
+    get_adjusted_image_size,
+)
 from manager.pibox.config import (
     get_uuid,
     get_if_str,
@@ -80,23 +86,26 @@ class Configuration(models.Model):
     updated_on = models.DateTimeField(auto_now=True)
 
     name = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        help_text="Used <strong>only within the Cardshop</strong>",
+        max_length=100, help_text="Used <strong>only within the Cardshop</strong>"
     )
     project_name = models.CharField(
         max_length=100,
         default="Kiwix Hotspot",
-        help_text="Used to name your Box and its WiFi",
+        verbose_name="Hospot name",
+        help_text="Used to name your Box and its WiFi network",
     )
     language = models.CharField(
-        max_length=3, choices=ideascube_languages.items(), default="en"
+        max_length=3,
+        choices=ideascube_languages.items(),
+        default="en",
+        help_text="Hotspot interface language",
     )
     timezone = models.CharField(
         max_length=50,
-        choices=[(tz, tz) for tz in pytz.common_timezones],
+        choices=[("UTC", "UTC"), ("Europe/Paris", "Europe/Paris")]
+        + [(tz, tz) for tz in pytz.common_timezones],
         default="Europe/Paris",
+        help_text="Where the plug would be deployed",
     )
 
     wifi_password = models.CharField(
@@ -195,10 +204,14 @@ class Configuration(models.Model):
         # WiFi used to have 2 keys (protected and password)
         wifi_protected = bool(get_nested_key(config, ["wifi", "protected"]))
 
+        # name is used twice
+        name = get_if_str(get_nested_key(config, "project_name"))
+
         # rebuild clean config from data
         kwargs = {
             "organization": organization,
-            "project_name": get_if_str(get_nested_key(config, "project_name")),
+            "name": name,
+            "project_name": name,
             "language": get_if_str_in(
                 get_nested_key(config, "language"),
                 dict(cls._meta.get_field("language").choices).keys(),
@@ -251,7 +264,12 @@ class Configuration(models.Model):
     @classmethod
     def get_choices(cls, organization):
         return [
-            (item.id, item.name)
+            (
+                item.id,
+                "{name} ({date})".format(
+                    name=item.display_name, date=item.updated_on.strftime("%c")
+                ),
+            )
             for item in cls.objects.filter(organization=organization)
         ]
 
@@ -277,6 +295,11 @@ class Configuration(models.Model):
     @property
     def min_media(self):
         return Media.get_min_for(self.size)
+
+    def can_fit_on(self, media):
+        print("media size", media.bytes)
+        print("config size", self.size)
+        return media.bytes >= self.size
 
     @property
     def min_units(self):
@@ -562,21 +585,22 @@ class Media(models.Model):
 
     @classmethod
     def get_choices(cls):
-        return [(item.id, item.name) for item in cls.objects.all()]
+        return [
+            (item.id, "{name} ({units}U)".format(name=item.name, units=item.units))
+            for item in cls.objects.all()
+        ]
 
     @classmethod
     def get_min_for(cls, size):
-        try:
-            return cls.objects.filter(size__gte=size // ONE_GB).order_by("size").first()
-        except cls.DoesNotExist:
-            return None
+        matching = [media for media in cls.objects.all() if media.bytes >= size]
+        return matching[0] if len(matching) else None
 
     def __str__(self):
         return self.name
 
     @property
     def bytes(self):
-        return self.size * ONE_GB
+        return get_adjusted_image_size(self.size * ONE_GB)
 
     @property
     def human(self):
@@ -616,19 +640,3 @@ class Order(models.Model):
 
     def __str__(self):
         return "Order #{id}".format(self.id)
-
-
-# class OrderItem(models.Model):
-#     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-#     configuration = models.ForeignKey(Configuration, on_delete=models.PROTECT)
-#     media = models.ForeignKey(Media, on_delete=models.PROTECT)
-#     quantity = models.IntegerField()
-
-#     def __str__(self):
-#         return "OrderItem #{id} (Order #{order})".format(
-#             id=self.id, order=self.order.id
-#         )
-
-#     @property
-#     def units(self):
-#         return self.media.units * self.quantity

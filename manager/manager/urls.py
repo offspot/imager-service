@@ -29,7 +29,17 @@ urlpatterns = (
             name="api_packages_for_language",
         ),
         path("api/get_size", api.required_size_for_config, name="api_get_size"),
+        path(
+            "api/medias_choices/<int:config_id>",
+            api.media_choices_for_configuration,
+            name="api_medias_choices",
+        ),
         path("configurations/new", config.edit_configuration, name="add_configuration"),
+        path(
+            "configurations/<int:config_id>/delete",
+            config.delete_configuration,
+            name="delete_configuration",
+        ),
         path(
             "configurations/<int:config_id>",
             config.edit_configuration,
@@ -41,13 +51,38 @@ urlpatterns = (
             name="export_configuration",
         ),
         path("configurations/", config.list_configurations, name="configurations"),
+        path(
+            "addresses/<int:address_id>/delete",
+            ui.delete_address,
+            name="delete_address",
+        ),
         path("orders/", ui.orders, name="orders"),
-        path("admin/toggle_account/<str:username>", admin.toggle_account, name="admin_toggle_account"),
+        path(
+            "admin/toggle_account/<str:username>",
+            admin.toggle_account,
+            name="admin_toggle_account",
+        ),
         path("admin/", admin.dashboard, name="admin"),
-        path("scheduler/disable_channel/<str:channel_id>", scheduler.channel_disable, name="scheduler_disable_channel"),
-        path("scheduler/enable_channel/<str:channel_id>", scheduler.channel_enable, name="scheduler_enable_channel"),
-        path("scheduler/disable_user/<str:user_id>", scheduler.user_disable, name="scheduler_disable_user"),
-        path("scheduler/enable_user/<str:user_id>", scheduler.user_enable, name="scheduler_enable_user"),
+        path(
+            "scheduler/disable_channel/<str:channel_id>",
+            scheduler.channel_disable,
+            name="scheduler_disable_channel",
+        ),
+        path(
+            "scheduler/enable_channel/<str:channel_id>",
+            scheduler.channel_enable,
+            name="scheduler_enable_channel",
+        ),
+        path(
+            "scheduler/disable_user/<str:user_id>",
+            scheduler.user_disable,
+            name="scheduler_disable_user",
+        ),
+        path(
+            "scheduler/enable_user/<str:user_id>",
+            scheduler.user_enable,
+            name="scheduler_enable_user",
+        ),
         path("scheduler/", scheduler.dashboard, name="scheduler"),
         path("", ui.home, name="home"),
     ]
