@@ -95,4 +95,4 @@ def media_choices_for_configuration(request, config_id):
         medias = [m for m in all_medias if m.bytes >= config.size]
     if not len(medias):
         medias = all_medias.filter(size=all_medias.aggregate(Max("size"))["size__max"])
-    return JsonResponse([{"value": m.id, "label": m.name} for m in medias], safe=False)
+    return JsonResponse(Media.choices_for(medias), safe=False)

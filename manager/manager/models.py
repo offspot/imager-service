@@ -576,6 +576,13 @@ class Media(models.Model):
         verbose_name="Units", help_text="How much units per GB"
     )
 
+    @staticmethod
+    def choices_for(items):
+        return [
+            (item.id, "{name} ({units}U)".format(name=item.name, units=item.units))
+            for item in items
+        ]
+
     @classmethod
     def get_or_none(cls, mid):
         try:
@@ -585,10 +592,7 @@ class Media(models.Model):
 
     @classmethod
     def get_choices(cls):
-        return [
-            (item.id, "{name} ({units}U)".format(name=item.name, units=item.units))
-            for item in cls.objects.all()
-        ]
+        return cls.choices_for(cls.objects.all())
 
     @classmethod
     def get_min_for(cls, size):

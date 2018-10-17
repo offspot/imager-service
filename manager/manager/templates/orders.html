@@ -83,7 +83,7 @@
 				console.log(data);
 				media_select.empty();
 				$.each(data, function (key, item) {
-					media_select.append('<option value="'+ item.value +'">'+ item.label +'</option>');
+					media_select.append('<option value="'+ item[0] +'">'+ item[1] +'</option>');
 				});
 			})
 			.fail(function (error) {
