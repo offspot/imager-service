@@ -201,11 +201,23 @@ class Configuration(models.Model):
         favicon = extract_branding(config, "favicon", ["image/x-icon", "image/png"])
         css = extract_branding(config, "css", ["text/css", "text/plain"])
 
-        # WiFi used to have 2 keys (protected and password)
-        wifi_protected = bool(get_nested_key(config, ["wifi", "protected"]))
-
         # name is used twice
-        name = get_if_str(get_nested_key(config, "project_name"))
+        name = get_if_str(
+            get_nested_key(config, "project_name"),
+            cls._meta.get_field("project_name").default,
+        )
+
+        # wifi
+        wifi_password = None
+        # wifi (previous format)
+        if "wifi" in config and isinstance(config["wifi"], dict):
+            if "password" in config["wifi"].keys() and config["wifi"].get(
+                "protected", True
+            ):
+                wifi_password = get_if_str(get_nested_key(config, ["wifi", "password"]))
+        # wifi (new format)
+        if "wifi_password" in config.keys():
+            wifi_password = config["wifi_password"]
 
         # rebuild clean config from data
         kwargs = {
@@ -220,14 +232,14 @@ class Configuration(models.Model):
                 get_nested_key(config, "timezone"),
                 dict(cls._meta.get_field("timezone").choices).keys(),
             ),
-            "wifi_password": get_if_str(get_nested_key(config, ["wifi", "password"]))
-            if wifi_protected
-            else None,
+            "wifi_password": wifi_password,
             "admin_account": get_if_str(
-                get_nested_key(config, ["admin_account", "login"])
+                get_nested_key(config, ["admin_account", "login"]),
+                cls._meta.get_field("admin_account").default,
             ),
             "admin_password": get_if_str(
-                get_nested_key(config, ["admin_account", "password"])
+                get_nested_key(config, ["admin_account", "password"]),
+                cls._meta.get_field("admin_password").default,
             ),
             "branding_logo": save_branding_file(logo) if logo is not None else None,
             "branding_favicon": save_branding_file(favicon)
@@ -608,7 +620,7 @@ class Media(models.Model):
 
     @property
     def human(self):
-        return human_readable_size(self.bytes, False)
+        return human_readable_size(self.size * ONE_GB, False)
 
     @property
     def units(self):

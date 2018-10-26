@@ -17,12 +17,7 @@ CATALOGS = [
         "name": "Kiwix",
         "description": "Kiwix ZIM Content",
         "url": "http://download.kiwix.org/library/ideascube.yml",
-    },
-    {
-        "name": "StaticSites",
-        "description": "Static sites",
-        "url": "http://catalog.ideascube.org/static-sites.yml",
-    },
+    }
 ]
 
 YAML_CATALOGS = cache_get("YAML_CATALOGS", [])
