@@ -407,9 +407,11 @@
 				if (data.media_size == null) {
 					$('#sd_size_holder')[0].className = "danger";
 					$('#sd_size').text("n/a");
+					$('button[type=submit]').addClass("btn-danger");
 				} else {
 					$('#sd_size_holder')[0].className = "success";
 					$('#sd_size').html(data.media_size + " <small>(" + data.hfree + " free)</small>");
+					$('button[type=submit]').removeClass("btn-danger");
 				}
 				
 			})
