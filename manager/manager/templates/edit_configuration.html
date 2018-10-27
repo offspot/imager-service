@@ -9,8 +9,7 @@
 	<ul class="nav nav-tabs" id="configMenuTabHolder" role="tablist">
 		<li class="nav-item"><a class="nav-link active" id="general-tab" data-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="true">General</a></li>
 		<li class="nav-item"><a class="nav-link" id="branding-tab" data-toggle="tab" href="#branding" role="tab" aria-controls="branding" aria-selected="false">Branding</a></li>
-		<li class="nav-item"><a class="nav-link" id="tools-tab" data-toggle="tab" href="#tools" role="tab" aria-controls="tools" aria-selected="false">Content Packages</a></li>
-		<li class="nav-item"><a class="nav-link" id="contents-tab" data-toggle="tab" href="#contents" role="tab" aria-controls="contents" aria-selected="false">Static Contents (ZIM)</a></li>
+		<li class="nav-item"><a class="nav-link" id="contents-tab" data-toggle="tab" href="#contents" role="tab" aria-controls="contents" aria-selected="false">Content</a></li>
 		<li class="nav-item"><a class="nav-link disabled">
 			<span id="img_size_holder" class="info" data-container="body" data-toggle="popover" data-trigger="hover" data-content="Size of Selected Contents"><i class="fas fa-hdd"></i> <span id="image_req_size">?</span></span> – 
 			<span id="sd_size_holder" class="warning" data-container="body" data-toggle="popover" data-trigger="hover" data-content="Minimum SD-card Size required for Selected Contents"><i class="fa fa-save"></i> <span id="sd_size">?</span></span>
@@ -71,24 +70,36 @@
 	<div class="tab-pane fade" id="branding" role="tabpanel" aria-labelledby="branding-tab">
 		
 		<h3>Branding</h3>
+		<p>This section allows you to replace some visual elements with your own branding.</p>
 		<div class="form-row visual-group">
-			<div class="form-group col-md-4">
+			<div class="form-group col-md-12">
 				{% include "_input_field.html" with field=form.branding_logo type=file use_raw=1 %}
 			  	{% include "_file_preview.html" with field=form.branding_logo %}
 			</div>
-			<div class="form-group col-md-4">
+		</div>
+		<hr />
+		<h4>Advanced Branding</h4>
+		<p>Change <em>favicon</em> and <em>CSS</em> only of you know what you are doing.</p>
+		<div class="form-row visual-group">
+			<div class="form-group col-md-6">
 				{% include "_input_field.html" with field=form.branding_favicon type=file use_raw=1 %}
 				{% include "_file_preview.html" with field=form.branding_favicon class="favicon" %}
 			</div>
-			<div class="form-group col-md-4">
+			<div class="form-group col-md-6">
 			  {% include "_input_field.html" with field=form.branding_css type=file use_raw=1 %}
 			</div>
 		</div>
 
 	</div>
 
-  	<div class="tab-pane fade" id="tools" role="tabpanel" aria-labelledby="tools-tab">
-  		<h3>Tools</h3>
+  	<div class="tab-pane fade" id="contents" role="tabpanel" aria-labelledby="contents-tab">
+  		{% if form.content_zims.errors %}<div class="alert alert-danger">Your selection has errors: {{ form.content_zims.errors }}</div>{% endif %}
+  		<input type="hidden" id="{{ form.content_zims.id_for_label }}" class="form-control" 
+  			   value="{{ form.content_zims.value|default_if_none:"" }}"
+  			   name="{{ form.content_zims.html_name }}"/>
+
+
+  		<h3>Interactive Tools</h3>
 		<div class="form-row visual-group">
 			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_edupi type="checkbox" size="10 MiB" %}
@@ -121,15 +132,8 @@
 				{% include "_input_field.html" with field=form.content_wikifundi_en type="checkbox" size="3.2GiB" %}
 			</div>
 		</div>
-  	</div>
-	
 
-  	<div class="tab-pane fade" id="contents" role="tabpanel" aria-labelledby="contents-tab">
-  		{% if form.content_zims.errors %}<div class="alert alert-danger">Your selection has errors: {{ form.content_zims.errors }}</div>{% endif %}
-  		<input type="hidden" id="{{ form.content_zims.id_for_label }}" class="form-control" 
-  			   value="{{ form.content_zims.value|default_if_none:"" }}"
-  			   name="{{ form.content_zims.html_name }}"/>
-
+		<h3>Static Content Packages</h3>
 		<div class="form-row visual-group">
 			<div class="col-md-6">
 				<input type="hidden" id="catalog_order" value="" />
