@@ -15,6 +15,7 @@ mkdir -p ${DATA_DIR}/media
 python3 ./manage.py migrate
 python3 ./manage.py loaddata manager/fixtures/media.json
 python3 ./manage.py collectstatic --no-input
+chmod -R o+rx ${DATA_DIR}
 
 # create user on first run
 if [ $FIRSTRUN -eq 1 ]; then
