@@ -204,7 +204,7 @@
 
 	// DOM-safe version of the packageId
 	function getSafeId(packageId) {
-		return packageId.replace(".", "__");
+		return packageId.replace(/\./g, "__");
 	}
 
 	// packageId derived from catalog packageId (without language extension)
