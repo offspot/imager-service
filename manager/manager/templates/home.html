@@ -7,16 +7,9 @@
 <p>Should your organization have any <em>units</em> (your <em>balance is currently <strong>{{ user.profile.organization.units|human_number }}U</strong>)</em>, you may <em>order physical SD-cards</em> matching your presets !</p>
 <p>If you require assistance, please contact <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
 
-<h2>Your Orders ({{ user.profile.organization }}'s)</h2>
-{% if orders %}
-
-{% else %}
-<p>You don't have any at the moment.</p>
-{% endif %}
-
 <hr />
 
-<h2>Changing your password</h2>
+<h6>Changing your password</h6>
 <form method="POST" class="form-check form-check-inline">
 {% csrf_token %}
 <div class="form-row visual-group">
