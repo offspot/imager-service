@@ -10,7 +10,7 @@ import humanfriendly
 from django import template
 
 from manager.pibox.util import human_readable_size
-from manager.pibox.packages import get_parsed_package, PACKAGES_BY_LANG
+from manager.pibox.packages import get_parsed_package, PACKAGES_BY_LANG, get_package
 
 register = template.Library()
 
@@ -51,10 +51,7 @@ register.filter("fname", fname)
 
 
 def as_packages(value):
-    return [
-        PACKAGES_BY_LANG[pid.rsplit(".", 1)[-1]].get(pid)
-        for pid in json.loads(value) or []
-    ]
+    return [get_package(pid) for pid in json.loads(value) or []]
 
 
 register.filter("as_packages", as_packages)

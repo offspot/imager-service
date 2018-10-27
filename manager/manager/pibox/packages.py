@@ -78,5 +78,13 @@ def get_packages_langs():
     )
 
 
+def get_package(pid):
+    """ retrieve package from its ID """
+    for package in ALL_PACKAGES:
+        if package.get("langid") == pid:
+            return package
+    return None
+
+
 PACKAGES_BY_LANG = get_packages_by_lang()
 PACKAGES_LANGS = get_packages_langs()
