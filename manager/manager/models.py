@@ -67,7 +67,11 @@ def save_branding_file(branding_file):
 
 
 def retrieve_branding_file(field):
+    if not field.name:
+        return None
     fpath = Path(settings.MEDIA_ROOT).joinpath(field.name)
+    if not fpath.exists():
+        return None
     fname = Path(field.name).name.split("_")[-1]  # remove UUID
     return {"fname": fname, "data": b64encode(fpath)}
 
