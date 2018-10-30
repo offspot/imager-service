@@ -9,8 +9,9 @@ from pathlib import Path
 import humanfriendly
 from django import template
 
+from manager.models import Address
 from manager.pibox.util import human_readable_size
-from manager.pibox.packages import get_parsed_package, PACKAGES_BY_LANG, get_package
+from manager.pibox.packages import get_parsed_package, get_package
 
 register = template.Library()
 
@@ -67,3 +68,10 @@ def as_widget(field):
 
 
 register.filter("as_widget", as_widget)
+
+
+def country_name(country_code):
+    return Address.country_name_for(country_code)
+
+
+register.filter("country", country_name)

@@ -238,6 +238,19 @@ def get_orders_list():
     return success, response
 
 
+@auth_required
+def create_order(payload):
+    success, code, response = query_api(POST, "/orders/", payload=payload)
+    if not success or "_id" not in response:
+        return False, response
+    return True, response.get("_id")
+
+@auth_required
+def get_order(order_id):
+    success, code, response = query_api(GET, "/orders/{id}".format(id=order_id))
+    return success, response
+
+
 def test():
     from pprint import pprint as pp
 

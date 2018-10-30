@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
+import re
 import json
 import logging
 import collections
@@ -11,10 +12,13 @@ import pytz
 import pycountry
 import jsonfield
 import phonenumbers
+import dateutil.parser
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from django.contrib.auth.models import User
 
+from manager.scheduler import create_order, SchedulerAPIError, get_order
 from manager.pibox.packages import get_packages_id
 from manager.pibox.data import ideascube_languages
 from manager.pibox.util import (
@@ -313,8 +317,6 @@ class Configuration(models.Model):
         return Media.get_min_for(self.size)
 
     def can_fit_on(self, media):
-        print("media size", media.bytes)
-        print("config size", self.size)
         return media.bytes >= self.size
 
     @property
@@ -363,6 +365,7 @@ class Configuration(models.Model):
         #     config.append((key, getattr(self, key)))
         return collections.OrderedDict(
             [
+                ("name", self.name),
                 ("project_name", self.project_name),
                 ("language", self.language),
                 ("timezone", self.timezone),
@@ -544,9 +547,13 @@ class Address(models.Model):
             for item in cls.objects.filter(organization=organization)
         ]
 
+    @staticmethod
+    def country_name_for(country_code):
+        return Address.COUNTRIES.get(country_code)
+
     @property
     def verbose_country(self):
-        return self.COUNTRIES.get(self.country)
+        return self.country_name_for(self.country)
 
     @property
     def human_phone(self):
@@ -636,27 +643,186 @@ class Media(models.Model):
 
 
 class Order(models.Model):
+    NOT_CREATED = "not-created"
     IN_PROGRESS = "in-progress"
     FAILED = "failed"
     COMPLETED = "completed"
+    STATUSES = {
+        IN_PROGRESS: "In Progress",
+        COMPLETED: "Completed",
+        FAILED: "Failed",
+        NOT_CREATED: "Not accepted by Scheduler",
+    }
 
-    STATUSES = {IN_PROGRESS: "In Progress", COMPLETED: "Completed", FAILED: "Failed"}
+    class Meta:
+        ordering = ["-created_on"]
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    scheduler_id = models.UUIDField(unique=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(Profile, on_delete=models.CASCADE)
+
+    scheduler_id = models.CharField(max_length=50, unique=True, blank=True)
+    scheduler_data = jsonfield.JSONField(
+        load_kwargs={"object_pairs_hook": collections.OrderedDict},
+        null=True,
+        blank=True,
+    )
+    scheduler_data_on = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
         max_length=50, choices=STATUSES.items(), default=IN_PROGRESS
     )
+
+    # copy of request data for archive purpose
+    channel = models.CharField(max_length=50)
+    client_name = models.CharField(max_length=100)
+    client_email = models.EmailField()
+    config = jsonfield.JSONField(
+        load_kwargs={"object_pairs_hook": collections.OrderedDict}
+    )
+    media_name = models.CharField(max_length=50)
+    media_size = models.IntegerField()
+    quantity = models.IntegerField()
+    units = models.IntegerField()
+    recipient_name = models.CharField(max_length=100)
+    recipient_email = models.EmailField()
+    recipient_phone = models.CharField(max_length=50, blank=True, null=True)
+    recipient_address = models.TextField()
+    recipient_country_code = models.CharField(max_length=3)
+
+    @classmethod
+    def fetch_and_get(cls, order_id):
+        order = cls.objects.get(id=order_id)
+        # fetch current version of scheduler data
+        retrieved, scheduler_data = get_order(order.scheduler_id)
+        if retrieved:
+            order.retrieved = True
+            order.scheduler_data = scheduler_data
+            order.scheduler_data_on = timezone.now()
+            # update status fron scheduler data
+            order.status = Order.status_from_statuses(scheduler_data.get("statuses"))
+            order.save()
+        else:
+            order.retrieved = True
+        return order
+
+    @staticmethod
+    def status_from_statuses(statuses):
+        if not isinstance(statuses, list) or not len(statuses):
+            return Order.FAILED
+        return Order.IN_PROGRESS
+
+    @classmethod
+    def get_or_none(cls, min_id):
+        try:
+            local_id = re.match(r"^L([0-9]+)R", min_id).groups()[0]
+        except KeyError:
+            return None
+        except cls.DoesNotExist:
+            return None
+        else:
+            return cls.fetch_and_get(local_id)
+
+    @classmethod
+    def create_from(cls, client, config, media, quantity, address):
+        order = cls(
+            organization=client.organization,
+            created_by=client,
+            channel=client.organization.channel,
+            client_name=client.name,
+            client_email=client.email,
+            config=config.json,
+            media_name=media.name,
+            media_size=media.size,
+            quantity=quantity,
+            units=media.units * quantity,
+            recipient_name=address.recipient,
+            recipient_email=address.email,
+            recipient_phone=address.phone,
+            recipient_address=address.address,
+            recipient_country_code=address.country,
+        )
+        payload = order.to_payload()
+        created, scheduler_id = create_order(payload)
+        if not created:
+            logger.error(scheduler_id)
+            raise SchedulerAPIError(scheduler_id)
+        order.scheduler_id = scheduler_id
+        order.save()
+        return order
+
+    @property
+    def data(self):
+        return self.scheduler_data or self.to_payload()
 
     @property
     def active(self):
         return self.status == self.IN_PROGRESS
 
     @property
+    def min_id(self):
+        return "L{dj}R{sched}".format(dj=self.id, sched=self.scheduler_id[:4]).upper()
+
+    @property
     def short_id(self):
         return self.scheduler_id[:8] + self.scheduler_id[-3:]
 
+    @property
+    def config_json(self):
+        return json.loads(self.config)
+
+    @property
+    def config_name(self):
+        return self.data.get("config", {}).get("name")
+
+    @property
+    def verbose_country(self):
+        return Address.country_name_for(self.recipient_country_code)
+
+    @property
+    def verbose_status(self):
+        return self.STATUSES.get(self.status)
+
+    def clean_statuses(self):
+        return sorted(
+            [
+                {
+                    "status": item.get("status"),
+                    "on": dateutil.parser.parse(item.get("on")),
+                    "payload": item.get("payload"),
+                }
+                for item in self.data.get("statuses", [])
+            ],
+            key=lambda x: x["on"],
+            reverse=True,
+        )
+
+    def pretty_config(self):
+        config = self.data.get("config", {})
+        for key in ("logo", "favicon", "css"):
+            try:
+                del (config["branding"][key]["data"])
+            except KeyError:
+                pass
+
+        return json.dumps(config, indent=4)
+
     def __str__(self):
-        return "Order #{id}".format(self.id)
+        return "Order #{id}".format(id=self.pk)
+
+    def to_payload(self):
+        return {
+            "config": self.config_json,
+            "sd_card": {"name": self.media_name, "size": self.media_size},
+            "quantity": self.quantity,
+            "units": self.units,
+            "client": {"name": self.client_name, "email": self.client_email},
+            "recipient": {
+                "name": self.recipient_name,
+                "email": self.recipient_email,
+                "phone": self.recipient_phone,
+                "address": self.recipient_address,
+                "country": self.recipient_country_code,
+                "shipment": None,
+            },
+            "channel": self.channel,
+        }

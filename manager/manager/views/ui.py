@@ -14,7 +14,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 
-from manager.models import Address, Media, Configuration
+from manager.models import Address, Media, Configuration, Order
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +25,9 @@ class AddressForm(forms.ModelForm):
         fields = ["name", "recipient", "email", "phone", "address", "country"]
 
     def __init__(self, *args, **kwargs):
-        organization = kwargs.pop("organization")
+        client = kwargs.pop("client")
         super().__init__(*args, **kwargs)
-        self.organization = organization
+        self.organization = client.organization
 
     def phone_clean(self):
         try:
@@ -51,9 +51,10 @@ class AddressForm(forms.ModelForm):
 
 class OrderForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        organization = kwargs.pop("organization")
+        client = kwargs.pop("client")
         super().__init__(*args, **kwargs)
-        self.organization = organization
+        self.client = client
+        self.organization = client.organization
         self.fields["config"].choices = Configuration.get_choices(self.organization)
         self.fields["address"].choices = Address.get_choices(self.organization)
         self.fields["media"].choices = Media.get_choices()
@@ -92,12 +93,20 @@ class OrderForm(forms.Form):
                 msg = "There is no large enough Media for this config."
                 field = "config"
             else:
-                msg = "Media not large enough for config (use at least {})".format(min_media.name)
+                msg = "Media not large enough for config (use at least {})".format(
+                    min_media.name
+                )
                 field = "media"
             self.add_error(field, msg)
 
     def save(self, *args, **kwargs):
-        return "**FAKE**"
+        return Order.create_from(
+            client=self.client,
+            config=self.cleaned_data.get("config"),
+            media=self.cleaned_data.get("media"),
+            quantity=self.cleaned_data.get("quantity"),
+            address=self.cleaned_data.get("address"),
+        ).min_id
 
     @classmethod
     def success_message(cls, res):
@@ -136,29 +145,31 @@ def orders(request):
     context = {
         "addresses": Address.objects.filter(
             organization=request.user.profile.organization
-        )
+        ),
+        "orders": Order.objects.filter(organization=request.user.profile.organization),
     }
 
     forms_map = {"address_form": AddressForm, "order_form": OrderForm}
 
     # assume GET
     for key, value in forms_map.items():
-        context[key] = value(prefix=key, organization=request.user.profile.organization)
+        context[key] = value(prefix=key, client=request.user.profile)
 
     if request.method == "POST" and request.POST.get("form") in forms_map.keys():
 
         # which form is being saved?
         form_key = request.POST.get("form")
         context[form_key] = forms_map.get(form_key)(
-            request.POST,
-            prefix=form_key,
-            organization=request.user.profile.organization,
+            request.POST, prefix=form_key, client=request.user.profile
         )
 
         if context[form_key].is_valid():
             try:
                 res = context[form_key].save()
             except Exception as exp:
+                import traceback
+
+                print(traceback.format_exc())
                 logger.error(exp)
                 messages.error(request, "Error while saving… {exp}".format(exp=exp))
             else:
@@ -168,6 +179,16 @@ def orders(request):
         pass
 
     return render(request, "orders.html", context)
+
+
+@login_required
+def order_detail(request, order_min_id):
+    order = Order.get_or_none(order_min_id)
+    if order is None:
+        raise Http404("Order with ID `{}` not found".format(order_min_id))
+
+    context = {"order": order}
+    return render(request, "order.html", context)
 
 
 @login_required
@@ -182,9 +203,18 @@ def delete_address(request, address_id=None):
 
     try:
         address.delete()
-        messages.success(request, "Successfuly deleted Address <em>{}</em>".format(address))
+        messages.success(
+            request, "Successfuly deleted Address <em>{}</em>".format(address)
+        )
     except Exception as exp:
-        logger.error("Unable to delete Address {id}: {exp}".format(id=address.id, exp=exp))
-        messages.error(request, "Unable to delete Address <em>{addr}</em>: -- ref {exp}".format(addr=address, exp=exp))
+        logger.error(
+            "Unable to delete Address {id}: {exp}".format(id=address.id, exp=exp)
+        )
+        messages.error(
+            request,
+            "Unable to delete Address <em>{addr}</em>: -- ref {exp}".format(
+                addr=address, exp=exp
+            ),
+        )
 
     return redirect("orders")

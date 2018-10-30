@@ -5,14 +5,14 @@
 <h2>{{ user.profile.organization }}'s Orders</h2>
 {% if orders %}
 <table class="table table-striped">
-	<thead><tr><th>Name</th><th>Recipient</th><th>Address</th><th>Country</th><th>Delete</th></tr></thead>
+	<thead><tr><th>#ID</th><th>Name</th><th>Country</th><th>Created On</th><th>Status</th></tr></thead>
 	<tbody>
-	{% for address in addresses %}
-	<tr><th>{{ address.name }}</th>
-		<td><strong>{{ address.recipient }}</strong><br />{{ address.human_phone }}{% if address.email %}<br /><a href="mailto:{{ address.email }}">{{ address.email }}</a>{% endif %}</td>
-		<td>{{ address.address|linebreaks }}</td>
-		<td>{{ address.verbose_country }}</td>
-		<td><button class="btn btn-warning btn-sm">Delete</button></td>
+	{% for order in orders %}
+	<tr><th><a href="{% url 'order_detail' order_min_id=order.min_id %}">{{ order.min_id }}</a></th>
+		<td>{{ order.config_name }}</td>
+		<td>{{ order.verbose_country }}</td>
+		<td>{{ order.created_on }}</td>
+		<td>{{ order.verbose_status }}</td>
 	</tr>
 	{% endfor %}
 	</tbody>
