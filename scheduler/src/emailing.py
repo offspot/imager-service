@@ -5,15 +5,17 @@
 import os
 import logging
 
-from jinja2 import Environment, PackageLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 import yagmail
 
 from utils.mongo import Orders
 
 logger = logging.getLogger(__name__)
 jinja_env = Environment(
-    loader=PackageLoader("templates"), autoescape=select_autoescape(["html", "xml"])
+    loader=FileSystemLoader("templates"),
+    autoescape=select_autoescape(["html", "xml", "txt"]),
 )
+
 
 CLIENT_EMAIL_STATUSES = [
     Orders.created,
@@ -49,23 +51,25 @@ def send_email(to, subject, contents, cc=None, bcc=None, headers=None):
     yag.send(to=to, cc=cc, bcc=bcc, headers=headers, subject=subject, contents=contents)
 
 
-def get_short_id(mongo_id):
-    return "XXX"
-
-
 def contextualize_order(order):
-    order.update(
-        {
-            "id": order.get("_id"),
-            "short_id": get_short_id(order.get("_id")),
-            "status": order.get("statuses")[-1],
-        }
-    )
+    order.update({"id": order.get("_id"), "status": order.get("statuses")[-1]})
     return order
 
 
 def get_order_status_update_template(status):
     return "email_order_{}.html".format(status)
+
+
+def send_order_created_email(order_id):
+    order = Orders().find_one({"_id": order_id}, {"logs": 0})
+    context = {"order": contextualize_order(order)}
+    to = [order["client"]["email"], order["recipient"]["email"]]
+    subject_tmpl = jinja_env.get_template("subject_order_new.txt")
+    subject = subject_tmpl.render(**context)
+    content_tmpl = jinja_env.get_template("email_order_created.html")
+    content = content_tmpl.render(**context)
+
+    send_email(to=to, subject=subject, contents=content)
 
 
 def send_order_update_email(order_id):

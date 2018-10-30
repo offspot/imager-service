@@ -90,7 +90,14 @@ class Orders(BaseCollection):
 
     schema = {
         "config": {"type": "dict", "required": True},
-        "sd_size": {"type": "integer", "required": True},
+        "sd_card": {
+            "type": "dict",
+            "required": True,
+            "schema": {
+                "name": {"type": "string", "required": True},
+                "size": {"type": "integer", "required": True},
+            },
+        },
         "quantity": {"type": "integer", "required": True},
         "units": {"type": "integer", "required": True},
         "client": {
@@ -102,8 +109,7 @@ class Orders(BaseCollection):
                     "type": "string",
                     "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
                     "required": True,
-                },
-                "phone": {"type": "string", "regex": "^\+?[0-9]+$", "required": False},
+                }
             },
         },
         "recipient": {
@@ -123,7 +129,7 @@ class Orders(BaseCollection):
             },
         },
         "channel": {"type": "string", "required": True},
-        "statuses": {"type": "list"},
+        "statuses": {"type": "list", "required": False},
         "logs": {"type": "list", "required": False},
     }
 

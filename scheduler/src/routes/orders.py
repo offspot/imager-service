@@ -1,9 +1,12 @@
+
+import datetime
 from bson import ObjectId
 from flask import Blueprint, request, jsonify, Response
 from jsonschema import validate, ValidationError
 
-from utils.mongo import Orders
-from . import authenticate, bson_object_id, errors
+from utils.mongo import Orders, Users
+from emailing import send_order_created_email
+from . import authenticate, bson_object_id, errors, only_for_roles
 
 
 blueprint = Blueprint("order", __name__, url_prefix="/orders")
@@ -11,16 +14,13 @@ blueprint = Blueprint("order", __name__, url_prefix="/orders")
 
 @blueprint.route("/", methods=["GET", "POST"])
 @authenticate
+@only_for_roles(roles=Users.MANAGER_ROLE)
 def collection(user: dict):
     """
     List or create orders
     """
 
     if request.method == "GET":
-        # check user permission
-        if not user.get("scope", {}).get("orders", {}).get("read", False):
-            raise errors.NotEnoughPrivilege()
-
         # unpack url parameters
         skip = request.args.get("skip", default=0, type=int)
         limit = request.args.get("limit", default=20, type=int)
@@ -31,63 +31,58 @@ def collection(user: dict):
 
         return jsonify({"meta": {"skip": skip, "limit": limit}, "items": orders})
     elif request.method == "POST":
-        # check user permission
-        if not user.get("scope", {}).get("orders", {}).get("create", False):
-            raise errors.NotEnoughPrivilege()
 
         # validate request json
-        schema = {
-            "type": "object",
-            "properties": {
-                "username": {"type": "string", "minLength": 1},
-                "password": {"type": "string", "minLength": 6},
-                "email": {"type": ["string", "null"]},
-                "scope": {"type": "object"},
-            },
-            "required": ["username", "password"],
-            "additionalProperties": False,
-        }
         try:
             request_json = request.get_json()
-            validate(request_json, schema)
+            validate(request_json, Orders().schema)
         except ValidationError as error:
             raise errors.BadRequest(error.message)
 
-        if Orders().count({"username": request_json["username"]}):
-            raise errors.BadRequest("Username is already taken.")
-
-        if Orders().count({"email": request_json["email"]}):
-            raise errors.BadRequest("Email is already registered.")
+        request_json["statuses"] = [{"status": Orders().created,
+                                     "on": datetime.datetime.now(),
+                                     "payload": None}]
 
         order_id = Orders().insert_one(request_json).inserted_id
+
+        # send email about new order
+        send_order_created_email(order_id)
         return jsonify({"_id": order_id})
 
 
-@blueprint.route("/<string:user_id>", methods=["GET", "DELETE"])
+@blueprint.route("/<string:order_id>", methods=["GET", "DELETE"])
 @authenticate
-@bson_object_id(["user_id"])
-def document(user_id: ObjectId, user: dict):
+@only_for_roles(roles=Users.MANAGER_ROLE)
+@bson_object_id(["order_id"])
+def document(order_id: ObjectId, user: dict):
     """ fetch indiviual order info or cancel it """
     if request.method == "GET":
-        # check user permission when not querying current user
-        if not user_id == ObjectId(user["_id"]):
-            if not user.get("scope", {}).get("users", {}).get("read", False):
-                raise errors.NotEnoughPrivilege()
-
-        user = Orders().find_one({"_id": user_id}, {"password_hash": 0})
-        if user is None:
+        order = Orders().find_one({"_id": order_id}, {"logs": 0})
+        if order is None:
             raise errors.NotFound()
 
-        return jsonify(user)
-    elif request.method == "DELETE":
-        # check user permission when not deleting current user
-        if not user_id == ObjectId(user["_id"]):
-            if not user.get("scope", {}).get("orders", {}).get("delete", False):
-                raise errors.NotEnoughPrivilege()
+        return jsonify(order)
 
-        deleted_count = Orders().delete_one({"_id": user_id}).deleted_count
+    elif request.method == "DELETE":
+        deleted_count = Orders().delete_one({"_id": order_id}).deleted_count
         if deleted_count == 0:
             raise errors.NotFound()
 
         return Response()
 
+@blueprint.route("/<string:order_id>/status", methods=["PATCH"])
+@authenticate
+@only_for_roles(roles=Users.WORKER_ROLES)
+@bson_object_id(["order_id"])
+def update_status(order_id: ObjectId, user: dict):
+    # {"status": "XXX", "on": datetime, "payload": "XXX"}
+    pass
+
+
+@blueprint.route("/<string:order_id>/logs", methods=["POST"])
+@authenticate
+@only_for_roles(roles=Users.WORKER_ROLES)
+@bson_object_id(["order_id"])
+def add_log(order_id: ObjectId, user: dict):
+    # log_type, on, log_content
+    pass
