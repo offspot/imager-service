@@ -1,3 +1,5 @@
+
+import os
 from pymongo import MongoClient
 from pymongo.database import Database as BaseDatabase
 from pymongo.collection import Collection as BaseCollection
@@ -5,7 +7,7 @@ from pymongo.collection import Collection as BaseCollection
 
 class Client(MongoClient):
     def __init__(self):
-        super().__init__(host="mongo")
+        super().__init__(host=os.getenv("MONGODB_URI", "mongo"))
 
 
 class Database(BaseDatabase):
@@ -109,7 +111,7 @@ class Orders(BaseCollection):
                     "type": "string",
                     "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
                     "required": True,
-                }
+                },
             },
         },
         "recipient": {

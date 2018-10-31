@@ -5,11 +5,15 @@ from cerberus import Validator
 from pymongo import ASCENDING
 
 from utils import mongo
+from emailing import send_email
 
 
 class Initializer:
     @staticmethod
     def start():
+        print("send test email")
+        if os.getenv("TEST_EMAIL"):
+            send_email(os.getenv("TEST_EMAIL"), "scheduler test", "started a scheduler")
         print("Running pre-start initialization...")
         if bool(os.getenv("RESET_DB", False)):
             print("removed {} tokens".format(mongo.RefreshTokens().remove({}, False)))
