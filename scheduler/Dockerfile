@@ -1,4 +1,4 @@
-FROM tiangolo/uwsgi-nginx:python3.6
+FROM tiangolo/uwsgi-nginx:python3.7
 
 ENV MONGODB_URI mongo
 ENV MANAGER_API_KEY manager

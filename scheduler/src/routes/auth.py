@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from flask import Blueprint, request, Response, jsonify
 from werkzeug.security import check_password_hash
 
-from app import system_username, system_password
 from utils.mongo import Users, RefreshTokens
 from utils.token import AccessToken
 from .errors import BadRequest, Unauthorized

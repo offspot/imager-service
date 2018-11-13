@@ -61,4 +61,5 @@ def only_for_roles(roles: list = None):
 def ensure_user_matches_role(user, roles):
     roles = [roles] if not isinstance(roles, (list, tuple)) else roles
     if user.get("role") not in roles:
+        print(user, user.get("role"), "not in", roles)
         raise errors.NotEnoughPrivilege()

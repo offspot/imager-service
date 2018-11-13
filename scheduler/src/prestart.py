@@ -16,18 +16,12 @@ class Initializer:
             send_email(os.getenv("TEST_EMAIL"), "scheduler test", "started a scheduler")
         print("Running pre-start initialization...")
         if bool(os.getenv("RESET_DB", False)):
-            print("removed {} tokens".format(mongo.RefreshTokens().remove({}, False)))
-            print("removed {} users".format(mongo.Users().remove({}, False)))
-            print("removed {} channels".format(mongo.Channels().remove({}, False)))
-            print("removed {} orders".format(mongo.Orders().remove({}, False)))
-            print(
-                "removed {} creator_tasks".format(
-                    mongo.CreatorTasks().remove({}, False)
-                )
-            )
-            print(
-                "removed {} writer_tasks".format(mongo.WriterTasks().remove({}, False))
-            )
+            print("removed {} tokens".format(mongo.RefreshTokens().remove({})))
+            print("removed {} users".format(mongo.Users().remove({})))
+            print("removed {} channels".format(mongo.Channels().remove({})))
+            print("removed {} orders".format(mongo.Orders().remove({})))
+            print("removed {} creator_tasks".format(mongo.CreatorTasks().remove({})))
+            print("removed {} writer_tasks".format(mongo.WriterTasks().remove({})))
         Initializer.create_database_indexes()
         Initializer.create_initial_data()
 
@@ -77,7 +71,22 @@ class Initializer:
         if not validator.validate(channel_document):
             print("channel_document is not valid for schema")
         else:
-            print("created user", mongo.Channels().insert_one(channel_document))
+            print("created channel", mongo.Channels().insert_one(channel_document))
+
+        warehouse_document = {
+            "slug": "kiwix",
+            "upload_uri": "ftp://warehouse.cardshop.hotspot.kiwix.org:21",
+            "download_uri": "http://warehouse.cardshop.hotspot.kiwix.org",
+            "active": True,
+        }
+
+        validator = Validator(mongo.Warehouses.schema)
+        if not validator.validate(warehouse_document):
+            print("warehouse_document is not valid for schema")
+        else:
+            print(
+                "created warehouse", mongo.Warehouses().insert_one(warehouse_document)
+            )
 
 
 if __name__ == "__main__":
