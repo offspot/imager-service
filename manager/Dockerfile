@@ -1,4 +1,4 @@
-FROM tiangolo/uwsgi-nginx:python3.6
+FROM tiangolo/uwsgi-nginx:python3.7
 
 ENV DATA_DIR /data
 ENV CARDSHOP_API_URL https://api.cardshop.hotspot.kiwix.org
