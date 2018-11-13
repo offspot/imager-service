@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load manager %}
+
+{% block content %}
+<h3>Order #<code>{{ orderdata.id }}</code></h3>
+{% include "order_detail.html" with orderdata=orderdata %}
+{% endblock %}
+
+{% block javascript %}
+	$('[data-toggle="popover"]').popover();
+	$('.toggle').on("click", function (e) {
+		$(".pretty-config").toggleClass("hidden");
+	});
+{% endblock %}

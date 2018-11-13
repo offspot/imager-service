@@ -5,12 +5,12 @@
 <h2>{{ user.profile.organization }}'s Orders</h2>
 {% if orders %}
 <table class="table table-striped">
-	<thead><tr><th>#ID</th><th>Name</th><th>Country</th><th>Created On</th><th>Status</th></tr></thead>
+	<thead><tr><th>ID</th><th>Name</th><th>Country</th><th>Created On</th><th>Status</th></tr></thead>
 	<tbody>
 	{% for order in orders %}
 	<tr><th><a href="{% url 'order_detail' order_min_id=order.min_id %}">{{ order.min_id }}</a></th>
-		<td>{{ order.config_name }}</td>
-		<td>{{ order.verbose_country }}</td>
+		<td>{{ order.data.config_name }}</td>
+		<td>{{ order.data.recipient.country|country }}</td>
 		<td>{{ order.created_on }}</td>
 		<td>{{ order.verbose_status }}</td>
 	</tr>

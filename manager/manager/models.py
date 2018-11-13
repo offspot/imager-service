@@ -18,7 +18,12 @@ from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from manager.scheduler import create_order, SchedulerAPIError, get_order
+from manager.scheduler import (
+    create_order,
+    SchedulerAPIError,
+    get_order,
+    get_warehouse_from,
+)
 from manager.pibox.packages import get_packages_id
 from manager.pibox.data import ideascube_languages
 from manager.pibox.util import (
@@ -57,6 +62,19 @@ def get_channel_choices():
         )
         for channel in channels
         if channel.get("active", False)
+    ]
+
+
+def get_warehouse_choices():
+    from manager.scheduler import get_warehouses_list, as_items_or_none
+
+    warehouses = as_items_or_none(*get_warehouses_list())
+    if warehouses is None:
+        return [("kiwix", "kiwix")]
+    return [
+        (warehouse.get("slug"), warehouse.get("slug"))
+        for warehouse in warehouses
+        if warehouse.get("active", False)
     ]
 
 
@@ -416,6 +434,9 @@ class Organization(models.Model):
     channel = models.CharField(
         max_length=50, choices=get_channel_choices(), default="kiwix"
     )
+    warehouse = models.CharField(
+        max_length=50, choices=get_warehouse_choices(), default="kiwix"
+    )
     email = models.EmailField()
     units = models.IntegerField()
 
@@ -433,6 +454,12 @@ class Organization(models.Model):
         return cls.objects.create(
             slug="kiwix", name="Kiwix", email="reg@kiwix.org", units=256000
         )
+
+    def get_warehouse_details(self):
+        success, warehouse = get_warehouse_from(self.warehouse)
+        if not success:
+            raise SchedulerAPIError(warehouse)
+        return warehouse
 
     def __str__(self):
         return self.name
@@ -469,6 +496,7 @@ class Profile(models.Model):
         else:
             user = User.objects.create_superuser(
                 username="admin",
+                first_name="admin",
                 email=organization.email,
                 password=settings.ADMIN_PASSWORD,
             )
@@ -642,6 +670,55 @@ class Media(models.Model):
         return self.KINDS.get(self.kind)
 
 
+class OrderData(dict):
+    @property
+    def id(self):
+        return self.get("_id")
+
+    @property
+    def config_name(self):
+        return self.get("config", {}).get("name")
+
+    @property
+    def verbose_country(self):
+        return Address.country_name_for(self.get("recipient", {}).get("country"))
+
+    @property
+    def status(self):
+        try:
+            return self.clean_statuses()[0].get("status")
+        except IndexError:
+            return None
+
+    @property
+    def verbose_status(self):
+        return Order.STATUSES.get(self.status)
+
+    def clean_statuses(self):
+        return sorted(
+            [
+                {
+                    "status": item.get("status"),
+                    "on": dateutil.parser.parse(item.get("on")),
+                    "payload": item.get("payload"),
+                }
+                for item in self.get("statuses", [])
+            ],
+            key=lambda x: x["on"],
+            reverse=True,
+        )
+
+    def pretty_config(self):
+        config = self.get("config", {})
+        for key in ("logo", "favicon", "css"):
+            try:
+                del (config["branding"][key]["data"])
+            except KeyError:
+                pass
+
+        return json.dumps(config, indent=4)
+
+
 class Order(models.Model):
     NOT_CREATED = "not-created"
     IN_PROGRESS = "in-progress"
@@ -702,7 +779,7 @@ class Order(models.Model):
             order.status = Order.status_from_statuses(scheduler_data.get("statuses"))
             order.save()
         else:
-            order.retrieved = True
+            order.retrieved = False
         return order
 
     @staticmethod
@@ -741,10 +818,24 @@ class Order(models.Model):
             recipient_address=address.address,
             recipient_country_code=address.country,
         )
+        if order.units > client.organization.units:
+            raise ValueError(
+                "Order needs {r}U but in {org} has only {a}".format(
+                    r=order.units, org=client.organization, a=client.organization.units
+                )
+            )
+        else:
+            # remove units from org
+            client.organization.units -= order.units
+            client.organization.save()
+
         payload = order.to_payload()
         created, scheduler_id = create_order(payload)
         if not created:
             logger.error(scheduler_id)
+            # restore units on org
+            client.organization.units += order.units
+            client.organization.save()
             raise SchedulerAPIError(scheduler_id)
         order.scheduler_id = scheduler_id
         order.save()
@@ -752,7 +843,7 @@ class Order(models.Model):
 
     @property
     def data(self):
-        return self.scheduler_data or self.to_payload()
+        return OrderData(self.scheduler_data or self.to_payload())
 
     @property
     def active(self):
@@ -771,43 +862,11 @@ class Order(models.Model):
         return json.loads(self.config)
 
     @property
-    def config_name(self):
-        return self.data.get("config", {}).get("name")
-
-    @property
-    def verbose_country(self):
-        return Address.country_name_for(self.recipient_country_code)
-
-    @property
     def verbose_status(self):
         return self.STATUSES.get(self.status)
 
-    def clean_statuses(self):
-        return sorted(
-            [
-                {
-                    "status": item.get("status"),
-                    "on": dateutil.parser.parse(item.get("on")),
-                    "payload": item.get("payload"),
-                }
-                for item in self.data.get("statuses", [])
-            ],
-            key=lambda x: x["on"],
-            reverse=True,
-        )
-
-    def pretty_config(self):
-        config = self.data.get("config", {})
-        for key in ("logo", "favicon", "css"):
-            try:
-                del (config["branding"][key]["data"])
-            except KeyError:
-                pass
-
-        return json.dumps(config, indent=4)
-
     def __str__(self):
-        return "Order #{id}".format(id=self.pk)
+        return "Order #{id}/{sid}".format(id=self.id, sid=self.scheduler_id)
 
     def to_payload(self):
         return {
@@ -825,4 +884,5 @@ class Order(models.Model):
                 "shipment": None,
             },
             "channel": self.channel,
+            "warehouse": self.organization.get_warehouse_details(),
         }

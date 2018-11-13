@@ -7,6 +7,7 @@ import base64
 from pathlib import Path
 
 import humanfriendly
+import dateutil.parser
 from django import template
 
 from manager.models import Address
@@ -75,3 +76,37 @@ def country_name(country_code):
 
 
 register.filter("country", country_name)
+
+
+def get_id(mongo_data):
+    return mongo_data.get("_id") if isinstance(mongo_data, dict) else None
+
+
+register.filter("id", get_id)
+
+
+def clean_statuses(items):
+    if not isinstance(items, list):
+        return []
+    return sorted(
+        [
+            {
+                "status": item.get("status"),
+                "on": dateutil.parser.parse(item.get("on")),
+                "payload": item.get("payload"),
+            }
+            for item in items
+        ],
+        key=lambda x: x["on"],
+        reverse=True,
+    )
+
+
+register.filter("clean_statuses", clean_statuses)
+
+
+def plus_one(number):
+    return number + 1
+
+
+register.filter("plus_one", plus_one)

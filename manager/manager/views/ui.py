@@ -38,6 +38,9 @@ class AddressForm(forms.ModelForm):
 
         return cleaned_phone
 
+    def address_clean(self):
+        return self.cleaned_data.get("address").strip()
+
     def save(self, *args, **kwargs):
         instance = super().save(commit=False)
         instance.organization = self.organization

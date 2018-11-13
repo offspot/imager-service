@@ -2,6 +2,7 @@
 {% load manager %}
 
 {% block content %}
+<p><a href="{% url "scheduler-refresh" %}" class="btn btn-sm btn-info float-right">refresh token</a></p>
 <h3>Channels</h3>
 <p class="info">Channels ensures organization-specific workers gets to produce their own cards.</p>
 
@@ -31,6 +32,39 @@
 		<div class="form-group col-md-1">{% include "_label_for.html" with field=channel_form.private %}{{ channel_form.private|as_widget }}</div>
 		
 		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add Channel</button></div>
+	</div>
+</form>
+
+<h3>Warehouses</h3>
+<p class="info">Warehouses are where created images are stored and retrieved from during the process.</p>
+
+{% if warehouses %}
+<table class="table table-bordered table-striped">
+	<tr><th>Slug</th><th>Upload URI</th><th>Download URI</th><th>Active</th></tr>
+	{% for warehouse in warehouses %}
+	<tr>
+		<th><code>{{warehouse.slug }}</code></th>
+		<td>{{ warehouse.upload_uri }}</td>
+		<td>{{ warehouse.download_uri }}</td>
+		<td><a class="btn btn-sm btn-warning" href="{% if warehouse.active %}{% url "scheduler_disable_warehouse" warehouse.id %}{% else %}{% url "scheduler_enable_warehouse" warehouse.id %}{% endif %}">{{ warehouse.active|yesno }}: {% if warehouse.active %}disable{% else %}enable{% endif %}</a>
+		</td>
+		</tr>
+	{% endfor %}
+</table>
+{% elif warehouses is None %}
+{% include "error.html" with level="warning" message="Could not retrieve warehouses list…" %}
+{% else %}
+<p class="info">hum, there's no existing warehouse…</p>
+{% endif %}
+<form method="POST" class="form-check form-check-inline">
+	{% csrf_token %}
+	<input type="hidden" name="form" value="warehouse_form">
+	<div class="form-row visual-group">
+		<div class="form-group col-md-3">{% include "_label_for.html" with field=warehouse_form.slug %}{{ warehouse_form.slug|as_widget }}</div>
+		<div class="form-group col-md-3">{% include "_label_for.html" with field=warehouse_form.upload_uri %}{{ warehouse_form.upload_uri|as_widget }}</div>
+		<div class="form-group col-md-3">{% include "_label_for.html" with field=warehouse_form.download_uri %}{{ warehouse_form.download_uri|as_widget }}</div>
+		<div class="form-group col-md-1">{% include "_label_for.html" with field=warehouse_form.active %}{{ warehouse_form.active|as_widget }}</div>
+		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add Warehouse</button></div>
 	</div>
 </form>
 

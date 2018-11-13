@@ -4,8 +4,9 @@ langcodes==1.4.1
 python-magic==0.4.15
 pytz==2018.5
 PyYAML==3.12
-requests==2.19.1
+requests==2.20.1
 jsonfield==2.0.2
 pycountry==18.5.26
 phonenumbers==8.9.15
 python-dateutil==2.7.5
+ansi2html==1.5.2

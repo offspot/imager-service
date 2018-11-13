@@ -18,6 +18,10 @@ from manager.scheduler import (
     as_items_or_none,
     get_orders_list,
     add_channel,
+    add_warehouse,
+    get_warehouses_list,
+    enable_warehouse,
+    disable_warehouse,
     add_user,
     ROLES,
     SchedulerAPIError,
@@ -25,6 +29,8 @@ from manager.scheduler import (
     disable_channel,
     enable_user,
     disable_user,
+    authenticate,
+    TOKEN,
 )
 
 logger = logging.getLogger(__name__)
@@ -58,6 +64,38 @@ class ChannelForm(forms.Form):
         if not success:
             raise SchedulerAPIError(channel_id)
         return channel_id
+
+
+class WarehouseForm(forms.Form):
+    slug = forms.CharField()
+    upload_uri = forms.URLField()
+    download_uri = forms.URLField()
+    active = forms.BooleanField(initial=True, required=False)
+
+    @staticmethod
+    def success_message(result):
+        return "Successfuly created warehouse <em>{warehouse}</em>".format(
+            warehouse=result
+        )
+
+    def clean_slug(self):
+        if not re.match(r"^[a-zA-Z0-9_.+-]+$", self.cleaned_data.get("slug")):
+            raise forms.ValidationError("Prohibited Characters", code="invalid")
+        return self.cleaned_data.get("slug")
+
+    def save(self):
+        if not self.is_valid():
+            raise ValueError("{cls} is not valid".format(type(self)))
+
+        success, warehouse_id = add_warehouse(
+            slug=self.cleaned_data.get("slug"),
+            upload_uri=self.cleaned_data.get("upload_uri"),
+            download_uri=self.cleaned_data.get("download_uri"),
+            active=self.cleaned_data.get("active"),
+        )
+        if not success:
+            raise SchedulerAPIError(warehouse_id)
+        return warehouse_id
 
 
 class UserForm(forms.Form):
@@ -118,11 +156,15 @@ def dashboard(request):
 
     context = {
         "channels": as_items_or_none(*get_channels_list()) or None,
+        "warehouses": as_items_or_none(*get_warehouses_list()) or None,
         "users": as_items_or_none(*get_users_list()) or None,
-        "orders": as_items_or_none(*get_orders_list()) or None,
     }
 
-    forms_map = {"channel_form": ChannelForm, "user_form": UserForm}
+    forms_map = {
+        "channel_form": ChannelForm,
+        "user_form": UserForm,
+        "warehouse_form": WarehouseForm,
+    }
     for key, value in forms_map.items():
         context[key] = value(prefix=key)
 
@@ -183,6 +225,38 @@ def channel_disable(request, channel_id):
 
 
 @staff_required
+def warehouse_enable(request, warehouse_id):
+    success, warehouse_id = enable_warehouse(warehouse_id)
+    if not success:
+        logger.error("Unable to enable warehouse: {}".format(warehouse_id))
+        messages.error(
+            request, "Unable to enable Channel: -- ref: {}".format(warehouse_id)
+        )
+    else:
+        messages.success(
+            request, "Successfuly enabled warehouse: {}".format(warehouse_id)
+        )
+
+    return redirect("scheduler")
+
+
+@staff_required
+def warehouse_disable(request, warehouse_id):
+    success, warehouse_id = disable_warehouse(warehouse_id)
+    if not success:
+        logger.error("Unable to disable warehouse: {}".format(warehouse_id))
+        messages.error(
+            request, "Unable to disable Channel: -- ref: {}".format(warehouse_id)
+        )
+    else:
+        messages.success(
+            request, "Successfuly disabled warehouse: {}".format(warehouse_id)
+        )
+
+    return redirect("scheduler")
+
+
+@staff_required
 def user_enable(request, user_id):
     success, user_id = enable_user(user_id)
     if not success:
@@ -203,4 +277,15 @@ def user_disable(request, user_id):
     else:
         messages.success(request, "Successfuly disabled user: {}".format(user_id))
 
+    return redirect("scheduler")
+
+
+@staff_required
+def refresh_token(request):
+    authenticate(force=True)
+    logger.info("Re-authenticated against the scheduler: `{}`".format(TOKEN))
+    messages.info(
+        request,
+        "Re-authenticated against the scheduler: <code>{}</code>".format(TOKEN[:20]),
+    )
     return redirect("scheduler")

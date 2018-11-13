@@ -16,7 +16,7 @@ CATALOGS = [
     {
         "name": "Kiwix",
         "description": "Kiwix ZIM Content",
-        "url": "http://download.kiwix.org/library/ideascube.yml",
+        "url": "http://mirror.download.kiwix.org/library/ideascube.yml",
     }
 ]
 

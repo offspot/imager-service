@@ -13,6 +13,7 @@ from manager.views import api
 from manager.views import admin
 from manager.views import config
 from manager.views import scheduler
+from manager.views import all_orders
 
 urlpatterns = (
     [
@@ -56,18 +57,41 @@ urlpatterns = (
             ui.delete_address,
             name="delete_address",
         ),
-        path(
-            "orders/<str:order_min_id>",
-            ui.order_detail,
-            name="order_detail",
-        ),
+        path("orders/<str:order_min_id>", ui.order_detail, name="order_detail"),
         path("orders/", ui.orders, name="orders"),
+        path(
+            "all-orders/<str:order_id>/logs/<str:step>/<str:kind>.txt",
+            all_orders.order_log,
+            name="order_log",
+        ),
+        path(
+            "all-orders/<str:order_id>/logs/<str:step>/<str:kind>.html",
+            all_orders.order_log_html,
+            name="order_log_html",
+        ),
+        path(
+            "all-orders/<str:order_id>/delete",
+            all_orders.delete,
+            name="all-orders-delete",
+        ),
+        path("all-orders/<str:order_id>", all_orders.detail, name="all-orders-detail"),
+        path("all-orders/", all_orders.list, name="all-orders"),
         path(
             "admin/toggle_account/<str:username>",
             admin.toggle_account,
             name="admin_toggle_account",
         ),
         path("admin/", admin.dashboard, name="admin"),
+        path(
+            "scheduler/disable_warehouse/<str:warehouse_id>",
+            scheduler.warehouse_disable,
+            name="scheduler_disable_warehouse",
+        ),
+        path(
+            "scheduler/enable_warehouse/<str:warehouse_id>",
+            scheduler.warehouse_enable,
+            name="scheduler_enable_warehouse",
+        ),
         path(
             "scheduler/disable_channel/<str:channel_id>",
             scheduler.channel_disable,
@@ -88,6 +112,7 @@ urlpatterns = (
             scheduler.user_enable,
             name="scheduler_enable_user",
         ),
+        path("scheduler/refresh", scheduler.refresh_token, name="scheduler-refresh"),
         path("scheduler/", scheduler.dashboard, name="scheduler"),
         path("", ui.home, name="home"),
     ]

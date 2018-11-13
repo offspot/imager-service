@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = Organization
-        fields = ["slug", "name", "channel", "email", "units"]
+        fields = ["slug", "name", "channel", "warehouse", "email", "units"]
 
     @staticmethod
     def success_message(result):

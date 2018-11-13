@@ -2,34 +2,21 @@
 {% load manager %}
 
 {% block content %}
-<h3>Order {{ order.min_id }}</h3>
+<h3>Order <code>{{ order.min_id }}</code></h3>
+
+<table class="table table-striped">
+<tr><th>Scheduler ID</th><td colspan="3">{{ order.scheduler_id }}</td></tr>
+<tr><th>Created By</th><td>{{ order.created_by }}</td><td colspan="2">{{ order.created_on }}</td></tr>
+<tr><th>General Status</th><td colspan="3"><strong>{{ order.verbose_status }}</strong></td></tr>
+</table>
 
 {% if not order.retrieved %}
-<p class="alert alert-warning">Unable to retrieve {{ order }} from scheduler. Displaying archive version ({{ order.scheduler_data_on }}).</p>
+<p class="alert alert-warning">Unable to retrieve {{ order }} from scheduler. Displaying archive version ({{ order.scheduler_data_on|default:"creation" }}).</p>
 {% else %}
 <p class="alert alert-info">Scheduler data retrieved on ({{ order.scheduler_data_on }}).</p>
 {% endif %}
-<table class="table table-striped">
-	<tr><th>Scheduler ID</th><td colspan="3">{{ order.scheduler_id }}</td></tr>
-	<tr><th>Created By</th><td>{{ order.created_by }}</td><td colspan="2">{{ order.created_on }}</td></tr>
-	<tr><th>General Status</th><td colspan="3"><strong>{{ order.verbose_status }}</strong></td></tr>
-	<tr><th>Config</th><td>{{ order.data.config.name }}</td>
-					   <td colspan="2"><button class="btn btn-sm toggle">Toggle config display</button><br />
-					   <span class="pretty-config hidden"><code><pre>{{ order.pretty_config }}</pre></code></span></td></tr>
-	<tr><th>SD-card</th><td><strong>{{ order.data.sd_card.name }}</strong></td><td colspan="2">{{ order.data.sd_card.size }}GB</td></tr>
-	<tr><th>Quantity</th><td>{{ order.data.quantity }}</td><td colspan="2">{{ order.data.units }}U</td></tr>
-	<tr><th>Channel</th><td colspan="3">{{ order.data.channel }}</td></tr>
-	<tr><th>Client</th><td>{{ order.data.client.name }}</td><td colspan="2"><a href="mailto:{{ order.data.client.email }}">{{ order.data.client.email }}</a></td></tr>
-	<tr><th>Recipient</th><td>{{ order.data.recipient.name }}</td><td><a href="mailto:{{ order.data.recipient.email }}">{{ order.data.recipient.email }}</a></td><td><a href="call:{{ order.data.recipient.phone }}">{{ order.data.recipient.phone }}</a></td></tr>
-	<tr><th>Recipient Address</th><td colspan="2">{{ order.data.recipient.address|linebreaks }}</td><td>{{ order.data.recipient.country|country }}</td></tr>
-	<tr><th rowspan="{{ order.data.statuses|length }}">Scheduler Statuses</th>
-		{% for status in order.clean_statuses %}
-			<td>{% if forloop.first %}<strong>{{ status.status }}</strong>{% else %}{{ status.status }}{% endif %}</td><td>{{ status.on }}</td><td>{{ status.payload|default_if_none:"" }}</td>
-		{% endfor %}
-	<tr><th>Image Creation Log</th><td colspan="3">{{ order.data.logs.creation|default:"n/a" }}</td></tr>
-	<tr><th>Image Writing Log</th><td colspan="3">{{ order.data.logs.writing|default:"n/a" }}</td></tr>
-	<tr><th>Shipment</th><td colspan="3">{{ order.data.shipment|default:"n/a" }}</td></tr>
-</table>
+
+{% include "order_detail.html" with orderdata=order.data %}
 {% endblock %}
 
 {% block javascript %}

@@ -16,7 +16,7 @@ DELETE = "DELETE"
 # URL = "https://api.demo.plug.kiwix.org"
 URL = settings.CARDSHOP_API_URL
 USERNAME = settings.MANAGER_API_USERNAME
-PASSSWORD = settings.MANAGER_API_KEY
+PASSWORD = settings.MANAGER_API_KEY
 TOKEN = None
 TOKEN_EXPIRY = None
 REFRESH_TOKEN = None
@@ -60,7 +60,7 @@ def authenticate(force=False):
         return
 
     try:
-        token, access_token = get_token(username=USERNAME, password=PASSSWORD)
+        token, access_token = get_token(username=USERNAME, password=PASSWORD)
     except Exception as exp:
         TOKEN = REFRESH_TOKEN = TOKEN_EXPIRY = None
     else:
@@ -113,7 +113,7 @@ def query_api(method, path, payload=None):
 
 @auth_required
 def test_connection():
-    return query_api(GET, "/users/")
+    return query_api(GET, "/")
 
 
 def fix_id(item):
@@ -233,6 +233,55 @@ def disable_channel(channel_id):
 
 
 @auth_required
+def get_warehouses_list():
+    success, code, response = query_api(GET, "/warehouses/")
+    return success, response
+
+
+@auth_required
+def get_warehouse_from(warehouse_slug):
+    success, code, response = query_api(GET, "/warehouses/{}".format(warehouse_slug))
+    return success, response
+
+
+@auth_required
+def add_warehouse(slug, upload_uri, download_uri, active=True):
+    payload = {
+        "slug": slug,
+        "upload_uri": upload_uri,
+        "download_uri": download_uri,
+        "active": active,
+    }
+
+    success, code, response = query_api(POST, "/warehouses/", payload=payload)
+    if not success or "_id" not in response:
+        return False, response
+    return True, response.get("_id")
+
+
+@auth_required
+def change_warehouse_status(warehouse_id, active):
+    payload = {"active": active}
+
+    success, code, response = query_api(
+        PATCH, "/warehouses/{}".format(warehouse_id), payload=payload
+    )
+    if not success or "_id" not in response:
+        return False, response
+    return True, response.get("_id")
+
+
+@auth_required
+def enable_warehouse(warehouse_id):
+    return change_warehouse_status(warehouse_id, True)
+
+
+@auth_required
+def disable_warehouse(warehouse_id):
+    return change_warehouse_status(warehouse_id, False)
+
+
+@auth_required
 def get_orders_list():
     success, code, response = query_api(GET, "/orders/")
     return success, response
@@ -245,47 +294,22 @@ def create_order(payload):
         return False, response
     return True, response.get("_id")
 
+
+@auth_required
+def delete_order(order_id):
+    success, code, response = query_api(DELETE, "/orders/{}".format(order_id))
+    if not success or "_id" not in response:
+        return False, response
+    return True, response.get("_id")
+
+
 @auth_required
 def get_order(order_id):
     success, code, response = query_api(GET, "/orders/{id}".format(id=order_id))
     return success, response
 
 
-def test():
-    from pprint import pprint as pp
-
-    # user = get_user_detail(users[0]["_id"])
-    # pp(user)
-
-    # print("adding user")
-    # ret = add_user("rgaudin3", "rgaudin3@gmail.com", "renaud", "simple-user")
-    # pp(ret)
-
-    # print("delete user")
-    # ret = delete_user("5ba3d304db414d00212e42bd")
-    # pp(ret)
-
-    # print("changing password")
-    # ret = change_user_password("5ba3d334db414d00212e42c8", "renaud", "rgaudin3")
-    # pp(ret)
-
-    authenticate()
-
-    # print("list users")
-    # users = get_users_list()
-    # pp(users)
-
-    print("list channels")
-    ret = get_channels_list()
-    pp(ret)
-
-    # print("add channels")
-    # ret = add_channel("kiwix", "Kiwix", active=True, private=False)
-    # pp(ret)
-
-    # ret = add_channel("orange", "Orange", active=True, private=True)
-    # pp(ret)
-
-
-if __name__ == "__main__":
-    test()
+@auth_required
+def get_task(task_id):
+    success, code, response = query_api(GET, "/tasks/{id}".format(id=task_id))
+    return success, response
