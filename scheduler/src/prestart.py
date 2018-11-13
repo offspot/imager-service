@@ -75,8 +75,14 @@ class Initializer:
 
         warehouse_document = {
             "slug": "kiwix",
-            "upload_uri": "ftp://warehouse.cardshop.hotspot.kiwix.org:21",
-            "download_uri": "http://warehouse.cardshop.hotspot.kiwix.org",
+            "upload_uri": os.getenv(
+                "DEFAULT_WAREHOUSE_UPLOAD_URI",
+                "ftp://warehouse.cardshop.hotspot.kiwix.org:2121",
+            ),
+            "download_uri": os.getenv(
+                "DEFAULT_WAREHOUSE_DOWNLOAD_URI",
+                "http://warehouse.cardshop.hotspot.kiwix.org",
+            ),
             "active": True,
         }
 
