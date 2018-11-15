@@ -3,6 +3,7 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import io
+import os
 import time
 import logging
 import tempfile
@@ -52,25 +53,37 @@ class CreatorWorker:
             return
 
         # retrieve local version ()
-        local_version = (
-            subprocess.run(
-                args=[Setting.installer_binary_path, "--version"],
-                universal_newlines=True,
-                capture_output=True,
-                check=True,
+        try:
+            local_version = (
+                subprocess.run(
+                    args=[str(Setting.installer_binary_path), "--version"],
+                    universal_newlines=True,
+                    capture_output=True,
+                    check=True,
+                )
+                .stdout.strip()
+                .split(": ")[-1]
             )
-            .stdout.strip()
-            .split(": ")[-1]
-        )
+        except Exception as exp:
+            logger.error(exp)
+            local_version = "unknown"
 
         if version == local_version:
             logger.info("Already using latest ({}) version, skipping.".format(version))
             return
         else:
-            logger.info("Using {l} instead of {r}".format(r=version, l=local_version))
+            logger.info(
+                "Using {local} instead of {remote}".format(
+                    remote=version, local=local_version
+                )
+            )
+
+        if bool(os.getenv("DONT_UPDATE_INSTALLER", False)):
+            logger.info("not updating… as requested")
+            return
 
         # download new version
-        url = "http://download.kiwix.org/release/kiwix-hotspot/{version}/kiwix-hotspot-linux.tar.gz".format(
+        url = "http://download.kiwix.org/release/kiwix-hotspot/v{version}/kiwix-hotspot-linux.tar.gz".format(
             version=version
         )
         logger.info("Downloading new Kiwix-hotspot {}".format(version))
@@ -212,6 +225,7 @@ class CreatorWorker:
 
         poll_timer, log_upload_timer = [0], [0]
         while self.running:
+            logger.info("running", self.running)
             if self.busy:
                 # send ack to scheduler. we're working on self.task
                 # self.send_ack()

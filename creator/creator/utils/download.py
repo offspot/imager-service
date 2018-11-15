@@ -17,7 +17,7 @@ class ReportHook:
         self.reporthook(0, 0, 100)  # display empty bar as we start
 
     def print(self, text):
-        print(text)
+        print(text, flush=True)
 
     def reporthook(self, chunk, chunk_size, total_size):
         if chunk != 0:
