@@ -225,7 +225,6 @@ class CreatorWorker:
 
         poll_timer, log_upload_timer = [0], [0]
         while self.running:
-            logger.info("running", self.running)
             if self.busy:
                 # send ack to scheduler. we're working on self.task
                 # self.send_ack()
