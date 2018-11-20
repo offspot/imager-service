@@ -144,7 +144,13 @@ def get_user_detail(user_id):
 
 @auth_required
 def add_user(username, email, password, role, is_admin=False):
-    payload = {"username": username, "email": email, "password": password, "role": role}
+    payload = {
+        "username": username,
+        "email": email,
+        "password": password,
+        "role": role,
+        "active": True,
+    }
 
     success, code, response = query_api(POST, "/users/", payload=payload)
     if not success or "_id" not in response:
