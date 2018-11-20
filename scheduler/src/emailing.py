@@ -5,8 +5,10 @@
 import os
 import logging
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
 import yagmail
+import requests
+from werkzeug.datastructures import MultiDict
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from utils.mongo import Orders
 
@@ -32,23 +34,56 @@ RECIPIENT_EMAIL_STATUSES = [Orders.shipped]
 
 
 def get_sender():
-    enctype = os.environ.get("SMTP_ENCTYPE", "tls").lower()
-    port = os.environ.get("SMTP_PORT", "auto").lower()
+    enctype = os.getenv("SMTP_ENCTYPE", "tls").lower()
+    port = os.getenv("SMTP_PORT", "auto").lower()
     return yagmail.SMTP(
-        user=os.environ.get("SMTP_USERNAME"),
-        password=os.environ.get("SMTP_PASSWORD"),
-        host=os.environ.get("SMTP_HOST", "smtp.gmail.com"),
+        user=os.getenv("SMTP_USERNAME"),
+        password=os.getenv("SMTP_PASSWORD"),
+        host=os.getenv("SMTP_HOST", "smtp.gmail.com"),
         port=None if port == "auto" else int(port),
         smtp_starttls=enctype in ("tls", "auto"),
         smtp_ssl=enctype == "ssl",
         smtp_set_debuglevel=0,
-        smtp_skip_login=bool(os.environ.get("SMTP_SKIP_LOGIN", False)),
+        smtp_skip_login=bool(os.getenv("SMTP_SKIP_LOGIN", False)),
     )
 
 
-def send_email(to, subject, contents, cc=None, bcc=None, headers=None):
+def send_email_via_smtp(to, subject, contents, cc=None, bcc=None, headers=None):
     yag = get_sender()
     yag.send(to=to, cc=cc, bcc=bcc, headers=headers, subject=subject, contents=contents)
+
+
+def send_email_via_api(to, subject, contents, cc=None, bcc=None, headers={}):
+    values = [
+        ("from", os.getenv("MAIL_FROM", "cardshop@kiwix.org")),
+        ("subject", subject),
+        ("text", contents),
+    ]
+    tos = to if isinstance(to, (list, tuple)) else [to]
+    values += [("to", value) for value in tos]
+    values += [("cc", value) for value in cc] if cc is not None else []
+    values += [("bcc", value) for value in bcc] if bcc is not None else []
+    data = MultiDict(values)
+
+    req = requests.post(
+        url=os.getenv("MAILGUN_API_URL") + "/messages",
+        auth=("api", os.getenv("MAILGUN_API_KEY")),
+        data=data,
+    )
+    req.raise_for_status()
+
+
+def send_email(to, subject, contents, cc=None, bcc=None, headers=None):
+    func = (
+        send_email_via_api
+        if os.getenv("MAILGUN_API_KEY", False)
+        else send_email_via_smtp
+    )
+    try:
+        return func(to, subject, contents, cc, bcc, headers)
+    except Exception as exp:
+        logger.error("Unable to send email: {}".format(exp))
+        logger.exception(exp)
 
 
 def contextualize_order(order):

@@ -1,10 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# vim: ai ts=4 sts=4 et sw=4 nu
+
 import os
+import logging
+
 from flask import Flask
 
 from routes import auth, users, errors, channels, orders, tasks, home, warehouses
 from utils.json import Encoder
 from prestart import Initializer
 
+logging.basicConfig(level=logging.INFO)
 
 flask = Flask(__name__)
 flask.json_encoder = Encoder
