@@ -43,7 +43,7 @@ class CreatorWorker:
 
         # guess latest version
         req = requests.get(
-            "https://api.github.com/repos/ideascube/pibox-installer/git/refs/tags"
+            "https://api.github.com/repos/kiwix/kiwix-hotspot/git/refs/tags"
         )
         try:
             version = req.json()[-1]["ref"].replace("refs/tags/", "")
