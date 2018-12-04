@@ -1,10 +1,14 @@
 import os
 import sys
 import logging
-import urllib.request
+
+import requests
 from pyftpdlib.authorizers import DummyAuthorizer, AuthenticationFailed
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class Authorizer(DummyAuthorizer):
@@ -13,7 +17,7 @@ class Authorizer(DummyAuthorizer):
         self.token_validation_url = token_validation_url
         self.file_storage_dir = file_storage_dir
 
-    def validate_authentication(self, username, token, handler):
+    def validate_authentication(self, username, password, handler):
         """
         Upon receiving the authentication request, the ftp server contact cardshop scheduler to validate user's token.
         If dispatcher return HTTP 200, the token is valid
@@ -24,16 +28,16 @@ class Authorizer(DummyAuthorizer):
         :raises AuthenticationFailed: if token is not valid or cannot contact cardshop scheduler
         """
 
-        headers = {"access-token": token}
-        request = urllib.request.Request(
-            self.token_validation_url, headers=headers, method="POST"
-        )
         try:
-            with urllib.request.urlopen(request) as response:
-                if response.code == 200:
-                    return None
-        except Exception:
-            raise AuthenticationFailed("Authentication failed.")
+            req = requests.post(
+                url=self.token_validation_url, headers={"access-token": password}
+            )
+            req.raise_for_status()
+            return None
+        except Exception as exp:
+            logger.error(exp)
+
+        raise AuthenticationFailed("Authentication failed.")
 
     def get_home_dir(self, username):
         """
@@ -63,7 +67,7 @@ class Authorizer(DummyAuthorizer):
         :return:
         """
 
-        return perm in self.get_perms(username) and self._issubpath(path, "/")
+        return perm in self.get_perms(username)  # and self._issubpath(path, "/")
 
     def get_perms(self, username):
         """
@@ -73,8 +77,9 @@ class Authorizer(DummyAuthorizer):
         :param username:
         :return:
         """
-        # return ("w", "l", "a", "r", "d")
-        return ("w",)
+
+        return self.read_perms + self.write_perms
+        return ("w", "l", "r")
 
     def get_msg_login(self, username):
         return "Hi, there!"

@@ -1,4 +1,4 @@
-FROM python:3.7.0-slim-stretch
+FROM python:3.4.9-stretch
 
 ENV FTP_COMMAND_PORT 21
 ENV FTP_DATA_PORT_RANGE 28011-28090
