@@ -15,3 +15,9 @@ class Encoder(JSONEncoder):
             return str(o)
         else:
             super().default(o)
+
+
+def ensure_objectid(object_id):
+    if not isinstance(object_id, ObjectId):
+        object_id = ObjectId(object_id)
+    return object_id

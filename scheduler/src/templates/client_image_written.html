@@ -1,0 +1,9 @@
+{% extends "email_order_base.html" %}
+{% from "macros.html" import tagged_message %}
+
+{% block message %}
+{% call tagged_message("success") %}Image Successfuly Written!{% endcall %}
+<p>Hi {{ order.client.name }} !<br />
+Just letting you know that <code>WriterTask #{{ task|id }}</code> completed successfuly.</p>
+<p>You'll receive another email when it is shipped.</p>
+{% endblock %}

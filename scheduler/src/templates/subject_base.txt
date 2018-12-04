@@ -1,1 +1,1 @@
-[Kiwix Hotspot CARDSHOP] {% block subject %}Update !{% endblock %}
+[Kiwix Hotspot Cardshop] {% block subject %}Update !{% endblock %}

@@ -1,7 +1,10 @@
 FROM tiangolo/uwsgi-nginx:python3.7
 
+RUN apt-get update && apt-get install -y wkhtmltopdf
+
 ENV MONGODB_URI mongo
-ENV MANAGER_API_KEY manager
+ENV MANAGER_ACCOUNT_PASSWORD manager
+ENV PUBLIC_URL https://cardshop.hotspot.kiwix.org
 ENV SMTP_USERNAME SMTP_USERNAME
 ENV SMTP_PASSWORD SMTP_PASSWORD
 ENV SMTP_HOST smtp.gmail.com

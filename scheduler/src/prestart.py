@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 class Initializer:
     @staticmethod
     def start():
+        print("RESET_DB", os.getenv("RESET_DB", "YALLALA"))
         if os.getenv("TEST_EMAIL"):
             logger.info("send test email to: {}".format(os.getenv("TEST_EMAIL")))
             send_email(
@@ -32,6 +33,7 @@ class Initializer:
             logger.info("removed {} tokens".format(mongo.RefreshTokens().remove({})))
             logger.info("removed {} users".format(mongo.Users().remove({})))
             logger.info("removed {} channels".format(mongo.Channels().remove({})))
+            logger.info("removed {} warehouses".format(mongo.Warehouses().remove({})))
             logger.info("removed {} orders".format(mongo.Orders().remove({})))
             logger.info(
                 "removed {} creator_tasks".format(mongo.CreatorTasks().remove({}))
@@ -63,19 +65,18 @@ class Initializer:
         user_document = {
             "username": "manager",
             "password_hash": generate_password_hash(
-                os.getenv("MANAGER_API_KEY", "manager")
+                os.getenv("MANAGER_ACCOUNT_PASSWORD", "manager")
             ),
             "email": "manager@kiwix.org",
             "role": mongo.Users.MANAGER_ROLE,
-            "active": True,
-            "scope": {},
+            "active": True
         }
 
         validator = Validator(mongo.Users.schema)
         if not validator.validate(user_document):
             logger.info("user_document is not valid for schema")
         else:
-            logger.info("created user", mongo.Users().insert_one(user_document))
+            logger.info("created user: {}".format(mongo.Users().insert_one(user_document)))
 
         channel_document = {
             "slug": "kiwix",
@@ -89,7 +90,7 @@ class Initializer:
             logger.info("channel_document is not valid for schema")
         else:
             logger.info(
-                "created channel", mongo.Channels().insert_one(channel_document)
+                "created channel: {}".format(mongo.Channels().insert_one(channel_document))
             )
 
         warehouse_document = {
@@ -100,7 +101,7 @@ class Initializer:
             ),
             "download_uri": os.getenv(
                 "DEFAULT_WAREHOUSE_DOWNLOAD_URI",
-                "http://warehouse.cardshop.hotspot.kiwix.org",
+                "ftp://warehouse.cardshop.hotspot.kiwix.org:2121",
             ),
             "active": True,
         }
@@ -110,7 +111,7 @@ class Initializer:
             logger.info("warehouse_document is not valid for schema")
         else:
             logger.info(
-                "created warehouse", mongo.Warehouses().insert_one(warehouse_document)
+                "created warehouse: {}".format(mongo.Warehouses().insert_one(warehouse_document))
             )
 
 

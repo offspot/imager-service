@@ -1,0 +1,10 @@
+{% extends "email_order_base.html" %}
+{% from "macros.html" import tagged_message %}
+
+{% block message %}
+{% call tagged_message("error") %}Your order has failed!{% endcall %}
+<p>Dear {{ order.recipient.name }},<br />
+Unfortunately, your order of <strong>{{ order.quantity }} x {{ order.sd_card.name }}</strong> SD-card with the <strong>{{ order.config.name }}</strong> configuration on it has <strong>failed</strong> to complete.</p>
+<p>Your account will be refunded shortly and your contact, <em>{{ order.client.name }}</em>, will get in touch with you as well to work this situation out.</p>
+<p>Please accept our sincere appologies.</p>
+{% endblock %}

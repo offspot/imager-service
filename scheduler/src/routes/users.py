@@ -37,20 +37,9 @@ def collection(user: dict):
         ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
         # validate request json
-        schema = {
-            "type": "object",
-            "properties": {
-                "username": {"type": "string", "minLength": 1},
-                "password": {"type": "string", "minLength": 6},
-                "email": {"type": ["string", "null"]},
-                "role": {"type": "string"},
-            },
-            "required": ["username", "password", "role"],
-            "additionalProperties": False,
-        }
         try:
             request_json = request.get_json()
-            validate(request_json, schema)
+            validate(request_json, Users().schema)
         except ValidationError as error:
             raise errors.BadRequest(error.message)
 

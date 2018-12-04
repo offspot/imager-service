@@ -5,3 +5,9 @@ PyJWT==1.6.4
 cerberus==1.2
 yagmail==0.11.214
 requests==2.20.1
+pycountry==18.5.26
+pdfkit==0.6.1
+langcodes==1.4.1
+git+git://github.com/ojii/pymaging.git#egg=pymaging
+git+git://github.com/ojii/pymaging-png.git#egg=pymaging-png
+git+git://github.com/lincolnloop/python-qrcode.git#egg=qrcode

@@ -43,6 +43,7 @@ def collection(user: dict):
             raise errors.BadRequest(error.message)
 
         request_json["status"] = Orders().created
+        request_json["tasks"] = {}
         request_json["statuses"] = [
             {"status": Orders().created, "on": datetime.datetime.now(), "payload": None}
         ]

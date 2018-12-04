@@ -1,0 +1,126 @@
+{% from "macros.html" import tagged_message %}
+<html>
+  <head>
+  	<meta charset="utf-8">
+	<title>Kiwix Hotspot Cardshop Delivery Slip – Order #{{ order.id }}</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">	
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="pdfkit-page-size" content="A4"/>
+    <meta name="pdfkit-orientation" content="Portrait"/>
+    <meta name="pdfkit-viewport-size" content="1280x1024"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style type="text/css">
+    	header img { width: 30em; }
+    	.order-infos { font-size: 1.8em; }
+    	address.recipient { font-size: 1.3em; }
+    	address.sender { font-size: 1.2em; }
+    	.config-table th:first-of-type { border-top: 0; }
+    	.spacer { width: 16em; border-bottom: 1px solid #666; display: inline-block; }
+    	.qrcode { width: 10em; }
+    </style>
+  </head>
+  <body>
+  	<div class="container">
+  		<header class="row">
+  			<div class="col-lg-9">
+  				<img src="file:///Users/reg/src/cardshop/scheduler/src/kiwix-logo.png" />
+  			</div>
+  			<div class="col-lg-3 sender">
+		  		<address><strong>Kiwix</strong><br />
+		  			c/o Studio Banana<br />
+		  			Avenue des acacias 7<br />
+		  			1 006 Lausanne, Switzerland<br />
+		  			<a href="mailto:cardshop@kiwix.org">cardshop@kiwix.org</a>
+		  		</address>
+		  	</div>
+  		</header>
+
+  		<hr />
+
+  		<div class="row">
+			<p class="order-infos">
+				<strong>Order:</strong> <code>{{ order.id }}</code> (<code>{{ order.min_id }}</code>)<br />
+				<strong>Date:</strong> {{ order.statuses[0].on.strftime('%c') }}<br />
+				<strong>Shipped On:</strong> <span class="spacer">                    </span>
+			</p>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-3">
+				<img class="qrcode" src="data:image/png;base64,{{ order|pub_url|qrcode }}" />
+			</div>
+			<div class="recipient col-lg-3 col-lg-offset-6">
+				<address>
+					<strong>{{ order.recipient.name }}</strong><br />
+					{{ order.recipient.address|linebreaksbr}}<br />
+					<strong>{{ order.recipient.country|country|upper }}</strong>
+				</address>
+
+				<strong>Email:</strong> {{ order.recipient.email }}<br />
+				<strong>Tel.:</strong> {{ order.recipient.phone }}<br />
+			</div>
+		</div>
+
+		<div class="row"><p></p></div>
+
+		<div class="row">
+			{% call tagged_message("info") %}<strong>Your Contact:</strong> {{ order.client.name }} ({{ order.client.email }}){% endcall %}
+		</div>
+
+		<div class="row">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Media</th>
+						<th>Configuration</th>
+						<th class="text-center">Quantity</th>
+						<th class="text-center">Total Price</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>{{ order.sd_card.name }}</td>
+						<td><table class="config-table table table-condensed">
+							<tr><th>Configuration Name</th><td><strong>{{ order.config.name }}</strong></td></tr>
+							<tr><th>Hotspot Name</th><td><strong>{{ order.config.project_name }}</strong></td></tr>
+							<tr><th>Language</th><td>{{ order.config.language|language }}</td></tr>
+							<tr><th>Timezone</th><td>{{ order.config.timezone }}</td></tr>
+							<tr><th>Size</th><td>{{ order.config.size }}</td></tr>
+							{% if order.config.wifi_password %}
+							<tr><th>WiFi Password</th><td><code>{{ order.config.wifi_password }}</code></td></tr>
+							{% else %}
+							<tr><th>WiFi</th><td>Open</td></tr>
+							{% endif %}
+							<tr><th>Admin Account</th><td><code>{{ order.config.admin_account.login }}</code></td></tr>
+							<tr><th>Admin Password</th><td><code>{{ order.config.admin_account.password }}</code></td></tr>
+							<tr><th>Branding</th><td>{% if order.config.branding.logo %}- Logo<br />{% endif %}
+								{% if order.config.branding.favicon %}- Favicon<br />{% endif %}
+								{% if order.config.branding.css %}- CSS<br />{% endif %}
+							{% if not order.config.branding.logo and not order.config.branding.favicon and not order.config.branding.css %}no{% endif %} 
+							</td></tr>
+							<tr><th>Khan Academy</th><td>{%for lang in order.config.content.kalite %}- {{ lang|language }}<br />{% else %}no{% endfor %}</td></tr>
+							<tr><th>WikiFundi</th><td>{%for lang in order.config.content.wikifundi %}- {{ lang|language }}<br />{% else %}no{% endfor %}</td></tr>
+							<tr><th>Aflatoun</th><td>{{ order.config.content.aflatoun|yesno }}</td></tr>
+							<tr><th>EduPi</th><td>{{ order.config.content.edupi|yesno }}{% if order.config.content.edupi_resources %} (with resources){% endif %}</td></tr>
+							<tr><th>ZIM Packages</th><td>{% for zim in order.config.content.zims %}- <code>{{ zim }}</code><br />{% else %}no{% endfor %}</td></tr>
+							</table>
+						</td>
+						<td class="text-center">{{ order.quantity }}</td>
+						<td class="text-center">{{ order.units }}U</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<hr />
+
+		<div class="row">
+			<div class="col-lg-12">
+				<p>Thank You for using the Kiwix Hotspot Cardshop!</p>
+				<p><a href="https://cardshop.hotspot.kiwix.org">https://cardshop.hotspot.kiwix.org</a></p>
+			</div>
+		</div>
+		
+	</div>
+  </body>
+  </html>

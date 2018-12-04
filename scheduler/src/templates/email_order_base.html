@@ -1,11 +1,11 @@
 {% extends "email_base.html" %}
 {% block content %}
-<h2>Order #{{ order.id }}</h2>
+<h2>Order #{{ order.min_id }}</h2>
 {% block message %}{% endblock %}
-<table border="0" cellpadding="0" cellspacing="0">
+<table border="0" cellpadding="0" cellspacing="5">
 	<tr>
 		<th style="text-align: left;">Order ID</th>
-		<td>{{ order.id }}</td>
+		<td><a href="https://cardshop.hotspot.kiwix.org/orders/f/{{ order.id }}">{{ order.id }}</a></td>
 	</tr>
 	<tr>
 		<th style="text-align: left;">Configuration</th>
@@ -13,7 +13,7 @@
 	</tr>
 	<tr>
 		<th style="text-align: left;">SD-size</th>
-		<td>{{ order.sd_size }}</td>
+		<td>{{ order.sd_card.size }}GB</td>
 	</tr>
 	<tr>
 		<th style="text-align: left;">Quantity</th>
@@ -24,12 +24,17 @@
 		<td>{{ order.units }}</td>
 	</tr>
 	<tr>
-		<th style="text-align: left;">Client</th>
-		<td>{{ order.client.name }}</td>
+		<th style="text-align: left;">Destination</th>
+		<td>{{ order.recipient.name }}, {{ order.recipient.phone }}<br />
+		{{ order.recipient.address|linebreaksbr}} – {{ order.recipient.country|country }}.</td>
+	</tr>
+	<tr>
+		<th style="text-align: left;">Cardshop Contact</th>
+		<td>{{ order.client.name }}, <a href="mailto:{{ order.client.email }}">{{ order.client.email }}</a>.</td>
 	</tr>
 	<tr>
 		<th style="text-align: left;">Status</th>
-		<td>{{ order.status.status }}, {{ order.status.on }}</td>
+		<td><code>{{ order.status.status }}</code>, {{ order.status.on.strftime('%c') }}</td>
 	</tr>
 </table>
 {% endblock %}

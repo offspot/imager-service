@@ -1,0 +1,6 @@
+{% extends "email_order_base.html" %}
+{% from "macros.html" import tagged_message %}
+
+{% block message %}
+{% call tagged_message("warning") %}Please ship {{ order.quantity }} x {{ order.sd_card.name }} to {{ order.recipient.name }}{% endcall %}
+{% endblock %}

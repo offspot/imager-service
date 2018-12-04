@@ -1,0 +1,11 @@
+{% extends "email_order_base.html" %}
+{% from "macros.html" import tagged_message %}
+
+{% block message %}
+{% call tagged_message("error") %}Order Writing Failed !{% endcall %}
+<p>Dear {{ order.tasks.write.worker }} operator,<br />
+
+<p><code>WriterTask #{{ order.tasks.write|id }}</code> failed with status <code>{{ order.tasks.write.status }}</code>.</p>
+
+<p>Please investigate and contact this order's contact <em>{{ order.client.name }}</em> at <a href="{{ order.client.email }}">{{ order.client.email }}</a>.</p>
+{% endblock %}

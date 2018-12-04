@@ -1,0 +1,11 @@
+{% extends "email_order_base.html" %}
+{% from "macros.html" import tagged_message %}
+
+{% block message %}
+{% call tagged_message("success") %}Your order has shipped!{% endcall %}
+<p>Dear {{ order.recipient.name }},<br />
+Your order of <strong>{{ order.quantity }} x {{ order.sd_card.name }}</strong> SD-card with the <strong>{{ order.config.name }}</strong> configuration on it has been shipped.</p>
+<p>You should expect to receive your order within 10 days, depending on your address.</p>
+<p>Please, contact <em>{{ order.client.name }}</em> should you have any question… and to confirm reception!</p>
+<p>Shipment tracking information: <code>{{ order.shipment|default("none") }}</code></p>
+{% endblock %}
