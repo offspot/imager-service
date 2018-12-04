@@ -57,6 +57,11 @@ urlpatterns = (
             ui.delete_address,
             name="delete_address",
         ),
+        path(
+            "orders/f/<str:order_id>",
+            ui.order_detail_scheduler_id,
+            name="order_detail_scheduler_id",
+        ),
         path("orders/<str:order_min_id>", ui.order_detail, name="order_detail"),
         path("orders/", ui.orders, name="orders"),
         path(

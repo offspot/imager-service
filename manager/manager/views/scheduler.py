@@ -30,7 +30,7 @@ from manager.scheduler import (
     enable_user,
     disable_user,
     authenticate,
-    TOKEN,
+    ACCESS_TOKEN,
 )
 
 logger = logging.getLogger(__name__)
@@ -283,9 +283,9 @@ def user_disable(request, user_id):
 @staff_required
 def refresh_token(request):
     authenticate(force=True)
-    logger.info("Re-authenticated against the scheduler: `{}`".format(TOKEN))
+    logger.info("Re-authenticated against the scheduler: `{}`".format(ACCESS_TOKEN))
     messages.info(
         request,
-        "Re-authenticated against the scheduler: <code>{}</code>".format(TOKEN[:20]),
+        "Re-authenticated against the scheduler: <code>{}</code>".format(ACCESS_TOKEN[:20]),
     )
     return redirect("scheduler")

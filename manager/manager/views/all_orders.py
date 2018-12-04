@@ -106,10 +106,11 @@ def detail(request, order_id):
 
 @staff_required
 def order_log(request, order_id, step, kind):
-    if step not in ("creation", "writing") or kind not in (
+    if step not in ("create", "download", "write") or kind not in (
         "worker",
         "installer",
-        "upload",
+        "uploader",
+        "downloader",
     ):
         raise Http404("`{}` log does not exists".format(kind))
 
@@ -132,9 +133,11 @@ def order_log(request, order_id, step, kind):
 
 @staff_required
 def order_log_html(request, order_id, step, kind):
-    if step not in ("creation", "writing") or kind not in (
+    if step not in ("create", "download", "write") or kind not in (
         "worker",
         "installer",
+        "uploader",
+        "downloader",
     ):
         raise Http404("`{}` log does not exists".format(kind))
 

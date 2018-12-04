@@ -18,10 +18,10 @@
 		</tr>
 		{% endfor %}
 	{% endif %}
-	<tr><th>Image Creation Task</th><td colspan="3">{{ orderdata.tasks.creation|id }}</td></tr>
-	{% if orderdata.tasks.creation.statuses|length %}
-	<tr><th rowspan="{{ orderdata.tasks.creation.statuses|length|plus_one }}">Creation Status</th></tr>
-		{% for status in orderdata.tasks.creation.statuses|clean_statuses %}
+	<tr><th>Image Creation Task</th><td colspan="3">{{ orderdata.tasks.create|id }}</td></tr>
+	{% if orderdata.tasks.create.statuses|length %}
+	<tr><th rowspan="{{ orderdata.tasks.create.statuses|length|plus_one }}">Creation Status</th></tr>
+		{% for status in orderdata.tasks.create.statuses|clean_statuses %}
 		<tr>
 			<td>{% if forloop.first %}<strong>{{ status.status }}</strong>{% else %}{{ status.status }}{% endif %}</td>
 			<td>{{ status.on }}</td>
@@ -30,19 +30,44 @@
 		{% endfor %}
 	{% endif %}
 	<tr><th>Creation Logs</th>
-		<td><a target="_blank" href="{% url "order_log" step="creation" order_id=orderdata|id kind="worker" %}">worker.txt</a></td>
-		<td colspan="2"><a target="_blank" href="{% url "order_log_html" step="creation" order_id=orderdata|id kind="installer" %}">installer.html</a></td>
+		<td><a target="_blank" href="{% url "order_log" step="create" order_id=orderdata|id kind="worker" %}">worker.txt</a></td>
+		<td><a target="_blank" href="{% url "order_log_html" step="create" order_id=orderdata|id kind="installer" %}">installer.html</a></td>
+		<td><a target="_blank" href="{% url "order_log" step="create" order_id=orderdata|id kind="uploader" %}">uploader.txt</a></td>
 	</tr>
 
-	<tr><th>Image Writing Task</th><td colspan="3">{{ orderdata.tasks.writing|id }}</td></tr>
-	{% if orderdata.tasks.writing.statuses|length %}
-	<tr><th rowspan="{{ orderdata.tasks.writing.statuses|length }}">Writing Status</th>
-	{% for status in orderdata.tasks.writing.statuses %}
-		<td>{% if forloop.first %}<strong>{{ status.status }}</strong>{% else %}{{ status.status }}{% endif %}</td><td>{{ status.on }}</td><td>{{ status.payload|default_if_none:"" }}</td>
-	{% endfor %}
-	</tr>
+	<tr><th>Image Download Task</th><td colspan="3">{{ orderdata.tasks.download|id }}</td></tr>
+	{% if orderdata.tasks.download.statuses|length %}
+	<tr><th rowspan="{{ orderdata.tasks.download.statuses|length|plus_one }}">Download Status</th></tr>
+		{% for status in orderdata.tasks.download.statuses|clean_statuses %}
+		<tr>
+			<td>{% if forloop.first %}<strong>{{ status.status }}</strong>{% else %}{{ status.status }}{% endif %}</td>
+			<td>{{ status.on }}</td>
+			<td>{{ status.payload|default_if_none:""|urlize }}</td>
+		</tr>
+		{% endfor %}
 	{% endif %}
-	<tr><th>Writing Log</th><td colspan="3">{{ orderdata.logs.writing|default:"n/a" }}</td></tr>
+	<tr><th>Image Download Log</th>
+		<td><a target="_blank" href="{% url "order_log" step="download" order_id=orderdata|id kind="worker" %}">worker.txt</a></td>
+		<td colspan="2"><a target="_blank" href="{% url "order_log_html" step="download" order_id=orderdata|id kind="downloader" %}">downloader.html</a></td>
+	</tr>
+
+	{% for task in orderdata.tasks.write %}
+	<tr><th>Image Writing Task #{{ forloop.counter }}</th><td colspan="3">{{ task|id }}</td></tr>
+	{% if task.statuses|length %}
+	<tr><th rowspan="{{ task.statuses|length|plus_one }}">Writing Status</th></tr>
+	{% for status in task.statuses|clean_statuses %}
+		<tr>
+		<td>{% if forloop.first %}<strong>{{ status.status }}</strong>{% else %}{{ status.status }}{% endif %}</td>
+		<td>{{ status.on }}</td>
+		<td>{{ status.payload|default_if_none:""|urlize }}</td>
+		</tr>
+	{% endfor %}
+	
+	{% endif %}
+	<tr><th>Writing Log</th>
+		<td><a target="_blank" href="{% url "order_log" step="write" order_id=orderdata|id kind="worker" %}">worker.txt</a></td>
+	</tr>
+	{% endfor %}
 
 	<tr><th>Shipment</th><td colspan="3">{{ orderdata.shipment|default:"n/a" }}</td></tr>
 </table>

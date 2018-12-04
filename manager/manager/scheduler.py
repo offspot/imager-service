@@ -17,8 +17,8 @@ DELETE = "DELETE"
 URL = settings.CARDSHOP_API_URL
 USERNAME = settings.MANAGER_API_USERNAME
 PASSWORD = settings.MANAGER_API_KEY
-TOKEN = None
-TOKEN_EXPIRY = None
+ACCESS_TOKEN = None
+ACCESS_TOKEN_EXPIRY = None
 REFRESH_TOKEN = None
 REFRESH_TOKEN_EXPIRY = None
 ROLES = {
@@ -50,22 +50,22 @@ def get_token(username, password):
 
 
 def authenticate(force=False):
-    global TOKEN, REFRESH_TOKEN, TOKEN_EXPIRY, REFRESH_TOKEN_EXPIRY
+    global ACCESS_TOKEN, REFRESH_TOKEN, ACCESS_TOKEN_EXPIRY, REFRESH_TOKEN_EXPIRY
 
     if (
         not force
-        and TOKEN is not None
-        and TOKEN_EXPIRY > datetime.datetime.now() + datetime.timedelta(minutes=2)
+        and ACCESS_TOKEN is not None
+        and ACCESS_TOKEN_EXPIRY > datetime.datetime.now() + datetime.timedelta(minutes=2)
     ):
         return
 
     try:
-        token, access_token = get_token(username=USERNAME, password=PASSWORD)
+        access_token, refresh_token = get_token(username=USERNAME, password=PASSWORD)
     except Exception as exp:
-        TOKEN = REFRESH_TOKEN = TOKEN_EXPIRY = None
+        ACCESS_TOKEN = REFRESH_TOKEN = ACCESS_TOKEN_EXPIRY = None
     else:
-        TOKEN, REFRESH_TOKEN = token, access_token
-        TOKEN_EXPIRY = datetime.datetime.now() + datetime.timedelta(minutes=59)
+        ACCESS_TOKEN, REFRESH_TOKEN = access_token, refresh_token
+        ACCESS_TOKEN_EXPIRY = datetime.datetime.now() + datetime.timedelta(minutes=59)
         REFRESH_TOKEN_EXPIRY = datetime.datetime.now() + datetime.timedelta(days=29)
 
 
@@ -78,7 +78,7 @@ def auth_required(func):
 
 
 def get_token_headers():
-    return {"token": TOKEN, "Content-type": "application/json"}
+    return {"token": ACCESS_TOKEN, "Content-type": "application/json"}
 
 
 @auth_required

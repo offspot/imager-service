@@ -713,7 +713,7 @@ class OrderData(dict):
         for key in ("logo", "favicon", "css"):
             try:
                 del (config["branding"][key]["data"])
-            except KeyError:
+            except (TypeError, KeyError):
                 pass
 
         return json.dumps(config, indent=4)
@@ -798,6 +798,13 @@ class Order(models.Model):
             return None
         else:
             return cls.fetch_and_get(local_id)
+
+    @classmethod
+    def get_by_scheduler_id(cls, scheduler_id):
+        try:
+            return cls.objects.get(scheduler_id=scheduler_id)
+        except cls.DoesNotExist:
+            return None
 
     @classmethod
     def create_from(cls, client, config, media, quantity, address):

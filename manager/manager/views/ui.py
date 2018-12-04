@@ -194,6 +194,14 @@ def order_detail(request, order_min_id):
     return render(request, "order.html", context)
 
 
+def order_detail_scheduler_id(request, order_id):
+    order = Order.get_by_scheduler_id(order_id)
+    if order is None:
+        raise Http404("Order with Scheduler ID `{}` not found".format(order_id))
+
+    return redirect("order_detail", order_min_id=order.min_id)
+
+
 @login_required
 def delete_address(request, address_id=None):
 
