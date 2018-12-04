@@ -1,0 +1,2 @@
+requests==2.20.1
+humanfriendly==4.12.1
