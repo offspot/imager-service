@@ -41,6 +41,9 @@ class ChannelForm(forms.Form):
     name = forms.CharField()
     active = forms.BooleanField(initial=True, required=False)
     private = forms.BooleanField(initial=False, required=False)
+    sender_name = forms.CharField()
+    sender_address = forms.CharField(widget=forms.Textarea)
+    sender_email = forms.EmailField()
 
     @staticmethod
     def success_message(result):
@@ -60,6 +63,9 @@ class ChannelForm(forms.Form):
             name=self.cleaned_data.get("name"),
             active=self.cleaned_data.get("active"),
             private=self.cleaned_data.get("private"),
+            sender_name=self.cleaned_data.get("sender_name"),
+            sender_email=self.cleaned_data.get("sender_email"),
+            sender_address=self.cleaned_data.get("sender_address"),
         )
         if not success:
             raise SchedulerAPIError(channel_id)

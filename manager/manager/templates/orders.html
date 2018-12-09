@@ -66,29 +66,36 @@
 		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Create Address</button></div>
 	</div>
 </form>
+
 {% endblock %}
 
 {% block javascript %}
 	$('[data-toggle="popover"]').popover();
-	
-	let medias_choices_url = "{% url "api_medias_choices" 0 %}";
-	let media_select = $("#{{ order_form.media.id_for_label }}");
+
+	config_media_matrix = {
+		{% for config in configurations %}
+		"{{ config.id }}": [{% for media in config.compatible_medias %}"{{ media.id }}", {% endfor %}],
+		{% endfor %}
+	}
+
 	let config_select = $("#{{ order_form.config.id_for_label }}");
-	
+	let media_select = $("#{{ order_form.media.id_for_label }}");
 	config_select.on("change", function (e) {
-		let url = medias_choices_url.replace("/0", "/" + $(this).val());
-		console.log(url);
-		$.getJSON(url, function () {})
-			.done(function (data) {
-				console.log(data);
-				media_select.empty();
-				$.each(data, function (key, item) {
-					media_select.append('<option value="'+ item[0] +'">'+ item[1] +'</option>');
-				});
-			})
-			.fail(function (error) {
-				console.log(error);
-			});
+		cm = config_media_matrix[$(this).val()];
+		var selected = false;
+		media_select.find("option").each(function (index, optionel) {
+			let option = $(optionel);
+			if (cm.indexOf(option.val()) != -1) {
+				option.removeAttr("disabled");
+				if (!selected) {
+					selected = option.val();
+				}
+			} else {
+				option.attr("disabled", "disabled");
+			}
+			media_select.val(selected);
+		});
 	});
+
 	config_select.change();
 {% endblock %}

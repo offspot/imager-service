@@ -55,7 +55,8 @@ def authenticate(force=False):
     if (
         not force
         and ACCESS_TOKEN is not None
-        and ACCESS_TOKEN_EXPIRY > datetime.datetime.now() + datetime.timedelta(minutes=2)
+        and ACCESS_TOKEN_EXPIRY
+        > datetime.datetime.now() + datetime.timedelta(minutes=2)
     ):
         return
 
@@ -207,8 +208,18 @@ def get_channels_list():
 
 
 @auth_required
-def add_channel(slug, name, active=True, private=False):
-    payload = {"slug": slug, "name": name, "active": active, "private": private}
+def add_channel(
+    slug, name, sender_name, sender_email, sender_address, active=True, private=False
+):
+    payload = {
+        "slug": slug,
+        "name": name,
+        "active": active,
+        "private": private,
+        "sender_name": sender_name,
+        "sender_email": sender_email,
+        "sender_address": sender_address,
+    }
 
     success, code, response = query_api(POST, "/channels/", payload=payload)
     if not success or "_id" not in response:

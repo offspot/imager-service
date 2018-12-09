@@ -8,13 +8,16 @@
 
 {% if channels %}
 <table class="table table-bordered table-striped">
-	<tr><th>Slug</th><th>Name</th><th>Active</th><th>Private</th></tr>
+	<tr><th>Slug</th><th>Name</th><th>Active</th><th>Private</th><th>Sender</th></tr>
 	{% for channel in channels %}
 	<tr>
 		<th><code>{{channel.slug }}</code></th>
 		<td>{{ channel.name }}</td>
 		<td><a class="btn btn-sm btn-warning" href="{% if channel.active %}{% url "scheduler_disable_channel" channel.id %}{% else %}{% url "scheduler_enable_channel" channel.id %}{% endif %}">{{ channel.active|yesno }}: {% if channel.active %}disable{% else %}enable{% endif %}</a></td>
-		<td>{{ channel.private|yesno }}</td></tr>
+		<td>{{ channel.private|yesno }}</td>
+		<td><strong>{{ channel.sender_name }}</strong><br />
+			{{ channel.sender_address|linebreaksbr }}<br /><a href="mailto:{{ channel.sender_email }}">{{ channel.sender_email }}</a></td>
+	</tr>
 	{% endfor %}
 </table>
 {% elif channels is None %}
@@ -30,8 +33,10 @@
 		<div class="form-group col-md-4">{% include "_label_for.html" with field=channel_form.name %}{{ channel_form.name|as_widget }}</div>
 		<div class="form-group col-md-1">{% include "_label_for.html" with field=channel_form.active %}{{ channel_form.active|as_widget }}</div>
 		<div class="form-group col-md-1">{% include "_label_for.html" with field=channel_form.private %}{{ channel_form.private|as_widget }}</div>
-		
-		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add Channel</button></div>
+		<div class="form-group col-md-3">{% include "_label_for.html" with field=channel_form.sender_name %}{{ channel_form.sender_name|as_widget }}</div>
+		<div class="form-group col-md-3">{% include "_label_for.html" with field=channel_form.sender_email %}{{ channel_form.sender_email|as_widget }}</div>
+		<div class="form-group col-md-4">{% include "_label_for.html" with field=channel_form.sender_address %}{{ channel_form.sender_address|as_widget }}</div>
+		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add</button></div>
 	</div>
 </form>
 

@@ -337,6 +337,9 @@ class Configuration(models.Model):
     def can_fit_on(self, media):
         return media.bytes >= self.size
 
+    def compatible_medias(self):
+        return [m for m in Media.objects.all() if m.bytes >= self.size]
+
     @property
     def min_units(self):
         return self.min_media.units

@@ -150,6 +150,9 @@ def orders(request):
             organization=request.user.profile.organization
         ),
         "orders": Order.objects.filter(organization=request.user.profile.organization),
+        "configurations": Configuration.objects.filter(
+            organization=request.user.profile.organization
+        ),
     }
 
     forms_map = {"address_form": AddressForm, "order_form": OrderForm}
