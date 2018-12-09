@@ -4,7 +4,6 @@
 
 import os
 import logging
-import tempfile
 
 import pdfkit
 import yagmail
@@ -12,7 +11,7 @@ import requests
 from werkzeug.datastructures import MultiDict
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from utils.mongo import Orders, Users, CreatorTasks, WriterTasks
+from utils.mongo import Orders, Users, Channels, WriterTasks
 from utils.templates import (
     get_id,
     country_name,
@@ -284,7 +283,10 @@ def send_order_shipped_email(order_id):
 
 
 def build_shipping_document(order_id):
-    context = get_full_context(str(order_id))
+    order = Orders().get(order_id, {"logs": 0})
+    channel = Channels().get(order["channel"])
+    context = get_full_context(str(order_id), extra={"channel": channel})
+    context.update({"cwd": os.path.abspath(".")})
 
     fname = "Shipping_{oid}.pdf".format(oid=context["order"]["min_id"])
     fpath = os.path.join(os.getenv("TMP_DIR", "/tmp"), fname)

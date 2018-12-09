@@ -83,6 +83,9 @@ class Initializer:
             "name": "Kiwix",
             "active": True,
             "private": False,
+            "sender_name": "Kiwix",
+            "sender_email": "cardshop@kiwix.org",
+            "sender_address": "c/o Studio Banana\nAvenue des acacias 7\n1 006 Lausanne, Switzerland"
         }
 
         validator = Validator(mongo.Channels.schema)

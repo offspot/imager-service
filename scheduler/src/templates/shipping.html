@@ -23,14 +23,12 @@
   	<div class="container">
   		<header class="row">
   			<div class="col-lg-9">
-  				<img src="file:///Users/reg/src/cardshop/scheduler/src/kiwix-logo.png" />
+  				<img src="file://{{ cwd }}/kiwix-logo.png" />
   			</div>
   			<div class="col-lg-3 sender">
-		  		<address><strong>Kiwix</strong><br />
-		  			c/o Studio Banana<br />
-		  			Avenue des acacias 7<br />
-		  			1 006 Lausanne, Switzerland<br />
-		  			<a href="mailto:cardshop@kiwix.org">cardshop@kiwix.org</a>
+		  		<address><strong>{{ channel.sender_name }}</strong><br />
+		  			{{ channel.sender_address|linebreaksbr }}<br />
+		  			<a href="mailto:{{ channel.sender_email }}">{{ channel.sender_email }}</a>
 		  		</address>
 		  	</div>
   		</header>

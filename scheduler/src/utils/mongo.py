@@ -62,10 +62,23 @@ class Channels(BaseCollection):
         "name": {"type": "string", "regex": "^.+$", "required": True},
         "active": {"type": "boolean", "default": True, "required": True},
         "private": {"type": "boolean", "default": False, "required": True},
+        "sender_name": {"type": "string", "regex": "^.+$", "required": True},
+        "sender_address": {"type": "string", "required": True},
+        "sender_email": {
+            "type": "string",
+            "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
+        },
     }
 
     def __init__(self):
         super().__init__(Database(), "channels")
+
+    @classmethod
+    def get(cls, slug):
+        channel = cls().find_one({"slug": slug})
+        if channel is None:
+            raise ValueError("Unable to retrieve channel with slug `{}`".format(slug))
+        return channel
 
 
 class Warehouses(BaseCollection):
