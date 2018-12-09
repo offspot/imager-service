@@ -108,3 +108,9 @@ venv.bak/
 /manager-data
 /docker_data
 /ssl
+
+workers/osx-kiwix-hotspot
+scripts/
+deployment/
+data/
+host/
