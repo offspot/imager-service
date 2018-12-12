@@ -327,6 +327,15 @@ def get_order(order_id):
 
 
 @auth_required
+def add_order_shipment(order_id, shipment_details):
+    payload = {"shipment_details": shipment_details}
+    success, code, response = query_api(
+        PATCH, "/orders/{id}".format(id=order_id), payload=payload
+    )
+    return success, response
+
+
+@auth_required
 def get_task(task_id):
     success, code, response = query_api(GET, "/tasks/{id}".format(id=task_id))
     return success, response

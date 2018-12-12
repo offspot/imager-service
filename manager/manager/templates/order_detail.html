@@ -30,9 +30,9 @@
 		{% endfor %}
 	{% endif %}
 	<tr><th>Creation Logs</th>
-		<td><a target="_blank" href="{% url "order_log" step="create" order_id=orderdata|id kind="worker" %}">worker.txt</a></td>
-		<td><a target="_blank" href="{% url "order_log_html" step="create" order_id=orderdata|id kind="installer" %}">installer.html</a></td>
-		<td><a target="_blank" href="{% url "order_log" step="create" order_id=orderdata|id kind="uploader" %}">uploader.txt</a></td>
+		<td><a target="_blank" href="{% url "order_log" step="create" order_id=orderdata|id kind="worker" fmt="txt" %}">worker.txt</a></td>
+		<td><a target="_blank" href="{% url "order_log" step="create" order_id=orderdata|id kind="installer" fmt="html" %}">installer.html</a></td>
+		<td><a target="_blank" href="{% url "order_log" step="create" order_id=orderdata|id kind="uploader" fmt="txt" %}">uploader.txt</a></td>
 	</tr>
 
 	<tr><th>Image Download Task</th><td colspan="3">{{ orderdata.tasks.download|id }}</td></tr>
@@ -47,8 +47,8 @@
 		{% endfor %}
 	{% endif %}
 	<tr><th>Image Download Log</th>
-		<td><a target="_blank" href="{% url "order_log" step="download" order_id=orderdata|id kind="worker" %}">worker.txt</a></td>
-		<td colspan="2"><a target="_blank" href="{% url "order_log_html" step="download" order_id=orderdata|id kind="downloader" %}">downloader.html</a></td>
+		<td><a target="_blank" href="{% url "order_log" step="download" order_id=orderdata|id kind="worker" fmt="txt" %}">worker.txt</a></td>
+		<td colspan="2"><a target="_blank" href="{% url "order_log" step="download" order_id=orderdata|id kind="downloader" fmt="html" %}">downloader.html</a></td>
 	</tr>
 
 	{% for task in orderdata.tasks.write %}
@@ -65,7 +65,9 @@
 	
 	{% endif %}
 	<tr><th>Writing Log</th>
-		<td><a target="_blank" href="{% url "order_log" step="write" order_id=orderdata|id kind="worker" %}">worker.txt</a></td>
+		<td><a target="_blank" href="{% url "order_log" step="write" order_id=orderdata|id kind="worker" index=forloop.counter fmt="txt"%}">worker-{{ forloop.counter }}.txt</a></td>
+		<td><a target="_blank" href="{% url "order_log" step="write" order_id=orderdata|id kind="wipe" index=forloop.counter fmt="html"%}">wipe-{{ forloop.counter }}.html</a></td>
+		<td><a target="_blank" href="{% url "order_log" step="write" order_id=orderdata|id kind="writer" index=forloop.counter fmt="html"%}">writer-{{ forloop.counter }}.html</a></td>
 	</tr>
 	{% endfor %}
 

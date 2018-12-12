@@ -10,7 +10,7 @@ import humanfriendly
 import dateutil.parser
 from django import template
 
-from manager.models import Address
+from manager.models import Address, Order
 from manager.pibox.util import human_readable_size
 from manager.pibox.packages import get_parsed_package, get_package
 
@@ -60,10 +60,10 @@ register.filter("as_packages", as_packages)
 
 
 def as_widget(field):
-    if not hasattr(field, 'as_widget'):
+    if not hasattr(field, "as_widget"):
         return field
     our_classes = ["form-control"]
-    if getattr(field, 'errors', False):
+    if getattr(field, "errors", False):
         our_classes += ["alert-danger"]
     return field.as_widget(attrs={"class": field.css_classes(" ".join(our_classes))})
 
@@ -110,3 +110,14 @@ def plus_one(number):
 
 
 register.filter("plus_one", plus_one)
+
+
+def status_color(status):
+    return {
+        Order.COMPLETED: "message-success",
+        Order.FAILED: "message-error",
+        Order.NOT_CREATED: "message-error",
+    }.get(status, "")
+
+
+register.filter("status_color", status_color)

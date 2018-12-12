@@ -499,7 +499,8 @@ class Profile(models.Model):
         else:
             user = User.objects.create_superuser(
                 username="admin",
-                first_name="admin",
+                first_name="John",
+                last_name="Doe",
                 email=organization.email,
                 password=settings.ADMIN_PASSWORD,
             )
@@ -789,6 +790,15 @@ class Order(models.Model):
     def status_from_statuses(statuses):
         if not isinstance(statuses, list) or not len(statuses):
             return Order.FAILED
+
+        status = statuses[-1].get("status")
+        if "failed" in status:
+            return Order.FAILED
+        if status in ("canceled", "timedout"):
+            return Order.FAILED
+        if status == "shipped":
+            return Order.COMPLETED
+
         return Order.IN_PROGRESS
 
     @classmethod

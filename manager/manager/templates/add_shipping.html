@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load manager %}
+
+{% block content %}
+<form method="POST" class="form form-check form-check-inline">
+	{% csrf_token %}
+	<div class="form-row visual-group">
+		<div class="form-group col-md-3">Order #<code>{{ order.min_id }}</code><br />
+			<code>{{ order.data.status }}</code></div>
+		<div class="form-group col-md-5">{% include "_input_field.html" with field=form.details placeholder="DHL: 4566945003 - http://www.dhl.com/en/express/tracking.html?AWB=4566945003" %}</div>
+		<div class="form-group col-md-4"><label>-</label><button class="btn btn-primary form-check-input form-control">Mark Order Shipped</button></div>
+	</div>
+</form>
+{% endblock %}
+
+{% block javascript %}
+	$('[data-toggle="popover"]').popover();
+{% endblock %}
+}

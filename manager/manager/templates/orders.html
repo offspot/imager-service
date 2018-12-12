@@ -12,7 +12,7 @@
 		<td>{{ order.data.config_name }}</td>
 		<td>{{ order.data.recipient.country|country }}</td>
 		<td>{{ order.created_on }}</td>
-		<td>{{ order.verbose_status }}</td>
+		<td class="{{ order.status|status_color }}">{{ order.verbose_status }}</td>
 	</tr>
 	{% endfor %}
 	</tbody>

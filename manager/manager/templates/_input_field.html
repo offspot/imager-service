@@ -1,6 +1,6 @@
 {% include "_label_for.html" with field=field size=size %}
 {% if use_raw %}<br />{{ field }}{% else %}
-<input type="{% if type %}{{ type }}{% else %}text{% endif %}"
+<{% if textarea %}textarea{% else %}input type="{% if type %}{{ type }}{% else %}text{% endif %}"{% endif %}
 	   id="{{ field.id_for_label }}"
 	   class="{% if changes_size or size %} changes-size{% endif %}{% if type != "checkbox" %} form-control{% endif %}{% if field.errors %} alert alert-danger{% endif %}"
 	   {% if type == "checkbox" %}
@@ -12,7 +12,7 @@
 	   name="{{ field.html_name }}"
 	   {% if field.help_text %}
 	   		aria-describedby="{{ field.id_for_label }}Help"
-	   {% endif %}/>
+	   {% endif %} {% if textarea %}></textarea>{% else %}/>{% endif %}
 {% if field.help_text %}
 	<small id="{{ field.id_for_label }}Help" class="form-text text-muted">{{ field.help_text|safe }}</small>
 {% endif %}

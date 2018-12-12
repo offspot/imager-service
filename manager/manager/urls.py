@@ -62,17 +62,22 @@ urlpatterns = (
             ui.order_detail_scheduler_id,
             name="order_detail_scheduler_id",
         ),
+        path(
+            "orders/f/<str:order_id>/add_shipping",
+            ui.order_add_shipping,
+            name="order_add_shipping",
+        ),
         path("orders/<str:order_min_id>", ui.order_detail, name="order_detail"),
         path("orders/", ui.orders, name="orders"),
         path(
-            "all-orders/<str:order_id>/logs/<str:step>/<str:kind>.txt",
+            "all-orders/<str:order_id>/logs/<str:step>/<str:kind>-<int:index>.<str:fmt>",
             all_orders.order_log,
             name="order_log",
         ),
         path(
-            "all-orders/<str:order_id>/logs/<str:step>/<str:kind>.html",
-            all_orders.order_log_html,
-            name="order_log_html",
+            "all-orders/<str:order_id>/logs/<str:step>/<str:kind>.<str:fmt>",
+            all_orders.order_log,
+            name="order_log",
         ),
         path(
             "all-orders/<str:order_id>/delete",

@@ -105,12 +105,19 @@ def detail(request, order_id):
 
 
 @staff_required
-def order_log(request, order_id, step, kind):
+def order_log(request, order_id, step, kind, index=None, fmt="txt"):
+    if fmt not in ("txt", "html"):
+        raise Http404("Unhandled format `{}`".format(fmt))
+    else:
+        mime = {"txt": "text/plain", "html": "text/html"}.get(fmt)
+
     if step not in ("create", "download", "write") or kind not in (
         "worker",
         "installer",
         "uploader",
         "downloader",
+        "wipe",
+        "writer",
     ):
         raise Http404("`{}` log does not exists".format(kind))
 
@@ -119,7 +126,11 @@ def order_log(request, order_id, step, kind):
         raise Http404(order)
 
     try:
-        content = order["tasks"][step]["logs"][kind]
+        if step == "write":
+            index = int(index) - 1
+            content = order["tasks"][step][index]["logs"][kind]
+        else:
+            content = order["tasks"][step]["logs"][kind]
     except Exception as exp:
         logger.exception(exp)
         raise Http404(
@@ -128,37 +139,11 @@ def order_log(request, order_id, step, kind):
             )
         )
 
-    return HttpResponse(content, content_type="text/plain")
-
-
-@staff_required
-def order_log_html(request, order_id, step, kind):
-    if step not in ("create", "download", "write") or kind not in (
-        "worker",
-        "installer",
-        "uploader",
-        "downloader",
-    ):
-        raise Http404("`{}` log does not exists".format(kind))
-
-    retrieved, order = get_order(order_id)
-    if not retrieved:
-        raise Http404(order)
-
-    try:
-        content = order["tasks"][step]["logs"][kind]
-    except Exception as exp:
-        logger.exception(exp)
-        raise Http404(
-            "Log {step}/{kind}.txt does not exists for Order #{id}".format(
-                step=step, kind=kind, id=order_id
-            )
-        )
-    if content:
+    if content and fmt == "html":
         try:
             content = Ansi2HTMLConverter().convert(content)
         except Exception as exp:
             logger.error("Unable to convert content to HTML")
             logger.exception(exp)
 
-    return HttpResponse(content, content_type="text/html")
+    return HttpResponse(content, content_type=mime)

@@ -15,6 +15,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 
 from manager.models import Address, Media, Configuration, Order
+from manager.scheduler import add_order_shipment, SchedulerAPIError
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +117,23 @@ class OrderForm(forms.Form):
         return "Successfuly created Order <em>{}</em>".format(res)
 
 
+class OrderShippingForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        order = kwargs.pop("order")
+        super().__init__(*args, **kwargs)
+        self.order = order
+
+    details = forms.CharField(help_text="Shipment tracking details or similar")
+
+    def save(self, *args, **kwargs):
+        success, response = add_order_shipment(
+            order_id=self.order.scheduler_id,
+            shipment_details=self.cleaned_data.get("details"),
+        )
+        if not success:
+            raise SchedulerAPIError(response)
+
+
 @login_required
 def home(request):
     context = {"support_email": settings.SUPPORT_EMAIL}
@@ -203,6 +221,37 @@ def order_detail_scheduler_id(request, order_id):
         raise Http404("Order with Scheduler ID `{}` not found".format(order_id))
 
     return redirect("order_detail", order_min_id=order.min_id)
+
+
+def order_add_shipping(request, order_id):
+    order = Order.get_by_scheduler_id(order_id)
+
+    if order.data.status != "pending_shipment":
+        raise Http404("Order {} is not pending_shipment".format(order.min_id))
+
+    context = {"order": order}
+
+    if request.method == "POST":
+        form = OrderShippingForm(order=order, data=request.POST)
+        if form.is_valid():
+            try:
+                form.save()
+            except Exception as exp:
+                logger.error(exp)
+                messages.error(
+                    request,
+                    "Failed to record shipping informations.. (ref: {exp})".format(
+                        exp=exp
+                    ),
+                )
+            else:
+                messages.success(request, "Order Shipping informations recorded!")
+                return redirect("order_detail", order_min_id=order.min_id)
+    else:
+        form = OrderShippingForm(order=order)
+    context["form"] = form
+
+    return render(request, "add_shipping.html", context)
 
 
 @login_required
