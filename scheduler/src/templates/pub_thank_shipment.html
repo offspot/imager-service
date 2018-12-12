@@ -1,0 +1,13 @@
+{% extends "pub_base.html" %}
+
+{% block title %}Thanks for shipping Order #{{ order_id }}{% endblock %}
+
+{% block content %}
+<h1>Thank You!</h1>
+<p>Thanks for Shipping this order via {{ order.recipient.shipment }}.</p>
+
+<table class="table">
+	<tr><th>Order</th><td><code>{{ order_id }}</code></td></tr>
+	<tr><th>Status</th><td><code>{{ order.status }}</code></td></tr>
+</table>
+{% endblock %}

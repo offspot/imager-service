@@ -1,0 +1,13 @@
+{% extends "pub_base.html" %}
+
+{% block title %}Thanks for inserting SD-card during Order #{{ order_id }}{% endblock %}
+
+{% block content %}
+<h1>Thank You!</h1>
+<p>Thanks for inserting a <strong>{{ order.sd_card.name }}</strong> SD-card into slot <strong>{{ task.slot }}</strong>.</p>
+
+<table class="table">
+	<tr><th>Order</th><td><code>{{ task.order }}</code></td></tr>
+	<tr><th>Status</th><td><code>{{ order.status }}</code></td></tr>
+</table>
+{% endblock %}

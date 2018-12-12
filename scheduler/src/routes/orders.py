@@ -2,11 +2,11 @@
 import datetime
 
 from bson import ObjectId
-from flask import Blueprint, request, jsonify, Response
+from flask import Blueprint, request, jsonify, render_template
 from jsonschema import validate, ValidationError
 
 from utils.mongo import Orders, Users
-from emailing import send_order_created_email
+from emailing import send_order_created_email, send_order_shipped_email
 from . import authenticate, bson_object_id, errors, only_for_roles
 
 
@@ -61,7 +61,7 @@ def collection(user: dict):
         return jsonify({"_id": order_id})
 
 
-@blueprint.route("/<string:order_id>", methods=["GET", "DELETE"])
+@blueprint.route("/<string:order_id>", methods=["GET", "DELETE", "PATCH"])
 @authenticate
 @only_for_roles(roles=Users.MANAGER_ROLE)
 @bson_object_id(["order_id"])
@@ -74,6 +74,18 @@ def document(order_id: ObjectId, user: dict):
 
         return jsonify(order)
 
+    elif request.method == "PATCH":
+        order = Orders.get_with_tasks(order_id)
+        if order is None:
+            raise errors.NotFound()
+
+        request_json = request.get_json()
+        Orders().add_shipment(order_id, request_json.get("shipment_details"))
+
+        send_order_shipped_email(order_id)
+
+        return jsonify(order)
+
     elif request.method == "DELETE":
         # TODO: prepare email message with infos from order
         deleted_count = Orders().delete_one({"_id": order_id}).deleted_count
@@ -83,3 +95,33 @@ def document(order_id: ObjectId, user: dict):
         # send email about deletion
 
         return jsonify({"_id": order_id})
+
+
+@blueprint.route("/<string:order_id>/add_shipment", methods=["GET", "POST"])
+# @authenticate
+# @only_for_roles(roles=Users.WORKER_ROLES)
+@bson_object_id(["order_id"])
+def add_shipment(order_id: ObjectId):
+    order = Orders().find_one({"_id": order_id, "status": Orders.pending_shipment})
+    if order is None:
+        raise errors.NotFound()
+
+    if request.method == "GET":
+        return render_template(
+            "pub_add_shipment.html", order=order, order_id=order["_id"]
+        )
+    elif request.method == "POST":
+        shipment_details = request.form.get("details")
+        if not shipment_details:
+            raise errors.BadRequest("Missing shipment details")
+
+        # store shipment details
+        Orders().add_shipment(order_id, shipment_details)
+        # refresh order object
+        order = Orders.get(order_id)
+        # send recipient an email
+        send_order_shipped_email(order_id)
+
+        return render_template(
+            "pub_thank_shipment.html", order=order, order_id=order["_id"]
+        )

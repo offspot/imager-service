@@ -295,6 +295,12 @@ class Orders(BaseCollection):
         update.update(extra_update)
         cls().update_one({"_id": ObjectId(order_id)}, {"$set": update})
 
+    @classmethod
+    def add_shipment(cls, order_id, shipment_details):
+        update = {"recipient.shipment": shipment_details}
+        cls().update_one({"_id": ObjectId(order_id)}, {"$set": update})
+        cls().update_status(order_id, Orders.shipped)
+
 
 class Tasks(BaseCollection):
 
@@ -327,6 +333,10 @@ class Tasks(BaseCollection):
     pending_image_removal = "pending_image_removal"
     downloaded_failed_to_remove = "downloaded_failed_to_remove"
     downloaded_and_removed = "downloaded_and_removed"
+
+    pending_shipment = "pending_shipment"
+    failed_to_ship = "failed_to_ship"
+    shiped = "shiped"
 
     failed = "failed"
     canceled = "canceled"
@@ -367,7 +377,7 @@ class Tasks(BaseCollection):
 
     @classmethod
     def get(cls, task_id, projection=None):
-        return cls().find_one({"_id": task_id}, projection)
+        return cls().find_one({"_id": ensure_objectid(task_id)}, projection)
 
     @classmethod
     def cascade_status(cls, task_id, task_status):
@@ -412,6 +422,8 @@ class Tasks(BaseCollection):
         installer_log=None,
         uploader_log=None,
         downloader_log=None,
+        wipe_log=None,
+        writer_log=None,
     ):
         if worker_log is None and installer_log is None:
             return
@@ -424,6 +436,10 @@ class Tasks(BaseCollection):
             update.update({"logs.uploader": uploader_log})
         if downloader_log is not None:
             update.update({"logs.downloader": downloader_log})
+        if wipe_log is not None:
+            update.update({"logs.wipe": wipe_log})
+        if writer_log is not None:
+            update.update({"logs.writer": writer_log})
 
         cls().update_one({"_id": ObjectId(task_id)}, {"$set": update})
 

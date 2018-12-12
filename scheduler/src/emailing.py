@@ -20,6 +20,8 @@ from utils.templates import (
     language_name,
     b64qrcode,
     get_pub_url,
+    get_insert_card_url,
+    get_add_shipment_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -31,6 +33,8 @@ jinja_env.filters["id"] = get_id
 jinja_env.filters["yesno"] = yesno
 jinja_env.filters["qrcode"] = b64qrcode
 jinja_env.filters["pub_url"] = get_pub_url
+jinja_env.filters["insert_card_url"] = get_insert_card_url
+jinja_env.filters["add_shipment_url"] = get_add_shipment_url
 jinja_env.filters["country"] = country_name
 jinja_env.filters["language"] = language_name
 jinja_env.filters["linebreaksbr"] = linebreaksbr
@@ -228,10 +232,15 @@ def send_image_uploaded_email(order_id):
     )
 
 
-def send_image_downloaded_email(order_id):
-    # operator: please inserte XXGB SD card onto
+def send_insert_card_email(order_id, task_id):
+    # operator: please insert XXGB SD card onto
+    write_task = WriterTasks.get(task_id)
     send_order_email_for(
-        order_id, "subject_insert_card", "operator_insert_card", "operator"
+        order_id,
+        "subject_insert_card",
+        "operator_insert_card",
+        "operator",
+        extra={"task": write_task},
     )
 
 

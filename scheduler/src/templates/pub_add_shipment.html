@@ -1,0 +1,23 @@
+{% extends "pub_base.html" %}
+
+{% block title %}Add shipment for Order #{{ order_id }}{% endblock %}
+
+{% block content %}
+<h1>Mark Order as Shipped</h1>
+<table class="table">
+	<tr><th>Order</th><td><code>{{ order_id }}</code></td></tr>
+	<tr><th>Status</th><td><code>{{ order.status }}</code></td></tr>
+</table>
+
+<form method="POST" class="form form-check form-check-inline">
+	<div class="form-row visual-group">
+		<div class="form-group col-md-7">
+			<label for="detailsId">Shipment Details</label>
+			<input id="detailsId" name="details" type="text" class="form-control" placeholder="DHL: 4566945003 - http://www.dhl.com/en/express/tracking.html?AWB=4566945003" required="required" aria-describedby="detailsHelp" />
+			<small id="detailsHelp" class="form-text text-muted">Shipment tracking details or similar</small></div>
+		<div class="form-group col-md-5"><label>-</label><button class="btn btn-primary form-check-input form-control">Mark Order Shipped</button></div>
+	</div>
+</form>
+
+
+{% endblock %}

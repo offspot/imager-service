@@ -30,6 +30,18 @@ def get_pub_url(order):
     )
 
 
+def get_insert_card_url(task):
+    return "{api_url}/tasks/writer/{id}/confirm_inserted".format(
+        api_url=os.getenv("CARDSHOP_API_URL"), id=task["_id"]
+    )
+
+
+def get_add_shipment_url(order):
+    return "{api_url}/orders/{id}/add_shipment".format(
+        api_url=os.getenv("CARDSHOP_API_URL"), id=order["_id"]
+    )
+
+
 def yesno(value):
     """ yes or no string from bool value """
     return "yes" if bool(value) else "no"

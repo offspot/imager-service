@@ -1,6 +1,7 @@
 {% extends "email_order_base.html" %}
-{% from "macros.html" import tagged_message %}
+{% from "macros.html" import tagged_message, button_insert %}
 
 {% block message %}
-{% call tagged_message("warning") %}Please insert {{ order.sd_card.name }} SD-card onto slot {{ order.tasks.write.slot }}{% endcall %}
+{% call tagged_message("warning") %}Please insert <strong>{{ order.sd_card.name }}</strong> SD-card onto slot <strong>{{ task.slot }}</strong>{% endcall %}
+{{ button_insert(order, task) }}
 {% endblock %}

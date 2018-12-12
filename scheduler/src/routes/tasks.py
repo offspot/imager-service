@@ -4,13 +4,13 @@
 
 import logging
 from bson import ObjectId
-from flask import Blueprint, request, jsonify, Response
+from flask import Blueprint, request, jsonify, Response, render_template
 
 from utils.mongo import CreatorTasks, WriterTasks, DownloaderTasks, Users, Tasks, Orders
 from . import authenticate, bson_object_id, errors, only_for_roles
 from emailing import (
     send_image_uploaded_email,
-    send_image_downloaded_email,
+    send_insert_card_email,
     send_image_writing_email,
     send_image_written_email,
     send_order_failed_email,
@@ -86,6 +86,26 @@ def register_task(task_id: ObjectId, task_type: str, user: dict):
     return jsonify({"_id": task_id})
 
 
+@blueprint.route(
+    "/<string:task_type>/<string:task_id>/confirm_inserted", methods=["GET"]
+)
+# @authenticate
+# @only_for_roles(roles=Users.WORKER_ROLES)
+@bson_object_id(["task_id"])
+def confirm_inserted_task(task_id: ObjectId, task_type: str):
+    task_cls = tasks_cls_for(task_type)
+    task = task_cls().find_one({"_id": task_id, "status": task_cls.waiting_for_card})
+    if task is None:
+        raise errors.NotFound()
+
+    task_cls.update_status(task_id, status=task_cls.card_inserted)
+    task_cls.cascade_status(task_id, task_cls.card_inserted)
+
+    order = Orders().get(task["order"])
+
+    return render_template("pub_thank_inserted.html", order=order, task=task)
+
+
 @blueprint.route("/<string:task_type>/<string:task_id>/status", methods=["PATCH"])
 @authenticate
 @only_for_roles(roles=Users.WORKER_ROLES)
@@ -112,6 +132,9 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
         extra_update=request_json.get("extra"),
     )
 
+    # update order status based on this task
+    task_cls.cascade_status(task_id, request_json.get("status"))
+
     # send email if appropriate
     order_id = task["order"]
 
@@ -137,8 +160,7 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
     # write task was registered
     elif status == Tasks.waiting_for_card:
         # send email to insert card
-        send_image_downloaded_email(order_id)
-        pass
+        send_insert_card_email(order_id, task_id)
 
     # write task started writing
     elif status == Tasks.writing:
@@ -159,9 +181,6 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
     # send_order_failed_email
     # send_order_created_email
     # send_order_shipped_email
-
-    # update order status based on this task
-    task_cls.cascade_status(task_id, request_json.get("status"))
 
     return jsonify({"_id": task_id})
 
@@ -184,6 +203,8 @@ def add_log(task_id: ObjectId, task_type: str, user: dict):
         installer_log=request_json.get("installer_log"),
         uploader_log=request_json.get("uploader_log"),
         downloader_log=request_json.get("downloader_log"),
+        wipe_log=request_json.get("wipe_log"),
+        writer_log=request_json.get("writer_log"),
     )
 
     return jsonify({"_id": task_id})

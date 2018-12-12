@@ -34,7 +34,7 @@
 	</tr>
 	<tr>
 		<th style="text-align: left;">Status</th>
-		<td><code>{{ order.status.status }}</code>, {{ order.status.on.strftime('%c') }}</td>
+		<td><code>{{ order.statuses[-1].status }}</code>, {{ order.statuses[-1].on.strftime('%c') }}</td>
 	</tr>
 </table>
 {% endblock %}
