@@ -37,11 +37,12 @@ class BaseWorker:
     def read_setting(self):
         Setting.read_from_env()
 
-    def start(self):
+    def start(self, run_loop=True):
         """ starts the worker (initialization) """
         logger.info("Welcome to Cardshop {} worker:".format(self.worker_type))
         self.read_setting()
-        self.run_loop()
+        if run_loop:
+            self.run_loop()
 
     def stop(self):
         """ stops worker completely """

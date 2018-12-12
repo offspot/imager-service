@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
+import os
 import subprocess
 from urllib.parse import urlparse
 
@@ -61,6 +62,10 @@ class DownloadTask(BaseTask):
         url = "{dl}/{fn}".format(
             dl=self.task["download_uri"], fn=self.task["image_fname"]
         )
+
+        if bool(os.getenv("FAKE_DOWNLOAD", False)):
+            url = "https://github.com/kiwix/kiwix-hotspot/raw/master/mbr.img"
+
         args = [
             str(Setting.aria2_binary_path),
             "--dir",

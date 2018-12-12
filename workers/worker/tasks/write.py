@@ -29,6 +29,8 @@ class WriteTask(BaseTask):
     def run(self):
         super().run()
 
+        self.extra["slot"] = str(Setting.usb_slot)
+
         states = [
             ("await_sdcard", "waiting_for_card", "card_inserted", "failed_to_insert"),
             ("wipe_sdcard", "wiping_sdcard", "card_wiped", "failed_to_wipe"),
@@ -53,7 +55,9 @@ class WriteTask(BaseTask):
     def await_sdcard(self):
 
         self.logger.info("Starting await_sdcard on slot {}".format(Setting.usb_slot))
-        while get_task(self.task["_id"])[1]["status"] == "received":
+        while (
+            not self.canceled and get_task(self.task["_id"])[1]["status"] == "waiting_for_card"
+        ):
             self.logger.info("Waiting for the SD-card to be inserterd...")
             time.sleep(60)
 

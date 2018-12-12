@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
+import os
 import json
 import logging
 import subprocess
@@ -122,7 +123,9 @@ class CreateTask(BaseTask):
             "--size",
             "{}GB".format(self.task.get("size")),
         ]
-        # args = ["cp", "mbr.img", str(self.img_path)]
+
+        if bool(os.getenv("FAKE_CREATION", False)):
+            args = ["cp", str(Setting.installer_binary_path), str(self.img_path)]
         self.logger.info("Starting {args}\n".format(args=" ".join(args)))
 
         self.logs["installer_log"] = "{args}\n".format(args=" ".join(args))

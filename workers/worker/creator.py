@@ -90,9 +90,7 @@ class CreatorWorker(BaseWorker):
         logger.info("Installed {} at {}".format(version, Setting.installer_binary_path))
 
     def start(self):
-        """ starts the worker (initialization) """
-        logger.info("Welcome to Cardshop Creator worker:")
-        self.read_setting()
+        super().start(run_loop=False)
         self.check_kiwix_hotspot()
         free_space()
         self.run_loop()
