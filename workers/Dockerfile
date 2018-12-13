@@ -1,10 +1,11 @@
 FROM python:3.7.0-slim-stretch
 
+RUN echo "UTC" > /etc/timezone
 RUN apt-get update && apt-get install -y curl unzip udisks2 exfat-fuse exfat-utils
 RUN pip3 install -U pip
 
 COPY assets/aria2c_linux-static_v1.34.0 /usr/bin/aria2c
-COPY assets/kiwix-hotspot_linux-static_v2.0.2 /usr/bin/kiwix-hotspot
+COPY assets/kiwix-hotspot_linux-static_v2.0.3 /usr/bin/kiwix-hotspot
 COPY assets/etcher_linux-static_v1.4.8.zip /usr/local
 RUN cd /usr/local/ && unzip etcher_linux-static_v1.4.8 && cd -
 

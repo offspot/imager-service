@@ -114,6 +114,7 @@ class CreateTask(BaseTask):
         args = [
             str(Setting.installer_binary_path),
             "cli",
+            "--root",
             "--filename",
             self.img_path.name,
             "--build-dir",

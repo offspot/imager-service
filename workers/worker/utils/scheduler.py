@@ -60,6 +60,8 @@ def authenticate(force=False):
     ):
         return
 
+    logger.debug("authenticate() with force={}".format(force))
+
     try:
         access_token, refresh_token = get_token(
             username=Setting.username, password=Setting.password
@@ -119,6 +121,10 @@ def query_api(method, path, payload=None):
 
     if req.status_code in (200, 201):
         return True, req.status_code, resp
+
+    # Unauthorised error: attempt to re-auth as scheduler might have restarted?
+    if req.status_code == 401:
+        authenticate(True)
 
     return (False, req.status_code, resp["error"] if "error" in resp else str(resp))
 
