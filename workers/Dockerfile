@@ -31,6 +31,4 @@ RUN mkdir -p $WORKING_DIR
 COPY worker /usr/src/worker
 WORKDIR /usr/src/
 
-COPY mbr.img /usr/src/mbr.img
-
 ENTRYPOINT ["python", "worker"]
