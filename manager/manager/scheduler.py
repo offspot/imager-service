@@ -3,6 +3,7 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import json
+import logging
 import datetime
 
 from django.conf import settings
@@ -26,6 +27,7 @@ ROLES = {
     "creator": "Creator Worker",
     "writer": "Writer Worker",
 }
+logger = logging.getLogger(__name__)
 
 
 class SchedulerAPIError(Exception):
@@ -59,6 +61,8 @@ def authenticate(force=False):
         > datetime.datetime.now() + datetime.timedelta(minutes=2)
     ):
         return
+
+    logger.debug("authenticate() with force={}".format(force))
 
     try:
         access_token, refresh_token = get_token(username=USERNAME, password=PASSWORD)
@@ -108,6 +112,10 @@ def query_api(method, path, payload=None):
 
     if req.status_code in (200, 201):
         return True, req.status_code, resp
+
+    # Unauthorised error: attempt to re-auth as scheduler might have restarted?
+    if req.status_code == 401:
+        authenticate(True)
 
     return (False, req.status_code, resp["error"] if "error" in resp else str(resp))
 
