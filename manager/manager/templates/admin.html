@@ -33,7 +33,8 @@
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=org_form.slug %}{{ org_form.slug|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=org_form.name %}{{ org_form.name|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=org_form.channel %}{{ org_form.channel|as_widget }}</div>
-		<div class="form-group col-md-3">{% include "_label_for.html" with field=org_form.email %}{{ org_form.email|as_widget }}</div>
+		<div class="form-group col-md-1">{% include "_label_for.html" with field=org_form.warehouse %}{{ org_form.warehouse|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=org_form.email %}{{ org_form.email|as_widget }}</div>
 		<div class="form-group col-md-1">{% include "_label_for.html" with field=org_form.units %}{{ org_form.units|as_widget }}</div>
 		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Create Organization</button></div>
 	</div>
