@@ -3,12 +3,13 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import os
+import time
 import subprocess
 from urllib.parse import urlparse
 
 from tasks.base import BaseTask
 from utils.setting import Setting
-from utils.scheduler import authenticate, get_access_token
+from utils.scheduler import authenticate, get_access_token, get_task
 
 
 class DownloadTask(BaseTask):
@@ -33,7 +34,21 @@ class DownloadTask(BaseTask):
             self.report_status("failed", str(exp))
             return
 
-        states = [("download_image", "downloading", "downloaded", "failed_to_download")]
+        states = [
+            ("download_image", "downloading", "downloaded", "failed_to_download"),
+            (
+                "idle",
+                "pending_end_of_writes",
+                "pending_image_removal",
+                "downloaded_failed_to_remove",
+            ),
+            (
+                "remove_image",
+                "pending_image_removal",
+                "downloaded_and_removed",
+                "downloaded_failed_to_remove",
+            ),
+        ]
 
         for method, working_status, success_status, failed_status in states:
             try:
@@ -143,3 +158,19 @@ class DownloadTask(BaseTask):
 
         if ps.returncode != 0:
             raise subprocess.SubprocessError("installer rc: {}".format(ps.returncode))
+
+    def idle(self):
+        self.logger.info("idleing until all cards have been written")
+        while (
+            not self.canceled
+            and get_task(self.task["_id"])[1]["status"] == "pending_end_of_writes"
+        ):
+            self.logger.info("Idleing...")
+            time.sleep(2 * 60)
+
+        self.logger.info("All SD-cards written !")
+
+    def remove_image(self):
+        self.logger.info("removing image file at {}".format(str(self.img_path)))
+        self.img_path.unlink()
+        self.logger.info("image file removed !")

@@ -42,7 +42,7 @@ class CreateTask(BaseTask):
             suffixes.append(".img")
 
         for suffix in suffixes:
-            path = Setting.working_dir.joinpath(str(self.task["_id"]) + suffix)
+            path = Setting.working_dir.joinpath(self.img_name + suffix)
             if path.is_file():
                 logger.info("removing {}".format(path.name))
                 path.unlink()
@@ -55,6 +55,10 @@ class CreateTask(BaseTask):
     @property
     def img_path(self):
         return self.file_path("img")
+
+    @property
+    def img_name(self):
+        return os.path.splitext(self.img_path.name)[0]
 
     @property
     def log_path(self):
@@ -116,7 +120,7 @@ class CreateTask(BaseTask):
             "cli",
             "--root",
             "--filename",
-            self.img_path.name,
+            self.img_name,
             "--build-dir",
             str(Setting.working_dir),
             "--config",
