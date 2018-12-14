@@ -1,7 +1,7 @@
 FROM python:3.7.0-slim-stretch
 
 RUN echo "UTC" > /etc/timezone
-RUN apt-get update && apt-get install -y curl unzip udisks2 exfat-fuse exfat-utils
+RUN apt-get update && apt-get install -y curl unzip udisks2 exfat-fuse exfat-utils xz-utils bzip2 gzip
 RUN pip3 install -U pip
 
 COPY assets/aria2c_linux-static_v1.34.0 /usr/bin/aria2c

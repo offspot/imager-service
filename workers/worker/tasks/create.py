@@ -158,7 +158,9 @@ class CreateTask(BaseTask):
 
         ps.wait(10)
 
-        if ps.returncode == 0:
+        successful = ps.returncode == 0 and self.img_path.exists()
+
+        if successful:
             self.logger.info("installer ran successfuly.")
             # get and store size and checksum
             self.extra["image"] = {
@@ -175,7 +177,7 @@ class CreateTask(BaseTask):
         # clean up working folder
         self.remove_files()
 
-        if ps.returncode != 0:
+        if not successful:
             raise subprocess.SubprocessError("installer rc: {}".format(ps.returncode))
 
     def upload_image(self):
