@@ -147,8 +147,8 @@ class BaseWorker:
                         # skip tasks that are scheduled for other workers
                         try:
                             if (
-                                task["worker"]["username"] is not None
-                                and task["worker"]["username"] != Setting.username
+                                task["worker"] is not None
+                                and task["worker"] != Setting.username
                             ):
                                 continue
                         except Exception:

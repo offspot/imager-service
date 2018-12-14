@@ -173,14 +173,18 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
         order = Orders().get_with_tasks(order_id)
         # all write tasks are marked as written
         if not [1 for wt in order["tasks"]["write"] if wt["status"] != Tasks.written]:
+            Orders().update_status(order_id, Orders.pending_shipment)
+
             send_order_pending_shipment_email(order_id)
+
+            # find matching download task and mark it for file removal
+            DownloaderTasks().update_status(
+                task_id=order["tasks"]["download"]["_id"],
+                status=Tasks.pending_image_removal,
+            )
 
     elif status in Tasks.FAILED_STATUSES:
         send_order_failed_email(order_id)
-
-    # send_order_failed_email
-    # send_order_created_email
-    # send_order_shipped_email
 
     return jsonify({"_id": task_id})
 

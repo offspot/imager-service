@@ -167,7 +167,6 @@ def get_email_for(order_id, kind, formatted=True):
         return _fmt(order["recipient"]["name"], order["recipient"]["email"])
 
     if kind == "operator":
-        return order["tasks"]["download"]["worker"]["email"]
         worker = Users().by_username(order["tasks"]["download"]["worker"])
         return worker["email"]
 

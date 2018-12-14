@@ -319,6 +319,10 @@ class Tasks(BaseCollection):
     downloading = "downloading"
     failed_to_download = "failed_to_download"
     downloaded = "downloaded"
+    pending_end_of_writes = "pending_end_of_writes"
+    pending_image_removal = "pending_image_removal"
+    downloaded_failed_to_remove = "downloaded_failed_to_remove"
+    downloaded_and_removed = "downloaded_and_removed"
 
     # write
     waiting_for_card = "waiting_for_card"
@@ -330,9 +334,6 @@ class Tasks(BaseCollection):
     writing = "writing"
     failed_to_write = "failed_to_write"
     written = "written"
-    pending_image_removal = "pending_image_removal"
-    downloaded_failed_to_remove = "downloaded_failed_to_remove"
-    downloaded_and_removed = "downloaded_and_removed"
 
     pending_shipment = "pending_shipment"
     failed_to_ship = "failed_to_ship"
@@ -342,7 +343,12 @@ class Tasks(BaseCollection):
     canceled = "canceled"
     timedout = "timedout"
 
-    PENDING_STATUSES = [pending, waiting_for_card, pending_image_removal]
+    PENDING_STATUSES = [
+        pending,
+        waiting_for_card,
+        pending_image_removal,
+        pending_end_of_writes,
+    ]
     WORKING_STATUSES = [
         received,
         building,
@@ -402,7 +408,11 @@ class Tasks(BaseCollection):
             Tasks.failed_to_wipe: Orders.write_failed,
             Tasks.writing: Orders.writing,
             Tasks.failed_to_write: Orders.write_failed,
-            Tasks.written: Orders.pending_shipment,
+            # Tasks.written: Orders.pending_shipment,
+            # Tasks.pending_end_of_writes: Orders.writing,
+            # Tasks.pending_image_removal: Orders.written,
+            # Tasks.downloaded_and_removed: Orders.written,
+            Tasks.downloaded_failed_to_remove: Orders.written,
             Tasks.failed: Orders.failed,
             Tasks.canceled: Orders.canceled,
             Tasks.timedout: Orders.failed,
@@ -459,7 +469,7 @@ class Tasks(BaseCollection):
         cls.update_status(
             task_id=task_id,
             status=cls.received,
-            extra_update={"worker": worker},
+            extra_update={"worker": worker["username"]},
             payload="assigned worker: {}".format(worker["username"]),
         )
 
