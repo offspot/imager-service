@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ $# -ne 6 ];
+then
+	echo "Usage: $0 WORKER SLOT DEV USERNAME PASSWORD API_URL"
+	exit 1
+fi
+
+WORKER=$1
+USB_SLOT=$2
+USB_PATH=$3
+USERNAME=$4
+PASSWORD=$5
+API_URL=$6
+
+
+docker pull kiwix/cardshop-worker
+docker run --privileged \
+	-e USB_SLOT="${USB_SLOT}" \
+	-e USB_PATH="${USB_PATH}" \
+	-e USERNAME="${USERNAME}" \
+	-e PASSWORD="${PASSWORD}" \
+	-e WORKER_TYPE="${WORKER}" \
+	-e CARDSHOP_API_URL="${API_URL}" \
+	--detach --restart always kiwix/cardshop-worker

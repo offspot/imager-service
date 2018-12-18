@@ -1,0 +1,8 @@
+requests==2.21.0
+PyYAML==3.13
+netifaces==0.10.7
+colorama==0.4.1
+Unidecode==1.0.23
+tabulate==0.8.2
+ipython==7.2.0
+humanfriendly==4.17

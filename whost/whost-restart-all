@@ -1,0 +1,3 @@
+#!/bin/bash
+
+whost-stop-all && whost-start-all

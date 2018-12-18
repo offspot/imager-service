@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "Updating code and all"
+pip install -U whost
+docker pull kiwix/cardshop-worker

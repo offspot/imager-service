@@ -1,0 +1,19 @@
+#!/bin/bash
+
+ret=0
+
+for (( ; ; ))
+do
+	reset
+    whost-configurator
+    ret=$?
+    # exit to shell
+    if [ $ret -gt 2 ]; then
+    	break
+    fi
+done
+
+if [ $ret -ge 20 ];
+then
+	logout || exit
+fi

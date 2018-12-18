@@ -114,3 +114,7 @@ scripts/
 deployment/
 data/
 host/
+
+tunnel
+tunnel.pub
+*.lock

@@ -1,0 +1,77 @@
+#!/bin/bash
+
+RED=`tput setaf 1`
+GREEN=`tput setaf 2`
+YELLOW=`tput setaf 3`
+BLUE=`tput setaf 4`
+NC=`tput sgr0`
+
+green() { 
+	echo "${GREEN}$1${NC}" 
+}
+red() { 
+	echo "${RED}$1${NC}"
+}
+yellow() {
+	echo "${YELLOW}$1${NC}"
+}
+blue() {
+	echo "${BLUE}$1${NC}"
+}
+step() {
+	yellow "=> $1"
+}
+
+blue "=== Cardshop WriterHost setup..."
+
+if [[ $(/usr/bin/id -u) -ne 0 ]]; then
+    red "Must be ran as root. exiting."
+    exit 1
+fi
+
+pathadd() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="${PATH:+"$PATH:"}$1"
+        echo "export PATH=${PATH}" > /root/.bash_profile
+        source /root/.bash_profile
+    fi
+}
+
+step "Ugrading base Ubuntu packages"
+apt update -y && apt upgrade -y
+
+step "Installing additional packages"
+apt install -y unzip wget vim
+
+step "Add reverse-SSH connection"
+red "TODO"
+
+step "Install docker-CE from official repo"
+# https://docs.docker.com/install/linux/docker-ce/ubuntu/#set-up-the-repository
+apt install -y apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+apt-key fingerprint 0EBFCD88
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-get update -y
+apt-get install -y docker-ce
+mkdir -p /data
+
+step "Install basic python dependencies"
+add-apt-repository universe
+apt update -y
+apt install -y python3-pip
+pip3 install -U pip
+pip3 install virtualenv
+virtualenv -p /usr/bin/python3 whostenv
+source /root/whostenv/bin/activate
+
+step "Download code"
+pip install -U whost
+
+step "Adding whost folder to PATH"
+WHOST_BINS=`python -c 'import sys ; print([p for p in sys.path if p.endswith("site-packages")][-1])'`
+pathadd "${WHOST_BINS}"
+echo $PATH
+
+step "Pulling worker"
+docker pull kiwix/cardshop-worker

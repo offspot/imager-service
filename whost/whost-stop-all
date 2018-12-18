@@ -1,0 +1,41 @@
+#!/usr/bin/python3
+
+import sys
+import logging
+import subprocess
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("whost-stop-all")
+
+
+def main():
+    docker_ps = subprocess.run(
+        ["docker", "ps", "--no-trunc", "--quiet"],
+        universal_newlines=True,
+        stdout=subprocess.PIPE,
+    )
+    if not docker_ps.returncode == 0:
+        logger.error("Failed to query list of running containers.")
+        sys.exit(1)
+
+    try:
+        running_containers = [line.strip() for line in docker_ps.stdout.splitlines()]
+    except Exception as exp:
+        logger.error("Unable to parse containers IDs.")
+        sys.exit(1)
+
+    if not len(running_containers):
+        logger.info("No container to stop.")
+        sys.exit()
+
+    logger.info("stopping {} containers".format(len(running_containers)))
+
+    for container_id in running_containers:
+        if subprocess.run(["docker", "stop", container_id]).returncode == 0:
+            logger.info(".. stopped container: {}".format(container_id))
+        else:
+            logger.warn(".. failed to stop container: {}".format(container_id))
+
+
+if __name__ == "__main__":
+    main()

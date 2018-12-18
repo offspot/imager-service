@@ -1,0 +1,114 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import json
+import logging
+import subprocess
+from pathlib import Path
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("whost-start-all")
+CONFIG_PATH = Path("/etc/cardshop-host.config")
+DOCKER_START = Path("whost-start-worker")
+DEVICES_PREFIX = Path("/sys/devices")
+
+
+def read_conf():
+    """ read cardshop config file (json) """
+    try:
+        with open(str(CONFIG_PATH), "r") as fd:
+            return json.load(fd)
+    except Exception as exp:
+        logger.error("Unable to read config file at {}".format(str(CONFIG_PATH)))
+        logger.error(exp)
+        sys.exit(1)
+
+
+def get_device_path(pci_ident, usb_ident, host_ident):
+    """ full /sys/devices path for a PCI/USB/HOST combination """
+
+    # /sys/devices/pci0000:00/0000:00:14.0
+    pci_paths = ["pci{}".format(":".join(pci_ident.split(":")[0:2])), pci_ident]
+
+    # usb4/4-1/4-1.2/4-1.2:1.0
+    usb_paths = [
+        "usb{}".format(usb_ident.split("-", 1)[0]),
+        usb_ident.split(".", 1)[0],
+        usb_ident.split(":", 1)[0],
+        usb_ident,
+    ]
+
+    # host6/target6:0:0/6:0:0:1
+    host_paths = [
+        "host{}".format(host_ident.split(":", 1)[0]),
+        "target{}".format(host_ident.rsplit(":", 1)[0]),
+        host_ident,
+    ]
+
+    return DEVICES_PREFIX.joinpath(*pci_paths + usb_paths + host_paths)
+
+
+def get_block_for(device_path):
+    try:
+        bn = [
+            fname
+            for fname in os.listdir(device_path.joinpath("block"))
+            if fname.startswith("sd")
+        ][0]
+    except Exception as exp:
+        logger.error(exp)
+        return None
+    return device_path.joinpath("block", bn).name
+
+
+def main():
+    config = read_conf()
+    if not config.get("enabled", False):
+        logger.warn("Host is disabled. exiting.")
+        sys.exit()
+
+    username = config.get("username", "")
+    password = config.get("password", "")
+    api_url = config.get("api_url", "")
+    if not username or not password or not api_url:
+        logger.error("Host is missing credentials. exiting.")
+        sys.exit(1)
+
+    writers = config.get("writers", {})
+    if not len(writers):
+        logger.warn("Host has no configured writers. exiting.")
+        sys.exit()
+
+    def _start_worker(worker, slot, device_path):
+        args = [
+            str(DOCKER_START),
+            worker,
+            slot,
+            device_path,
+            username,
+            password,
+            api_url,
+        ]
+        subprocess.run(["echo", " ".join(args)])
+        subprocess.run(args)
+
+    logger.info("Starting 1 downloader and {} writers".format(len(writers)))
+
+    # downloader
+    _start_worker("downloader", "-", "-")
+
+    for index, slot in enumerate(writers.keys()):
+        writer = writers.get(slot)
+        device_path = "/dev/{}".format(
+            get_block_for(
+                get_device_path(
+                    writer.get("pci"), writer.get("usb"), writer.get("host")
+                )
+            )
+        )
+        _start_worker("writer", slot, device_path)
+
+
+if __name__ == "__main__":
+    main()
