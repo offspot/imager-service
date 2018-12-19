@@ -5,6 +5,8 @@ GREEN=`tput setaf 2`
 YELLOW=`tput setaf 3`
 BLUE=`tput setaf 4`
 NC=`tput sgr0`
+REG_PUB="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC4UTXOYXrKA6dR7KizO2AvqqHKQGJE/FZF2oKTiofWEYDf+UWylksH4WjFmVczDUHN653Ve/QOIyRfI6IUuVa2hJ+l02xFV7rdl7L5zSZwKiSJr+SefouzWIFwS3VS3gbLOqk864a1NkUR97yKYjxsZiT9fISf771HqEKhsXOzZDOFbxt5u+YAaAJIJlU0EMKkDRBBtAVxmLFHme0uSpZ8DlYMFARGe1s0I++1eby0NVtzP3TarouvkPN1cFmS7UhQCsHzcmDMcNyrtHGBnlgjihd4m2bppmY75xTTR/PQTKDWqwklyYZhiDCKjZYzxWTk493SwKfZfaT9FOU0r4FT reg@homelet"
+MAINT_PUB="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCx9Bfw8wkceadnounwXVHInI0FyNEj3z64bqXA8cwbgkqkXTVWnI3I6vUzKY8dSfL8PXydCaVnGxogP88Y294k4rjIf8NGubwNe5B2oyLNuscBhd1QWzEmvr4ej32I1Ot3oulJsbqt7oSKUr6pQ4fD44WXjGNaQx3WhbsSJb28k4rNRs4bY+HlScsaKlfVRpE+kuI64BNPl4+IVfkJzs+E7NuDp3DnHl4pwbWjsj856/coKe0v0XtMOXZP7pVn/TLRGbNA+w/HVLLRud5taTZXxV5jYHOeftLFupSZL5VdGHWrC6/GeWgtwlvcsfmt6erc4p6MQqKxT3SV/CNIS2j1 maint@cardshop"
 
 green() { 
 	echo "${GREEN}$1${NC}" 
@@ -29,6 +31,12 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
     exit 1
 fi
 
+if [ -z "${REVERSE_SSH_PORT}" ]; then
+	red "you must set the REVERSE_SSH_PORT environ variable to the appropriate port for this writer host."
+	echo " See http://wiki.kiwix.org/wiki/Cardshop-maintenance"
+	exit 1
+fi
+
 pathadd() {
     if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
         PATH="${PATH:+"$PATH:"}$1"
@@ -41,10 +49,24 @@ step "Ugrading base Ubuntu packages"
 apt update -y && apt upgrade -y
 
 step "Installing additional packages"
-apt install -y unzip wget vim
+apt install -y unzip wget vim openssh-server
+
+step "Add maintenance SSH keys"
+mkdir -p /root/.ssh
+chmod 700 /root/.ssh
+echo "${REG_PUB}" >> /root/.ssh/authorized_keys
+echo "${MAINT_PUB}" >> /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
 
 step "Add reverse-SSH connection"
-red "TODO"
+echo "   StrictHostKeyChecking no\nUserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
+systemctl enable ssh
+echo "REVERSE_SSH_PORT=${REVERSE_SSH_PORT}" > /etc/default/reverse-ssh
+wget -O /etc/systemd/system/reverse-ssh.service https://raw.githubusercontent.com/kiwix/cardshop/master/whost/reverse-ssh.service
+systemctl daemon-reload
+systemctl enable reverse-ssh.service
+systemctl start reverse-ssh.service
+systemctl status reverse-ssh.service
 
 step "Install docker-CE from official repo"
 # https://docs.docker.com/install/linux/docker-ce/ubuntu/#set-up-the-repository

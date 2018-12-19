@@ -1,0 +1,16 @@
+[Unit]
+Description=Cardshop WriterHost Reverse SSH Service
+ConditionPathExists=|/usr/bin
+Requires=systemd-networkd-wait-online.service
+After=systemd-networkd-wait-online.service
+
+[Service]
+EnvironmentFile=/etc/default/reverse-ssh
+ExecStart=/usr/bin/ssh -NTC -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no -i /root/.ssh/tunnel -R ${REVERSE_SSH_PORT}:localhost:22 tunnel@demo.hotspot.kiwix.org
+
+# Restart every >2 seconds to avoid StartLimitInterval failure
+RestartSec=3
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
