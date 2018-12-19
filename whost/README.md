@@ -1,5 +1,19 @@
 # Cardshop Writer Host
 
+Cardshop use writer hosts to download, write and ship SD-cards to recipient.
+A WriterHost is an always-running, always-connected computer connected to one or more USB SD-card readers.
+
+Writer Hosts authenticate with the cardshop fetch tasks. The WriterHost operator is contacted (email) when an SD-card must be inserted, retrieved and shipped.
+
+## Requirements
+
+* always-on-capable computer
+* 500GB storage or more.
+* high-speed, direct, permanent connection to internet via ethernet.
+* one or more good-quality USB SD-card readers (Kingston)
+* A `writer` account on the cardshop.
+* An assigned port on the demo server (see [maintenance](http://wiki.kiwix.org/wiki/Cardshop-maintenance)).
+
 ## Setup
 
 1. Install Ubuntu 18.04.1 LTS server with default options (see bellow)

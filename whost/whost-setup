@@ -95,5 +95,12 @@ WHOST_BINS=`python -c 'import sys ; print([p for p in sys.path if p.endswith("si
 pathadd "${WHOST_BINS}"
 echo $PATH
 
+step "Add whost-config to login"
+in_bashrc=`cat /root/.bashrc |grep "^whost-config$" |wc -l`
+if [ "${in_bashrc}" = "0" ];
+then
+    echo "whost-config" >> /root/.bashrc
+fi
+
 step "Pulling worker"
 docker pull kiwix/cardshop-worker
