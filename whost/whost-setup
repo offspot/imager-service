@@ -24,7 +24,10 @@ step() {
 	yellow "=> $1"
 }
 
-blue "=== Cardshop WriterHost setup..."
+# blank the screen
+reset
+
+blue "=== Cardshop WriterHost setup ==="
 
 if [[ $(/usr/bin/id -u) -ne 0 ]]; then
     red "Must be ran as root. exiting."
@@ -49,7 +52,7 @@ step "Ugrading base Ubuntu packages"
 apt update -y && apt upgrade -y
 
 step "Installing additional packages"
-apt install -y unzip wget vim openssh-server
+apt install -y vim openssh-server
 
 step "Add maintenance SSH keys"
 mkdir -p /root/.ssh
@@ -62,7 +65,7 @@ step "Add reverse-SSH connection"
 echo "   StrictHostKeyChecking no\nUserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
 systemctl enable ssh
 echo "REVERSE_SSH_PORT=${REVERSE_SSH_PORT}" > /etc/default/reverse-ssh
-wget -O /etc/systemd/system/reverse-ssh.service https://raw.githubusercontent.com/kiwix/cardshop/master/whost/reverse-ssh.service
+curl -o /etc/systemd/system/reverse-ssh.service https://raw.githubusercontent.com/kiwix/cardshop/master/whost/reverse-ssh.service
 systemctl daemon-reload
 systemctl enable reverse-ssh.service
 systemctl start reverse-ssh.service
