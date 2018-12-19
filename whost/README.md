@@ -18,6 +18,7 @@ Writer Hosts authenticate with the cardshop fetch tasks. The WriterHost operator
 
 1. Install Ubuntu 18.04.1 LTS server with default options (see bellow)
 * log-in and elevate as `root` (`sudo su -`)
+* set a password for `root` (`passwd`)
 * Make sure internet is working
 * download/copy your tunnel private key to `/root/.ssh/tunnel` (chmod `600`)
 * download setup script `curl -L -o /tmp/whost-setup https://raw.githubusercontent.com/kiwix/cardshop/master/whost/whost-setup`

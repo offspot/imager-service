@@ -45,7 +45,7 @@ def toggle_host():
 
 def display_home():
 
-    cli.info_section("Hotsport Cardshop writer-host configurator")
+    cli.info_section(cli.purple, "Hotsport Cardshop writer-host configurator")
 
     print("Checking internet connection…", end="", flush=True)
     connected = is_internet_connected()

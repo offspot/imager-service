@@ -15,5 +15,5 @@ done
 
 if [ $ret -ge 20 ];
 then
-	logout || exit
+    kill -HUP $PPID
 fi

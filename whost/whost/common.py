@@ -34,9 +34,13 @@ def read_conf():
 
 def save_conf(config):
     """ save cardshop config to file (json) """
-    with open(str(CONFIG_PATH), "w") as fd:
-        json.dump(config, fd, indent=4)
-    return True
+    try:
+        with open(str(CONFIG_PATH), "w") as fd:
+            json.dump(config, fd, indent=4)
+        return True
+    except Exception as exp:
+        logger.error(exp)
+        return False
 
 
 def update_conf(data):
@@ -57,5 +61,5 @@ def get_next_slot():
 # make sure we have a config
 if not CONFIG_PATH.exists():
     save_conf(
-        {{"username": "", "password": "", "enabled": False, "api_url": DEFAULT_API_URL}}
+        {"username": "", "password": "", "enabled": False, "api_url": DEFAULT_API_URL}
     )

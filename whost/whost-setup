@@ -67,15 +67,15 @@ echo "${MAINT_PUB}" >> /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 
 step "Add reverse-SSH connection"
-echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config
-echo "    UserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
+#echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config
+#echo "    UserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
 systemctl enable ssh
 echo "REVERSE_SSH_PORT=${REVERSE_SSH_PORT}" > /etc/default/reverse-ssh
 curl -L -o /etc/systemd/system/reverse-ssh.service https://raw.githubusercontent.com/kiwix/cardshop/master/whost/reverse-ssh.service
 systemctl daemon-reload
 systemctl enable reverse-ssh.service
 systemctl restart reverse-ssh.service
-systemctl status reverse-ssh.service
+systemctl status --no-pager -l reverse-ssh.service
 
 step "Install docker-CE from official repo"
 # https://docs.docker.com/install/linux/docker-ce/ubuntu/#set-up-the-repository
@@ -105,11 +105,15 @@ pathadd "${WHOST_BINS}"
 echo $PATH
 
 step "Add whost-config to login"
-in_bashrc=`cat /root/.bashrc |grep "^whost-config$" |wc -l`
-if [ "${in_bashrc}" = "0" ];
+inprofile=`cat /root/.bash_profile |grep "^whost-config$" |wc -l`
+if [ "${inprofile}" = "0" ];
 then
-    echo "whost-config" >> /root/.bashrc
+    echo "source /root/whostenv/bin/activate" >> /root/.bash_profile
+    echo "whost-config" >> /root/.bash_profile
 fi
 
 step "Pulling worker"
 docker pull kiwix/cardshop-worker
+
+step "Restarting"
+read -p "About to reboot. Please type any key once ready." yn
