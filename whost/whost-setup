@@ -117,3 +117,4 @@ docker pull kiwix/cardshop-worker
 
 step "Restarting"
 read -p "About to reboot. Please type any key once ready." yn
+shutdown -r now
