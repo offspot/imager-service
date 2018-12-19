@@ -20,7 +20,7 @@ Writer Hosts authenticate with the cardshop fetch tasks. The WriterHost operator
 * log-in and elevate as `root` (`sudo su -`)
 * Make sure internet is working
 * download/copy your tunnel private key to `/root/.ssh/tunnel` (chmod `600`)
-* download setup script `curl -o /tmp/whost-setup https://raw.githubusercontent.com/kiwix/cardshop/master/whost/whost-setup`
+* download setup script `curl -L -o /tmp/whost-setup https://raw.githubusercontent.com/kiwix/cardshop/master/whost/whost-setup`
 * run the setup script `chmod +x /tmp/whost-config && REVERSE_SSH_PORT=XXX /tmp/whost-config`
 
 ### Ubuntu Install

@@ -9,19 +9,24 @@ REG_PUB="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC4UTXOYXrKA6dR7KizO2AvqqHKQGJE/FZ
 MAINT_PUB="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCx9Bfw8wkceadnounwXVHInI0FyNEj3z64bqXA8cwbgkqkXTVWnI3I6vUzKY8dSfL8PXydCaVnGxogP88Y294k4rjIf8NGubwNe5B2oyLNuscBhd1QWzEmvr4ej32I1Ot3oulJsbqt7oSKUr6pQ4fD44WXjGNaQx3WhbsSJb28k4rNRs4bY+HlScsaKlfVRpE+kuI64BNPl4+IVfkJzs+E7NuDp3DnHl4pwbWjsj856/coKe0v0XtMOXZP7pVn/TLRGbNA+w/HVLLRud5taTZXxV5jYHOeftLFupSZL5VdGHWrC6/GeWgtwlvcsfmt6erc4p6MQqKxT3SV/CNIS2j1 maint@cardshop"
 
 green() { 
-	echo "${GREEN}$1${NC}" 
+    echo "${GREEN}$1${NC}" 
 }
 red() { 
-	echo "${RED}$1${NC}"
+    echo "${RED}$1${NC}"
 }
 yellow() {
-	echo "${YELLOW}$1${NC}"
+    echo "${YELLOW}$1${NC}"
 }
 blue() {
-	echo "${BLUE}$1${NC}"
+    echo "${BLUE}$1${NC}"
 }
 step() {
-	yellow "=> $1"
+    yellow "=> $1"
+}
+
+die() {
+    red $1
+    exit 1
 }
 
 # blank the screen
@@ -35,9 +40,9 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
 fi
 
 if [ -z "${REVERSE_SSH_PORT}" ]; then
-	red "you must set the REVERSE_SSH_PORT environ variable to the appropriate port for this writer host."
-	echo " See http://wiki.kiwix.org/wiki/Cardshop-maintenance"
-	exit 1
+    red "you must set the REVERSE_SSH_PORT environ variable to the appropriate port for this writer host."
+    echo " See http://wiki.kiwix.org/wiki/Cardshop-maintenance"
+    exit 1
 fi
 
 pathadd() {
@@ -49,7 +54,7 @@ pathadd() {
 }
 
 step "Ugrading base Ubuntu packages"
-apt update -y && apt upgrade -y
+apt update -y && apt upgrade -y && apt autoremove -y
 
 step "Installing additional packages"
 apt install -y vim openssh-server
@@ -62,13 +67,14 @@ echo "${MAINT_PUB}" >> /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 
 step "Add reverse-SSH connection"
-echo "   StrictHostKeyChecking no\nUserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
+echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config
+echo "    UserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
 systemctl enable ssh
 echo "REVERSE_SSH_PORT=${REVERSE_SSH_PORT}" > /etc/default/reverse-ssh
-curl -o /etc/systemd/system/reverse-ssh.service https://raw.githubusercontent.com/kiwix/cardshop/master/whost/reverse-ssh.service
+curl -L -o /etc/systemd/system/reverse-ssh.service https://raw.githubusercontent.com/kiwix/cardshop/master/whost/reverse-ssh.service
 systemctl daemon-reload
 systemctl enable reverse-ssh.service
-systemctl start reverse-ssh.service
+systemctl restart reverse-ssh.service
 systemctl status reverse-ssh.service
 
 step "Install docker-CE from official repo"
@@ -85,10 +91,10 @@ step "Install basic python dependencies"
 add-apt-repository universe
 apt update -y
 apt install -y python3-pip
-pip3 install -U pip
-pip3 install virtualenv
-virtualenv -p /usr/bin/python3 whostenv
-source /root/whostenv/bin/activate
+pip3 install -U pip || die "unable to update pip"
+pip3 install virtualenv  || die "unable to install virtualenv"
+virtualenv -p /usr/bin/python3 /root/whostenv || die "unable to create venv"
+source /root/whostenv/bin/activate || die "unable to source venv"
 
 step "Download code"
 pip install -U whost
