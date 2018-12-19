@@ -25,7 +25,7 @@ step() {
 }
 
 die() {
-    red $1
+    red "$@"
     exit 1
 }
 
@@ -54,7 +54,7 @@ pathadd() {
 }
 
 step "Ugrading base Ubuntu packages"
-apt update -y && apt upgrade -y && apt autoremove -y
+apt update -y && apt --fix-broken install && apt upgrade -y && apt --fix-broken install && apt autoremove -y 
 
 step "Installing additional packages"
 apt install -y vim openssh-server
@@ -91,8 +91,8 @@ step "Install basic python dependencies"
 add-apt-repository universe
 apt update -y
 apt install -y python3-pip
-pip3 install -U pip || die "unable to update pip"
-pip3 install virtualenv  || die "unable to install virtualenv"
+/usr/local/bin/pip3 install -U pip || die "unable to update pip"
+/usr/local/bin/pip3 install virtualenv  || die "unable to install virtualenv"
 virtualenv -p /usr/bin/python3 /root/whostenv || die "unable to create venv"
 source /root/whostenv/bin/activate || die "unable to source venv"
 

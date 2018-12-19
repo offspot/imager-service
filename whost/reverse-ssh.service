@@ -1,6 +1,5 @@
 [Unit]
 Description=Cardshop WriterHost Reverse SSH Service
-ConditionPathExists=|/usr/bin
 Requires=systemd-networkd-wait-online.service
 After=systemd-networkd-wait-online.service
 
