@@ -16,7 +16,7 @@ Writer Hosts authenticate with the cardshop fetch tasks. The WriterHost operator
 
 ## Setup
 
-1. Install Ubuntu 18.04.1 LTS server with default options (see bellow)
+1. Install Ubuntu 18.04.1 LTS server with default options (see below)
 * log-in and elevate as `root` (`sudo su -`)
 * set a password for `root` (`passwd`)
 * Make sure internet is working
