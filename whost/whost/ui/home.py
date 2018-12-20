@@ -60,21 +60,6 @@ def display_home():
 
     cli.info_section(cli.purple, "Hotsport Cardshop writer-host configurator")
 
-    import time
-
-    # print(" waiting for card", end="")
-    cli.info_3("waiting for card", end="")
-    n = 0
-    while n < 10:
-        time.sleep(1)
-        n += 1
-        # print(".", end="", flush=True)
-        cli.dot()
-    cli.info("FOUND")
-    # print("FOUND")
-
-    return
-
     print("Checking internet connection…", end="", flush=True)
     connected = is_internet_connected()
     authenticated = is_authenticated() if connected else False
