@@ -54,6 +54,7 @@ pathadd() {
 }
 
 step "Ugrading base Ubuntu packages"
+echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
 apt update -y && apt --fix-broken install && apt upgrade -y && apt --fix-broken install && apt autoremove -y 
 
 step "Installing additional packages"
@@ -91,7 +92,7 @@ step "Install basic python dependencies"
 add-apt-repository universe
 apt update -y
 apt install -y python3-pip
-/usr/local/bin/pip3 install -U pip || die "unable to update pip"
+/usr/bin/pip3 install -U pip || die "unable to update pip"
 /usr/local/bin/pip3 install virtualenv  || die "unable to install virtualenv"
 virtualenv -p /usr/bin/python3 /root/whostenv || die "unable to create venv"
 source /root/whostenv/bin/activate || die "unable to source venv"
