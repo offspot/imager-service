@@ -119,6 +119,9 @@ def send_email(to, subject, contents, cc=[], bcc=[], headers={}, attachments=[])
         if os.getenv("MAILGUN_API_KEY", False)
         else send_email_via_smtp
     )
+    # make sure we don't send message to same address twice
+    cc = [a for a in cc if a not in to]
+    bcc = [a for a in bcc if a not in to and a not in cc]
     try:
         return func(
             to=to,
@@ -261,8 +264,8 @@ def send_image_written_email(order_id, task_id):
     send_order_email_for(
         order_id,
         "subject_image_written",
-        "client_image_written",
-        "client",
+        "operator_image_written",
+        "operator",
         extra={"task": write_task},
     )
 

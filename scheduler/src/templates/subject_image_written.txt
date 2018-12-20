@@ -1,1 +1,1 @@
-{% extends "subject_base.txt" %}{% block subject %}Order #{{ order.min_id }}: image written to SD card!{% endblock %}
+{% extends "subject_base.txt" %}{% block subject %}Order #{{ order.min_id }}: image written to SD card on slot {{ task.slot }}!{% endblock %}
