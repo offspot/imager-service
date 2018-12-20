@@ -117,5 +117,5 @@ step "Pulling worker"
 docker pull kiwix/cardshop-worker
 
 step "Restarting"
-read -p "About to reboot. Please type any key once ready." yn
+read -p "About to reboot. Press ENTER once ready."
 shutdown -r now
