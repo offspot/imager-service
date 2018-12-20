@@ -7,7 +7,7 @@ from collections import OrderedDict
 
 import humanfriendly
 
-from whost.ui import cli, display_menu, display_success, display_error
+from whost.ui import cli, display_menu, display_success, display_error, pause
 from whost.common import getLogger, get_next_slot, read_conf, update_conf
 from whost.devices import get_writers, get_name_for, find_device, get_size, get_metadata
 
@@ -31,13 +31,13 @@ def add_device():
         cli.reset,
         "SD-card into the writer you want to configure.",
     )
-    print(" waiting for card", end="")
+    cli.info_3("waiting for card", end="")
     device = None
     while device is None:
         time.sleep(1)
-        print(".", end="", flush=True)
+        cli.dot()
         device = find_device()
-    print("FOUND")
+    cli.info("FOUND")
 
     # we now have a new DEVICE.
     hw = get_metadata(device)
@@ -62,6 +62,8 @@ def add_device():
         )
     else:
         display_error("Failed to configure a slot for", cli.bold, device)
+
+    pause()
 
 
 def configure_devices():

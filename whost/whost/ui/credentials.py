@@ -5,7 +5,7 @@
 import requests
 
 from whost.common import getLogger, read_conf, DEFAULT_API_URL, update_conf
-from whost.ui import cli, get_valid_string, nonempty_validator
+from whost.ui import cli, get_valid_string, nonempty_validator, pause
 
 logger = getLogger(__name__)
 
@@ -59,3 +59,5 @@ def configure_credentials():
         cli.bold,
         api_url,
     )
+
+    pause()

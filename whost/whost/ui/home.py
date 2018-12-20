@@ -3,10 +3,18 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import sys
+import subprocess
 from collections import OrderedDict
 
 from whost.common import UPDATE_SCRIPT, read_conf, update_conf
-from whost.ui import cli, restart_line, display_menu, display_success, display_error
+from whost.ui import (
+    cli,
+    restart_line,
+    display_menu,
+    display_success,
+    display_error,
+    pause,
+)
 from whost.ui.devices import configure_devices
 from whost.ui.network import configure_network
 from whost.ui.credentials import configure_credentials, is_authenticated
@@ -25,7 +33,7 @@ def exit_to_logout():
 
 def update_code():
     cli.info_2("Launching update script…")
-    cli.info(str(UPDATE_SCRIPT))
+    subprocess.run(["whost-update"])
 
 
 def toggle_host():
@@ -36,16 +44,36 @@ def toggle_host():
         )
     )
     if answer:
-        ns = "enabled" if not enabled else "disabled"
-        if update_conf({"enabled": not enabled}):
+        enabled = not enabled  # toggled
+        ns = "enabled" if enabled else "disabled"
+        if update_conf({"enabled": enabled}):
             display_success("Successfuly {} host!".format(ns))
+            script = "whost-restart-all" if enabled else "whost-stop-all"
+            subprocess.run([script])
         else:
             display_error("Error: host could not be {}.".format(ns))
+
+        pause()
 
 
 def display_home():
 
     cli.info_section(cli.purple, "Hotsport Cardshop writer-host configurator")
+
+    import time
+
+    # print(" waiting for card", end="")
+    cli.info_3("waiting for card", end="")
+    n = 0
+    while n < 10:
+        time.sleep(1)
+        n += 1
+        # print(".", end="", flush=True)
+        cli.dot()
+    cli.info("FOUND")
+    # print("FOUND")
+
+    return
 
     print("Checking internet connection…", end="", flush=True)
     connected = is_internet_connected()

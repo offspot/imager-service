@@ -5,8 +5,20 @@
 import ipaddress
 from collections import OrderedDict
 
-from whost.ui import cli, display_menu, get_valid_string, display_error, display_success
-from whost.network import get_interfaces, save_network_config, reset_netplan, get_iface_config
+from whost.ui import (
+    cli,
+    display_menu,
+    get_valid_string,
+    display_error,
+    display_success,
+    pause,
+)
+from whost.network import (
+    get_interfaces,
+    save_network_config,
+    reset_netplan,
+    get_iface_config,
+)
 
 
 def ipadress_validator(value):
@@ -73,6 +85,9 @@ def configure_iface():
             )
         else:
             display_error("Unable to save DHCP network config for", cli.bold, iface)
+
+        pause()
+
         return
 
     # fixed method config
@@ -115,3 +130,5 @@ def configure_iface():
         )
     else:
         display_error("Unable to save fixed network config for", cli.bold, iface)
+
+    pause()

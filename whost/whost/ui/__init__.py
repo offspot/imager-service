@@ -56,6 +56,11 @@ def display_error(*message):
     cli.info(cli.red, *message)
 
 
+def pause(*message):
+    cli.info(message if message else "hit ENTER to continue…")
+    cli.read_input()
+
+
 def restart_line():
     """ reset a single printed line (useful for loader) """
     sys.stdout.write("\r")
