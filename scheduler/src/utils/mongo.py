@@ -40,6 +40,7 @@ class Users(BaseCollection):
         },
         "password_hash": {"type": "string", "required": True},
         "active": {"type": "boolean", "default": True, "required": True},
+        "channel": {"type": "string", "required": True},
         "role": {"type": "string", "required": True},
     }
 
@@ -54,6 +55,75 @@ class Users(BaseCollection):
 class RefreshTokens(BaseCollection):
     def __init__(self):
         super().__init__(Database(), "refresh_tokens")
+
+
+class Acknowlegments(BaseCollection):
+
+    idle = "idle"
+    busy = "busy"
+    not_starting = "not_starting"
+    error = "error"
+    no_slot = "no_slot"
+
+    def __init__(self):
+        super().__init__(Database(), "acknowlegments")
+
+    schema = {
+        "username": {"type": "string", "regex": "^[a-zA-Z0-9_.+-]+$", "required": True},
+        "worker_type": {"type": "string", "required": True},
+        "slot": {"type": "string", "required": True},
+        "status": {"type": "string", "required": True},
+        "on": {"type": "datetime", "required": True},
+        "payload": {"type": "string", "required": False},
+    }
+
+    @classmethod
+    def update(
+        cls, username, worker_type, slot, status, payload=None, extra={}, on=None
+    ):
+        # retrieve previsous status
+        mfilter = {"username": username, "worker_type": worker_type, "slot": slot}
+        existing = cls().find_one(mfilter, {"status"})
+        previous_status = existing["status"] if existing else None
+        # update ack
+        extra.update(
+            {"status": status, "on": datetime.datetime.now(), "payload": payload}
+        )
+        res = cls().update_one(mfilter, {"$set": extra}, upsert=True)
+        return res.upserted_id or existing["_id"], status != previous_status
+
+    @classmethod
+    def idle_update(cls, username, worker_type, slot):
+        return cls.update(
+            username=username, worker_type=worker_type, slot=slot, status=cls.idle
+        )
+
+    @classmethod
+    def busy_update(cls, username, worker_type, slot, task_id):
+        return cls.update(
+            username=username,
+            worker_type=worker_type,
+            slot=slot,
+            status=cls.busy,
+            payload="task #{}".format(task_id),
+        )
+
+    @classmethod
+    def sos_update(cls, username, worker_type, slot, error):
+        return cls.update(
+            username=username,
+            worker_type=worker_type,
+            slot=slot,
+            status=cls.not_starting,
+            payload=error,
+        )
+
+    @classmethod
+    def get(cls, aid):
+        ack = cls().find_one({"_id": aid})
+        if ack is None:
+            raise ValueError("Unable to retrieve ack with id `{}`".format(aid))
+        return ack
 
 
 class Channels(BaseCollection):
@@ -222,6 +292,18 @@ class Orders(BaseCollection):
         return task_id
 
     @classmethod
+    def cancel(cls, order_id):
+        cls.update_status(order_id, cls.canceled)
+        order = cls.get(order_id)
+        if order["tasks"].get("create"):
+            CreatorTasks().cancel(order["tasks"].get("create"))
+        if order["tasks"].get("download"):
+            DownloaderTasks().cancel(order["tasks"].get("download"))
+        if order["tasks"].get("write"):
+            for tid in order["tasks"].get("write"):
+                WriterTasks().cancel(tid)
+
+    @classmethod
     def create_downloader_task(cls, order_id, upload_details):
         order = cls.get(order_id)
         if order is None:
@@ -371,6 +453,7 @@ class Tasks(BaseCollection):
         canceled,
         timedout,
     ]
+    IN_PROGRESS_STATUSES = [building, uploading, downloading, wiping_sdcard, writing]
 
     CREATOR_SUCCESS_STATUSES = [uploaded]
     DOWNLOADER_SUCCESS_STATUSES = [
@@ -480,6 +563,20 @@ class Tasks(BaseCollection):
             for task in cls().find({"status": cls.pending}, {"_id": 1})
         ]
         return tasks
+
+    @classmethod
+    def all_inprogress(cls):
+        tasks = []
+        for tcls in (CreatorTasks, DownloaderTasks, WriterTasks):
+            xtasks = tcls().find(
+                {"status": {"$in": cls.IN_PROGRESS_STATUSES}}, {"_id": 1}
+            )
+            tasks += [tcls().get(t["_id"]) for t in xtasks]
+        return tasks
+
+    @classmethod
+    def cancel(cls, task_id):
+        cls.update_status(task_id, cls.canceled)
 
 
 class CreatorTasks(Tasks):

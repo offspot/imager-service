@@ -6,7 +6,11 @@ from flask import Blueprint, request, jsonify, render_template
 from jsonschema import validate, ValidationError
 
 from utils.mongo import Orders, Users
-from emailing import send_order_created_email, send_order_shipped_email
+from emailing import (
+    send_order_created_email,
+    send_order_shipped_email,
+    send_order_failed_email,
+)
 from . import authenticate, bson_object_id, errors, only_for_roles
 
 
@@ -95,6 +99,21 @@ def document(order_id: ObjectId, user: dict):
         # send email about deletion
 
         return jsonify({"_id": order_id})
+
+
+@blueprint.route("/<string:order_id>/cancel", methods=["PATCH"])
+@authenticate
+@only_for_roles(roles=Users.MANAGER_ROLE)
+@bson_object_id(["order_id"])
+def cancel(order_id: ObjectId, user: dict):
+    order = Orders.get(order_id)
+    if order is None:
+        raise errors.NotFound()
+
+    Orders().cancel(order_id)
+    send_order_failed_email(order_id)
+
+    return jsonify({"_id": order_id})
 
 
 @blueprint.route("/<string:order_id>/add_shipment", methods=["GET", "POST"])

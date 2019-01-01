@@ -6,7 +6,15 @@ import logging
 from bson import ObjectId
 from flask import Blueprint, request, jsonify, Response, render_template
 
-from utils.mongo import CreatorTasks, WriterTasks, DownloaderTasks, Users, Tasks, Orders
+from utils.mongo import (
+    CreatorTasks,
+    WriterTasks,
+    DownloaderTasks,
+    Users,
+    Tasks,
+    Orders,
+    Acknowlegments,
+)
 from . import authenticate, bson_object_id, errors, only_for_roles
 from emailing import (
     send_image_uploaded_email,
@@ -41,6 +49,11 @@ def tasks_cls_for(task_type):
 @only_for_roles(roles=Users.WORKER_ROLES)
 def typed_collection(task_type: str, user: dict):
     if request.method == "GET":
+        Acknowlegments.idle_update(
+            username=user["username"],
+            worker_type=task_type,
+            slot=request.args.get("slot"),
+        )
         tasks = tasks_cls_for(task_type).find_availables(channel=user.get("channel"))
 
         return jsonify(tasks)
@@ -82,6 +95,14 @@ def register_task(task_id: ObjectId, task_type: str, user: dict):
         raise errors.NotFound()
 
     task_cls.register(task_id, user)
+
+    # update ACK
+    Acknowlegments.busy_update(
+        username=user["username"],
+        worker_type=task_type,
+        slot=request.args.get("slot"),
+        task_id=task_id,
+    )
 
     return jsonify({"_id": task_id})
 
@@ -209,6 +230,14 @@ def add_log(task_id: ObjectId, task_type: str, user: dict):
         downloader_log=request_json.get("downloader_log"),
         wipe_log=request_json.get("wipe_log"),
         writer_log=request_json.get("writer_log"),
+    )
+
+    # update ACK
+    Acknowlegments.busy_update(
+        username=user["username"],
+        worker_type=task_type,
+        slot=request.args.get("slot"),
+        task_id=task_id,
     )
 
     return jsonify({"_id": task_id})

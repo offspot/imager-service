@@ -1,0 +1,1 @@
+{% extends "subject_base.txt" %}{% block subject %}SOS from your slot {{ ack.slot }}{% endblock %}

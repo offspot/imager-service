@@ -7,7 +7,17 @@ import logging
 
 from flask import Flask
 
-from routes import auth, users, errors, channels, orders, tasks, home, warehouses
+from routes import (
+    auth,
+    users,
+    errors,
+    channels,
+    orders,
+    tasks,
+    home,
+    warehouses,
+    workers,
+)
 from utils.json import Encoder
 from prestart import Initializer
 
@@ -23,6 +33,7 @@ flask.register_blueprint(channels.blueprint)
 flask.register_blueprint(orders.blueprint)
 flask.register_blueprint(tasks.blueprint)
 flask.register_blueprint(warehouses.blueprint)
+flask.register_blueprint(workers.blueprint)
 
 errors.register_handlers(flask)
 

@@ -3,5 +3,8 @@
 echo "execute our prestart script"
 python /app/prestart.py
 
+echo "start cron"
+cron
+
 echo "run parent's entrypoint"
 exec /entrypoint.sh "$@"

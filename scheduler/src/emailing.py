@@ -11,7 +11,7 @@ import requests
 from werkzeug.datastructures import MultiDict
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from utils.mongo import Orders, Users, Channels, WriterTasks
+from utils.mongo import Orders, Users, Channels, WriterTasks, Acknowlegments
 from utils.templates import (
     get_id,
     country_name,
@@ -120,15 +120,19 @@ def send_email(to, subject, contents, cc=[], bcc=[], headers={}, attachments=[])
         else send_email_via_smtp
     )
     # make sure we don't send message to same address twice
-    cc = [a for a in cc if a not in to]
-    bcc = [a for a in bcc if a not in to and a not in cc]
+    cc = [a for a in cc if a not in to] if isinstance(cc, list) else cc
+    bcc = (
+        [a for a in bcc if a not in to and a not in cc]
+        if isinstance(bcc, list)
+        else bcc
+    )
     try:
         return func(
             to=to,
             subject=subject,
             contents=contents,
-            cc=cc,
-            bcc=bcc,
+            cc=cc or None,
+            bcc=bcc or None,
             headers=headers,
             attachments=attachments,
         )
@@ -160,7 +164,7 @@ def get_email_for(order_id, kind, formatted=True):
         return "{name} <{email}>".format(name=name, email=email)
 
     if kind not in ("client", "recipient", "operator"):
-        return None
+        return []
 
     order = Orders.get_with_tasks(order_id, {"logs": 0})
     if kind == "client":
@@ -172,17 +176,11 @@ def get_email_for(order_id, kind, formatted=True):
     if kind == "operator":
         worker = Users().by_username(order["tasks"]["download"]["worker"])
         return worker["email"]
+    return []
 
 
 def send_order_email_for(
-    order_id,
-    subject_tmpl,
-    content_tmpl,
-    to,
-    cc=None,
-    bcc=None,
-    attachments=[],
-    extra={},
+    order_id, subject_tmpl, content_tmpl, to, cc=[], bcc=[], attachments=[], extra={}
 ):
     context = get_full_context(str(order_id), extra=extra)
 
@@ -290,6 +288,19 @@ def send_order_shipped_email(order_id):
         "recipient_order_shipped",
         "recipient",
         "client",
+    )
+
+
+def send_worker_sos_email(ack_id):
+    # client: image writing successful.
+    ack = Acknowlegments.get(ack_id)
+    context = {"ack": ack}
+    subject = jinja_env.get_template("subject_worker_sos.txt").render(**context)
+    content = jinja_env.get_template("operator_worker_sos.html").render(**context)
+    send_email(
+        to=Users().by_username(ack["username"])["email"],
+        subject=subject,
+        contents=content,
     )
 
 

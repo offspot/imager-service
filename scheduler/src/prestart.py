@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 class Initializer:
     @staticmethod
     def start():
-        print("RESET_DB", os.getenv("RESET_DB", "YALLALA"))
         if os.getenv("TEST_EMAIL"):
             logger.info("send test email to: {}".format(os.getenv("TEST_EMAIL")))
             send_email(
@@ -32,6 +31,7 @@ class Initializer:
         if bool(os.getenv("RESET_DB", False)):
             logger.info("removed {} tokens".format(mongo.RefreshTokens().remove({})))
             logger.info("removed {} users".format(mongo.Users().remove({})))
+            logger.info("removed {} workers".format(mongo.Workers().remove({})))
             logger.info("removed {} channels".format(mongo.Channels().remove({})))
             logger.info("removed {} warehouses".format(mongo.Warehouses().remove({})))
             logger.info("removed {} orders".format(mongo.Orders().remove({})))
