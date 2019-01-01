@@ -155,9 +155,9 @@ class BaseWorker:
                             pass
 
                         # notify scheduler we want to take it
-                        if not self.request_task(task["_id"]):
-                            continue
-                        self.start_task(task)
+                        if self.request_task(task["_id"]):
+                            self.start_task(task)
+                            break
                     poll_timer = Setting.get_timer(Setting.poll_interval)
 
             time.sleep(1)

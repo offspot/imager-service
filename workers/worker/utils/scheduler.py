@@ -96,7 +96,10 @@ def set_worker_type(worker_type):
 def query_api(method, path, payload=None):
     try:
         req = getattr(requests, method.lower(), "get")(
-            url=get_url(path), headers=get_token_headers(), json=payload
+            url=get_url(path),
+            headers=get_token_headers(),
+            json=payload,
+            params={"slot": Setting.usb_slot},
         )
     except Exception as exp:
         import traceback
@@ -135,7 +138,7 @@ def test_connection():
 
 
 @auth_required
-def get_available_tasks():
+def get_available_tasks(slot=None):
     success, code, response = query_api(GET, "/tasks/{}".format(WORKER_TYPE))
     return success, response
 
@@ -177,5 +180,13 @@ def upload_logs(task_id, logs={}):
         POST,
         "/tasks/{type}/{id}/logs".format(type=WORKER_TYPE, id=task_id),
         payload=logs,
+    )
+    return success, response
+
+
+@auth_required
+def send_sos(error):
+    success, code, response = query_api(
+        POST, "/workers/sos", payload={"error": error, "type": WORKER_TYPE}
     )
     return success, response

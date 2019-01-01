@@ -29,8 +29,8 @@ class Setting:
 
     proxy: str = None
 
-    poll_interval = 20  # 60 * 2  # 2mn
-    log_upload_interval = 30  # 60 * 2  # 2mn
+    poll_interval = 60  # 1mn
+    log_upload_interval = 60 * 2  # 2mn
 
     @classmethod
     def get_timer(cls, interval):
@@ -52,8 +52,9 @@ class Setting:
         cls.api_url = os.getenv(
             "CARDSHOP_API_URL", "https://api.cardshop.hotspot.kiwix.org"
         )
-        cls.usb_slot = Path(os.getenv("USB_SLOT", "sdc"))
-        cls.usb_path = Path(os.getenv("USB_PATH", "/dev/sdcard"))
+        cls.usb_slot = Path(os.getenv("USB_SLOT", "no_slot"))
+        cls.usb_path = Path(os.getenv("USB_PATH", "/dev/sdcard") or "/dev/sdcard")
+        cls.host_device = os.getenv("HOST_DEVICE", "unknown")
         cls.proxy = os.getenv("PROXY", None)
 
         logger.info("Checking Settings...")

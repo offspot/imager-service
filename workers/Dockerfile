@@ -1,5 +1,6 @@
 FROM python:3.7.0-slim-stretch
 
+RUN ln -s /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone
 RUN apt-get update && apt-get install -y curl unzip udisks2 exfat-fuse exfat-utils xz-utils bzip2 gzip
 RUN pip3 install -U pip
