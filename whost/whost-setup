@@ -45,12 +45,21 @@ if [ -z "${REVERSE_SSH_PORT}" ]; then
     exit 1
 fi
 
+# add a path to PATH if not present
 pathadd() {
     if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
         PATH="${PATH:+"$PATH:"}$1"
         echo "export PATH=${PATH}" > /root/.bash_profile
         source /root/.bash_profile
     fi
+}
+
+
+# add line to a file if not present
+addifnot() {
+	LINE=$1
+	FILE=$2
+	grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 }
 
 step "Ugrading base Ubuntu packages"
@@ -63,8 +72,8 @@ apt install -y vim openssh-server
 step "Add maintenance SSH keys"
 mkdir -p /root/.ssh
 chmod 700 /root/.ssh
-echo "${REG_PUB}" >> /root/.ssh/authorized_keys
-echo "${MAINT_PUB}" >> /root/.ssh/authorized_keys
+addifnot "${REG_PUB}" /root/.ssh/authorized_keys
+addifnot "${MAINT_PUB}" /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 
 step "Add reverse-SSH connection"
@@ -106,15 +115,16 @@ pathadd "${WHOST_BINS}"
 echo $PATH
 
 step "Add whost-config to login"
-inprofile=`cat /root/.bash_profile |grep "^whost-config$" |wc -l`
-if [ "${inprofile}" = "0" ];
-then
-    echo "source /root/whostenv/bin/activate" >> /root/.bash_profile
-    echo "whost-config" >> /root/.bash_profile
-fi
+addifnot "source /root/whostenv/bin/activate" /root/.bash_profile
+addifnot "whost-config" /root/.bash_profile
 
 step "Pulling worker"
 docker pull kiwix/cardshop-worker
+docker update --restart=unless-stopped $(docker ps -a -q)
+
+step "Start containers on boot"
+chmod +x /etc/rc.local
+echo "whost-start-all" > /etc/rc.local
 
 step "Restarting"
 read -p "About to reboot. Press ENTER once ready."

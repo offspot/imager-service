@@ -7,7 +7,7 @@ import re
 import subprocess
 from pathlib import Path
 
-from whost.common import getLogger, read_conf
+from whost.common import getLogger, read_conf, update_conf
 
 logger = getLogger(__name__)
 BLOCK_PREFIX = Path("/sys/class/block")
@@ -20,15 +20,24 @@ def get_writer(slot, writer_conf):
         usb_ident=writer_conf["usb"],
         host_ident=writer_conf["host"],
     )
+    if device is None:
+        return None
     writer_conf.update({"device": device, "name": get_name_for(device), "slot": slot})
     return writer_conf
 
 
 def get_writers():
     config = read_conf()
-    return [
-        get_writer(slot, writer) for slot, writer in config.get("writers", {}).items()
-    ]
+    writers = []
+    for slot, w in config.get("writers", {}).items():
+        writer = get_writer(slot, w)
+        if writer:
+            writers.append(writer)
+    return writers
+
+
+def reset_writers():
+    return update_conf({"writers": {}})
 
 
 def get_block_devices_list():

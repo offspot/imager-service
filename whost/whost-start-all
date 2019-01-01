@@ -10,7 +10,6 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("whost-start-all")
 CONFIG_PATH = Path("/etc/cardshop-host.config")
-DOCKER_START = Path("whost-start-worker")
 DEVICES_PREFIX = Path("/sys/devices")
 
 
@@ -80,9 +79,12 @@ def main():
         logger.warn("Host has no configured writers. exiting.")
         sys.exit()
 
+    logger.info("Calling stop-all first so we don't duplicate workers")
+    subprocess.run(["whost-stop-all"])
+
     def _start_worker(worker, slot, device_path):
         args = [
-            str(DOCKER_START),
+            "whost-start-worker",
             worker,
             slot,
             device_path,
@@ -100,13 +102,13 @@ def main():
 
     for index, slot in enumerate(writers.keys()):
         writer = writers.get(slot)
-        device_path = "/dev/{}".format(
-            get_block_for(
-                get_device_path(
-                    writer.get("pci"), writer.get("usb"), writer.get("host")
-                )
-            )
+        block_name = get_block_for(
+            get_device_path(writer.get("pci"), writer.get("usb"), writer.get("host"))
         )
+        if block_name is None:
+            logger.error("\tnot starting its writer container.")
+            continue
+        device_path = "/dev/{}".format(block_name)
         _start_worker("writer", slot, device_path)
 
 

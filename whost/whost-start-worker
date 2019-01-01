@@ -8,18 +8,20 @@ fi
 
 WORKER=$1
 USB_SLOT=$2
-USB_PATH=$3
+USB_DEVICE=$3
 USERNAME=$4
 PASSWORD=$5
 API_URL=$6
-
+USB_PATH="/dev/sdcard"
 
 docker pull kiwix/cardshop-worker
 docker run --privileged \
-	-e USB_SLOT="${USB_SLOT}" \
+	--device=${USB_DEVICE}:${USB_PATH} \
 	-e USB_PATH="${USB_PATH}" \
+	-e USB_SLOT="${USB_SLOT}" \
+	-e HOST_DEVICE="${USB_DEVICE}" \
 	-e USERNAME="${USERNAME}" \
 	-e PASSWORD="${PASSWORD}" \
 	-e WORKER_TYPE="${WORKER}" \
 	-e CARDSHOP_API_URL="${API_URL}" \
-	--detach --restart always kiwix/cardshop-worker
+	--detach --restart unless-stopped kiwix/cardshop-worker

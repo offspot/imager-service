@@ -6,7 +6,7 @@ import sys
 import subprocess
 from collections import OrderedDict
 
-from whost.common import UPDATE_SCRIPT, read_conf, update_conf
+from whost.common import read_conf, toggle_host
 from whost.ui import (
     cli,
     restart_line,
@@ -36,7 +36,7 @@ def update_code():
     subprocess.run(["whost-update"])
 
 
-def toggle_host():
+def display_toggle_host():
     enabled = read_conf().get("enabled", False)
     answer = cli.ask_yes_no(
         "You are about to {} this host. Are you sure?".format(
@@ -46,10 +46,8 @@ def toggle_host():
     if answer:
         enabled = not enabled  # toggled
         ns = "enabled" if enabled else "disabled"
-        if update_conf({"enabled": enabled}):
+        if toggle_host(enabled):
             display_success("Successfuly {} host!".format(ns))
-            script = "whost-restart-all" if enabled else "whost-stop-all"
-            subprocess.run([script])
         else:
             display_error("Error: host could not be {}.".format(ns))
 

@@ -5,6 +5,7 @@
 import json
 import string
 import logging
+import subprocess
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
@@ -56,6 +57,18 @@ def get_next_slot():
         if slot in config.get("writers", {}).keys():
             continue
         return slot
+
+
+def toggle_host(enable):
+    if update_conf({"enabled": enable}):
+        script = "whost-restart-all" if enable else "whost-stop-all"
+        subprocess.run([script])
+        return True
+    return False
+
+
+def disable_host():
+    return toggle_host(enable=False)
 
 
 # make sure we have a config

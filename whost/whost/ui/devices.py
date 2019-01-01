@@ -8,14 +8,23 @@ from collections import OrderedDict
 import humanfriendly
 
 from whost.ui import cli, display_menu, display_success, display_error, pause
-from whost.common import getLogger, get_next_slot, read_conf, update_conf
-from whost.devices import get_writers, get_name_for, find_device, get_size, get_metadata
+from whost.common import getLogger, get_next_slot, read_conf, update_conf, disable_host
+from whost.devices import get_writers, get_name_for, find_device, get_size, get_metadata, reset_writers
 
 logger = getLogger(__name__)
 
 
 def reset_devices():
-    pass
+    cli.info_2("Reseting devices configuration")
+    ready = cli.ask_yes_no("Sure you want to remove all devices conf?", default=False)
+    if not ready:
+        return
+
+    if reset_writers():
+        display_success("Devices configuration removed.")
+    else:
+        display_error("Failed to reset devices configuration.")
+    pause()
 
 
 def add_device():
@@ -68,7 +77,15 @@ def add_device():
 
 def configure_devices():
     cli.info_1("Already configured writer devices")
-    writers = get_writers()
+    try:
+        writers = get_writers()
+    except Exception as exp:
+        logger.error(exp)
+        display_error("Configured devices are not present! "
+                      "Reseting devices conf and disabling host.\n"
+                      "Please configure devices and re-enable it.")
+        reset_writers()
+        disable_host()
     for writer in writers:
         cli.info(
             cli.blue,
