@@ -1,5 +1,9 @@
 FROM tiangolo/uwsgi-nginx:python3.7
 
+RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+RUN echo "UTC" > /etc/timezone
+RUN apt-get update -y && apt-get -y install cron
+
 ENV DATA_DIR /data
 ENV CARDSHOP_API_URL https://api.cardshop.hotspot.kiwix.org
 ENV MANAGER_API_TOKEN NOT_SET
@@ -28,6 +32,10 @@ RUN chmod 755 /manager-entrypoint.sh
 
 ENV UWSGI_INI /app/uwsgi.ini
 WORKDIR /app
+
+RUN echo "* * * * */5 /usr/local/bin/python /app/manage.py periodic-tasks > /proc/1/fd/1 2>/proc/1/fd/2\n" > /etc/cron.d/manager-cron
+RUN chmod 0644 /etc/cron.d/manager-cron
+RUN crontab /etc/cron.d/manager-cron
 
 RUN rm -rf /lib/systemd/system/supervisor.service
 RUN update-rc.d -f supervisor remove

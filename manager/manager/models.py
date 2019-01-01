@@ -23,6 +23,9 @@ from manager.scheduler import (
     SchedulerAPIError,
     get_order,
     get_warehouse_from,
+    get_channel_choices,
+    get_warehouse_choices,
+    cancel_order
 )
 from manager.pibox.packages import get_packages_id
 from manager.pibox.data import ideascube_languages
@@ -44,38 +47,6 @@ from manager.pibox.config import (
 from manager.pibox.content import get_collection, get_required_image_size
 
 logger = logging.getLogger(__name__)
-
-
-def get_channel_choices():
-    from manager.scheduler import get_channels_list, as_items_or_none
-
-    channels = as_items_or_none(*get_channels_list())
-    if channels is None:
-        return [("kiwix", "Kiwix")]
-    return [
-        (
-            channel.get("slug"),
-            "{name} ({pub})".format(
-                name=channel.get("name"),
-                pub="Private" if channel.get("private") else "Public",
-            ),
-        )
-        for channel in channels
-        if channel.get("active", False)
-    ]
-
-
-def get_warehouse_choices():
-    from manager.scheduler import get_warehouses_list, as_items_or_none
-
-    warehouses = as_items_or_none(*get_warehouses_list())
-    if warehouses is None:
-        return [("kiwix", "kiwix")]
-    return [
-        (warehouse.get("slug"), warehouse.get("slug"))
-        for warehouse in warehouses
-        if warehouse.get("active", False)
-    ]
 
 
 def get_branding_path(instance, filename):
@@ -727,11 +698,13 @@ class Order(models.Model):
     NOT_CREATED = "not-created"
     IN_PROGRESS = "in-progress"
     FAILED = "failed"
+    CANCELED = "canceled"
     COMPLETED = "completed"
     STATUSES = {
         IN_PROGRESS: "In Progress",
         COMPLETED: "Completed",
         FAILED: "Failed",
+        CANCELED: "Cancelef",
         NOT_CREATED: "Not accepted by Scheduler",
     }
 
@@ -906,3 +879,13 @@ class Order(models.Model):
             "channel": self.channel,
             "warehouse": self.organization.get_warehouse_details(),
         }
+
+    def cancel(self):
+        """ manually cancel an order """
+        canceled, resp = cancel_order(self.scheduler_id)
+        if canceled:
+            self.status = self.CANCELED
+            self.save()
+        else:
+            logger.error(resp)
+        return canceled

@@ -15,8 +15,8 @@ from manager.scheduler import (
     test_connection,
     get_channels_list,
     get_users_list,
+    get_workers_list,
     as_items_or_none,
-    get_orders_list,
     add_channel,
     add_warehouse,
     get_warehouses_list,
@@ -31,6 +31,7 @@ from manager.scheduler import (
     disable_user,
     authenticate,
     ACCESS_TOKEN,
+    get_channel_choices,
 )
 
 logger = logging.getLogger(__name__)
@@ -107,6 +108,7 @@ class WarehouseForm(forms.Form):
 class UserForm(forms.Form):
     username = forms.CharField()
     role = forms.ChoiceField(choices=ROLES.items())
+    channel = forms.ChoiceField(choices=get_channel_choices())
     email = forms.EmailField()
     password = forms.CharField()
 
@@ -136,6 +138,7 @@ class UserForm(forms.Form):
             email=self.cleaned_data.get("email"),
             password=self.cleaned_data.get("password"),
             role=self.cleaned_data.get("role"),
+            channel=self.cleaned_data.get("channel"),
             is_admin=self.cleaned_data.get("is_admin"),
         )
 
@@ -164,6 +167,7 @@ def dashboard(request):
         "channels": as_items_or_none(*get_channels_list()) or None,
         "warehouses": as_items_or_none(*get_warehouses_list()) or None,
         "users": as_items_or_none(*get_users_list()) or None,
+        "workers": as_items_or_none(*get_workers_list()) or None,
     }
 
     forms_map = {

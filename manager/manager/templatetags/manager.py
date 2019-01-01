@@ -121,3 +121,10 @@ def status_color(status):
 
 
 register.filter("status_color", status_color)
+
+
+def clean_datetime(dt):
+    return dateutil.parser.parse(dt) if dt else None
+
+
+register.filter("datetime", clean_datetime)

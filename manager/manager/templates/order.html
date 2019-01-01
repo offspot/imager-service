@@ -5,7 +5,7 @@
 <h3>Order <code>{{ order.min_id }}</code></h3>
 
 <table class="table table-striped">
-<tr><th>Scheduler ID</th><td colspan="3">{{ order.scheduler_id }}</td></tr>
+<tr><th>Scheduler ID</th><td colspan="2">{{ order.scheduler_id }}</td><td class="text-right"><a  data-toggle="confirmation" data-title="Are you sure you want to cancel this Order?" href="{% url "order_cancel" order_min_id=order.min_id %}" class="btn-sm btn btn-danger">Cancel Order</a></td></tr>
 <tr><th>Created By</th><td>{{ order.created_by }}</td><td colspan="2">{{ order.created_on }}</td></tr>
 <tr><th>General Status</th><td colspan="3"><strong>{{ order.verbose_status }}</strong></td></tr>
 </table>

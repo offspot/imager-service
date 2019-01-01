@@ -67,6 +67,7 @@ urlpatterns = (
             ui.order_add_shipping,
             name="order_add_shipping",
         ),
+        path("orders/<str:order_min_id>/cancel", ui.order_cancel, name="order_cancel"),
         path("orders/<str:order_min_id>", ui.order_detail, name="order_detail"),
         path("orders/", ui.orders, name="orders"),
         path(

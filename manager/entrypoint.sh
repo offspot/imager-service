@@ -22,5 +22,8 @@ if [ $FIRSTRUN -eq 1 ]; then
 	python3 ./manage.py shell -c "from manager.models import Profile ; print(Profile.create_admin())"
 fi
 
+echo "start cron"
+cron
+
 echo "run parent's entrypoint"
 exec /entrypoint.sh "$@"

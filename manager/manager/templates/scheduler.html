@@ -3,6 +3,29 @@
 
 {% block content %}
 <p><a href="{% url "scheduler-refresh" %}" class="btn btn-sm btn-info float-right">refresh token</a></p>
+
+<h3>Workers (read-only)</h3>
+<p class="info">All workers which connected at least once, displaying their last update.</p>
+{% if workers %}
+<table class="table table-bordered table-striped">
+	<tr><th>Username</th><th>Type</th><th>Slot</th><th>Status</th><th>On</th><th>Payload</th></tr>
+	{% for worker in workers %}
+	<tr>
+		<th><code>{{worker.username }}</code></th>
+		<td>{{ worker.worker_type }}</td>
+		<td>{{ worker.slot }}</td>
+		<td>{{ worker.status }}</td>
+		<td>{{ worker.on|datetime }}</a></td>
+		<td>{{ worker.payload|default_if_none:"" }}</a></td>
+	</tr>
+	{% endfor %}
+</table>
+{% elif workers is None %}
+{% include "error.html" with level="warning" message="Could not retrieve workers list…" %}
+{% else %}
+<p class="info">hum, there's no existing worker…</p>
+{% endif %}
+
 <h3>Channels</h3>
 <p class="info">Channels ensures organization-specific workers gets to produce their own cards.</p>
 
@@ -78,11 +101,12 @@
 <p class="info">Scheduler Users are not manager users but API consumers.</p>
 {% if users %}
 <table class="table table-bordered table-striped">
-	<tr><th>Username</th><th>Role</th><th>Email</th><th>Active</th></tr>
+	<tr><th>Username</th><th>Role</th><th>Channel</th><th>Email</th><th>Active</th></tr>
 	{% for user in users %}
 	<tr>
 		<th><code>{{user.username }}</code></th>
 		<td>{{ user.role }}</td>
+		<td>{{ user.channel }}</td>
 		<td>{{ user.email }}</td>
 		<td><a class="btn btn-sm btn-warning" href="{% if user.active %}{% url "scheduler_disable_user" user.id %}{% else %}{% url "scheduler_enable_user" user.id %}{% endif %}">{{ user.active|yesno }}: {% if user.active %}disable{% else %}enable{% endif %}</a></td>
 	</tr>
@@ -98,8 +122,9 @@
 	<input type="hidden" name="form" value="user_form">
 	<div class="form-row visual-group">
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.role %}{{ user_form.role|as_widget }}</div>
-		<div class="form-group col-md-3">{% include "_label_for.html" with field=user_form.username %}{{ user_form.username|as_widget }}</div>
-		<div class="form-group col-md-3">{% include "_label_for.html" with field=user_form.email %}{{ user_form.email|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.username %}{{ user_form.username|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.channel %}{{ user_form.channel|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.email %}{{ user_form.email|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.password %}{{ user_form.password|as_widget }}</div>		
 		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add User</button></div>
 	</div>

@@ -152,12 +152,13 @@ def get_user_detail(user_id):
 
 
 @auth_required
-def add_user(username, email, password, role, is_admin=False):
+def add_user(username, email, password, role, channel, is_admin=False):
     payload = {
         "username": username,
         "email": email,
         "password": password,
         "role": role,
+        "channel": channel,
         "active": True,
     }
 
@@ -207,6 +208,12 @@ def enable_user(user_id):
 @auth_required
 def disable_user(user_id):
     return change_user_status(user_id, False)
+
+
+@auth_required
+def get_workers_list():
+    success, code, response = query_api(GET, "/workers/")
+    return success, response
 
 
 @auth_required
@@ -344,6 +351,46 @@ def add_order_shipment(order_id, shipment_details):
 
 
 @auth_required
+def cancel_order(order_id):
+    success, code, response = query_api(PATCH, "/orders/{}/cancel".format(order_id))
+    if not success or "_id" not in response:
+        return False, response
+    return True, response.get("_id")
+
+
+@auth_required
 def get_task(task_id):
     success, code, response = query_api(GET, "/tasks/{id}".format(id=task_id))
     return success, response
+
+
+def get_channel_choices():
+    from manager.scheduler import get_channels_list, as_items_or_none
+
+    channels = as_items_or_none(*get_channels_list())
+    if channels is None:
+        return [("kiwix", "Kiwix")]
+    return [
+        (
+            channel.get("slug"),
+            "{name} ({pub})".format(
+                name=channel.get("name"),
+                pub="Private" if channel.get("private") else "Public",
+            ),
+        )
+        for channel in channels
+        if channel.get("active", False)
+    ]
+
+
+def get_warehouse_choices():
+    from manager.scheduler import get_warehouses_list, as_items_or_none
+
+    warehouses = as_items_or_none(*get_warehouses_list())
+    if warehouses is None:
+        return [("kiwix", "kiwix")]
+    return [
+        (warehouse.get("slug"), warehouse.get("slug"))
+        for warehouse in warehouses
+        if warehouse.get("active", False)
+    ]

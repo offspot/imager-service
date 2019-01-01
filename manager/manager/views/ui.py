@@ -223,6 +223,19 @@ def order_detail_scheduler_id(request, order_id):
     return redirect("order_detail", order_min_id=order.min_id)
 
 
+def order_cancel(request, order_min_id):
+    order = Order.get_or_none(order_min_id)
+    if order is None:
+        raise Http404("Order with ID `{}` not found".format(order_min_id))
+
+    if order.cancel():
+        messages.success(request, "Successfuly canceled order #{}".format(order_min_id))
+    else:
+        messages.error(request, "Unable to cancel order #{}".format(order_min_id))
+
+    return redirect("order_detail", order_min_id=order.min_id)
+
+
 def order_add_shipping(request, order_id):
     order = Order.get_by_scheduler_id(order_id)
 

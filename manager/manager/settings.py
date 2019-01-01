@@ -164,7 +164,7 @@ CARDSHOP_API_URL = os.getenv(
     "CARDSHOP_API_URL", "https://api.cardshop.hotspot.kiwix.org"
 )
 # content download mirror
-MIRROR = "http://download.kiwix.org"
+MIRROR = "http://mirror.download.kiwix.org"
 CONTENTS_FILE = os.path.join(BASE_DIR, "contents.json")
 
 CACHES = {
