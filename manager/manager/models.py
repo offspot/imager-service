@@ -25,7 +25,7 @@ from manager.scheduler import (
     get_warehouse_from,
     get_channel_choices,
     get_warehouse_choices,
-    cancel_order
+    cancel_order,
 )
 from manager.pibox.packages import get_packages_id
 from manager.pibox.data import ideascube_languages
@@ -309,7 +309,8 @@ class Configuration(models.Model):
         return media.bytes >= self.size
 
     def compatible_medias(self):
-        return [m for m in Media.objects.all() if m.bytes >= self.size]
+        return Media.objects.filter(actual_size__gte=self.size)
+        # return [m for m in Media.objects.all() if m.bytes >= self.size]
 
     @property
     def min_units(self):
@@ -411,6 +412,12 @@ class Organization(models.Model):
     warehouse = models.CharField(
         max_length=50, choices=get_warehouse_choices(), default="kiwix"
     )
+    public_warehouse = models.CharField(
+        max_length=50,
+        choices=get_warehouse_choices(),
+        default="download",
+        verbose_name="Pub WH",
+    )
     email = models.EmailField()
     units = models.IntegerField()
 
@@ -429,8 +436,10 @@ class Organization(models.Model):
             slug="kiwix", name="Kiwix", email="reg@kiwix.org", units=256000
         )
 
-    def get_warehouse_details(self):
-        success, warehouse = get_warehouse_from(self.warehouse)
+    def get_warehouse_details(self, use_public=False):
+        success, warehouse = get_warehouse_from(
+            self.public_warehouse if use_public else self.warehouse
+        )
         if not success:
             raise SchedulerAPIError(warehouse)
         return warehouse
@@ -588,8 +597,10 @@ class Address(models.Model):
 
 class Media(models.Model):
 
-    REGULAR = "regular"
-    KINDS = {REGULAR: "Regular"}
+    PHYSICAL = "physical"
+    VIRTUAL = "virtual"
+    KINDS = {PHYSICAL: "Physical", VIRTUAL: "Virtual"}
+    EXPIRATION_DELAY = 5
 
     class Meta:
         unique_together = (("kind", "size"),)
@@ -598,9 +609,14 @@ class Media(models.Model):
     name = models.CharField(max_length=50)
     kind = models.CharField(max_length=50, choices=KINDS.items())
     size = models.IntegerField(help_text="In GB")
+    actual_size = models.IntegerField(help_text="In bytes (auto calc)", blank=True)
     units_coef = models.FloatField(
         verbose_name="Units", help_text="How much units per GB"
     )
+
+    def save(self, *args, **kwargs):
+        self.actual_size = self.get_bytes()
+        return super(Media, self).save(*args, **kwargs)
 
     @staticmethod
     def choices_for(items):
@@ -630,6 +646,9 @@ class Media(models.Model):
 
     @property
     def bytes(self):
+        return self.actual_size or self.get_bytes()
+
+    def get_bytes(self):
         return get_adjusted_image_size(self.size * ONE_GB)
 
     @property
@@ -643,6 +662,9 @@ class Media(models.Model):
     @property
     def verbose_kind(self):
         return self.KINDS.get(self.kind)
+
+    def get_duration_for(self, quantity=1):
+        return self.EXPIRATION_DELAY * quantity
 
 
 class OrderData(dict):
@@ -734,6 +756,8 @@ class Order(models.Model):
         load_kwargs={"object_pairs_hook": collections.OrderedDict}
     )
     media_name = models.CharField(max_length=50)
+    media_type = models.CharField(max_length=50)
+    media_duration = models.IntegerField(blank=True, null=True)
     media_size = models.IntegerField()
     quantity = models.IntegerField()
     units = models.IntegerField()
@@ -742,6 +766,8 @@ class Order(models.Model):
     recipient_phone = models.CharField(max_length=50, blank=True, null=True)
     recipient_address = models.TextField()
     recipient_country_code = models.CharField(max_length=3)
+    warehouse_upload_uri = models.CharField(max_length=255)
+    warehouse_download_uri = models.CharField(max_length=255)
 
     @classmethod
     def fetch_and_get(cls, order_id):
@@ -794,6 +820,9 @@ class Order(models.Model):
 
     @classmethod
     def create_from(cls, client, config, media, quantity, address):
+        warehouse = client.organization.get_warehouse_details(
+            use_public=media.kind == Media.VIRTUAL
+        )
         order = cls(
             organization=client.organization,
             created_by=client,
@@ -802,7 +831,9 @@ class Order(models.Model):
             client_email=client.email,
             config=config.json,
             media_name=media.name,
+            media_type=media.kind,
             media_size=media.size,
+            media_duration=media.get_duration_for(quantity),
             quantity=quantity,
             units=media.units * quantity,
             recipient_name=address.recipient,
@@ -810,6 +841,8 @@ class Order(models.Model):
             recipient_phone=address.phone,
             recipient_address=address.address,
             recipient_country_code=address.country,
+            warehouse_upload_uri=warehouse["upload_uri"],
+            warehouse_download_uri=warehouse["download_uri"],
         )
         if order.units > client.organization.units:
             raise ValueError(
@@ -864,7 +897,12 @@ class Order(models.Model):
     def to_payload(self):
         return {
             "config": self.config_json,
-            "sd_card": {"name": self.media_name, "size": self.media_size},
+            "sd_card": {
+                "name": self.media_name,
+                "size": self.media_size,
+                "type": self.media_type,
+                "duration": self.media_duration,
+            },
             "quantity": self.quantity,
             "units": self.units,
             "client": {"name": self.client_name, "email": self.client_email},
@@ -877,7 +915,10 @@ class Order(models.Model):
                 "shipment": None,
             },
             "channel": self.channel,
-            "warehouse": self.organization.get_warehouse_details(),
+            "warehouse": {
+                "upload_uri": self.warehouse_upload_uri,
+                "download_uri": self.warehouse_download_uri,
+            },
         }
 
     def cancel(self):

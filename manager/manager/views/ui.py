@@ -9,6 +9,7 @@ from django.http import Http404
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponse
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
@@ -18,6 +19,7 @@ from manager.models import Address, Media, Configuration, Order
 from manager.scheduler import add_order_shipment, SchedulerAPIError
 
 logger = logging.getLogger(__name__)
+NB_ORDERS_PER_PAGE = 10
 
 
 class AddressForm(forms.ModelForm):
@@ -163,11 +165,27 @@ def home(request):
 
 @login_required
 def orders(request):
+    # query args
+    page = request.GET.get("page")
+    order_filter = (
+        request.GET.get("only")
+        if request.GET.get("only") in Order.STATUSES.keys()
+        else Order.IN_PROGRESS
+    )
+
+    filtered_orders = Order.objects.filter(
+        organization=request.user.profile.organization, status=order_filter
+    )
+    paginator = Paginator(filtered_orders, NB_ORDERS_PER_PAGE)
+    orders_page = paginator.get_page(page)
+
     context = {
         "addresses": Address.objects.filter(
             organization=request.user.profile.organization
         ),
-        "orders": Order.objects.filter(organization=request.user.profile.organization),
+        "order_filter": order_filter,
+        "orders_page": orders_page,
+        "orders": orders_page.object_list,
         "configurations": Configuration.objects.filter(
             organization=request.user.profile.organization
         ),

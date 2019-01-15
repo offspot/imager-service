@@ -122,7 +122,14 @@ USE_TZ = True
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+        "timed-console": {"class": "logging.StreamHandler", "formatter": "verbose"},
+    },
+    "formatters": {
+        "verbose": {"format": "{levelname} {asctime} {message}", "style": "{"},
+        "simple": {"format": "{levelname} {message}", "style": "{"},
+    },
     "loggers": {
         "django": {
             "handlers": ["console"],
@@ -142,7 +149,7 @@ DATABASES = {
     }
 }
 
-MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
+MESSAGE_STORAGE = "django.contrib.messages.storage.fallback.FallbackStorage"
 
 
 MEDIA_ROOT = os.path.join(DATA_DIR, "media")

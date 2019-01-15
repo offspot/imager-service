@@ -1,71 +1,155 @@
 [
 {
     "model": "manager.media",
-    "pk": 1,
+    "pk": 15,
     "fields": {
-        "name": "8GB",
-        "kind": "regular",
+        "name": "8GB microSD",
+        "kind": "physical",
         "size": 8,
-        "units_coef": 1.0
+        "actual_size": 7760000000,
+        "units_coef": 10.0
     }
 },
 {
     "model": "manager.media",
-    "pk": 2,
+    "pk": 16,
     "fields": {
-        "name": "16GB",
-        "kind": "regular",
+        "name": "16GB microSD",
+        "kind": "physical",
         "size": 16,
-        "units_coef": 1.0
+        "actual_size": 15520000000,
+        "units_coef": 10.0
     }
 },
 {
     "model": "manager.media",
-    "pk": 3,
+    "pk": 17,
     "fields": {
-        "name": "32GB",
-        "kind": "regular",
+        "name": "32GB microSD",
+        "kind": "physical",
         "size": 32,
-        "units_coef": 1.0
+        "actual_size": 30720000000,
+        "units_coef": 10.0
     }
 },
 {
     "model": "manager.media",
-    "pk": 4,
+    "pk": 18,
     "fields": {
-        "name": "64GB",
-        "kind": "regular",
+        "name": "64GB microSD",
+        "kind": "physical",
         "size": 64,
-        "units_coef": 1.0
+        "actual_size": 61440000000,
+        "units_coef": 10.0
     }
 },
 {
     "model": "manager.media",
-    "pk": 5,
+    "pk": 19,
     "fields": {
-        "name": "128GB",
-        "kind": "regular",
+        "name": "128GB microSD",
+        "kind": "physical",
         "size": 128,
-        "units_coef": 1.0
+        "actual_size": 122880000000,
+        "units_coef": 10.0
     }
 },
 {
     "model": "manager.media",
-    "pk": 6,
+    "pk": 20,
     "fields": {
-        "name": "200\u00a0GB",
-        "kind": "regular",
+        "name": "200GB microSD",
+        "kind": "physical",
         "size": 200,
+        "actual_size": 192000000000,
+        "units_coef": 10.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 21,
+    "fields": {
+        "name": "256GB microSD",
+        "kind": "physical",
+        "size": 256,
+        "actual_size": 245760000000,
+        "units_coef": 10.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 22,
+    "fields": {
+        "name": "8GB Download",
+        "kind": "virtual",
+        "size": 8,
+        "actual_size": 7760000000,
         "units_coef": 1.0
     }
 },
 {
     "model": "manager.media",
-    "pk": 7,
+    "pk": 23,
     "fields": {
-        "name": "256GB",
-        "kind": "regular",
+        "name": "16GB Download",
+        "kind": "virtual",
+        "size": 16,
+        "actual_size": 15520000000,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 24,
+    "fields": {
+        "name": "32GB Download",
+        "kind": "virtual",
+        "size": 32,
+        "actual_size": 30720000000,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 25,
+    "fields": {
+        "name": "64GB Download",
+        "kind": "virtual",
+        "size": 64,
+        "actual_size": 61440000000,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 26,
+    "fields": {
+        "name": "128GB Download",
+        "kind": "virtual",
+        "size": 128,
+        "actual_size": 122880000000,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 27,
+    "fields": {
+        "name": "200GB Download",
+        "kind": "virtual",
+        "size": 200,
+        "actual_size": 192000000000,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 28,
+    "fields": {
+        "name": "256GB Download",
+        "kind": "virtual",
         "size": 256,
+        "actual_size": 245760000000,
         "units_coef": 1.0
     }
 }
