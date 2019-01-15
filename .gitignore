@@ -118,3 +118,5 @@ host/
 tunnel
 tunnel.pub
 *.lock
+*.priv
+*.pub

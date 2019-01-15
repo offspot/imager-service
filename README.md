@@ -1,6 +1,6 @@
 # Overview
 
-Cardshop is a solution for semi-automation of SD-cards creation using a central scheduler, creator workers (to create image files) and writer workers (to write images onto real SD-cards).
+Cardshop is a solution for semi-automation of SD-cards creation using a central scheduler, creator workers (to create image files), downloader workers and writer workers (to write images onto real SD-cards).
 
 Contact kelson@kiwix.org regarding actual deployment.
 
@@ -8,40 +8,42 @@ Architecture is based on [zimfarm](https://github.com/openzim/zimfarm)'s
 
 ## Warehouse
 
-`warehouse`: A single container on a machine with plenty of space (must be able to receive images created by all _creators_ and retain them until downloaded by _writers_). It is an FTP server which authenticates through the scheduler.
+`warehouse`: A container on a machine with plenty of space (must be able to receive images created by all _creators_ and retain them until downloaded by _downloaders_). It is an FTP server which authenticates through the scheduler.
 
 ## Creator
 
-`creator`: A single container fetching Tasks from scheduler, creating images and uploading them to the warehouse.
+`creator`: A container fetching Tasks from scheduler, creating images and uploading them to the warehouse.
 
 Must be on a powerful computer with lots of space (300G to build 256G images).
 
+## Downloader
+
+`downloader`: A container downloading images from the warehouse so it can be written by a `writer` worker (shares same credentials with writer – must be on same computer).
+
 ## Writer
 
-`writer`: A single container fetching Tasks from scheduler, downloading images, writing them to SD-cards.
+`writer`: A container writing images to SD-cards. Image files must be present (downloaded by the `downloader` worker).
+
+## Writer Host (whost)
+
+A non-docker tool installed on the Writers' host to configure and manage the workers:
+
+* SD-slots identification
+* Configuration for:
+ - network
+ - authentication
+ - SD-card writers
+* Auto start of `downloader` and `writer` containers.
 
 Must be physically accessible, no much power required, large space (256G per worker on host).
 
-## Writer-helper
-
-A non-docker tool installed on the Writers' host to configure the workers:
-
-* SD-slot identification
-* Configuration file for:
- - network
- - numbers and authentication of writers.
-* Auto start of `writer` containers.
-
 ## Manager
 
-`manager`: A single container providing a UI to take orders and manage users.
+`manager`: A container providing a UI to take orders and manage users.
 
 ## Scheduler
 
-* `rabbit`: RabbitMQ container to hold the messaging queue between workers and the scheduler.
-* `mongo` MongoDB container to hold persistent data (`Users`, `Tokens`, `Orders`, `Tasks`)
-* `monitor`: receives all events and passes them through a handler. Updates DB based on workers-emitted events.
-* `beat`: Executes periodic tasks and synchronizes Schedules (crontab-like entries of tasks) between the Database and Celery.
+* `mongo` MongoDB container to hold persistent data (`Users`, `Tokens`, `Orders`, `Tasks`, etc.)
 * `scheduler`: API providing CRUD for persistent Data and managing Authentication for all services.
 
 
@@ -49,9 +51,8 @@ A non-docker tool installed on the Writers' host to configure the workers:
 
 * Users all have a `username`+`password` pair.
 * Scheduler offers Tokens for `username:password`.
-* Manager identifies via Token to work the API.
-* Workers identify to RabbitMQ using their credentials over AMQPS. They don't communicate with the API but emits Celery messages (captured by monitor).
-* Creator identifies with Warehouse via a Token obtained from Scheduler.
+* Manager and workers identifies via Token to work the API.
+* Creator and Downloader identifies with Warehouse via a Token obtained from Scheduler.
 
 Tokens are 2 fold:
 
