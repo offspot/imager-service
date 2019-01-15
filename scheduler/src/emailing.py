@@ -22,6 +22,7 @@ from utils.templates import (
     get_pub_url,
     get_insert_card_url,
     get_add_shipment_url,
+    get_public_download_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ jinja_env.filters["qrcode"] = b64qrcode
 jinja_env.filters["pub_url"] = get_pub_url
 jinja_env.filters["insert_card_url"] = get_insert_card_url
 jinja_env.filters["add_shipment_url"] = get_add_shipment_url
+jinja_env.filters["public_download_url"] = get_public_download_url
 jinja_env.filters["country"] = country_name
 jinja_env.filters["language"] = language_name
 jinja_env.filters["linebreaksbr"] = linebreaksbr
@@ -229,6 +231,17 @@ def send_image_uploaded_email(order_id):
     # client: image creation successful.
     send_order_email_for(
         order_id, "subject_image_uploaded", "client_image_uploaded", "client"
+    )
+
+
+def send_image_uploaded_public_email(order_id):
+    # client: image creation successful.
+    send_order_email_for(
+        order_id,
+        "subject_image_uploaded",
+        "recipient_image_uploaded_public",
+        "recipient",
+        "client",
     )
 
 

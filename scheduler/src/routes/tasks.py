@@ -3,6 +3,7 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import logging
+import datetime
 from bson import ObjectId
 from flask import Blueprint, request, jsonify, Response, render_template
 
@@ -18,6 +19,7 @@ from utils.mongo import (
 from . import authenticate, bson_object_id, errors, only_for_roles
 from emailing import (
     send_image_uploaded_email,
+    send_image_uploaded_public_email,
     send_insert_card_email,
     send_image_writing_email,
     send_image_written_email,
@@ -161,17 +163,26 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
 
     # create task uploaded image
     if status == Tasks.uploaded:
-        send_image_uploaded_email(order_id)
+        order = Orders().get(order_id)
+        if order["sd_card"]["type"] == Orders.virtual:
+            # set expiration date
+            expiration = datetime.datetime.now() + datetime.timedelta(
+                days=order["sd_card"]["duration"]
+            )
+            Orders().update(order_id, {"sd_card.expiration": expiration})
+            send_image_uploaded_public_email(order_id)
+        else:
+            send_image_uploaded_email(order_id)
 
-        # create DownloadTask
-        Orders().create_downloader_task(
-            order_id,
-            {
-                "fname": task.get("image", {}).get("fname"),
-                "size": task.get("image", {}).get("size"),
-                "checksum": task.get("image", {}).get("checksum"),
-            },
-        )
+            # create DownloadTask
+            Orders().create_downloader_task(
+                order_id,
+                {
+                    "fname": task.get("image", {}).get("fname"),
+                    "size": task.get("image", {}).get("size"),
+                    "checksum": task.get("image", {}).get("checksum"),
+                },
+            )
 
     # download task downloaded image
     elif status == Tasks.downloaded:

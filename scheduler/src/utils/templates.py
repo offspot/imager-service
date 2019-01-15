@@ -42,6 +42,12 @@ def get_add_shipment_url(order):
     )
 
 
+def get_public_download_url(order):
+    return "{wh_url}/{id}.img".format(
+        wh_url=order["warehouse"]["download_uri"], id=order["_id"]
+    )
+
+
 def yesno(value):
     """ yes or no string from bool value """
     return "yes" if bool(value) else "no"

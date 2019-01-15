@@ -165,6 +165,9 @@ class Warehouses(BaseCollection):
 
 class Orders(BaseCollection):
 
+    virtual = "virtual"
+    physical = "physical"
+
     created = "created"
     pending_creator = "pending_creator"
     creating = "creating"
@@ -193,7 +196,9 @@ class Orders(BaseCollection):
             "required": True,
             "schema": {
                 "name": {"type": "string", "required": True},
+                "type": {"type": "string", "required": True},
                 "size": {"type": "integer", "required": True},
+                "expiration": {"type": "datetime", "required": False},
             },
         },
         "quantity": {"type": "integer", "required": True},
@@ -226,6 +231,7 @@ class Orders(BaseCollection):
                 "shipment": {"type": "string", "required": False, "nullable": True},
             },
         },
+        "warehouse": {"type": "dict", "required": False},
         "channel": {"type": "string", "required": True},
         "statuses": {"type": "list", "required": False},
         "logs": {"type": "list", "required": False},
@@ -262,6 +268,12 @@ class Orders(BaseCollection):
         order = cls().get(order_id, projection=projection)
         order["tasks"].update(cls().get_tasks(order_id))
         return order
+
+    @classmethod
+    def update(cls, order_id, update_set):
+        cls().update_one(
+            {"_id": ObjectId(order_id)}, {"$set": update_set}
+        )
 
     @classmethod
     def create_creator_task(cls, order_id):
