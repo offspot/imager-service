@@ -20,7 +20,11 @@ Writer Hosts authenticate with the cardshop fetch tasks. The WriterHost operator
 * log-in and elevate as `root` (`sudo su -`)
 * set a password for `root` (`passwd`)
 * Make sure internet is working
-* download/copy your tunnel private key to `/root/.ssh/tunnel` (chmod `600`)
+* Configure SSH tunneling for remote access
+  * Generate SSH key pair for `root`, `ssh-keygen` (no passphrase)
+  * Copy `/root/.ssh/id_rsa` to `/root/.ssh/tunnel`
+  * Share (via email for example) public key with cardshop admin, it's located at `/root/.ssh/id_rsa.pub`.
+  * This file will be append to `/home/tunnel/.ssh/authorized_keys` on the the tunneling server gateway by the cardshop admin, so the writer can connect.
 * download setup script `curl -L -o /tmp/whost-setup https://raw.githubusercontent.com/kiwix/cardshop/master/whost/whost-setup`
 * run the setup script `chmod +x /tmp/whost-setup && REVERSE_SSH_PORT=XXX /tmp/whost-setup`
 
