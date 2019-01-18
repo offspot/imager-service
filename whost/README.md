@@ -43,7 +43,6 @@ Just a regular, fresh Ubuntu-server install. Bellow are the defaults used for te
  * server name: whatever (`bkored`)
  * username: `maint`
  * password: `maint`
- * Import Identity: *from github* > `rgaudin`
 * *Reboot now*
 * Remove install media then `ENTER`
  
