@@ -25,7 +25,8 @@ Writer Hosts authenticate with the cardshop fetch tasks. The WriterHost operator
   * Copy `/root/.ssh/id_rsa` to `/root/.ssh/tunnel`
   * Share (via email for example) public key with cardshop admin, it's located at `/root/.ssh/id_rsa.pub`.
   * This file will be append to `/home/tunnel/.ssh/authorized_keys` on the the tunneling server gateway by the cardshop admin, so the writer can connect.
-* download setup script `curl -L -o /tmp/whost-setup https://raw.githubusercontent.com/kiwix/cardshop/master/whost/whost-setup`
+* Download setup script `curl -L -o /tmp/whost-setup https://raw.githubusercontent.com/kiwix/cardshop/master/whost/whost-setup`
+* Go to https://wiki.kiwix.org/wiki/Cardshop/maintenance and update the writer table
 * run the setup script `chmod +x /tmp/whost-setup && REVERSE_SSH_PORT=XXX /tmp/whost-setup`
 
 ### Ubuntu Install
@@ -43,10 +44,10 @@ Just a regular, fresh Ubuntu-server install. Bellow are the defaults used for te
 * Choose disk to install to: *selected disk*
 * Summary: confirm and continue
 * Profile
-  * name: `maint`
+  * name: whatever (`maint`)
   * server name: whatever (`bkored`)
-  * username: `maint`
-  * password: `maint`
+  * username: whatever (`maint_user`)
+  * password: whatever (`maint_pwd`)
 * *Reboot now*
 * Remove install media then `ENTER`
  
