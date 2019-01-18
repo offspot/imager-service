@@ -39,10 +39,10 @@ Just a regular, fresh Ubuntu-server install. Bellow are the defaults used for te
 * Choose disk to install to: *selected disk*
 * Summary: confirm and continue
 * Profile
- * name: `maint`
- * server name: whatever (`bkored`)
- * username: `maint`
- * password: `maint`
+  * name: `maint`
+  * server name: whatever (`bkored`)
+  * username: `maint`
+  * password: `maint`
 * *Reboot now*
 * Remove install media then `ENTER`
  
