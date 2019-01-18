@@ -55,5 +55,6 @@ Just a regular, fresh Ubuntu-server install. Bellow are the defaults used for te
 * Open a terminal as root (no su)
 * Internet connectivity should work, otherwise you will need need to manually configure it with (1)
 * To configure the access to the cardshop you should get from the Cardshop admin your credentials and then configure the software with (2)
-* 
+* Then configure your USB microSD adapters with (3)
+* You are now ready to use the writer with the cardshop
  
