@@ -9,7 +9,14 @@ import humanfriendly
 
 from whost.ui import cli, display_menu, display_success, display_error, pause
 from whost.common import getLogger, get_next_slot, read_conf, update_conf, disable_host
-from whost.devices import get_writers, get_name_for, find_device, get_size, get_metadata, reset_writers
+from whost.devices import (
+    get_writers,
+    get_display_name,
+    find_device,
+    get_block_size,
+    get_device_path,
+    reset_writers,
+)
 
 logger = getLogger(__name__)
 
@@ -41,36 +48,36 @@ def add_device():
         "SD-card into the writer you want to configure.",
     )
     cli.info_3("waiting for card", end="")
-    device = None
-    while device is None:
+    block_name = None
+    while block_name is None:
         time.sleep(1)
         cli.dot()
-        device = find_device()
+        block_name = find_device()
     cli.info("FOUND")
 
     # we now have a new DEVICE.
-    hw = get_metadata(device)
+    device_path = get_device_path(block_name)
     slot = get_next_slot()
 
     # update configured writers list
     writers = read_conf().get("writers", {})
-    writers.update({slot: hw})
+    writers.update({slot: str(device_path)})
     if update_conf({"writers": writers}):
         display_success(
             "Found your",
-            humanfriendly.format_size(get_size(device), binary=True),
+            humanfriendly.format_size(get_block_size(block_name), binary=True),
             "card on",
             cli.bold,
-            device,
+            block_name,
             cli.reset,
-            "({})".format(get_name_for(device)),
+            "({})".format(get_display_name(block_name)),
             ".\n",
             "Assigned slot:",
             cli.bold,
             slot,
         )
     else:
-        display_error("Failed to configure a slot for", cli.bold, device)
+        display_error("Failed to configure a slot for", cli.bold, block_name)
 
     pause()
 
@@ -81,9 +88,11 @@ def configure_devices():
         writers = get_writers()
     except Exception as exp:
         logger.error(exp)
-        display_error("Configured devices are not present! "
-                      "Reseting devices conf and disabling host.\n"
-                      "Please configure devices and re-enable it.")
+        display_error(
+            "Configured devices are not present! "
+            "Reseting devices conf and disabling host.\n"
+            "Please configure devices and re-enable it."
+        )
         reset_writers()
         disable_host()
     for writer in writers:
@@ -94,7 +103,7 @@ def configure_devices():
             cli.bold,
             "{slot}:/dev/{device}".format(**writer),
             cli.reset,
-            "({name} at {pci}/{usb}/{host})".format(**writer),
+            "({name} at {device_path})".format(**writer),
         )
     cli.info("")
 

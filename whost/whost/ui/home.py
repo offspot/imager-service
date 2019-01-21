@@ -84,7 +84,7 @@ def display_home():
                 "toggle-host",
                 (
                     "{} this Host".format("Enable" if not enabled else "Disable"),
-                    toggle_host,
+                    display_toggle_host,
                 ),
             ),
             ("exit-to-shell", ("Exit to a shell", exit_to_shell)),

@@ -24,36 +24,13 @@ def read_conf():
         sys.exit(1)
 
 
-def get_device_path(pci_ident, usb_ident, host_ident):
-    """ full /sys/devices path for a PCI/USB/HOST combination """
-
-    # /sys/devices/pci0000:00/0000:00:14.0
-    pci_paths = ["pci{}".format(":".join(pci_ident.split(":")[0:2])), pci_ident]
-
-    # usb4/4-1/4-1.2/4-1.2:1.0
-    usb_paths = [
-        "usb{}".format(usb_ident.split("-", 1)[0]),
-        usb_ident.split(".", 1)[0],
-        usb_ident.split(":", 1)[0],
-        usb_ident,
-    ]
-
-    # host6/target6:0:0/6:0:0:1
-    host_paths = [
-        "host{}".format(host_ident.split(":", 1)[0]),
-        "target{}".format(host_ident.rsplit(":", 1)[0]),
-        host_ident,
-    ]
-
-    return DEVICES_PREFIX.joinpath(*pci_paths + usb_paths + host_paths)
-
-
-def get_block_for(device_path):
+def get_block_name(device_path):
+    """ current block device name for this hardware path """
     try:
         bn = [
             fname
             for fname in os.listdir(device_path.joinpath("block"))
-            if fname.startswith("sd")
+            if fname.startswith("sd") or fname.startswith("mmcblk")
         ][0]
     except Exception as exp:
         logger.error(exp)
@@ -101,10 +78,7 @@ def main():
     _start_worker("downloader", "-", "-")
 
     for index, slot in enumerate(writers.keys()):
-        writer = writers.get(slot)
-        block_name = get_block_for(
-            get_device_path(writer.get("pci"), writer.get("usb"), writer.get("host"))
-        )
+        block_name = get_block_name(Path(writers.get(slot)))
         if block_name is None:
             logger.error("\tnot starting its writer container.")
             continue

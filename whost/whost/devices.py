@@ -2,6 +2,23 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
+"""
+SD-card readers are presented and used (in docker calls) as block devices
+Examples: /dev/sda, /dev/mmcblk0
+block_name is file name of the block device (sda for instance)
+Whenever card reader is present, the block device is present.
+If a card is in the reader, then device has a geometry that fdisk can read.
+
+/sys/class/block/<block_name> is a symlink to the /sys/devices path
+representing the device.
+
+/sys/devices path does not change so we store it in our config.
+
+find_device(): returns <block_name> for the sole SD-card present
+get_device_path(block_name): /sys/devices path
+get_block_name(device_path): block_name from stored device path
+"""
+
 import os
 import re
 import subprocess
@@ -14,19 +31,21 @@ BLOCK_PREFIX = Path("/sys/class/block")
 DEVICES_PREFIX = Path("/sys/devices")
 
 
-def get_writer(slot, writer_conf):
-    device = get_device_from(
-        pci_ident=writer_conf["pci"],
-        usb_ident=writer_conf["usb"],
-        host_ident=writer_conf["host"],
-    )
+def get_writer(slot, device_path):
+    """ shortcut to retrieve device, slot and name when reading config """
+    device = get_block_name(Path(device_path))
     if device is None:
         return None
-    writer_conf.update({"device": device, "name": get_name_for(device), "slot": slot})
-    return writer_conf
+    return {
+        "device": device,
+        "name": get_display_name(device),
+        "slot": slot,
+        "device_path": Path(device_path),
+    }
 
 
 def get_writers():
+    """ list of get_writer() for all writers in conf """
     config = read_conf()
     writers = []
     for slot, w in config.get("writers", {}).items():
@@ -43,7 +62,9 @@ def reset_writers():
 def get_block_devices_list():
     """ ["sdb", "sdc", ..] returning all block devices """
     return [
-        fname for fname in os.listdir(BLOCK_PREFIX) if re.search("^sd[a-z]+$", fname)
+        fname
+        for fname in os.listdir(BLOCK_PREFIX)
+        if re.search("^sd[a-z]+$", fname) or re.search("^mmcblk[0-9]+$", fname)
     ]
 
 
@@ -56,7 +77,7 @@ def find_device():
     try:
         return next(
             filter(
-                lambda x: get_size(x) is not None,
+                lambda x: get_block_size(x) is not None,
                 [block_name for block_name in get_removable_usb_blocks()],
             )
         )
@@ -68,42 +89,23 @@ def _block_path(block_name):
     return BLOCK_PREFIX.joinpath(block_name)
 
 
-def get_metadata(block_name):
-    """ return PCI/USB/HOST unique identifier for a block_name """
+def _device_path(device_path):
+    return DEVICES_PREFIX.joinpath(device_path)
+
+
+def get_device_path(block_name):
+    """ hardware path to this block device """
     parts = _block_path(block_name).resolve().parts
-    return {"pci": parts[4], "usb": parts[8], "host": parts[11]}
+    return _device_path("/".join(parts[3:-2]))
 
 
-def get_device_path(pci_ident, usb_ident, host_ident):
-    """ full /sys/devices path for a PCI/USB/HOST combination """
-
-    # /sys/devices/pci0000:00/0000:00:14.0
-    pci_paths = ["pci{}".format(":".join(pci_ident.split(":")[0:2])), pci_ident]
-
-    # usb4/4-1/4-1.2/4-1.2:1.0
-    usb_paths = [
-        "usb{}".format(usb_ident.split("-", 1)[0]),
-        usb_ident.split(".", 1)[0],
-        usb_ident.split(":", 1)[0],
-        usb_ident,
-    ]
-
-    # host6/target6:0:0/6:0:0:1
-    host_paths = [
-        "host{}".format(host_ident.split(":", 1)[0]),
-        "target{}".format(host_ident.rsplit(":", 1)[0]),
-        host_ident,
-    ]
-
-    return DEVICES_PREFIX.joinpath(*pci_paths + usb_paths + host_paths)
-
-
-def get_block_for(device_path):
+def get_block_name(device_path):
+    """ current block device name for this hardware path """
     try:
         bn = [
             fname
             for fname in os.listdir(device_path.joinpath("block"))
-            if fname.startswith("sd")
+            if fname.startswith("sd") or fname.startswith("mmcblk")
         ][0]
     except Exception as exp:
         logger.error(exp)
@@ -111,20 +113,20 @@ def get_block_for(device_path):
     return device_path.joinpath("block", bn).name
 
 
-def get_device_from(pci_ident, usb_ident, host_ident):
-    return get_block_for(get_device_path(pci_ident, usb_ident, host_ident))
-
-
-def get_name_for(block_name):
-    vendor_p = _block_path(block_name).joinpath("device", "vendor")
-    model_p = _block_path(block_name).joinpath("device", "model")
-    with open(str(vendor_p), "r") as vfp, open(str(model_p), "r") as mfp:
-        return "{vendor}{model}".format(
-            vendor=vfp.read().strip(), model=mfp.read().strip()
-        )
+def get_display_name(block_name):
+    """ string from info in block/device/<name>|<vendor>|<model> """
+    parts = []
+    for prop in ("vendor", "model", "name"):
+        pp = _block_path(block_name).joinpath("device", prop)
+        if pp.exists():
+            parts.append(open(str(pp), "r").read().strip())
+    return " ".join(parts)
 
 
 def is_removable(block_name):
+    # internal memory card readers are non-removable yet medias are
+    if block_name.startswith("mmcblk"):
+        return True
     try:
         removable_p = _block_path(block_name).joinpath("removable")
         with open(str(removable_p), "r") as fp:
@@ -133,7 +135,7 @@ def is_removable(block_name):
         return False
 
 
-def get_size(block_name):
+def get_block_size(block_name):
     ps = subprocess.run(
         ["/sbin/fdisk", "-l", "/dev/{}".format(block_name)],
         universal_newlines=True,
