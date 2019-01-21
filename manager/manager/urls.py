@@ -17,13 +17,7 @@ from manager.views import all_orders
 
 urlpatterns = (
     [
-        path("django-admin/", django_admin.site.urls),
-        path(
-            "login/",
-            auth_views.LoginView.as_view(template_name="login.html"),
-            name="login",
-        ),
-        path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+        # API
         path(
             "api/packages/lang_<lang_code>",
             api.packages_for_language,
@@ -35,28 +29,38 @@ urlpatterns = (
             api.media_choices_for_configuration,
             name="api_medias_choices",
         ),
-        path("configurations/new", config.edit_configuration, name="add_configuration"),
+        # configuration
+        path("configurations/new", config.configuration_edit, name="configuration_add"),
         path(
             "configurations/<int:config_id>/delete",
-            config.delete_configuration,
-            name="delete_configuration",
+            config.configuration_delete,
+            name="configuration_delete",
+        ),
+        path(
+            "configurations/<int:config_id>/duplicate",
+            config.configuration_duplicate,
+            name="configuration_duplicate",
         ),
         path(
             "configurations/<int:config_id>",
-            config.edit_configuration,
-            name="edit_configuration",
+            config.configuration_edit,
+            name="configuration_edit",
         ),
         path(
             "configurations/<int:config_id>.json",
-            config.export_configuration,
-            name="export_configuration",
+            config.configuration_export,
+            name="configuration_export",
         ),
-        path("configurations/", config.list_configurations, name="configurations"),
+        path("configurations/", config.configuration_list, name="configuration_list"),
+        # addresses
         path(
             "addresses/<int:address_id>/delete",
-            ui.delete_address,
-            name="delete_address",
+            ui.address_delete,
+            name="address_delete",
         ),
+        path("addresses/new", ui.address_edit, name="address_new"),
+        path("addresses/", ui.address_list, name="address_list"),
+        # orders (ful)
         path(
             "orders/f/<str:order_id>",
             ui.order_detail_scheduler_id,
@@ -67,9 +71,14 @@ urlpatterns = (
             ui.order_add_shipping,
             name="order_add_shipping",
         ),
+        # orders
+        path("orders/new", ui.order_new, name="order_new"),
         path("orders/<str:order_min_id>/cancel", ui.order_cancel, name="order_cancel"),
         path("orders/<str:order_min_id>", ui.order_detail, name="order_detail"),
-        path("orders/", ui.orders, name="orders"),
+
+
+        path("orders/", ui.order_list, name="order_list"),
+        # all orders
         path(
             "all-orders/<str:order_id>/logs/<str:step>/<str:kind>-<int:index>.<str:fmt>",
             all_orders.order_log,
@@ -87,12 +96,14 @@ urlpatterns = (
         ),
         path("all-orders/<str:order_id>", all_orders.detail, name="all-orders-detail"),
         path("all-orders/", all_orders.list, name="all-orders"),
+        # manager admin
         path(
             "admin/toggle_account/<str:username>",
             admin.toggle_account,
             name="admin_toggle_account",
         ),
         path("admin/", admin.dashboard, name="admin"),
+        # scheduler
         path(
             "scheduler/disable_warehouse/<str:warehouse_id>",
             scheduler.warehouse_disable,
@@ -125,6 +136,15 @@ urlpatterns = (
         ),
         path("scheduler/refresh", scheduler.refresh_token, name="scheduler-refresh"),
         path("scheduler/", scheduler.dashboard, name="scheduler"),
+        # basics
+        path("django-admin/", django_admin.site.urls),
+        path(
+            "login/",
+            auth_views.LoginView.as_view(template_name="login.html"),
+            name="login",
+        ),
+        path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+        path("password", ui.password_change, name="change_password"),
         path("", ui.home, name="home"),
     ]
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

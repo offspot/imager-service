@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load manager %}
+
+{% block content %}
+<h2>{{ user.profile.organization }}'s Addresses</h2>
+<p class="info">Addresses are where orders can be sent to.<br />
+Those must be properly filled (postal address and e-mail) whether you intend to use them for physical or virtual (download) orders.</p>
+
+<p><div class="btn-group" role="group" aria-label="Filter">
+	<a class="btn btn-sm {% if address_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}"  href="?all=no">Created by me</a>
+	<a class="btn btn-sm {% if not address_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?all=yes">All</a>
+</div><a href="{% url 'address_new' %}" class="btn btn-sm btn-primary float-right">Create New</a></p>
+
+{% if addresses %}
+<table class="table table-striped">
+	<thead><tr><th>Name</th><th>Recipient</th><th>Address</th><th>Country</th><th>Created By</th><th>Delete</th></tr></thead>
+	<tbody>
+	{% for address in addresses %}
+	<tr><th>{{ address.name }}</th>
+		<td><strong>{{ address.recipient }}</strong><br />{{ address.human_phone }}{% if address.email %}<br /><a href="mailto:{{ address.email }}">{{ address.email }}</a>{% endif %}</td>
+		<td>{{ address.address|linebreaks }}</td>
+		<td>{{ address.verbose_country }}</td>
+		<td>{{ address.created_by.name }}</td>
+		<td><a href="{% url 'address_delete' address.id %}" class="btn btn-sm btn-warning" data-toggle="confirmation" data-title="Delete this address?">Delete</a></td>
+	</tr>
+	{% endfor %}
+	</tbody>
+</table>
+{% else %}
+<p class="info">There's none. Add one?.</p>
+{% endif %}
+{% endblock %}
+
+{% block javascript %}$('[data-toggle="popover"]').popover();{% endblock %}

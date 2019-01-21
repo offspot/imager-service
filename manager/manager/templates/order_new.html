@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% load manager %}
+
+{% block content %}
+<h2>Place an order</h2>
+<p class="info">You'll need to provide a <a href="{% url 'configuration_list' %}">Configuration</a> and an <a href="{% url 'address_list' %}">Address</a> for that. Are you ready?</p>
+<form method="POST" class="">
+	{% csrf_token %}
+	<input type="hidden" name="form" value="order_form">
+	<div class="row">
+	  	<div class="col-sm-8">
+			<div class="card">
+				<h5 class="card-header">New Order</h5>
+				<div class="card-body">
+					<p class="card-text">
+					{% include "_input_field.html" with field=order_form.kind use_raw=1 %}
+					{% include "_input_field.html" with field=order_form.config use_raw=1 %}
+					{% include "_input_field.html" with field=order_form.address use_raw=1 %}
+					{% include "_input_field.html" with field=order_form.media use_raw=1 %}
+					{% include "_input_field.html" with field=order_form.quantity use_raw=1 %}
+					</p>
+				</div>
+			</div>
+		</div>
+
+	  	<div class="col-sm-4">
+			<div class="card">
+			  <h5 class="card-header">Summary</h5>
+			  <div class="card-body">
+			  	<p class="card-text">
+			  		<strong class="media-name">n/a</strong><br />
+			  		<em class="config-name">n/a</em><br />
+			  		<span class="quantity-label">Quantity</span>: <em class="media-quantity">?</em><br />
+			  		To: <em class="recipient"></em>
+			  	</p>
+			  	<p class="card-text">Cost: <strong class="cost">n/a</strong> (balance: <span class="balance"></span>)</p>
+			  	<p><button type="submit" class="btn btn-primary">Order now</button></p>
+			  </div>
+			</div>
+			</div>
+		</div>
+	</div>
+
+</form>
+{% endblock %}
+
+{% block javascript %}
+	$('[data-toggle="popover"]').popover();
+
+	dataset = {
+		address: {
+			{% for addr in addresses %}"{{ addr.id }}": {"name": "{{ addr.name }}", "country": "{{ addr.country|country }}", "email": "{{ addr.email }}"},{% endfor %}
+		},
+		config: {
+			{% for config in configurations %}"{{ config.id }}": {"name": "{{ config.name }}"},{% endfor %}
+		},
+		media: {
+			{% for media in medias %}"{{ media.id }}": {"units": {{ media.units }}, "name": "{{ media.name }}", "kind": "{{ media.kind }}"},{% endfor %}
+		},
+		choices: {
+			validity: {
+				{% for validity in validity_choices %}{{ validity.0 }}: {"validity": "{{ validity.1 }}", "quantity": "{{ validity.0 }}"},{% endfor %}
+			},
+		},
+		config_media: {
+			{% for config in configurations %}"{{ config.id }}": [{% for media in config.compatible_medias %}"{{ media.id }}", {% endfor %}],{% endfor %}
+		},
+		balance: {{ user.profile.organization.units }},
+	};
+
+	function get_select_element(selectName) {
+		return $("#id_order_form-" + selectName)
+	}
+
+	function get_select_element_value(selectName) {
+		return get_select_element(selectName).val();
+	}
+
+	//	// config to media size auto-select
+	//	function remove_incompatible_media_options() {
+	//		//reset_media_options_by_kind();
+	//		let config_id = get_select_element_value("config");
+	//		console.debug("remove incompatible medias with config", config_id);
+	//		cm = dataset.config_media[config_id];
+	//		let media_select = get_select_element("media");
+	//		let selected = false;
+	//		media_select.find("option").each(function (index, optionel) {
+	//			let option = $(optionel);
+	//			if (cm.indexOf(option.val()) != -1) {
+	//				option.removeAttr("disabled");
+	//				if (!selected) {
+	//					selected = option.val();
+	//				}
+	//			} else {
+	//				option.attr("disabled", "disabled");
+	//			}
+	//			media_select.val(selected);
+	//		});
+	//	}
+
+	function remove_incompatible_media_options2() {
+		let config_id = get_select_element_value("config");
+		let kind = get_select_element_value("kind");
+		let media_select = get_select_element("media");
+		console.debug("remove incompatible medias with config", config_id, "and kind", kind);
+		cm = dataset.config_media[config_id];
+		media_select.find("option").each(function (index, optionel) {
+			let option = $(optionel);
+			let media_id = option.val();
+			if (cm.indexOf(media_id) == -1 || dataset.media[media_id].kind != kind) {
+				option.remove();
+			}
+		});		
+	}
+
+	function reset_media_options_by_kind() {
+		let kind = get_select_element_value("kind");
+		console.debug("reset media list for", kind);
+		let media_select = get_select_element("media");
+		media_select.empty();
+		$.each(dataset.media, function (optkey, option) {
+			if (option.kind == kind) {
+				let elem = $("<option />");
+				elem.val(optkey);
+				elem.text(option.name + " ("+ option.units + "U)");
+				media_select.append(elem);
+			}
+		});
+	};
+
+	function reset_quantity_options_by_kind() {
+		let kind = get_select_element_value("kind");
+		console.debug("reset quantity list for", kind);
+		let quantity_select = get_select_element("quantity");
+		quantity_select.empty();
+		$.each(dataset.choices.validity, function (optkey, option) {
+			// virtual has only qty=3 max (15 days)
+			if (optkey <= 3 || kind == "physical") {
+				let elem = $("<option />");
+				elem.val(optkey);
+				elem.text((kind == "virtual") ? option.validity : option.quantity);
+				quantity_select.append(elem);
+			}
+		});
+	};
+
+	// summary auto-update
+	function updateSummary() {
+		if ($(this).attr("name") == "order_form-kind") {
+			reset_quantity_options_by_kind();
+		}
+		if ($(this).attr("name") == "order_form-kind" || $(this).attr("name") == "order_form-config") {
+			reset_media_options_by_kind();
+		}
+		remove_incompatible_media_options2();
+		console.debug("updateSummary");
+		let kind = get_select_element_value("kind");
+		let config_select = get_select_element("config");
+		let media_select = get_select_element("media");
+		let media_size = dataset.media[media_select.val()].name;
+		let config_name = dataset.config[config_select.val()].name;
+		let media_cost = dataset.media[media_select.val()].units;
+		let quantity = get_select_element_value("quantity");
+		let cost = media_cost * quantity;
+		let quantity_name = "";
+		let quantity_label = "";
+		let recipient = dataset.address[get_select_element_value("address")];
+		
+		if (kind == "virtual") {
+			quantity_label = "Link validity";
+			quantity_name = dataset.choices.validity[quantity].validity;
+			recipient_label = recipient.name + " (" + recipient.email + ")";
+		} else {
+			quantity_name = quantity.toString() + " card";
+			quantity_name += (quantity > 1) ? "s" : "";
+			quantity_label = "Quantity";
+			recipient_label = recipient.name + " (" + recipient.country + ")";
+		}
+		$(".media-name").text(media_size);
+		$(".config-name").text(config_name);
+		$(".quantity-label").text(quantity_label);
+		$(".media-quantity").text(quantity_name);
+		$(".recipient").text(recipient_label);
+		$(".cost").text(cost + "U");
+		$(".balance").text(dataset.balance + "U");
+		$(".cost").toggleClass("text-danger", (cost > dataset.balance));
+	}
+
+	//get_select_element("kind").on("change", reset_media_options_by_kind);
+	//get_select_element("config").on("change", remove_incompatible_media_options);
+	$("select").on("change", updateSummary);
+	//remove_incompatible_media_options();
+	//updateSummary();
+	get_select_element("kind").change();
+{% endblock %}

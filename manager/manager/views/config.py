@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class JSONUploadForm(forms.Form):
     file = forms.FileField(
-        widget=forms.FileInput(attrs={"class": "form-control form-check-input"})
+        widget=forms.FileInput(attrs={"class": "form-control form-check-input btn-sm"})
     )
 
 
@@ -61,12 +61,20 @@ def handle_uploaded_json(fd):
 
 
 @login_required
-def list_configurations(request):
+def configuration_list(request):
 
-    context = {}
-    context["configurations"] = Configuration.objects.filter(
+    config_filter = not bool(request.GET.get("all", False) == "yes")
+    filtered_configurations = Configuration.objects.filter(
         organization=request.user.profile.organization
     )
+
+    if config_filter:
+        filtered_configurations = filtered_configurations.filter(updated_by=request.user.profile)
+
+    context = {
+        "configurations": filtered_configurations,
+        "config_filter": config_filter,
+    }
 
     if request.method == "POST":
         form = JSONUploadForm(request.POST, request.FILES)
@@ -81,7 +89,7 @@ def list_configurations(request):
                 try:
                     config = Configuration.create_from(
                         config=js_config or {},
-                        organization=request.user.profile.organization,
+                        author=request.user.profile
                     )
                 except Exception as exp:
                     messages.error(
@@ -91,7 +99,7 @@ def list_configurations(request):
                         ),
                     )
                 else:
-                    return redirect("edit_configuration", config.id)
+                    return redirect("configuration_edit", config.id)
         else:
             pass
     else:
@@ -99,11 +107,11 @@ def list_configurations(request):
 
     context["form"] = form
 
-    return render(request, "configurations.html", context)
+    return render(request, "configuration_list.html", context)
 
 
 @login_required
-def edit_configuration(request, config_id=None):
+def configuration_edit(request, config_id=None):
     context = {}
 
     if config_id:
@@ -124,7 +132,9 @@ def edit_configuration(request, config_id=None):
         form = ConfigurationForm(request.POST, request.FILES, instance=config)
         if form.is_valid():
             try:
-                form.save()
+                instance = form.save(commit=False)
+                instance.updated_by = request.user.profile
+                instance.save()
             except Exception as exp:
                 messages.error(
                     request,
@@ -134,7 +144,7 @@ def edit_configuration(request, config_id=None):
                 )
             else:
                 messages.success(request, "Configuration Updated successfuly !")
-                return redirect("edit_configuration", config.id)
+                return redirect("configuration_edit", config.id)
         else:
             pass
     else:
@@ -142,11 +152,11 @@ def edit_configuration(request, config_id=None):
 
     context["form"] = form
 
-    return render(request, "edit_configuration.html", context)
+    return render(request, "configuration_edit.html", context)
 
 
 @login_required
-def export_configuration(request, config_id=None):
+def configuration_export(request, config_id=None):
 
     config = Configuration.get_or_none(config_id)
     if config is None:
@@ -165,7 +175,7 @@ def export_configuration(request, config_id=None):
 
 
 @login_required
-def delete_configuration(request, config_id=None):
+def configuration_delete(request, config_id=None):
 
     config = Configuration.get_or_none(config_id)
     if config is None:
@@ -181,4 +191,24 @@ def delete_configuration(request, config_id=None):
         logger.error("Unable to delete configuration {id}: {exp}".format(id=config.id, exp=exp))
         messages.error(request, "Unable to delete Configuration <em>{config}</em>: -- ref {exp}".format(config=config, exp=exp))
 
-    return redirect("configurations")
+    return redirect("configuration_list")
+
+
+@login_required
+def configuration_duplicate(request, config_id=None):
+
+    config = Configuration.get_or_none(config_id)
+    if config is None:
+        raise Http404("Configuration not found")
+
+    if config.organization != request.user.profile.organization:
+        raise HttpResponse("Unauthorized", status=401)
+
+    try:
+        nconfig = config.duplicate(by=request.user.profile)
+        messages.success(request, "Successfuly duplicated Configuration <em>{}</em> into <em>{}</em>".format(config, nconfig))
+    except Exception as exp:
+        logger.error("Unable to duplicate configuration {id}: {exp}".format(id=config.id, exp=exp))
+        messages.error(request, "Unable to duplicate Configuration <em>{config}</em>: -- ref {exp}".format(config=config, exp=exp))
+
+    return redirect("configuration_list")

@@ -31,6 +31,7 @@ class AddressForm(forms.ModelForm):
         client = kwargs.pop("client")
         super().__init__(*args, **kwargs)
         self.organization = client.organization
+        self.created_by = client
 
     def phone_clean(self):
         try:
@@ -47,6 +48,7 @@ class AddressForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         instance = super().save(commit=False)
         instance.organization = self.organization
+        instance.created_by = self.created_by
         instance.save()
         return instance
 
@@ -56,6 +58,14 @@ class AddressForm(forms.ModelForm):
 
 
 class OrderForm(forms.Form):
+    KIND_CHOICES = {
+        Media.VIRTUAL: "Download Link",
+        Media.PHYSICAL: "Physical micro-SD Card(s)",
+    }
+    VALIDITY_CHOICES = {x: "{} days".format(x * 5) for x in range(1, 11)}
+    VIRTUAL_CHOICES = Media.get_choices(kind=Media.VIRTUAL)
+    PHYSICAL_CHOICES = Media.get_choices(kind=Media.PHYSICAL)
+
     def __init__(self, *args, **kwargs):
         client = kwargs.pop("client")
         super().__init__(*args, **kwargs)
@@ -65,10 +75,22 @@ class OrderForm(forms.Form):
         self.fields["address"].choices = Address.get_choices(self.organization)
         self.fields["media"].choices = Media.get_choices()
 
-    config = forms.ChoiceField(choices=[])
-    media = forms.ChoiceField(choices=[])
-    quantity = forms.IntegerField(min_value=1, max_value=10, initial=1)
-    address = forms.ChoiceField(choices=[])
+    kind = forms.ChoiceField(
+        choices=KIND_CHOICES.items(),
+        label="Order Type",
+        help_text="Either download link sent via email or micro-SD card shipment",
+    )
+    config = forms.ChoiceField(choices=[], label="Configuration")
+    address = forms.ChoiceField(choices=[], label="Recipient")
+    media = forms.ChoiceField(
+        choices=[],
+        help_text="You can choose larger media size to add free space to your hotspot",
+    )
+    quantity = forms.ChoiceField(
+        choices=VALIDITY_CHOICES.items(),
+        label="Quantity / Link validity",
+        help_text="Order copies or your Card or extend your download period",
+    )
 
     def clean_config(self):
         config = Configuration.get_or_none(self.cleaned_data.get("config"))
@@ -119,6 +141,40 @@ class OrderForm(forms.Form):
         return "Successfuly created Order <em>{}</em>".format(res)
 
 
+class PhysicalOrderForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        client = kwargs.pop("client")
+        super().__init__(*args, **kwargs)
+        self.client = client
+        self.organization = client.organization
+        self.fields["config"].choices = Configuration.get_choices(self.organization)
+        self.fields["address"].choices = Address.get_choices(self.organization)
+        self.fields["media"].choices = Media.get_choices(kind=Media.PHYSICAL)
+
+    config = forms.ChoiceField(choices=[], label="Configuration")
+    address = forms.ChoiceField(choices=[], label="Recipient")
+    media = forms.ChoiceField(choices=[])
+    quantity = forms.IntegerField(min_value=1, max_value=10, initial=1)
+
+
+class VirtualOrderForm(forms.Form):
+    CHOICES = {1: "5 days", 2: "10 days", 3: "15 days"}
+
+    def __init__(self, *args, **kwargs):
+        client = kwargs.pop("client")
+        super().__init__(*args, **kwargs)
+        self.client = client
+        self.organization = client.organization
+        self.fields["config"].choices = Configuration.get_choices(self.organization)
+        self.fields["address"].choices = Address.get_choices(self.organization)
+        self.fields["media"].choices = Media.get_choices(kind=Media.VIRTUAL)
+
+    config = forms.ChoiceField(choices=[], label="Configuration")
+    address = forms.ChoiceField(choices=[], label="Recipient")
+    media = forms.ChoiceField(choices=[])
+    validity = forms.ChoiceField(choices=CHOICES.items())
+
+
 class OrderShippingForm(forms.Form):
     def __init__(self, *args, **kwargs):
         order = kwargs.pop("order")
@@ -139,7 +195,12 @@ class OrderShippingForm(forms.Form):
 @login_required
 def home(request):
     context = {"support_email": settings.SUPPORT_EMAIL}
+    return render(request, "home.html", context)
 
+
+@login_required
+def password_change(request):
+    context = {}
     if request.method == "POST":
         form = PasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
@@ -160,38 +221,30 @@ def home(request):
     else:
         form = PasswordChangeForm(user=request.user)
     context["password_form"] = form
-    return render(request, "home.html", context)
+    return render(request, "password_change.html", context)
 
 
 @login_required
-def orders(request):
-    # query args
-    page = request.GET.get("page")
-    order_filter = (
-        request.GET.get("only")
-        if request.GET.get("only") in Order.STATUSES.keys()
-        else Order.IN_PROGRESS
+def address_list(request):
+
+    address_filter = not bool(request.GET.get("all", False) == "yes")
+    filtered_addresses = Address.objects.filter(
+        organization=request.user.profile.organization
     )
 
-    filtered_orders = Order.objects.filter(
-        organization=request.user.profile.organization, status=order_filter
-    )
-    paginator = Paginator(filtered_orders, NB_ORDERS_PER_PAGE)
-    orders_page = paginator.get_page(page)
+    if address_filter:
+        filtered_addresses = filtered_addresses.filter(created_by=request.user.profile)
 
-    context = {
-        "addresses": Address.objects.filter(
-            organization=request.user.profile.organization
-        ),
-        "order_filter": order_filter,
-        "orders_page": orders_page,
-        "orders": orders_page.object_list,
-        "configurations": Configuration.objects.filter(
-            organization=request.user.profile.organization
-        ),
-    }
+    context = {"addresses": filtered_addresses, "address_filter": address_filter}
 
-    forms_map = {"address_form": AddressForm, "order_form": OrderForm}
+    return render(request, "address_list.html", context)
+
+
+@login_required
+def address_edit(request):
+
+    context = {}
+    forms_map = {"address_form": AddressForm}
 
     # assume GET
     for key, value in forms_map.items():
@@ -216,11 +269,111 @@ def orders(request):
                 messages.error(request, "Error while saving… {exp}".format(exp=exp))
             else:
                 messages.success(request, context[form_key].success_message(res))
-                return redirect("orders")
+                return redirect("address_list")
     else:
         pass
 
-    return render(request, "orders.html", context)
+    return render(request, "address_edit.html", context)
+
+
+@login_required
+def address_delete(request, address_id=None):
+
+    address = Address.get_or_none(address_id)
+    if address is None:
+        raise Http404("Configuration not found")
+
+    if address.organization != request.user.profile.organization:
+        raise HttpResponse("Unauthorized", status=401)
+
+    try:
+        address.delete()
+        messages.success(
+            request, "Successfuly deleted Address <em>{}</em>".format(address)
+        )
+    except Exception as exp:
+        logger.error(
+            "Unable to delete Address {id}: {exp}".format(id=address.id, exp=exp)
+        )
+        messages.error(
+            request,
+            "Unable to delete Address <em>{addr}</em>: -- ref {exp}".format(
+                addr=address, exp=exp
+            ),
+        )
+
+    return redirect("address_list")
+
+
+@login_required
+def order_list(request):
+    # query args
+    page = request.GET.get("page")
+    order_filter = (
+        request.GET.get("only")
+        if request.GET.get("only") in Order.STATUSES.keys()
+        else Order.IN_PROGRESS
+    )
+
+    filtered_orders = Order.objects.filter(
+        organization=request.user.profile.organization, status=order_filter
+    )
+    paginator = Paginator(filtered_orders, NB_ORDERS_PER_PAGE)
+    orders_page = paginator.get_page(page)
+
+    context = {
+        "order_filter": order_filter,
+        "orders_page": orders_page,
+        "orders": orders_page.object_list,
+    }
+
+    return render(request, "order_list.html", context)
+
+
+@login_required
+def order_new(request, kind=Media.VIRTUAL):
+    context = {
+        "addresses": Address.objects.filter(
+            organization=request.user.profile.organization
+        ),
+        "configurations": Configuration.objects.filter(
+            organization=request.user.profile.organization
+        ),
+        "medias": Media.objects.all(),
+        # "kind": kind,
+        "validity_choices": OrderForm.VALIDITY_CHOICES.items(),
+    }
+
+    forms_map = {"order_form": OrderForm}
+
+    # assume GET
+    for key, value in forms_map.items():
+        context[key] = value(prefix=key, client=request.user.profile)
+
+    if request.method == "POST" and request.POST.get("form") in forms_map.keys():
+
+        # which form is being saved?
+        form_key = request.POST.get("form")
+        context[form_key] = forms_map.get(form_key)(
+            request.POST, prefix=form_key, client=request.user.profile
+        )
+
+        if context[form_key].is_valid():
+            try:
+                res = context[form_key].save()
+            except Exception as exp:
+                import traceback
+
+                print(traceback.format_exc())
+                logger.error(exp)
+                messages.error(request, "Error while saving… {exp}".format(exp=exp))
+            else:
+                messages.success(request, context[form_key].success_message(res))
+                return redirect("order_list")
+    else:
+        pass
+
+    return render(request, "order_new.html", context)
 
 
 @login_required
@@ -283,32 +436,3 @@ def order_add_shipping(request, order_id):
     context["form"] = form
 
     return render(request, "add_shipping.html", context)
-
-
-@login_required
-def delete_address(request, address_id=None):
-
-    address = Address.get_or_none(address_id)
-    if address is None:
-        raise Http404("Configuration not found")
-
-    if address.organization != request.user.profile.organization:
-        raise HttpResponse("Unauthorized", status=401)
-
-    try:
-        address.delete()
-        messages.success(
-            request, "Successfuly deleted Address <em>{}</em>".format(address)
-        )
-    except Exception as exp:
-        logger.error(
-            "Unable to delete Address {id}: {exp}".format(id=address.id, exp=exp)
-        )
-        messages.error(
-            request,
-            "Unable to delete Address <em>{addr}</em>: -- ref {exp}".format(
-                addr=address, exp=exp
-            ),
-        )
-
-    return redirect("orders")

@@ -81,6 +81,10 @@ class Configuration(models.Model):
         "Organization", on_delete=models.CASCADE, related_name="configurations"
     )
     updated_on = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        "Profile", on_delete=models.CASCADE, related_name="configurations"
+    )
+    size = models.IntegerField(blank=True)
 
     name = models.CharField(
         max_length=100, help_text="Used <strong>only within the Cardshop</strong>"
@@ -178,7 +182,7 @@ class Configuration(models.Model):
     )
 
     @classmethod
-    def create_from(cls, config, organization):
+    def create_from(cls, config, author):
 
         # only packages IDs which are in the catalogs
         packages_list = get_list_if_values_match(
@@ -218,7 +222,8 @@ class Configuration(models.Model):
 
         # rebuild clean config from data
         kwargs = {
-            "organization": organization,
+            "updated_by": author,
+            "organization": author.organization,
             "name": name,
             "project_name": name,
             "language": get_if_str_in(
@@ -269,6 +274,22 @@ class Configuration(models.Model):
                     except FileNotFoundError:
                         pass
             raise exp
+
+    def duplicate(self, by):
+        kwargs = {}
+        for field in self._meta.fields:
+            kwargs[field.name] = getattr(self, field.name)
+        kwargs.pop("id")
+        kwargs["name"] = "{} (Duplicate)".format(kwargs.get("name", ""))
+        kwargs["updated_by"] = by
+        new_instance = self.__class__(**kwargs)
+        new_instance.save()
+
+        return new_instance
+
+    def save(self, *args, **kwargs):
+        self.size = get_required_image_size(self.collection)
+        super().save(*args, **kwargs)
 
     @classmethod
     def get_choices(cls, organization):
@@ -348,10 +369,6 @@ class Configuration(models.Model):
             wikifundi_languages=self.wikifundi_languages,
             aflatoun_languages=["fr", "en"] if self.content_aflatoun else [],
         )
-
-    @property
-    def size(self):
-        return get_required_image_size(self.collection)
 
     def to_dict(self):
         # for key in ("project_name", "language", "timezone"):
@@ -534,9 +551,16 @@ class Address(models.Model):
     )
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, verbose_name="Address Name")
-    recipient = models.CharField(max_length=100)
-    email = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.ForeignKey(
+        "Profile", on_delete=models.CASCADE, related_name="created_addresses"
+    )
+    name = models.CharField(
+        max_length=100,
+        verbose_name="Address Name",
+        help_text="Used only within the Cardshop",
+    )
+    recipient = models.CharField(max_length=100, verbose_name="Recipient Name")
+    email = models.EmailField(max_length=255)
     phone = models.CharField(max_length=30)
     address = models.TextField()
     country = models.CharField(max_length=50, choices=COUNTRIES.items())
@@ -633,8 +657,11 @@ class Media(models.Model):
             return None
 
     @classmethod
-    def get_choices(cls):
-        return cls.choices_for(cls.objects.all())
+    def get_choices(cls, kind=None):
+        qs = cls.objects.all()
+        if kind is not None:
+            qs = qs.filter(kind=kind)
+        return cls.choices_for(qs)
 
     @classmethod
     def get_min_for(cls, size):
