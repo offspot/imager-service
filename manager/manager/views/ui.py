@@ -64,8 +64,6 @@ class OrderForm(forms.Form):
         Media.PHYSICAL: "Physical micro-SD Card(s)",
     }
     VALIDITY_CHOICES = {x: "{} days".format(x * 5) for x in range(1, 11)}
-    VIRTUAL_CHOICES = Media.get_choices(kind=Media.VIRTUAL)
-    PHYSICAL_CHOICES = Media.get_choices(kind=Media.PHYSICAL)
 
     def __init__(self, *args, **kwargs):
         client = kwargs.pop("client")
@@ -92,6 +90,12 @@ class OrderForm(forms.Form):
         label="Quantity / Link validity",
         help_text="Order copies or your Card or extend your download period",
     )
+
+    def VIRTUAL_CHOICES(self):
+        return Media.get_choices(kind=Media.VIRTUAL)
+
+    def PHYSICAL_CHOICES(self):
+        return Media.get_choices(kind=Media.PHYSICAL)
 
     def clean_config(self):
         config = Configuration.get_or_none(self.cleaned_data.get("config"))
