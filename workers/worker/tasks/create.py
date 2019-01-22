@@ -87,7 +87,14 @@ class CreateTask(BaseTask):
 
         states = [
             ("build_image", "building", "built", "failed_to_build"),
-            ("upload_image", "uploading", "uploaded", "failed_to_upload"),
+            (
+                "upload_image",
+                "uploading",
+                "uploaded_public"
+                if self.task["media_type"] == "virtual"
+                else "uploaded",
+                "failed_to_upload",
+            ),
         ]
 
         for method, working_status, success_status, failed_status in states:
