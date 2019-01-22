@@ -121,12 +121,12 @@ class Initializer:
         warehouse_document = {
             "slug": "download",
             "upload_uri": os.getenv(
-                "DEFAULT_WAREHOUSE_UPLOAD_URI",
-                "ftp://download.cardshop.hotspot.kiwix.org:2121",
+                "DOWNLOAD_WAREHOUSE_UPLOAD_URI",
+                "ftp://download.cardshop.hotspot.kiwix.org:2221",
             ),
             "download_uri": os.getenv(
-                "DEFAULT_WAREHOUSE_DOWNLOAD_URI",
-                "ftp://download.cardshop.hotspot.kiwix.org:2121",
+                "DOWNLOAD_WAREHOUSE_DOWNLOAD_URI",
+                "https://download.cardshop.hotspot.kiwix.org",
             ),
             "active": True,
         }

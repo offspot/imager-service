@@ -162,27 +162,26 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
     order_id = task["order"]
 
     # create task uploaded image
-    if status == Tasks.uploaded:
+    if status == Tasks.uploaded_public:
         order = Orders().get(order_id)
-        if order["sd_card"]["type"] == Orders.virtual:
-            # set expiration date
-            expiration = datetime.datetime.now() + datetime.timedelta(
-                days=order["sd_card"]["duration"]
-            )
-            Orders().update(order_id, {"sd_card.expiration": expiration})
-            send_image_uploaded_public_email(order_id)
-        else:
-            send_image_uploaded_email(order_id)
+        # set expiration date
+        expiration = datetime.datetime.now() + datetime.timedelta(
+            days=order["sd_card"]["duration"]
+        )
+        Orders().update(order_id, {"sd_card.expiration": expiration})
+        send_image_uploaded_public_email(order_id)
+    elif status == Tasks.uploaded:
+        send_image_uploaded_email(order_id)
 
-            # create DownloadTask
-            Orders().create_downloader_task(
-                order_id,
-                {
-                    "fname": task.get("image", {}).get("fname"),
-                    "size": task.get("image", {}).get("size"),
-                    "checksum": task.get("image", {}).get("checksum"),
-                },
-            )
+        # create DownloadTask
+        Orders().create_downloader_task(
+            order_id,
+            {
+                "fname": task.get("image", {}).get("fname"),
+                "size": task.get("image", {}).get("size"),
+                "checksum": task.get("image", {}).get("checksum"),
+            },
+        )
 
     # download task downloaded image
     elif status == Tasks.downloaded:

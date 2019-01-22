@@ -7,4 +7,5 @@
 <p>Your Hotspot Image is now ready to download <strong>until {{ order.sd_card.expiration.strftime('%c') }}</strong>.</p>
 {{ button_download(order) }}
 <p>You can download this file (and share its link freely) until {{ order.sd_card.expiration.strftime('%c') }}. At that date, the file will be permanently removed.</p>
+<p>You can pause and resume its download as you wish. Yet, a download manager is recommended as the download duration can span accross days.</p>
 {% endblock %}

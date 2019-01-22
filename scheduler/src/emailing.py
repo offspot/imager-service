@@ -238,7 +238,7 @@ def send_image_uploaded_public_email(order_id):
     # client: image creation successful.
     send_order_email_for(
         order_id,
-        "subject_image_uploaded",
+        "subject_image_uploaded_public",
         "recipient_image_uploaded_public",
         "recipient",
         "client",

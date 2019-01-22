@@ -181,13 +181,21 @@ class Orders(BaseCollection):
     written = "written"
     pending_shipment = "pending_shipment"
     shipped = "shipped"
+    pending_expiry = "pending_expiry"
+    expired = "expired"
     canceled = "canceled"
     failed = "failed"
 
-    PENDING_STATUSES = [created, pending_creator, pending_writer, pending_shipment]
+    PENDING_STATUSES = [
+        created,
+        pending_creator,
+        pending_writer,
+        pending_shipment,
+        pending_expiry,
+    ]
     WORKING_STATUSES = [creating, downloading, writing]
     FAILED_STATUSES = [creation_failed, download_failed, write_failed, canceled, failed]
-    SUCCESS_STATUSES = [shipped]
+    SUCCESS_STATUSES = [shipped, expired]
 
     schema = {
         "config": {"type": "dict", "required": True},
@@ -271,9 +279,7 @@ class Orders(BaseCollection):
 
     @classmethod
     def update(cls, order_id, update_set):
-        cls().update_one(
-            {"_id": ObjectId(order_id)}, {"$set": update_set}
-        )
+        cls().update_one({"_id": ObjectId(order_id)}, {"$set": update_set})
 
     @classmethod
     def create_creator_task(cls, order_id):
@@ -283,6 +289,7 @@ class Orders(BaseCollection):
 
         payload = {
             "order": order_id,
+            "media_type": order["sd_card"]["type"],
             "channel": order["channel"],
             "upload_uri": order["warehouse"]["upload_uri"],
             "worker": None,
@@ -408,6 +415,7 @@ class Tasks(BaseCollection):
     uploading = "uploading"
     failed_to_upload = "failed_to_upload"
     uploaded = "uploaded"
+    uploaded_public = "uploaded_public"
 
     # download
     downloading = "downloading"
@@ -467,7 +475,7 @@ class Tasks(BaseCollection):
     ]
     IN_PROGRESS_STATUSES = [building, uploading, downloading, wiping_sdcard, writing]
 
-    CREATOR_SUCCESS_STATUSES = [uploaded]
+    CREATOR_SUCCESS_STATUSES = [uploaded, uploaded_public]
     DOWNLOADER_SUCCESS_STATUSES = [
         downloaded,
         pending_image_removal,
@@ -492,6 +500,7 @@ class Tasks(BaseCollection):
             Tasks.uploading: Orders.creating,
             Tasks.failed_to_upload: Orders.creation_failed,
             Tasks.uploaded: Orders.pending_writer,
+            Tasks.uploaded_public: Orders.pending_expiry,
             Tasks.downloading: Orders.downloading,
             Tasks.failed_to_download: Orders.download_failed,
             Tasks.downloaded: Orders.writing,
@@ -595,6 +604,7 @@ class CreatorTasks(Tasks):
 
     schema = {
         "order": {"type": "string", "required": True},
+        "media_type": {"type": "string", "required": True},
         "channel": {"type": "string", "required": True, "nullable": True},
         "worker": {"type": "string", "required": True, "nullable": True},
         "config": {"type": "dict", "required": True},
