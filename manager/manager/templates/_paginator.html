@@ -1,0 +1,19 @@
+{% if items_page.has_previous or items_page.has_next %}
+<div class="pagination">
+    <span class="step-links">
+        {% if items_page.has_previous %}
+            <a href="?{{ filter_name }}={{ filter_value }}&page=1">&laquo; first</a>
+            <a href="?{{ filter_name }}={{ filter_value }}&page={{ items_page.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ items_page.number }} of {{ items_page.paginator.num_pages }}.
+        </span>
+
+        {% if items_page.has_next %}
+            <a href="?{{ filter_name }}={{ filter_value }}&page={{ items_page.next_page_number }}">next</a>
+            <a href="?{{ filter_name }}={{ filter_value }}&page={{ items_page.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{% endif %}

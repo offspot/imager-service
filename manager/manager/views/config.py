@@ -7,6 +7,7 @@ import logging
 
 from django import forms
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse, JsonResponse
@@ -15,6 +16,8 @@ from manager.models import Configuration
 from manager.pibox.packages import PACKAGES_LANGS
 
 logger = logging.getLogger(__name__)
+
+NB_CONFIGURATIONS_PER_PAGE = 10
 
 
 class JSONUploadForm(forms.Form):
@@ -63,16 +66,21 @@ def handle_uploaded_json(fd):
 @login_required
 def configuration_list(request):
 
-    config_filter = not bool(request.GET.get("all", False) == "yes")
+    page = request.GET.get("page")
+    config_filter = bool(request.GET.get("all", False) == "yes")
     filtered_configurations = Configuration.objects.filter(
         organization=request.user.profile.organization
     )
 
-    if config_filter:
+    if not config_filter:
         filtered_configurations = filtered_configurations.filter(updated_by=request.user.profile)
 
+    paginator = Paginator(filtered_configurations, NB_CONFIGURATIONS_PER_PAGE)
+    configurations_page = paginator.get_page(page)
+
     context = {
-        "configurations": filtered_configurations,
+        "configurations": configurations_page.object_list,
+        "configurations_page": configurations_page,
         "config_filter": config_filter,
     }
 

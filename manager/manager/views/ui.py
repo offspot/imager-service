@@ -20,6 +20,7 @@ from manager.scheduler import add_order_shipment, SchedulerAPIError
 
 logger = logging.getLogger(__name__)
 NB_ORDERS_PER_PAGE = 10
+NB_ADDRESSES_PER_PAGE = 10
 
 
 class AddressForm(forms.ModelForm):
@@ -110,6 +111,13 @@ class OrderForm(forms.Form):
             raise forms.ValidationError("Incorrect Media", code="invalid")
         return media
 
+    def clean_quantity(self):
+        try:
+            quantity = int(self.cleaned_data.get("quantity"))
+        except Exception:
+            raise forms.ValidationError("Incorrect quantity", code="invalid")
+        return quantity
+
     def clean(self):
         cleaned_data = super().clean()
         config = cleaned_data.get("config")
@@ -139,40 +147,6 @@ class OrderForm(forms.Form):
     @classmethod
     def success_message(cls, res):
         return "Successfuly created Order <em>{}</em>".format(res)
-
-
-class PhysicalOrderForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        client = kwargs.pop("client")
-        super().__init__(*args, **kwargs)
-        self.client = client
-        self.organization = client.organization
-        self.fields["config"].choices = Configuration.get_choices(self.organization)
-        self.fields["address"].choices = Address.get_choices(self.organization)
-        self.fields["media"].choices = Media.get_choices(kind=Media.PHYSICAL)
-
-    config = forms.ChoiceField(choices=[], label="Configuration")
-    address = forms.ChoiceField(choices=[], label="Recipient")
-    media = forms.ChoiceField(choices=[])
-    quantity = forms.IntegerField(min_value=1, max_value=10, initial=1)
-
-
-class VirtualOrderForm(forms.Form):
-    CHOICES = {1: "5 days", 2: "10 days", 3: "15 days"}
-
-    def __init__(self, *args, **kwargs):
-        client = kwargs.pop("client")
-        super().__init__(*args, **kwargs)
-        self.client = client
-        self.organization = client.organization
-        self.fields["config"].choices = Configuration.get_choices(self.organization)
-        self.fields["address"].choices = Address.get_choices(self.organization)
-        self.fields["media"].choices = Media.get_choices(kind=Media.VIRTUAL)
-
-    config = forms.ChoiceField(choices=[], label="Configuration")
-    address = forms.ChoiceField(choices=[], label="Recipient")
-    media = forms.ChoiceField(choices=[])
-    validity = forms.ChoiceField(choices=CHOICES.items())
 
 
 class OrderShippingForm(forms.Form):
@@ -227,15 +201,25 @@ def password_change(request):
 @login_required
 def address_list(request):
 
-    address_filter = not bool(request.GET.get("all", False) == "yes")
+    page = request.GET.get("page")
+
+    address_filter = bool(request.GET.get("all", False) == "yes")
     filtered_addresses = Address.objects.filter(
         organization=request.user.profile.organization
     )
 
-    if address_filter:
+    if not address_filter:
         filtered_addresses = filtered_addresses.filter(created_by=request.user.profile)
 
-    context = {"addresses": filtered_addresses, "address_filter": address_filter}
+    paginator = Paginator(filtered_addresses, NB_ADDRESSES_PER_PAGE)
+
+    addresses_page = paginator.get_page(page)
+
+    context = {
+        "address_filter": address_filter,
+        "addresses_page": addresses_page,
+        "addresses": addresses_page.object_list,
+    }
 
     return render(request, "address_list.html", context)
 

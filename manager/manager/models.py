@@ -546,6 +546,9 @@ class Profile(models.Model):
 
 class Address(models.Model):
 
+    class Meta:
+        ordering = ("-id", )
+
     COUNTRIES = collections.OrderedDict(
         sorted([(c.alpha_2, c.name) for c in pycountry.countries], key=lambda x: x[1])
     )
@@ -873,7 +876,7 @@ class Order(models.Model):
         )
         if order.units > client.organization.units:
             raise ValueError(
-                "Order needs {r}U but in {org} has only {a}".format(
+                "Order requires {r}U but {org} has only {a}".format(
                     r=order.units, org=client.organization, a=client.organization.units
                 )
             )

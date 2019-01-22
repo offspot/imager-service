@@ -7,8 +7,8 @@
 Those must be properly filled (postal address and e-mail) whether you intend to use them for physical or virtual (download) orders.</p>
 
 <p><div class="btn-group" role="group" aria-label="Filter">
-	<a class="btn btn-sm {% if address_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}"  href="?all=no">Created by me</a>
-	<a class="btn btn-sm {% if not address_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?all=yes">All</a>
+	<a class="btn btn-sm {% if not address_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}"  href="?">Created by me</a>
+	<a class="btn btn-sm {% if address_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?all=yes">All</a>
 </div><a href="{% url 'address_new' %}" class="btn btn-sm btn-primary float-right">Create New</a></p>
 
 {% if addresses %}
@@ -26,6 +26,7 @@ Those must be properly filled (postal address and e-mail) whether you intend to 
 	{% endfor %}
 	</tbody>
 </table>
+{% include "_paginator.html" with items_page=addresses_page filter_name="all" filter_value=address_filter|yesno %}
 {% else %}
 <p class="info">There's none. Add one?.</p>
 {% endif %}
