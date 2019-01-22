@@ -10,6 +10,6 @@ COPY ./app /app
 WORKDIR /app
 RUN pip3 install -r /app/requirements.txt
 
-EXPOSE 21 28011-28090
+EXPOSE 21
 
 CMD ["python3", "/app/main.py"]
