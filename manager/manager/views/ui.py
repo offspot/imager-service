@@ -38,9 +38,10 @@ class AddressForm(forms.ModelForm):
         if not self.cleaned_data.get("phone"):
             return self.cleaned_data.get("phone")
         try:
-            cleaned_phone = AddressForm.clean_phone(self.cleaned_data.get("phone"))
+            cleaned_phone = Address.cleaned_phone(self.cleaned_data.get("phone"))
         except Exception as exp:
             logger.error(exp)
+            logger.exception(exp)
             raise forms.ValidationError("Invalid Phone Number", code="invalid")
 
         return cleaned_phone
@@ -341,6 +342,18 @@ def order_new(request, kind=Media.VIRTUAL):
         "medias": Media.objects.all(),
         "validity_choices": OrderForm.VALIDITY_CHOICES.items(),
     }
+
+    # can't order without a config
+    if not context["configurations"].count():
+        messages.warning(
+            request, "You need a Configuration to place an Order. Add one first!"
+        )
+        return redirect("configuration_list")
+    if not context["addresses"].count():
+        messages.warning(
+            request, "You need an Address to place an Order. Add one first!"
+        )
+        return redirect("address_list")
 
     form = OrderForm(client=request.user.profile)
     if request.method == "POST":
