@@ -16,6 +16,7 @@ USB_PATH="/dev/sdcard"
 
 docker pull kiwix/cardshop-worker
 docker run --privileged \
+	--name cardshop-worker-$WORKER \
 	--device=${USB_DEVICE}:${USB_PATH} \
 	-e USB_PATH="${USB_PATH}" \
 	-e USB_SLOT="${USB_SLOT}" \
