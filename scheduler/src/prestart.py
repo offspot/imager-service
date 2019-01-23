@@ -70,14 +70,16 @@ class Initializer:
             "email": "manager@kiwix.org",
             "role": mongo.Users.MANAGER_ROLE,
             "channel": "kiwix",
-            "active": True
+            "active": True,
         }
 
         validator = Validator(mongo.Users.schema)
         if not validator.validate(user_document):
             logger.info("user_document is not valid for schema")
         else:
-            logger.info("created user: {}".format(mongo.Users().insert_one(user_document)))
+            logger.info(
+                "created user: {}".format(mongo.Users().insert_one(user_document))
+            )
 
         channel_document = {
             "slug": "kiwix",
@@ -86,7 +88,7 @@ class Initializer:
             "private": False,
             "sender_name": "Kiwix",
             "sender_email": "cardshop@kiwix.org",
-            "sender_address": "c/o Studio Banana\nAvenue des acacias 7\n1 006 Lausanne, Switzerland"
+            "sender_address": "c/o Studio Banana\nAvenue des acacias 7\n1 006 Lausanne, Switzerland",
         }
 
         validator = Validator(mongo.Channels.schema)
@@ -94,7 +96,9 @@ class Initializer:
             logger.info("channel_document is not valid for schema")
         else:
             logger.info(
-                "created channel: {}".format(mongo.Channels().insert_one(channel_document))
+                "created channel: {}".format(
+                    mongo.Channels().insert_one(channel_document)
+                )
             )
 
         warehouse_document = {
@@ -115,7 +119,9 @@ class Initializer:
             logger.info("warehouse_document is not valid for schema")
         else:
             logger.info(
-                "created warehouse: {}".format(mongo.Warehouses().insert_one(warehouse_document))
+                "created warehouse: {}".format(
+                    mongo.Warehouses().insert_one(warehouse_document)
+                )
             )
 
         warehouse_document = {
@@ -136,7 +142,9 @@ class Initializer:
             logger.info("warehouse_document is not valid for schema")
         else:
             logger.info(
-                "created warehouse: {}".format(mongo.Warehouses().insert_one(warehouse_document))
+                "created warehouse: {}".format(
+                    mongo.Warehouses().insert_one(warehouse_document)
+                )
             )
 
 
