@@ -35,6 +35,8 @@ class AddressForm(forms.ModelForm):
         self.created_by = client
 
     def clean_phone(self):
+        if not self.cleaned_data.get("phone"):
+            return self.cleaned_data.get("phone")
         try:
             cleaned_phone = AddressForm.clean_phone(self.cleaned_data.get("phone"))
         except Exception as exp:
@@ -128,6 +130,13 @@ class OrderForm(forms.Form):
         cleaned_data = super().clean()
         config = cleaned_data.get("config")
         media = cleaned_data.get("media")
+        kind = cleaned_data.get("kind")
+        address = cleaned_data.get("address")
+
+        if kind == media.PHYSICAL and not address.physical_compatible:
+            self.add_error(
+                "address", "This address can't be used as it misses postal details"
+            )
 
         if config is not None and media is not None and not config.can_fit_on(media):
             min_media = Media.get_min_for(config.size)

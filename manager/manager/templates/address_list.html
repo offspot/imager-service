@@ -17,9 +17,9 @@ Those must be properly filled (postal address and e-mail) whether you intend to 
 	<tbody>
 	{% for address in addresses %}
 	<tr><th>{{ address.name }}</th>
-		<td><strong>{{ address.recipient }}</strong><br />{{ address.human_phone }}{% if address.email %}<br /><a href="mailto:{{ address.email }}">{{ address.email }}</a>{% endif %}</td>
+		<td><strong>{{ address.recipient }}</strong><br />{{ address.human_phone|default_if_none:"-" }}{% if address.email %}<br /><a href="mailto:{{ address.email }}">{{ address.email }}</a>{% endif %}</td>
 		<td>{{ address.address|linebreaks }}</td>
-		<td>{{ address.verbose_country }}</td>
+		<td>{{ address.verbose_country|default_if_none:"-" }}</td>
 		<td>{{ address.created_by.name }}</td>
 		<td><a href="{% url 'address_edit' address.id %}" class="btn btn-sm btn-secondary">Edit</a></td>
 		<td><a href="{% url 'address_delete' address.id %}" class="btn btn-sm btn-warning" data-toggle="confirmation" data-title="Delete this address?">Delete</a></td>

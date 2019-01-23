@@ -545,9 +545,8 @@ class Profile(models.Model):
 
 
 class Address(models.Model):
-
     class Meta:
-        ordering = ("-id", )
+        ordering = ("-id",)
 
     COUNTRIES = collections.OrderedDict(
         sorted([(c.alpha_2, c.name) for c in pycountry.countries], key=lambda x: x[1])
@@ -564,9 +563,15 @@ class Address(models.Model):
     )
     recipient = models.CharField(max_length=100, verbose_name="Recipient Name")
     email = models.EmailField(max_length=255)
-    phone = models.CharField(max_length=30, help_text="In international “+” format")
-    address = models.TextField(help_text="Complete address without name and country")
-    country = models.CharField(max_length=50, choices=COUNTRIES.items())
+    phone = models.CharField(
+        null=True, blank=True, max_length=30, help_text="In international “+” format"
+    )
+    address = models.TextField(
+        null=True, blank=True, help_text="Complete address without name and country"
+    )
+    country = models.CharField(
+        max_length=50, null=True, blank=True, choices=COUNTRIES.items()
+    )
 
     @classmethod
     def get_or_none(cls, aid):
@@ -576,7 +581,7 @@ class Address(models.Model):
             return None
 
     def save(self, *args, **kwargs):
-        self.phone = self.cleaned_phone(self.phone)
+        self.phone = self.cleaned_phone(self.phone) if self.phone is not None else None
         super().save(*args, **kwargs)
 
     @classmethod
@@ -591,11 +596,21 @@ class Address(models.Model):
         return Address.COUNTRIES.get(country_code)
 
     @property
+    def physical_compatible(self):
+        return (
+            self.phone is not None
+            and self.address is not None
+            and self.country is not None
+        )
+
+    @property
     def verbose_country(self):
         return self.country_name_for(self.country)
 
     @property
     def human_phone(self):
+        if self.phone is None:
+            return None
         return phonenumbers.format_number(
             phonenumbers.parse(self.phone, None),
             phonenumbers.PhoneNumberFormat.INTERNATIONAL,

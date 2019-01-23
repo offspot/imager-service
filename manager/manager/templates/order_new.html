@@ -48,7 +48,7 @@
 
 	dataset = {
 		address: {
-			{% for addr in addresses %}"{{ addr.id }}": {"name": "{{ addr.name }}", "country": "{{ addr.country|country }}", "email": "{{ addr.email }}"},{% endfor %}
+			{% for addr in addresses %}"{{ addr.id }}": {"name": "{{ addr.name }}", "virtualonly": "{{ addr.physical_compatible }}", "country": "{{ addr.country|country|default_if_none:"-" }}", "email": "{{ addr.email }}"},{% endfor %}
 		},
 		config: {
 			{% for config in configurations %}"{{ config.id }}": {"name": "{{ config.name }}"},{% endfor %}
@@ -123,10 +123,10 @@
 
 	// summary auto-update
 	function updateSummary() {
-		if ($(this).attr("name") == "form-kind") {
+		if ($(this).attr("name") == "kind") {
 			reset_quantity_options_by_kind();
 		}
-		if ($(this).attr("name") == "form-kind" || $(this).attr("name") == "form-config") {
+		if ($(this).attr("name") == "kind" || $(this).attr("name") == "config") {
 			reset_media_options_by_kind();
 		}
 		remove_incompatible_media_options2();
@@ -158,6 +158,7 @@
 		$(".quantity-label").text(quantity_label);
 		$(".media-quantity").text(quantity_name);
 		$(".recipient").text(recipient_label);
+		$(".recipient").toggleClass("text-danger", (kind == "physical" && recipient.virtualonly));
 		$(".cost").text(cost + "U");
 		$(".balance").text(dataset.balance + "U");
 		$(".cost").toggleClass("text-danger", (cost > dataset.balance));
