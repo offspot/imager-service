@@ -34,7 +34,7 @@ class AddressForm(forms.ModelForm):
         self.organization = client.organization
         self.created_by = client
 
-    def phone_clean(self):
+    def clean_phone(self):
         try:
             cleaned_phone = AddressForm.clean_phone(self.cleaned_data.get("phone"))
         except Exception as exp:
@@ -43,7 +43,7 @@ class AddressForm(forms.ModelForm):
 
         return cleaned_phone
 
-    def address_clean(self):
+    def clean_address(self):
         return self.cleaned_data.get("address").strip()
 
     def save(self, *args, **kwargs):

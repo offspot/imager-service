@@ -564,8 +564,8 @@ class Address(models.Model):
     )
     recipient = models.CharField(max_length=100, verbose_name="Recipient Name")
     email = models.EmailField(max_length=255)
-    phone = models.CharField(max_length=30)
-    address = models.TextField()
+    phone = models.CharField(max_length=30, help_text="In international “+” format")
+    address = models.TextField(help_text="Complete address without name and country")
     country = models.CharField(max_length=50, choices=COUNTRIES.items())
 
     @classmethod
