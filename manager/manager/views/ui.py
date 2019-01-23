@@ -54,8 +54,10 @@ class AddressForm(forms.ModelForm):
         return instance
 
     @classmethod
-    def success_message(cls, res):
-        return "Successfuly created Address <em>{}</em>".format(res)
+    def success_message(cls, res, created):
+        if created:
+            return "Successfuly created Address <em>{}</em>".format(res)
+        return "Successfuly updated Address <em>{}</em>".format(res)
 
 
 class OrderForm(forms.Form):
@@ -229,26 +231,25 @@ def address_list(request):
 
 
 @login_required
-def address_edit(request):
+def address_edit(request, address_id=None):
 
-    context = {}
-    forms_map = {"address_form": AddressForm}
+    address = Address.get_or_none(address_id)
+    if address is None and address_id is not None:
+        raise Http404("Address not found")
+    elif (
+        address is not None
+        and address.organization != request.user.profile.organization
+    ):
+        raise HttpResponse("Unauthorized", status=401)
 
-    # assume GET
-    for key, value in forms_map.items():
-        context[key] = value(prefix=key, client=request.user.profile)
+    context = {"address": address}
+    form = AddressForm(client=request.user.profile, instance=address)
 
-    if request.method == "POST" and request.POST.get("form") in forms_map.keys():
-
-        # which form is being saved?
-        form_key = request.POST.get("form")
-        context[form_key] = forms_map.get(form_key)(
-            request.POST, prefix=form_key, client=request.user.profile
-        )
-
-        if context[form_key].is_valid():
+    if request.method == "POST":
+        form = AddressForm(request.POST, instance=address, client=request.user.profile)
+        if form.is_valid():
             try:
-                res = context[form_key].save()
+                res = form.save()
             except Exception as exp:
                 import traceback
 
@@ -256,10 +257,11 @@ def address_edit(request):
                 logger.error(exp)
                 messages.error(request, "Error while saving… {exp}".format(exp=exp))
             else:
-                messages.success(request, context[form_key].success_message(res))
+                messages.success(request, form.success_message(res, not bool(address)))
                 return redirect("address_list")
     else:
         pass
+    context["form"] = form
 
     return render(request, "address_edit.html", context)
 
@@ -269,7 +271,7 @@ def address_delete(request, address_id=None):
 
     address = Address.get_or_none(address_id)
     if address is None:
-        raise Http404("Configuration not found")
+        raise Http404("Address not found")
 
     if address.organization != request.user.profile.organization:
         raise HttpResponse("Unauthorized", status=401)
@@ -328,27 +330,17 @@ def order_new(request, kind=Media.VIRTUAL):
             organization=request.user.profile.organization
         ),
         "medias": Media.objects.all(),
-        # "kind": kind,
         "validity_choices": OrderForm.VALIDITY_CHOICES.items(),
     }
 
-    forms_map = {"order_form": OrderForm}
-
-    # assume GET
-    for key, value in forms_map.items():
-        context[key] = value(prefix=key, client=request.user.profile)
-
-    if request.method == "POST" and request.POST.get("form") in forms_map.keys():
+    form = OrderForm(client=request.user.profile)
+    if request.method == "POST":
 
         # which form is being saved?
-        form_key = request.POST.get("form")
-        context[form_key] = forms_map.get(form_key)(
-            request.POST, prefix=form_key, client=request.user.profile
-        )
-
-        if context[form_key].is_valid():
+        form = OrderForm(request.POST, client=request.user.profile)
+        if form.is_valid():
             try:
-                res = context[form_key].save()
+                res = form.save()
             except Exception as exp:
                 import traceback
 
@@ -356,10 +348,11 @@ def order_new(request, kind=Media.VIRTUAL):
                 logger.error(exp)
                 messages.error(request, "Error while saving… {exp}".format(exp=exp))
             else:
-                messages.success(request, context[form_key].success_message(res))
+                messages.success(request, form.success_message(res))
                 return redirect("order_list")
     else:
         pass
+    context["form"] = form
 
     return render(request, "order_new.html", context)
 

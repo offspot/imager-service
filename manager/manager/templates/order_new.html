@@ -6,18 +6,17 @@
 <p class="info">You'll need to provide a <a href="{% url 'configuration_list' %}">Configuration</a> and an <a href="{% url 'address_list' %}">Address</a> for that. Are you ready?</p>
 <form method="POST" class="">
 	{% csrf_token %}
-	<input type="hidden" name="form" value="order_form">
 	<div class="row">
 	  	<div class="col-sm-8">
 			<div class="card">
 				<h5 class="card-header">New Order</h5>
 				<div class="card-body">
 					<p class="card-text">
-					{% include "_input_field.html" with field=order_form.kind use_raw=1 %}
-					{% include "_input_field.html" with field=order_form.config use_raw=1 %}
-					{% include "_input_field.html" with field=order_form.address use_raw=1 %}
-					{% include "_input_field.html" with field=order_form.media use_raw=1 %}
-					{% include "_input_field.html" with field=order_form.quantity use_raw=1 %}
+					{% include "_input_field.html" with field=form.kind use_raw=1 %}
+					{% include "_input_field.html" with field=form.config use_raw=1 %}
+					{% include "_input_field.html" with field=form.address use_raw=1 %}
+					{% include "_input_field.html" with field=form.media use_raw=1 %}
+					{% include "_input_field.html" with field=form.quantity use_raw=1 %}
 					</p>
 				</div>
 			</div>
@@ -69,34 +68,12 @@
 	};
 
 	function get_select_element(selectName) {
-		return $("#id_order_form-" + selectName)
+		return $("#id_" + selectName)
 	}
 
 	function get_select_element_value(selectName) {
 		return get_select_element(selectName).val();
 	}
-
-	//	// config to media size auto-select
-	//	function remove_incompatible_media_options() {
-	//		//reset_media_options_by_kind();
-	//		let config_id = get_select_element_value("config");
-	//		console.debug("remove incompatible medias with config", config_id);
-	//		cm = dataset.config_media[config_id];
-	//		let media_select = get_select_element("media");
-	//		let selected = false;
-	//		media_select.find("option").each(function (index, optionel) {
-	//			let option = $(optionel);
-	//			if (cm.indexOf(option.val()) != -1) {
-	//				option.removeAttr("disabled");
-	//				if (!selected) {
-	//					selected = option.val();
-	//				}
-	//			} else {
-	//				option.attr("disabled", "disabled");
-	//			}
-	//			media_select.val(selected);
-	//		});
-	//	}
 
 	function remove_incompatible_media_options2() {
 		let config_id = get_select_element_value("config");
@@ -146,10 +123,10 @@
 
 	// summary auto-update
 	function updateSummary() {
-		if ($(this).attr("name") == "order_form-kind") {
+		if ($(this).attr("name") == "form-kind") {
 			reset_quantity_options_by_kind();
 		}
-		if ($(this).attr("name") == "order_form-kind" || $(this).attr("name") == "order_form-config") {
+		if ($(this).attr("name") == "form-kind" || $(this).attr("name") == "form-config") {
 			reset_media_options_by_kind();
 		}
 		remove_incompatible_media_options2();

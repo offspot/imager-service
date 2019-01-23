@@ -13,7 +13,7 @@ Those must be properly filled (postal address and e-mail) whether you intend to 
 
 {% if addresses %}
 <table class="table table-striped">
-	<thead><tr><th>Name</th><th>Recipient</th><th>Address</th><th>Country</th><th>Created By</th><th>Delete</th></tr></thead>
+	<thead><tr><th>Name</th><th>Recipient</th><th>Address</th><th>Country</th><th>Created By</th><th>Edit</th><th>Delete</th></tr></thead>
 	<tbody>
 	{% for address in addresses %}
 	<tr><th>{{ address.name }}</th>
@@ -21,6 +21,7 @@ Those must be properly filled (postal address and e-mail) whether you intend to 
 		<td>{{ address.address|linebreaks }}</td>
 		<td>{{ address.verbose_country }}</td>
 		<td>{{ address.created_by.name }}</td>
+		<td><a href="{% url 'address_edit' address.id %}" class="btn btn-sm btn-secondary">Edit</a></td>
 		<td><a href="{% url 'address_delete' address.id %}" class="btn btn-sm btn-warning" data-toggle="confirmation" data-title="Delete this address?">Delete</a></td>
 	</tr>
 	{% endfor %}

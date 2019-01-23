@@ -58,6 +58,7 @@ urlpatterns = (
             ui.address_delete,
             name="address_delete",
         ),
+        path("addresses/<int:address_id>", ui.address_edit, name="address_edit"),
         path("addresses/new", ui.address_edit, name="address_new"),
         path("addresses/", ui.address_list, name="address_list"),
         # orders (ful)
