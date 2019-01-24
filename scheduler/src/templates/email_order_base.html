@@ -25,8 +25,8 @@
 	</tr>
 	<tr>
 		<th style="text-align: left;">Destination</th>
-		<td>{{ order.recipient.name }}, {{ order.recipient.phone }}<br />
-		{{ order.recipient.address|linebreaksbr}} – {{ order.recipient.country|country }}.<br />
+		<td>{{ order.recipient.name }}{% if order.recipient.phone %}, {{ order.recipient.phone }}{% endif %}<br />
+		{{ order.recipient.address|default("-", true)|linebreaksbr}} – {{ order.recipient.country|country|default("-", true) }}.<br />
 		<a href="mailto:{{ order.recipient.email }}">{{ order.recipient.email }}</a></td>
 	</tr>
 	<tr>

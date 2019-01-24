@@ -59,7 +59,10 @@ def language_name(language_code):
 
 
 def country_name(country_code):
-    return pycountry.countries.get(alpha_2=country_code).name
+    try:
+        return pycountry.countries.get(alpha_2=country_code).name
+    except Exception:
+        return None
 
 
 def normalize_newlines(text):
