@@ -68,7 +68,7 @@ class OrderForm(forms.Form):
         Media.VIRTUAL: "Download Link",
         Media.PHYSICAL: "Physical micro-SD Card(s)",
     }
-    VALIDITY_CHOICES = {x: "{} days".format(x * 5) for x in range(1, 11)}
+    # VALIDITY_CHOICES = {x: "{} days".format(x * 5) for x in range(1, 11)}
 
     def __init__(self, *args, **kwargs):
         client = kwargs.pop("client")
@@ -90,11 +90,7 @@ class OrderForm(forms.Form):
         choices=[],
         help_text="You can choose larger media size to add free space to your hotspot",
     )
-    quantity = forms.ChoiceField(
-        choices=VALIDITY_CHOICES.items(),
-        label="Quantity / Link validity",
-        help_text="Order copies or your Card or extend your download period",
-    )
+    quantity = forms.IntegerField(initial=1, min_value=1, max_value=10, help_text="Number of physical micro-SD cards you want")
 
     def VIRTUAL_CHOICES(self):
         return Media.get_choices(kind=Media.VIRTUAL)
@@ -121,6 +117,8 @@ class OrderForm(forms.Form):
         return media
 
     def clean_quantity(self):
+        if self.cleaned_data.get("kind") == Media.VIRTUAL:
+            return 1
         try:
             quantity = int(self.cleaned_data.get("quantity"))
         except Exception:
@@ -340,7 +338,7 @@ def order_new(request, kind=Media.VIRTUAL):
             organization=request.user.profile.organization
         ),
         "medias": Media.objects.all(),
-        "validity_choices": OrderForm.VALIDITY_CHOICES.items(),
+        "LINK_VALIDITY_DAYS": Media.EXPIRATION_DELAY,
     }
 
     # can't order without a config

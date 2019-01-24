@@ -642,7 +642,7 @@ class Media(models.Model):
     PHYSICAL = "physical"
     VIRTUAL = "virtual"
     KINDS = {PHYSICAL: "Physical", VIRTUAL: "Virtual"}
-    EXPIRATION_DELAY = 5
+    EXPIRATION_DELAY = 7
 
     class Meta:
         unique_together = (("kind", "size"),)
@@ -840,7 +840,7 @@ class Order(models.Model):
             return Order.FAILED
         if status in ("canceled", "timedout"):
             return Order.FAILED
-        if status == "shipped":
+        if status in ("shipped", "pending_expiry"):
             return Order.COMPLETED
 
         return Order.IN_PROGRESS

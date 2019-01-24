@@ -17,7 +17,7 @@
 	{% for order in orders %}
 	<tr><th><a href="{% url 'order_detail' order_min_id=order.min_id %}">{{ order.min_id }}</a></th>
 		<td>{{ order.data.config_name }}</td>
-		<td>{{ order.data.recipient.country|country }}</td>
+		<td>{{ order.data.recipient.country|country|default_if_none:"-" }}</td>
 		<td>{{ order.created_by.name }}</td>
 		<td>{{ order.created_on }}</td>
 		<td class="{{ order.status|status_color }}">{{ order.verbose_status }}</td>

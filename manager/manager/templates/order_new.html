@@ -48,18 +48,13 @@
 
 	dataset = {
 		address: {
-			{% for addr in addresses %}"{{ addr.id }}": {"name": "{{ addr.name }}", "virtualonly": "{{ addr.physical_compatible }}", "country": "{{ addr.country|country|default_if_none:"-" }}", "email": "{{ addr.email }}"},{% endfor %}
+			{% for addr in addresses %}"{{ addr.id }}": {"name": "{{ addr.name }}", "virtualonly": {% if addr.physical_compatible %}false{% else %}true{% endif %}, "country": "{{ addr.country|country|default_if_none:"-" }}", "email": "{{ addr.email }}"},{% endfor %}
 		},
 		config: {
 			{% for config in configurations %}"{{ config.id }}": {"name": "{{ config.name }}"},{% endfor %}
 		},
 		media: {
 			{% for media in medias %}"{{ media.id }}": {"units": {{ media.units }}, "name": "{{ media.name }}", "kind": "{{ media.kind }}"},{% endfor %}
-		},
-		choices: {
-			validity: {
-				{% for validity in validity_choices %}{{ validity.0 }}: {"validity": "{{ validity.1 }}", "quantity": "{{ validity.0 }}"},{% endfor %}
-			},
 		},
 		config_media: {
 			{% for config in configurations %}"{{ config.id }}": [{% for media in config.compatible_medias %}"{{ media.id }}", {% endfor %}],{% endfor %}
@@ -105,27 +100,8 @@
 		});
 	};
 
-	function reset_quantity_options_by_kind() {
-		let kind = get_select_element_value("kind");
-		console.debug("reset quantity list for", kind);
-		let quantity_select = get_select_element("quantity");
-		quantity_select.empty();
-		$.each(dataset.choices.validity, function (optkey, option) {
-			// virtual has only qty=3 max (15 days)
-			if (optkey <= 3 || kind == "physical") {
-				let elem = $("<option />");
-				elem.val(optkey);
-				elem.text((kind == "virtual") ? option.validity : option.quantity);
-				quantity_select.append(elem);
-			}
-		});
-	};
-
 	// summary auto-update
 	function updateSummary() {
-		if ($(this).attr("name") == "kind") {
-			reset_quantity_options_by_kind();
-		}
 		if ($(this).attr("name") == "kind" || $(this).attr("name") == "config") {
 			reset_media_options_by_kind();
 		}
@@ -145,14 +121,16 @@
 		
 		if (kind == "virtual") {
 			quantity_label = "Link validity";
-			quantity_name = dataset.choices.validity[quantity].validity;
+			quantity_name = "{{ LINK_VALIDITY_DAYS }} days";
 			recipient_label = recipient.name + " (" + recipient.email + ")";
+			cost = media_cost * 1;
 		} else {
 			quantity_name = quantity.toString() + " card";
 			quantity_name += (quantity > 1) ? "s" : "";
 			quantity_label = "Quantity";
 			recipient_label = recipient.name + " (" + recipient.country + ")";
 		}
+		$("#container_id_quantity").toggle(kind == "physical");
 		$(".media-name").text(media_size);
 		$(".config-name").text(config_name);
 		$(".quantity-label").text(quantity_label);
@@ -164,10 +142,7 @@
 		$(".cost").toggleClass("text-danger", (cost > dataset.balance));
 	}
 
-	//get_select_element("kind").on("change", reset_media_options_by_kind);
-	//get_select_element("config").on("change", remove_incompatible_media_options);
 	$("select").on("change", updateSummary);
-	//remove_incompatible_media_options();
-	//updateSummary();
+	$("input#id_quantity").on("change", updateSummary);
 	get_select_element("kind").change();
 {% endblock %}
