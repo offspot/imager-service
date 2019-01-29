@@ -24,18 +24,31 @@ def read_conf():
         sys.exit(1)
 
 
-def get_block_name(device_path):
-    """ current block device name for this hardware path """
+def get_block_name(device_id):
+    """ current block device name for this hardware ID """
     try:
+        block_path = Path(
+            subprocess.run(
+                [
+                    "find",
+                    "/sys/devices/pci0000:00/",
+                    "-wholename",
+                    "*/{}/block".format(device_id),
+                ],
+                universal_newlines=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            ).stdout.splitlines()[0]
+        )
         bn = [
             fname
-            for fname in os.listdir(device_path.joinpath("block"))
+            for fname in os.listdir(block_path)
             if fname.startswith("sd") or fname.startswith("mmcblk")
         ][0]
     except Exception as exp:
         logger.error(exp)
         return None
-    return device_path.joinpath("block", bn).name
+    return block_path.joinpath(bn).name
 
 
 def main():

@@ -58,7 +58,7 @@ class WriteTask(BaseTask):
         while (
             not self.canceled and get_task(self.task["_id"])[1]["status"] == "waiting_for_card"
         ):
-            self.logger.info("Waiting for the SD-card to be inserterd...")
+            self.logger.info("Waiting for the SD-card to be inserted...")
             time.sleep(60)
 
         self.logger.info("SD-card inserted. Checking size")

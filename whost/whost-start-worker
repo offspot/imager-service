@@ -6,18 +6,26 @@ then
 	exit 1
 fi
 
-WORKER=$1
-USB_SLOT=$2
-USB_DEVICE=$3
+WORKER=$1  # writer | downloader
+USB_SLOT=$2 # A | B | x | - (for downloader)
+USB_DEVICE=$3 # /dev/sde
 USERNAME=$4
 PASSWORD=$5
 API_URL=$6
-USB_PATH="/dev/sdcard"
+# USB_PATH="/dev/sdcard"
+USB_PATH="${USB_DEVICE}"
+WORKER_NAME="cardshop-worker-$WORKER"
+
+if [ "$WORKER" = "downloader" ] ; then
+	WORKER_NAME="${WORKER_NAME}"
+else
+	WORKER_NAME="${WORKER_NAME}-${USB_SLOT}"
+fi
 
 docker pull kiwix/cardshop-worker
 docker run --privileged \
-	--name cardshop-worker-$WORKER \
-	--device=${USB_DEVICE}:${USB_PATH} \
+	--name ${WORKER_NAME} \
+	-v /data:/data \
 	-e USB_PATH="${USB_PATH}" \
 	-e USB_SLOT="${USB_SLOT}" \
 	-e HOST_DEVICE="${USB_DEVICE}" \

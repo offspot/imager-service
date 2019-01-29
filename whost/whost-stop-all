@@ -33,6 +33,8 @@ def main():
     for container_id in running_containers:
         if subprocess.run(["docker", "stop", container_id]).returncode == 0:
             logger.info(".. stopped container: {}".format(container_id))
+            if subprocess.run(["docker", "rm", container_id]).returncode == 0:
+                logger.info(".. removed container: {}".format(container_id))
         else:
             logger.warn(".. failed to stop container: {}".format(container_id))
 

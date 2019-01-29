@@ -14,7 +14,7 @@ from whost.devices import (
     get_display_name,
     find_device,
     get_block_size,
-    get_device_path,
+    get_device_id,
     reset_writers,
 )
 
@@ -56,12 +56,12 @@ def add_device():
     cli.info("FOUND")
 
     # we now have a new DEVICE.
-    device_path = get_device_path(block_name)
+    device_id = get_device_id(block_name)
     slot = get_next_slot()
 
     # update configured writers list
     writers = read_conf().get("writers", {})
-    writers.update({slot: str(device_path)})
+    writers.update({slot: device_id})
     if update_conf({"writers": writers}):
         display_success(
             "Found your",
@@ -103,7 +103,7 @@ def configure_devices():
             cli.bold,
             "{slot}:/dev/{device}".format(**writer),
             cli.reset,
-            "({name} at {device_path})".format(**writer),
+            "({name} at {device_id})".format(**writer),
         )
     cli.info("")
 

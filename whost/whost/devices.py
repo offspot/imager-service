@@ -15,8 +15,8 @@ representing the device.
 /sys/devices path does not change so we store it in our config.
 
 find_device(): returns <block_name> for the sole SD-card present
-get_device_path(block_name): /sys/devices path
-get_block_name(device_path): block_name from stored device path
+get_device_id(block_name): USB device ID, 2:0:0:0
+get_block_name(device_id): block_name from stored device path, sdb
 """
 
 import os
@@ -31,16 +31,16 @@ BLOCK_PREFIX = Path("/sys/class/block")
 DEVICES_PREFIX = Path("/sys/devices")
 
 
-def get_writer(slot, device_path):
+def get_writer(slot, device_id):
     """ shortcut to retrieve device, slot and name when reading config """
-    device = get_block_name(Path(device_path))
+    device = get_block_name(device_id)
     if device is None:
         return None
     return {
         "device": device,
         "name": get_display_name(device),
         "slot": slot,
-        "device_path": Path(device_path),
+        "device_id": device_id,
     }
 
 
@@ -89,28 +89,64 @@ def _block_path(block_name):
     return BLOCK_PREFIX.joinpath(block_name)
 
 
-def _device_path(device_path):
-    return DEVICES_PREFIX.joinpath(device_path)
+# def _device_path(device_path):
+#     return DEVICES_PREFIX.joinpath(device_path)
 
 
-def get_device_path(block_name):
-    """ hardware path to this block device """
+# def get_device_path(block_name):
+#     """ hardware path to this block device """
+#     parts = _block_path(block_name).resolve().parts
+#     return _device_path("/".join(parts[3:-2]))
+
+
+def get_device_id(block_name):
+    """ USB id to this block device (2:0:0:1) """
     parts = _block_path(block_name).resolve().parts
-    return _device_path("/".join(parts[3:-2]))
+    device_id = parts[-3]
+    if device_id == "class":
+        raise OSError("Unable to find device ID for {}".format(block_name))
+    return device_id
 
 
-def get_block_name(device_path):
-    """ current block device name for this hardware path """
+def get_block_name(device_id):
+    """ current block device name for this hardware ID """
     try:
+        block_path = Path(
+            subprocess.run(
+                [
+                    "find",
+                    "/sys/devices/pci0000:00/",
+                    "-wholename",
+                    "*/{}/block".format(device_id),
+                ],
+                universal_newlines=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            ).stdout.splitlines()[0]
+        )
         bn = [
             fname
-            for fname in os.listdir(device_path.joinpath("block"))
+            for fname in os.listdir(block_path)
             if fname.startswith("sd") or fname.startswith("mmcblk")
         ][0]
     except Exception as exp:
         logger.error(exp)
         return None
-    return device_path.joinpath("block", bn).name
+    return block_path.joinpath(bn).name
+
+
+# def get_block_name_dp(device_path):
+#     """ current block device name for this hardware path """
+#     try:
+#         bn = [
+#             fname
+#             for fname in os.listdir(device_path.joinpath("block"))
+#             if fname.startswith("sd") or fname.startswith("mmcblk")
+#         ][0]
+#     except Exception as exp:
+#         logger.error(exp)
+#         return None
+#     return device_path.joinpath("block", bn).name
 
 
 def get_display_name(block_name):
