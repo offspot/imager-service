@@ -2,7 +2,10 @@ FROM tiangolo/uwsgi-nginx:python3.7
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone
-RUN apt-get update -y && apt-get -y install wkhtmltopdf cron
+RUN apt-get update -y && apt-get -y install cron
+RUN curl -O -L https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
+RUN apt-get install -y ./wkhtmltox_0.12.5-1.stretch_amd64.deb
+RUN wkhtmltopdf --version
 
 ENV MONGODB_URI mongo
 ENV MANAGER_ACCOUNT_PASSWORD manager
