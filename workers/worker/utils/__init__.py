@@ -121,8 +121,8 @@ def download_file(url, fpath):
 
 def get_sdcard_bytes(sdcard_path):
     try:
-        ps = subprocess.run(["/sbin/fdisk", "-l", sdcard_path])
-        line = ps.stdout.readlines()[0]
+        ps = subprocess.run(["/sbin/fdisk", "-l", sdcard_path], capture_output=True, text=True)
+        line = ps.stdout.splitlines()[0]
         return int(re.search("([0-9]+) bytes,", line).groups()[0])
     except Exception as exp:
         logger.error(exp)
