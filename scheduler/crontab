@@ -1,0 +1,4 @@
+SHELL=/bin/bash
+BASH_ENV=/container.env
+
+* * * * * /usr/local/bin/python /app/periodic-tasks.py > /proc/1/fd/1 2>/proc/1/fd/2

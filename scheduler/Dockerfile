@@ -28,7 +28,8 @@ RUN pip install -r /app/requirements.txt
 ENV UWSGI_INI /app/uwsgi.ini
 WORKDIR /app
 
-RUN echo "* * * * */5 /usr/local/bin/python /app/periodic-tasks.py > /proc/1/fd/1 2>/proc/1/fd/2\n" > /etc/cron.d/scheduler-cron
+RUN touch /container.env
+COPY crontab /etc/cron.d/scheduler-cron
 RUN chmod 0644 /etc/cron.d/scheduler-cron
 RUN crontab /etc/cron.d/scheduler-cron
 
