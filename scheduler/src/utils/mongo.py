@@ -51,6 +51,10 @@ class Users(BaseCollection):
     def by_username(cls, username):
         return cls().find_one({"username": username})
 
+    @classmethod
+    def get_manager(cls):
+        return cls().find_one({"role": cls.MANAGER_ROLE})
+
 
 class RefreshTokens(BaseCollection):
     def __init__(self):
@@ -402,6 +406,13 @@ class Orders(BaseCollection):
         cls().update_one({"_id": ObjectId(order_id)}, {"$set": update})
         cls().update_status(order_id, Orders.shipped)
 
+    @classmethod
+    def all_pending_expiry(cls):
+        return [
+            cls().get(res["_id"])
+            for res in cls().find({"status": cls.pending_expiry}, {"_id": 1})
+        ]
+
 
 class Tasks(BaseCollection):
 
@@ -425,6 +436,7 @@ class Tasks(BaseCollection):
     pending_image_removal = "pending_image_removal"
     downloaded_failed_to_remove = "downloaded_failed_to_remove"
     downloaded_and_removed = "downloaded_and_removed"
+    expired = "expired"
 
     # write
     waiting_for_card = "waiting_for_card"
@@ -480,6 +492,7 @@ class Tasks(BaseCollection):
         downloaded,
         pending_image_removal,
         downloaded_and_removed,
+        expired,
     ]
     WRITER_SUCCESS_STATUSES = [written]
     SUCCESS_STATUSES = CREATOR_SUCCESS_STATUSES + WRITER_SUCCESS_STATUSES
