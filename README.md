@@ -18,7 +18,7 @@ Must be on a powerful computer with lots of space (300G to build 256G images).
 
 ## Downloader
 
-`downloader`: A container downloading images from the warehouse so it can be written by a `writer` worker (shares same credentials with writer – must be on same computer).
+`downloader`: A container downloading images from the warehouse so it can be written by a `writer` worker (shares credentials with writer – must be on same computer).
 
 ## Writer
 
@@ -32,14 +32,14 @@ A non-docker tool installed on the Writers' host to configure and manage the wor
 * Configuration for:
  - network
  - authentication
- - SD-card writers
+ - SD-card writers (USB device to Name association)
 * Auto start of `downloader` and `writer` containers.
 
-Must be physically accessible, no much power required, large space (256G per worker on host).
+Must be physically accessible, CPU doesn't matter, large space (256G per worker on host).
 
 ## Manager
 
-`manager`: A container providing a UI to take orders and manage users.
+`manager`: A container providing a UI to create orders and manage users. Technically optional.
 
 ## Scheduler
 
