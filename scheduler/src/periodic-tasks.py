@@ -2,14 +2,16 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
+import os
 import logging
 import datetime
 import subprocess
 
+import requests
 import humanfriendly
 
 from emailing import send_order_failed_email
-from utils.mongo import Orders, Tasks, Users, AccessToken
+from utils.mongo import Orders, Tasks
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -33,8 +35,22 @@ def is_expired(status, since, size=0):
 def remove_image(image_fname, upload_uri):
 
     # use manager credentials to be able to delete files over FTP
-    user = Users().get_manager()
-    access_token = AccessToken.encode(user)
+    username = "manager"
+    req = requests.post(
+        url="{api_url}/auth/authorize".format(
+            api_url=os.getenv("CARDSHOP_API_INTERNAL_URL")
+        ),
+        headers={
+            "username": "manager",
+            "password": os.getenv("MANAGER_API_KEY"),
+            "Content-type": "application/json",
+        },
+    )
+    try:
+        req.raise_for_status()
+    except Exception:
+        return False
+    access_token = req.json().get("access_token")
 
     args = [
         "/usr/bin/curl",
@@ -50,7 +66,7 @@ def remove_image(image_fname, upload_uri):
         "--stderr",
         "-",
         "--user",
-        "{user}:{passwd}".format(user=user["username"], passwd=access_token),
+        "{user}:{passwd}".format(user=username, passwd=access_token),
         upload_uri,
         "-Q",
         "-DELE {}".format(image_fname),
@@ -144,13 +160,15 @@ def run_periodic_tasks():
         if not order["sd_card"]["expiration"] < now:
             continue  # expiration not reached
 
-        logger.info("Order #{} has reach expiration; deleting file")
+        logger.info(
+            "Order #{} has reach expiration. deleting file".format(order["_id"])
+        )
         order_fname = "{}.img".format(order["_id"])
 
         # actually delete file
         if remove_image(order_fname, order["warehouse"]["upload_uri"]):
             # update order (all done)
-            order.update_status(order["_id"], Orders.expired)
+            Orders().update_status(order["_id"], Orders.expired)
         else:
             logger.error("Failed to remove expired file {}".format(order_fname))
 
