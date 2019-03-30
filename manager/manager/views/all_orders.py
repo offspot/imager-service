@@ -121,7 +121,7 @@ def order_log(request, order_id, step, kind, index=None, fmt="txt"):
     ):
         raise Http404("`{}` log does not exists".format(kind))
 
-    retrieved, order = get_order(order_id)
+    retrieved, order = get_order(order_id, with_logs=True)
     if not retrieved:
         raise Http404(order)
 

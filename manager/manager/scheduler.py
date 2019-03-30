@@ -87,10 +87,10 @@ def get_token_headers():
 
 
 @auth_required
-def query_api(method, path, payload=None):
+def query_api(method, path, payload=None, params=None):
     try:
         req = getattr(requests, method.lower(), "get")(
-            url=get_url(path), headers=get_token_headers(), json=payload
+            url=get_url(path), headers=get_token_headers(), json=payload, params=params
         )
     except Exception as exp:
         return (False, "ConnectionError", "ConnectionErrorL -- {}".format(exp))
@@ -336,8 +336,10 @@ def delete_order(order_id):
 
 
 @auth_required
-def get_order(order_id):
-    success, code, response = query_api(GET, "/orders/{id}".format(id=order_id))
+def get_order(order_id, with_logs=False):
+    success, code, response = query_api(
+        GET, "/orders/{id}".format(id=order_id), params={"with_logs": with_logs}
+    )
     return success, response
 
 
