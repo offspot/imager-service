@@ -72,7 +72,8 @@ def collection(user: dict):
 def document(order_id: ObjectId, user: dict):
     """ fetch indiviual order info or cancel it """
     if request.method == "GET":
-        order = Orders.get_with_tasks(order_id)
+        with_logs = request.args.get("with_logs", default=False, type=bool)
+        order = Orders.get_with_tasks(order_id, with_logs=with_logs)
         if order is None:
             raise errors.NotFound()
 

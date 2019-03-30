@@ -254,9 +254,10 @@ class Orders(BaseCollection):
         super().__init__(Database(), "orders")
 
     @classmethod
-    def get(cls, order_id, projection={"logs": 0}):
+    def get(cls, order_id, with_logs=False):
         order = cls().find_one(
-            {"_id": ensure_objectid(order_id)}, projection=projection
+            {"_id": ensure_objectid(order_id)},
+            projection={"logs": 0} if not with_logs else None,
         )
         if order is None:
             raise ValueError(
@@ -265,20 +266,27 @@ class Orders(BaseCollection):
         return order
 
     @classmethod
-    def get_tasks(cls, order_id):
+    def get_tasks(cls, order_id, with_logs=False):
         order = cls().get(order_id, {"tasks": 1})
         return {
-            "create": CreatorTasks().get(order["tasks"].get("create")),
-            "download": DownloaderTasks().get(order["tasks"].get("download")),
+            "create": CreatorTasks().get(
+                order["tasks"].get("create"), with_logs=with_logs
+            ),
+            "download": DownloaderTasks().get(
+                order["tasks"].get("download"), with_logs=with_logs
+            ),
             "write": [
-                WriterTasks().get(task) for task in order["tasks"].get("write", [])
+                WriterTasks().get(task, with_logs=with_logs)
+                for task in order["tasks"].get("write", [])
             ],
         }
 
     @classmethod
-    def get_with_tasks(cls, order_id, projection={"logs": 0}):
-        order = cls().get(order_id, projection=projection)
-        order["tasks"].update(cls().get_tasks(order_id))
+    def get_with_tasks(cls, order_id, with_logs=False):
+        order = cls().get(order_id, with_logs=with_logs)
+        if order is None:
+            return order
+        order["tasks"].update(cls().get_tasks(order_id, with_logs=with_logs))
         return order
 
     @classmethod
@@ -498,8 +506,11 @@ class Tasks(BaseCollection):
     SUCCESS_STATUSES = CREATOR_SUCCESS_STATUSES + WRITER_SUCCESS_STATUSES
 
     @classmethod
-    def get(cls, task_id, projection=None):
-        return cls().find_one({"_id": ensure_objectid(task_id)}, projection)
+    def get(cls, task_id, with_logs=False):
+        return cls().find_one(
+            {"_id": ensure_objectid(task_id)},
+            projection={"logs": 0} if not with_logs else None,
+        )
 
     @classmethod
     def cascade_status(cls, task_id, task_status):
