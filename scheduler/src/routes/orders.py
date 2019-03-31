@@ -2,6 +2,7 @@
 import datetime
 
 from bson import ObjectId
+from distutils.util import strtobool
 from flask import Blueprint, request, jsonify, render_template
 from jsonschema import validate, ValidationError
 
@@ -15,6 +16,10 @@ from . import authenticate, bson_object_id, errors, only_for_roles
 
 
 blueprint = Blueprint("order", __name__, url_prefix="/orders")
+
+
+def string_to_bool(string):
+    return bool(strtobool(str(string)))
 
 
 @blueprint.route("/", methods=["GET", "POST"])
@@ -69,10 +74,10 @@ def collection(user: dict):
 @authenticate
 @only_for_roles(roles=Users.MANAGER_ROLE)
 @bson_object_id(["order_id"])
-def document(order_id: ObjectId, user: dict):
+def document(order_id: ObjectId):
     """ fetch indiviual order info or cancel it """
     if request.method == "GET":
-        with_logs = request.args.get("with_logs", default=False, type=bool)
+        with_logs = request.args.get("with_logs", default=False, type=string_to_bool)
         order = Orders.get_with_tasks(order_id, with_logs=with_logs)
         if order is None:
             raise errors.NotFound()
