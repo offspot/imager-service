@@ -5,10 +5,26 @@ RUN echo "UTC" > /etc/timezone
 RUN apt-get update && apt-get install -y sudo curl unzip udisks2 exfat-fuse exfat-utils xz-utils bzip2 gzip
 RUN pip3 install -U pip
 
-COPY assets/aria2c_linux-static_v1.34.0 /usr/bin/aria2c
-COPY assets/kiwix-hotspot_linux-static_v2.0.3 /usr/bin/kiwix-hotspot
-COPY assets/etcher_linux-static_v1.4.8.zip /usr/local
-RUN cd /usr/local/ && unzip etcher_linux-static_v1.4.8 && cd -
+# https://github.com/q3aql/aria2-static-builds/releases
+RUN curl -LO https://github.com/q3aql/aria2-static-builds/releases/download/v1.34.0/aria2-1.34.0-linux-gnu-64bit-build1.tar.bz2
+RUN tar xf aria2-1.34.0-linux-gnu-64bit-build1.tar.bz2 && mv aria2-1.34.0-linux-gnu-64bit-build1/aria2c /usr/bin/aria2c
+RUN rm -rf aria2-1.34.0-linux-gnu-64bit-build1 aria2-1.34.0-linux-gnu-64bit-build1.tar.bz2
+
+# kiwix-hotspot
+RUN curl -LO http://download.kiwix.org/release/kiwix-hotspot/v2.0.5/kiwix-hotspot-linux.tar.gz
+RUN tar xf kiwix-hotspot-linux.tar.gz && mv kiwix-hotspot /usr/bin/kiwix-hotspot
+RUN rm -f kiwix-hotspot-linux.tar.gz
+
+# etcher-cli (abandonned in 1.5.0+)
+RUN curl -LO https://github.com/balena-io/etcher/releases/download/v1.4.9/balena-etcher-cli-1.4.9-linux-x64.tar.gz
+RUN tar xf balena-etcher-cli-1.4.9-linux-x64.tar.gz && mv balena-etcher-cli-1.4.9-linux-x64-dist /usr/local/etcher
+
+RUN echo "--- dependencies version:"
+RUN /usr/bin/curl --version
+RUN /usr/bin/aria2c --version
+RUN /usr/bin/kiwix-hotspot --version
+RUN /usr/local/etcher/balena-etcher --version
+RUN echo "------"
 
 VOLUME /data
 ENV WORKING_DIR "/data"
