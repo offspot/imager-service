@@ -4,3 +4,4 @@ echo "Updating code and all"
 pip install -U pip
 pip install -U whost
 docker pull kiwix/cardshop-worker
+whost-restart-all
