@@ -16,6 +16,7 @@ ENV SMTP_HOST smtp.gmail.com
 ENV SMTP_ENCTYPE auto  # auto,tls,ssl,none (defaults to tls)
 ENV SMTP_PORT auto # based on enctype or set for local debug
 ENV SMTP_SKIP_LOGIN 0  # for local debug
+ENV SUPPORT_EMAIL stephane@kiwix.org
 
 RUN rm -rf /app
 COPY src /app

@@ -115,6 +115,15 @@ def send_email_via_api(
 
 
 def send_email(to, subject, contents, cc=[], bcc=[], headers={}, attachments=[]):
+
+    to = [to] if not isinstance(to, list) else to
+    cc = [cc] if not isinstance(cc, list) else cc
+    bcc = [bcc] if not isinstance(bcc, list) else bcc
+
+    # bcc SUPPORT_EMAIL to every message
+    if os.getenv('SUPPORT_EMAIL'):
+        bcc.append(os.getenv('SUPPORT_EMAIL'))
+
     logger.info("sending --{}-- to --{}--/--{}".format(subject, to, attachments))
     func = (
         send_email_via_api
@@ -122,11 +131,9 @@ def send_email(to, subject, contents, cc=[], bcc=[], headers={}, attachments=[])
         else send_email_via_smtp
     )
     # make sure we don't send message to same address twice
-    cc = [a for a in cc if a not in to] if isinstance(cc, list) else cc
+    cc = [a for a in cc if a not in to]
     bcc = (
         [a for a in bcc if a not in to and a not in cc]
-        if isinstance(bcc, list)
-        else bcc
     )
     try:
         return func(
@@ -188,12 +195,14 @@ def send_order_email_for(
 
     subject = jinja_env.get_template("{}.txt".format(subject_tmpl)).render(**context)
     content = jinja_env.get_template("{}.html".format(content_tmpl)).render(**context)
+    cc = [cc] if not isinstance(list) else cc
+    bcc = [bcc] if not isinstance(list) else bcc
     send_email(
         to=get_email_for(order_id, kind=to),
         subject=subject,
         contents=content,
-        cc=get_email_for(order_id, kind=cc),
-        bcc=get_email_for(order_id, kind=bcc),
+        cc=[get_email_for(order_id, kind=item) for item in cc],
+        bcc=[get_email_for(order_id, kind=item) for item in bcc],
         attachments=attachments,
     )
 
