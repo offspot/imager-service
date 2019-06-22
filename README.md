@@ -2,7 +2,7 @@
 
 Cardshop is a solution for semi-automation of SD-cards creation using a central scheduler, creator workers (to create image files), downloader workers and writer workers (to write images onto real SD-cards).
 
-Contact kelson@kiwix.org regarding actual deployment.
+Contact contact+zimfarm@kiwix.org regarding actual deployment.
 
 Architecture is based on [zimfarm](https://github.com/openzim/zimfarm)'s
 
