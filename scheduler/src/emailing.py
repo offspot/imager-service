@@ -195,8 +195,8 @@ def send_order_email_for(
 
     subject = jinja_env.get_template("{}.txt".format(subject_tmpl)).render(**context)
     content = jinja_env.get_template("{}.html".format(content_tmpl)).render(**context)
-    cc = [cc] if not isinstance(list) else cc
-    bcc = [bcc] if not isinstance(list) else bcc
+    cc = [cc] if not isinstance(cc, list) else cc
+    bcc = [bcc] if not isinstance(bcc, list) else bcc
     send_email(
         to=get_email_for(order_id, kind=to),
         subject=subject,
