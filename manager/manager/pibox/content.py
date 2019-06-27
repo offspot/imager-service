@@ -199,7 +199,7 @@ def get_package_content(package_id):
             package.update({"langid": package.get("langid") or package_id})
             return {
                 "url": package["url"],
-                "name": "package_{langid}-{version}.{ext}".format(**package),
+                "name": "{langid}.{ext}".format(**package),
                 "checksum": package["sha256sum"],
                 "archive_size": package["size"],
                 # add a 10% margin for non-zim (zip file mostly)
@@ -282,8 +282,8 @@ def get_expanded_size(collection):
             for item in get_all_contents_for(collection)
         ]
     )
-    # add a 5% margin ; make sure it's at least 2GB
-    margin = min([2 * ONE_GiB, total_size * 0.05])
+    # add a 2% margin ; make sure it's at least 2GB
+    margin = max([2 * ONE_GiB, total_size * 0.02])
     return total_size + margin
 
 
