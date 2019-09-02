@@ -2,9 +2,13 @@ FROM tiangolo/uwsgi-nginx:python3.7
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone
-RUN apt-get update -y && apt-get -y install cron curl
-RUN curl -O -L https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
-RUN apt-get install -y ./wkhtmltox_0.12.5-1.stretch_amd64.deb
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends cron curl xfonts-75dpi xfonts-base && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+RUN curl -O -L https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb && \
+    apt-get install -y --no-install-recommends ./wkhtmltox_0.12.5-1.stretch_amd64.deb && \
+    rm ./wkhtmltox_0.12.5-1.stretch_amd64.deb
 RUN wkhtmltopdf --version
 
 ENV MONGODB_URI mongo
