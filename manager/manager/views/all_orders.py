@@ -2,15 +2,12 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
-
 import logging
 
 from django.http import Http404, HttpResponse
 from django.conf import settings
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from ansi2html import Ansi2HTMLConverter
 
@@ -18,14 +15,18 @@ from manager.models import OrderData
 from manager.decorators import staff_required
 from manager.scheduler import (
     test_connection,
-    as_items_or_none,
-    get_orders_list,
     delete_order,
     get_order,
-    get_task,
 )
+from manager.views.common import APIQuerySet
 
 logger = logging.getLogger(__name__)
+
+
+class OrdersQuerySet(APIQuerySet):
+
+    def process(self, results):
+        return [OrderData(order) for order in super().process(results)]
 
 
 @staff_required
@@ -43,12 +44,15 @@ def list(request):
         )
         return redirect("admin")
 
-    orders = sorted(
-        [OrderData(order) for order in as_items_or_none(*get_orders_list())],
-        key=lambda item: item["statuses"][0]["on"],
-        reverse=True,
-    )
-    context = {"orders": orders or None}
+    items = OrdersQuerySet("/orders/")
+    page = request.GET.get("page")
+    paginator = Paginator(items, 10)
+    orders_page = paginator.get_page(page)
+
+    context = {
+        "orders_page": orders_page,
+        "orders": orders_page.object_list,
+    }
 
     if success:
         messages.set_level(request, messages.DEBUG)
