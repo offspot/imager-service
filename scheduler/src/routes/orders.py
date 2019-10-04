@@ -1,6 +1,6 @@
-
 import datetime
 
+import pymongo
 from bson import ObjectId
 from distutils.util import strtobool
 from flask import Blueprint, request, jsonify, render_template
@@ -37,11 +37,21 @@ def collection(user: dict):
         skip = 0 if skip < 0 else skip
         limit = 20 if limit <= 0 else limit
 
-        orders = [
-            Orders.get(order.get("_id")) for order in Orders().find({}, {"_id": 1})
-        ]
+        query = {}
+        projection = {"_id": 1}
+        cursor = (
+            Orders()
+            .find(query, projection)
+            .sort([("$natural", pymongo.DESCENDING)])
+            .skip(skip)
+            .limit(limit)
+        )
+        count = Orders().count_documents(query)
+        orders = [Orders.get(order.get("_id")) for order in cursor]
 
-        return jsonify({"meta": {"skip": skip, "limit": limit}, "items": orders})
+        return jsonify(
+            {"meta": {"skip": skip, "limit": limit, "count": count}, "items": orders}
+        )
     elif request.method == "POST":
 
         # validate request json

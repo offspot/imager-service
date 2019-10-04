@@ -1,10 +1,17 @@
+import pymongo
 from bson import ObjectId
 from flask import Blueprint, request, jsonify, Response
 from jsonschema import validate, ValidationError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from utils.mongo import Users
-from . import authenticate, bson_object_id, errors, ensure_user_matches_role, only_for_roles
+from . import (
+    authenticate,
+    bson_object_id,
+    errors,
+    ensure_user_matches_role,
+    only_for_roles,
+)
 
 
 blueprint = Blueprint("user", __name__, url_prefix="/users")
@@ -28,10 +35,21 @@ def collection(user: dict):
         limit = 20 if limit <= 0 else limit
 
         # get users from database
-        cursor = Users().find({}, {"password_hash": 0})
+        query = {}
+        projection = {"password_hash": 0}
+        cursor = (
+            Users()
+            .find(query, projection)
+            .sort([("$natural", pymongo.ASCENDING)])
+            .skip(skip)
+            .limit(limit)
+        )
+        count = Users().count_documents(query)
         users = [user for user in cursor]
 
-        return jsonify({"meta": {"skip": skip, "limit": limit}, "items": users})
+        return jsonify(
+            {"meta": {"skip": skip, "limit": limit, "count": count}, "items": users}
+        )
     elif request.method == "POST":
         # check user permission
         ensure_user_matches_role(user, Users.MANAGER_ROLE)

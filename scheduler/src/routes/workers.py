@@ -1,4 +1,4 @@
-
+import pymongo
 from flask import Blueprint, request, jsonify
 from jsonschema import ValidationError
 
@@ -21,10 +21,21 @@ def collection(user: dict):
     skip = 0 if skip < 0 else skip
     limit = 20 if limit <= 0 else limit
 
-    cursor = Acknowlegments().find({})
-    workers = [user for user in cursor]
+    query = {}
+    projection = None
+    cursor = (
+        Acknowlegments()
+        .find(query, projection)
+        .sort([("$natural", pymongo.ASCENDING)])
+        .skip(skip)
+        .limit(limit)
+    )
+    count = Acknowlegments().count_documents(query)
+    workers = [worker for worker in cursor]
 
-    return jsonify({"meta": {"skip": skip, "limit": limit}, "items": workers})
+    return jsonify(
+        {"meta": {"skip": skip, "limit": limit, "count": count}, "items": workers}
+    )
 
 
 @blueprint.route("/sos", methods=["POST"])

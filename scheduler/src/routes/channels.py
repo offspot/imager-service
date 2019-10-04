@@ -1,3 +1,4 @@
+import pymongo
 from bson import ObjectId
 from flask import Blueprint, request, jsonify, Response
 from jsonschema import validate, ValidationError
@@ -32,10 +33,21 @@ def collection(user: dict):
         skip = 0 if skip < 0 else skip
         limit = 20 if limit <= 0 else limit
 
-        # get users from database
-        channels = [channel for channel in Channels().find()]  # TODO: apply filters
+        query = {}
+        projection = None
+        cursor = (
+            Channels()
+            .find(query, projection)
+            .sort([("$natural", pymongo.ASCENDING)])
+            .skip(skip)
+            .limit(limit)
+        )
+        count = Channels().count_documents(query)
+        channels = [channel for channel in cursor]
 
-        return jsonify({"meta": {"skip": skip, "limit": limit}, "items": channels})
+        return jsonify(
+            {"meta": {"skip": skip, "limit": limit, "count": count}, "items": channels}
+        )
     elif request.method == "POST":
         # check user permission
         ensure_user_matches_role(user, Users.MANAGER_ROLE)
