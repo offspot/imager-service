@@ -12,7 +12,7 @@ class APIQuerySet(object):
         self.method = method
         self.query = query
         self.params = params
-        self.count = None
+        self.count = 0
         self.execute()
 
     def execute(self, skip=None, limit=None):
@@ -23,7 +23,8 @@ class APIQuerySet(object):
             self.count = response["meta"]["count"]
             return self.process(response.get("items", []))
         else:
-            return None
+            self.count = 0
+            return []
 
     def __len__(self):
         return self.count
@@ -34,7 +35,7 @@ class APIQuerySet(object):
     def __getitem__(self, sliced):
         start = sliced.start or 0
         stop = sliced.stop
-        limit = (sliced.stop - sliced.start) if stop else None
+        limit = (stop - start) if stop else None
         return self.execute(skip=start, limit=limit)
 
     def process(self, results):
