@@ -180,6 +180,11 @@ class Configuration(models.Model):
         verbose_name="EduPi Resources",
         help_text="ZIP folder archive of documents to initialize EduPi with",
     )
+    content_nomad = models.BooleanField(
+        default=False,
+        verbose_name="NomadEducation",
+        help_text="Digital Schools Android App",
+    )
 
     @classmethod
     def create_from(cls, config, author):
@@ -259,6 +264,7 @@ class Configuration(models.Model):
             "content_edupi_resources": get_if_str(
                 get_nested_key(config, ["content", "edupi_resources"])
             ),
+            "content_nomad": bool(get_nested_key(config, ["content", "nomad"])),
         }
 
         try:
@@ -364,6 +370,7 @@ class Configuration(models.Model):
         return get_collection(
             edupi=self.content_edupi,
             edupi_resources=self.content_edupi_resources or None,
+            nomad=self.content_nomad,
             packages=self.content_zims or [],
             kalite_languages=self.kalite_languages,
             wikifundi_languages=self.wikifundi_languages,
@@ -400,6 +407,7 @@ class Configuration(models.Model):
                             ("aflatoun", self.content_aflatoun),
                             ("edupi", self.content_edupi),
                             ("edupi_resources", self.content_edupi_resources),
+                            ("nomad", self.content_nomad),
                         ]
                     ),
                 ),

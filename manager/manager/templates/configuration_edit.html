@@ -103,9 +103,10 @@
 		<div class="form-row visual-group">
 			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_edupi type="checkbox" size="10 MiB" %}
+				{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
 			</div>
 			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
+				{% include "_input_field.html" with field=form.content_nomad type="checkbox" size="40 MiB" %}
 			</div>
 			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_aflatoun type="checkbox" size="3.67GiB" %}
@@ -178,6 +179,7 @@
 {% block javascript %}
 	var edupi_id = "{{ form.content_edupi.id_for_label }}";
 	var edupi_resources_id = "{{ form.content_edupi_resources.id_for_label }}";
+	var nomad_id = "{{ form.content_nomad.id_for_label }}";
 	var aflatoun_id = "{{ form.content_aflatoun.id_for_label }}";
 	var kalite_fr_id = "{{ form.content_kalite_fr.id_for_label }}";
 	var kalite_en_id = "{{ form.content_kalite_en.id_for_label }}";
@@ -383,6 +385,7 @@
 		let config = {
 			edupi: $('#' + edupi_id).is(':checked'),
 			edupi_resources: $('#' + edupi_resources_id).val(),
+			nomad: $('#' + nomad_id).is(':checked'),
 			aflatoun: $('#' + aflatoun_id).is(':checked'),
 			kalite: [],
 			wikifundi: [],

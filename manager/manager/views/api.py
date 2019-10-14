@@ -66,6 +66,7 @@ def required_size_for_config(request):
     collection = get_collection(
         edupi=data.get("edupi", False),
         edupi_resources=data.get("edupi_resources", None),
+        nomad=data.get("nomad", False),
         packages=data.get("packages", []),
         kalite_languages=data.get("kalite", []),
         wikifundi_languages=data.get("wikifundi", []),

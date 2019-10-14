@@ -49,6 +49,7 @@ class ConfigurationForm(forms.ModelForm):
             "content_aflatoun",
             "content_edupi",
             "content_edupi_resources",
+            "content_nomad",
         ]
 
 
