@@ -32,19 +32,6 @@ if not len(YAML_CATALOGS):
         raise
     cache_set("YAML_CATALOGS", YAML_CATALOGS)
 
-ideascube_languages = collections.OrderedDict(
-    [
-        ("am", "አማርኛ"),
-        ("ar", "\u0627\u0644\u0639\u0631\u0628\u064a\u0651\u0629"),
-        ("bm", "Bambara"),
-        ("en", "English"),
-        ("es", "Espa\xf1ol"),
-        ("fa-ir", "فارسی"),
-        ("fr", "Fran\xe7ais"),
-        ("ku", "Kurdî"),
-        ("so", "Af-soomaali"),
-        ("sw", "Kiswahili"),
-    ]
-)
+hotspot_languages = [("en", u"English"), ("fr", u"Fran\xe7ais")]
 
 MIRROR = "http://mirror.download.kiwix.org"

@@ -28,7 +28,7 @@ from manager.scheduler import (
     cancel_order,
 )
 from manager.pibox.packages import get_packages_id
-from manager.pibox.data import ideascube_languages
+from manager.pibox.data import hotspot_languages
 from manager.pibox.util import (
     ONE_GB,
     b64encode,
@@ -97,7 +97,7 @@ class Configuration(models.Model):
     )
     language = models.CharField(
         max_length=3,
-        choices=ideascube_languages.items(),
+        choices=hotspot_languages,
         default="en",
         help_text="Hotspot interface language",
     )
