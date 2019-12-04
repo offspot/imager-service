@@ -1,4 +1,4 @@
-Django==2.2.4
+Django==2.2.8
 humanfriendly==4.12.1
 langcodes==1.4.1
 python-magic==0.4.15
