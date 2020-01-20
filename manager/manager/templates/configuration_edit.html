@@ -95,20 +95,23 @@
   	<div class="tab-pane fade" id="contents" role="tabpanel" aria-labelledby="contents-tab">
   		{% if form.content_zims.errors %}<div class="alert alert-danger">Your selection has errors: {{ form.content_zims.errors }}</div>{% endif %}
   		<input type="hidden" id="{{ form.content_zims.id_for_label }}" class="form-control" 
-  			   value="{{ form.content_zims.value|default_if_none:"" }}"
+  			   value="{{ form.content_zims.value|default_if_none:'' }}"
   			   name="{{ form.content_zims.html_name }}"/>
 
 
   		<h3>Interactive Tools</h3>
 		<div class="form-row visual-group">
-			<div class="form-group col-md-4">
+			<div class="form-group col-md-3">
 				{% include "_input_field.html" with field=form.content_edupi type="checkbox" size="10 MiB" %}
 				{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
 			</div>
-			<div class="form-group col-md-4">
+			<div class="form-group col-md-3">
 				{% include "_input_field.html" with field=form.content_nomad type="checkbox" size="50 MiB" %}
 			</div>
-			<div class="form-group col-md-4">
+			<div class="form-group col-md-3">
+				{% include "_input_field.html" with field=form.content_mathews type="checkbox" size="50 MiB" %}
+			</div>
+			<div class="form-group col-md-3">
 				{% include "_input_field.html" with field=form.content_aflatoun type="checkbox" size="3.67GiB" %}
 			</div>
 		</div>
@@ -180,6 +183,7 @@
 	var edupi_id = "{{ form.content_edupi.id_for_label }}";
 	var edupi_resources_id = "{{ form.content_edupi_resources.id_for_label }}";
 	var nomad_id = "{{ form.content_nomad.id_for_label }}";
+	var mathews_id = "{{ form.content_mathews.id_for_label }}";
 	var aflatoun_id = "{{ form.content_aflatoun.id_for_label }}";
 	var kalite_fr_id = "{{ form.content_kalite_fr.id_for_label }}";
 	var kalite_en_id = "{{ form.content_kalite_en.id_for_label }}";
@@ -386,6 +390,7 @@
 			edupi: $('#' + edupi_id).is(':checked'),
 			edupi_resources: $('#' + edupi_resources_id).val(),
 			nomad: $('#' + nomad_id).is(':checked'),
+			mathews: $('#' + mathews_id).is(':checked'),
 			aflatoun: $('#' + aflatoun_id).is(':checked'),
 			kalite: [],
 			wikifundi: [],

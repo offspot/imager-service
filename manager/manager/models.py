@@ -185,6 +185,11 @@ class Configuration(models.Model):
         verbose_name="NomadEducation",
         help_text="Digital Schools Android App",
     )
+    content_mathews = models.BooleanField(
+        default=False,
+        verbose_name="Math Mathews",
+        help_text="Math Mathews Android App",
+    )
 
     @classmethod
     def create_from(cls, config, author):
@@ -265,6 +270,7 @@ class Configuration(models.Model):
                 get_nested_key(config, ["content", "edupi_resources"])
             ),
             "content_nomad": bool(get_nested_key(config, ["content", "nomad"])),
+            "content_mathews": bool(get_nested_key(config, ["content", "mathews"])),
         }
 
         try:
@@ -371,6 +377,7 @@ class Configuration(models.Model):
             edupi=self.content_edupi,
             edupi_resources=self.content_edupi_resources or None,
             nomad=self.content_nomad,
+            mathews=self.content_mathews,
             packages=self.content_zims or [],
             kalite_languages=self.kalite_languages,
             wikifundi_languages=self.wikifundi_languages,
@@ -408,6 +415,7 @@ class Configuration(models.Model):
                             ("edupi", self.content_edupi),
                             ("edupi_resources", self.content_edupi_resources),
                             ("nomad", self.content_nomad),
+                            ("mathews", self.content_mathews),
                         ]
                     ),
                 ),

@@ -78,6 +78,7 @@ def get_collection(
     edupi=False,
     edupi_resources=None,
     nomad=False,
+    mathews=False,
     packages=[],
     kalite_languages=[],
     wikifundi_languages=[],
@@ -117,6 +118,16 @@ def get_collection(
     if nomad:
         collection.append(
             ("NomadEducation", get_nomad_contents, run_nomad_actions, {"enable": nomad})
+        )
+
+    if mathews:
+        collection.append(
+            (
+                "MathMathews",
+                get_mathews_contents,
+                run_mathews_actions,
+                {"enable": mathews},
+            )
         )
 
     if len(packages):
@@ -179,6 +190,11 @@ def get_nomad_contents(enable=False):
     return [get_content("nomad_apk")]
 
 
+def get_mathews_contents(enable=False):
+    """ mathews: only contains one APK """
+    return [get_content("mathews_apk")]
+
+
 def get_kalite_contents(languages=[]):
     """ kalite: medium lang packs and huge tarball of videos for each lang """
 
@@ -239,6 +255,11 @@ def run_edupi_actions(
 
 def run_nomad_actions(cache_folder, mount_point, logger, enable=False):
     return
+
+
+def run_mathews_actions(cache_folder, mount_point, logger, enable=False):
+    return
+
 
 def run_kalite_actions(cache_folder, mount_point, logger, languages=[]):
     return
