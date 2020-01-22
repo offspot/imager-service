@@ -69,7 +69,6 @@ class DownloadTask(BaseTask):
         self.logger.info("Starting image download")
 
         checksum_type, checksum_digest = self.task["image_checksum"].split(":", 1)
-        max_connection = 5
 
         self.logger.info("re-authenticate to ensure token is still valid")
         authenticate(force=True)
@@ -93,8 +92,8 @@ class DownloadTask(BaseTask):
             "--checksum={type}={digest}".format(
                 type=checksum_type, digest=checksum_digest
             ),
-            "--max-connection-per-server={}".format(max_connection),
-            "--split={}".format(max_connection),
+            "--max-connection-per-server={}".format(Setting.download_max_connections),
+            "--split={}".format(Setting.download_max_connections),
             "--max-tries={}".format(20),
             "--retry-wait={sec}".format(sec=60),
             "--timeout={}".format(60 * 5),

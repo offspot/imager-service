@@ -32,6 +32,8 @@ class Setting:
     poll_interval = 60  # 1mn
     log_upload_interval = 60 * 2  # 2mn
 
+    download_max_connections = 1
+
     @classmethod
     def get_timer(cls, interval):
         return list(range(0, interval))
@@ -56,6 +58,10 @@ class Setting:
         cls.usb_path = Path(os.getenv("USB_PATH", "/dev/sdcard") or "/dev/sdcard")
         cls.host_device = os.getenv("HOST_DEVICE", "unknown")
         cls.proxy = os.getenv("PROXY", None)
+
+        cls.download_max_connections = int(
+            os.getenv("MAX_CONNECTIONS", cls.download_max_connections)
+        )
 
         logger.info("Checking Settings...")
 
