@@ -32,7 +32,7 @@ class Setting:
     poll_interval = 60  # 1mn
     log_upload_interval = 60 * 2  # 2mn
 
-    download_max_connections = 1
+    download_max_connections = 5
 
     @classmethod
     def get_timer(cls, interval):
