@@ -182,13 +182,13 @@ class Configuration(models.Model):
     )
     content_nomad = models.BooleanField(
         default=False,
-        verbose_name="NomadEducation",
-        help_text="Digital Schools Android App",
+        verbose_name="Nomad android app",
+        help_text="Révisions du CP au CM2",
     )
     content_mathews = models.BooleanField(
         default=False,
-        verbose_name="Math Mathews",
-        help_text="Math Mathews Android App",
+        verbose_name="Math Mathews android",
+        help_text="Un jeu pour réviser les maths",
     )
 
     @classmethod
