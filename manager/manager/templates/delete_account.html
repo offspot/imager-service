@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load manager %}
+
+{% block content %}
+<h2>Deleting your account</h2>
+<p class="info">Remove all your personnal info from our servers.</p>
+<p>We have no interest in keeping your personnal information indefinitely. If you are done with your Cardshop usage, you can request its deletion here. Please note that:</p>
+<ul>
+    <li>You are currently connected with and will delete account <code>{{ user.profile }}</code>.</li>
+    <li>It is <strong>irreversible</strong>. Export your configurations manually if you want to keep them.</li>
+    <li>We'll keep a trace of your orders in an anonymized form, for accounting and statistics purpose.</li>
+</ul>
+<form method="POST" class="form-check form-check-inline">
+{% csrf_token %}
+<button class="btn btn-danger" data-toggle="confirmation" data-title="Delete {{ user.profile }} ?">Delete my account permanently</button></div>
+</div>
+</form>
+{% endblock %}
+
+{% block javascript %}
+	$('[data-toggle="popover"]').popover();
+{% endblock %}

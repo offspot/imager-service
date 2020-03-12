@@ -84,6 +84,7 @@
         <div class="dropdown-menu" aria-labelledby="user-dd">
           <a class="dropdown-item" href="{% url 'logout' %}">Sign out</a>
           <a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a>
+          <a class="dropdown-item" href="{% url 'delete_account' %}">Delete Account</a>
         </div>
       </nav>{% else %}<a class="btn btn-outline-primary" href="{% url 'login' %}">Sign in</a>{% endif %}
     </div>
