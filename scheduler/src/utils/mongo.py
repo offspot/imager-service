@@ -1,4 +1,3 @@
-
 import os
 import datetime
 
@@ -36,7 +35,7 @@ class Users(BaseCollection):
         "username": {"type": "string", "regex": "^[a-zA-Z0-9_.+-]+$", "required": True},
         "email": {
             "type": "string",
-            "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
+            "regex": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
         },
         "password_hash": {"type": "string", "required": True},
         "active": {"type": "boolean", "default": True, "required": True},
@@ -140,7 +139,7 @@ class Channels(BaseCollection):
         "sender_address": {"type": "string", "required": True},
         "sender_email": {
             "type": "string",
-            "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
+            "regex": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
         },
     }
 
@@ -222,7 +221,7 @@ class Orders(BaseCollection):
                 "name": {"type": "string", "regex": "^.+$", "required": True},
                 "email": {
                     "type": "string",
-                    "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
+                    "regex": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
                     "required": True,
                 },
             },
@@ -234,10 +233,10 @@ class Orders(BaseCollection):
                 "name": {"type": "string", "regex": "^.+$", "required": True},
                 "email": {
                     "type": "string",
-                    "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
+                    "regex": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
                     "required": False,
                 },
-                "phone": {"type": "string", "regex": "^\+?[0-9]+$", "required": False},
+                "phone": {"type": "string", "regex": r"^\+?[0-9]+$", "required": False},
                 "address": {"type": "string", "required": True},
                 "country": {"type": "string", "required": True},
                 "shipment": {"type": "string", "required": False, "nullable": True},
@@ -420,6 +419,30 @@ class Orders(BaseCollection):
             cls().get(res["_id"])
             for res in cls().find({"status": cls.pending_expiry}, {"_id": 1})
         ]
+
+    @classmethod
+    def anonymize(cls, order_ids):
+        order_ids = [ensure_objectid(oid) for oid in order_ids]
+        query = {"_id": {"$in": order_ids}}
+        if Orders().count_documents(query) != len(order_ids):
+            raise ValueError("Order IDs contains incorrect one(s).")
+        placeholder = "[ANONYMIZED]"
+        Orders().update_many(
+            query,
+            {
+                "$set": {
+                    key: placeholder
+                    for key in [
+                        "client.name",
+                        "client.email",
+                        "recipient.name",
+                        "recipient.email",
+                        "recipient.phone",
+                        "recipient.address",
+                    ]
+                }
+            },
+        )
 
 
 class Tasks(BaseCollection):

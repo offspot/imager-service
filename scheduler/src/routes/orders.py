@@ -7,6 +7,7 @@ from flask import Blueprint, request, jsonify, render_template
 from jsonschema import validate, ValidationError
 
 from utils.mongo import Orders, Users
+from utils.json import ensure_objectid
 from emailing import (
     send_order_created_email,
     send_order_shipped_email,
@@ -78,6 +79,26 @@ def collection(user: dict):
         Orders.create_creator_task(order_id)
 
         return jsonify({"_id": order_id})
+
+@blueprint.route("/anonymize", methods=["PATCH"])
+@authenticate
+@only_for_roles(roles=Users.MANAGER_ROLE)
+def anonymize(user: dict):
+    try:
+        request_json = request.get_json()
+        validate(request_json, {"order_ids": {"type": "list", "required": True}})
+        order_ids = [ensure_objectid(oid) for oid in request_json.get("order_ids")]
+    except ValidationError as error:
+        raise errors.BadRequest(error.message)
+    except Exception:
+        raise errors.BadRequest("Orders IDs are not all valid IDs")
+
+    try:
+        Orders.anonymize(order_ids)
+    except Exception:
+        raise errors.NotFound()
+
+    return jsonify({"_ids": order_ids})
 
 
 @blueprint.route("/<string:order_id>", methods=["GET", "DELETE", "PATCH"])
