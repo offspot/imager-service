@@ -219,6 +219,8 @@ def do_delete_account(profile):
     # clean-up details on all orders created by user
     order_ids = [p.scheduler_id for p in profile.order_set.all()]
     for order in profile.order_set.all():
+        if order.status == order.IN_PROGRESS:
+            order.cancel()
         order.anonymize()
 
     # delete django user, will cascade to Profile, Address and Configuration
