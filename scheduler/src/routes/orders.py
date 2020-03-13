@@ -53,7 +53,7 @@ def collection(user: dict):
         return jsonify(
             {"meta": {"skip": skip, "limit": limit, "count": count}, "items": orders}
         )
-    elif request.method == "POST":
+    if request.method == "POST":
 
         # validate request json
         try:
@@ -115,7 +115,7 @@ def document(order_id: ObjectId, user: dict):
 
         return jsonify(order)
 
-    elif request.method == "PATCH":
+    if request.method == "PATCH":
         order = Orders.get_with_tasks(order_id)
         if order is None:
             raise errors.NotFound()
@@ -127,8 +127,8 @@ def document(order_id: ObjectId, user: dict):
 
         return jsonify(order)
 
-    elif request.method == "DELETE":
-        # TODO: prepare email message with infos from order
+    if request.method == "DELETE":
+        # should prepare email message with infos from order here
         deleted_count = Orders().delete_one({"_id": order_id}).deleted_count
         if deleted_count == 0:
             raise errors.NotFound()
@@ -166,7 +166,7 @@ def add_shipment(order_id: ObjectId):
         return render_template(
             "pub_add_shipment.html", order=order, order_id=order["_id"]
         )
-    elif request.method == "POST":
+    if request.method == "POST":
         shipment_details = request.form.get("details")
         if not shipment_details:
             raise errors.BadRequest("Missing shipment details")

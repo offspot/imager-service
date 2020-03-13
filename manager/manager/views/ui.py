@@ -285,11 +285,11 @@ def address_edit(request, address_id=None):
     address = Address.get_or_none(address_id)
     if address is None and address_id is not None:
         raise Http404("Address not found")
-    elif (
+    if (
         address is not None
         and address.organization != request.user.profile.organization
     ):
-        raise HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Unauthorized", status=401)
 
     context = {"address": address}
     form = AddressForm(client=request.user.profile, instance=address)
@@ -323,7 +323,7 @@ def address_delete(request, address_id=None):
         raise Http404("Address not found")
 
     if address.organization != request.user.profile.organization:
-        raise HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Unauthorized", status=401)
 
     try:
         address.delete()
