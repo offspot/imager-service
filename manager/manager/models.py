@@ -796,7 +796,7 @@ class Order(models.Model):
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     created_on = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
 
     scheduler_id = models.CharField(max_length=50, unique=True, blank=True)
     scheduler_data = jsonfield.JSONField(
@@ -991,3 +991,15 @@ class Order(models.Model):
         else:
             logger.error(resp)
         return canceled
+
+    def anonymize(self):
+        redacted = "[ANONYMIZED]"
+        self.scheduler_data = {}
+        self.scheduler_data_on = timezone.now()
+        self.client_name = redacted
+        self.client_email = "anonymized.tld"
+        self.recipient_name = redacted
+        self.recipient_email = self.client_email
+        self.recipient_phone = redacted
+        self.recipient_address = redacted
+        self.save()

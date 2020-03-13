@@ -7,6 +7,7 @@ from flask import Blueprint, request, jsonify, render_template
 from jsonschema import validate, ValidationError
 
 from utils.mongo import Orders, Users
+from utils.json import ensure_objectid
 from emailing import (
     send_order_created_email,
     send_order_shipped_email,
@@ -52,7 +53,7 @@ def collection(user: dict):
         return jsonify(
             {"meta": {"skip": skip, "limit": limit, "count": count}, "items": orders}
         )
-    elif request.method == "POST":
+    if request.method == "POST":
 
         # validate request json
         try:
@@ -79,6 +80,26 @@ def collection(user: dict):
 
         return jsonify({"_id": order_id})
 
+@blueprint.route("/anonymize", methods=["PATCH"])
+@authenticate
+@only_for_roles(roles=Users.MANAGER_ROLE)
+def anonymize(user: dict):
+    try:
+        request_json = request.get_json()
+        validate(request_json, {"order_ids": {"type": "list", "required": True}})
+        order_ids = [ensure_objectid(oid) for oid in request_json.get("order_ids")]
+    except ValidationError as error:
+        raise errors.BadRequest(error.message)
+    except Exception:
+        raise errors.BadRequest("Orders IDs are not all valid IDs")
+
+    try:
+        Orders.anonymize(order_ids)
+    except Exception:
+        raise errors.NotFound()
+
+    return jsonify({"_ids": order_ids})
+
 
 @blueprint.route("/<string:order_id>", methods=["GET", "DELETE", "PATCH"])
 @authenticate
@@ -94,7 +115,7 @@ def document(order_id: ObjectId, user: dict):
 
         return jsonify(order)
 
-    elif request.method == "PATCH":
+    if request.method == "PATCH":
         order = Orders.get_with_tasks(order_id)
         if order is None:
             raise errors.NotFound()
@@ -106,8 +127,8 @@ def document(order_id: ObjectId, user: dict):
 
         return jsonify(order)
 
-    elif request.method == "DELETE":
-        # TODO: prepare email message with infos from order
+    if request.method == "DELETE":
+        # should prepare email message with infos from order here
         deleted_count = Orders().delete_one({"_id": order_id}).deleted_count
         if deleted_count == 0:
             raise errors.NotFound()
@@ -145,7 +166,7 @@ def add_shipment(order_id: ObjectId):
         return render_template(
             "pub_add_shipment.html", order=order, order_id=order["_id"]
         )
-    elif request.method == "POST":
+    if request.method == "POST":
         shipment_details = request.form.get("details")
         if not shipment_details:
             raise errors.BadRequest("Missing shipment details")

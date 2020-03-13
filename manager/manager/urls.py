@@ -103,6 +103,11 @@ urlpatterns = (
             admin.toggle_account,
             name="admin_toggle_account",
         ),
+        path(
+            "admin/delete_account/<str:username>",
+            admin.delete_account,
+            name="admin_delete_account",
+        ),
         path("admin/", admin.dashboard, name="admin"),
         # scheduler
         path(
@@ -146,6 +151,7 @@ urlpatterns = (
         ),
         path("logout/", auth_views.LogoutView.as_view(), name="logout"),
         path("password", ui.password_change, name="change_password"),
+        path("delete", ui.delete_account, name="delete_account"),
         path("", ui.home, name="home"),
     ]
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

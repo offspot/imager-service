@@ -9,6 +9,7 @@ from django.http import Http404
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponse
+from django.contrib.auth import logout
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib.auth import update_session_auth_hash
@@ -16,7 +17,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 
 from manager.models import Address, Media, Configuration, Order
-from manager.scheduler import add_order_shipment, SchedulerAPIError
+from manager.scheduler import add_order_shipment, anonymize_orders, SchedulerAPIError
 
 logger = logging.getLogger(__name__)
 NB_ORDERS_PER_PAGE = 10
@@ -212,6 +213,46 @@ def password_change(request):
     return render(request, "password_change.html", context)
 
 
+def do_delete_account(profile):
+    """ Remove all information for a particular user """
+
+    # clean-up details on all orders created by user
+    order_ids = [p.scheduler_id for p in profile.order_set.all()]
+    for order in profile.order_set.all():
+        if order.status == order.IN_PROGRESS:
+            order.cancel()
+        order.anonymize()
+
+    # delete django user, will cascade to Profile, Address and Configuration
+    profile.user.delete()
+
+    # request anonymization of orders on API
+    success, response = anonymize_orders(order_ids)
+    if not success:
+        raise SchedulerAPIError(response)
+
+
+@login_required
+def delete_account(request):
+    context = {}
+    if request.method == "POST":
+        try:
+            do_delete_account(request.user.profile)
+        except Exception as exp:
+            logger.error(exp)
+            messages.error(
+                request,
+                "Failed to delete your account. (ref: {exp})".format(
+                    exp=exp
+                ),
+            )
+        else:
+            messages.success(request, "Account deleted successfuly !")
+            logout(request)
+        return redirect("home")
+    return render(request, "delete_account.html", context)
+
+
 @login_required
 def address_list(request):
 
@@ -244,11 +285,11 @@ def address_edit(request, address_id=None):
     address = Address.get_or_none(address_id)
     if address is None and address_id is not None:
         raise Http404("Address not found")
-    elif (
+    if (
         address is not None
         and address.organization != request.user.profile.organization
     ):
-        raise HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Unauthorized", status=401)
 
     context = {"address": address}
     form = AddressForm(client=request.user.profile, instance=address)
@@ -282,7 +323,7 @@ def address_delete(request, address_id=None):
         raise Http404("Address not found")
 
     if address.organization != request.user.profile.organization:
-        raise HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Unauthorized", status=401)
 
     try:
         address.delete()

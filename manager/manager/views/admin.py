@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect
 
 from manager.decorators import staff_required
 from manager.models import Organization, Profile, Media
+from manager.views.ui import do_delete_account
 
 logger = logging.getLogger(__name__)
 
@@ -177,6 +178,32 @@ def toggle_account(request, username):
             "User Account for {user} has been successfuly {status}.".format(
                 user=profile, status=status
             ),
+        )
+
+    return redirect("admin")
+
+
+@staff_required
+def delete_account(request, username):
+
+    profile = Profile.get_or_none(username)
+    if profile is None:
+        raise Http404("Profile not found")
+
+    user_repr = str(profile)
+
+    try:
+        do_delete_account(profile)
+    except Exception as exp:
+        logger.error(exp)
+        messages.error(
+            request,
+            f"Error while deleting {user_repr}. Please contact support (ref: {exp})",
+        )
+    else:
+        messages.success(
+            request,
+            f"User Account for {user_repr} has been successfuly deleted.",
         )
 
     return redirect("admin")

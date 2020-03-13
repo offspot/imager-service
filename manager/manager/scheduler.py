@@ -361,6 +361,16 @@ def cancel_order(order_id):
 
 
 @auth_required
+def anonymize_orders(order_ids):
+    success, code, response = query_api(
+        PATCH, "/orders/anonymize", payload={"order_ids": order_ids}
+    )
+    if not success or "_ids" not in response:
+        return False, response
+    return True, response.get("_ids")
+
+
+@auth_required
 def get_task(task_id):
     success, code, response = query_api(GET, "/tasks/{id}".format(id=task_id))
     return success, response
