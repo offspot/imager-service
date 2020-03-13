@@ -46,7 +46,7 @@
 <h3>Manager Users</h3>
 {% if profiles %}
 <table class="table table-striped">
-	<thead><tr><th>Username</th><th>Organization</th><th>Email</th><th>Name</th><th>Active</th></tr></thead>
+	<thead><tr><th>Username</th><th>Organization</th><th>Email</th><th>Name</th><th>Active</th><th>Delete</th></tr></thead>
 	<tbody>
 	{% for profile in profiles %}
 	<tr><th><a href="{% url "admin:auth_user_change" profile.user.id %}"><code>{{ profile.user.username }}</code></a>{% if profile.user.is_staff %} (admin){% endif %}</th>
@@ -54,6 +54,7 @@
 		<td><a href="mailto:{{ profile.user.email }}">{{ profile.user.email }}</a></td>
 		<td>{{ profile.name }}</td>
 		<td><a class="btn btn-sm btn-warning" href="{% url "admin_toggle_account" profile.username %}">{{ profile.user.is_active|yesno }}: {% if profile.user.is_active %}disable{% else %}enable{% endif %}</a></td>
+		<td><a data-toggle="confirmation" data-title="Delete {{ profile }} ?" class="btn btn-sm btn-danger" href="{% url "admin_delete_account" profile.username %}">delete</a></td>
 	</tr>
 	{% endfor %}
 	</tbody>

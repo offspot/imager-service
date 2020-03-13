@@ -103,6 +103,11 @@ urlpatterns = (
             admin.toggle_account,
             name="admin_toggle_account",
         ),
+        path(
+            "admin/delete_account/<str:username>",
+            admin.delete_account,
+            name="admin_delete_account",
+        ),
         path("admin/", admin.dashboard, name="admin"),
         # scheduler
         path(
