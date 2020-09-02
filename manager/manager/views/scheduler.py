@@ -9,6 +9,9 @@ from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.core import validators
+from django.db import models
+from django.forms.fields import URLField as FormURLField
 
 from manager.decorators import staff_required
 from manager.scheduler import (
@@ -34,6 +37,7 @@ from manager.scheduler import (
     get_channel_choices,
 )
 
+WH_SCHEMES = ['http', 'https', 'ftp', 'ftps']
 logger = logging.getLogger(__name__)
 
 
@@ -57,7 +61,7 @@ class ChannelForm(forms.Form):
 
     def save(self):
         if not self.is_valid():
-            raise ValueError("{cls} is not valid".format(type(self)))
+            raise ValueError("{cls} is not valid".format(cls=type(self)))
 
         success, channel_id = add_channel(
             slug=self.cleaned_data.get("slug"),
@@ -73,10 +77,21 @@ class ChannelForm(forms.Form):
         return channel_id
 
 
+class S3URLFormField(FormURLField):
+    default_validators = [validators.URLValidator(schemes=WH_SCHEMES)]
+
+
+class S3URLField(models.URLField):
+    default_validators = [validators.URLValidator(schemes=WH_SCHEMES)]
+
+    def formfield(self, **kwargs):
+        return super(S3URLField, self).formfield(**{'form_class': S3URLFormField})
+
+
 class WarehouseForm(forms.Form):
     slug = forms.CharField()
-    upload_uri = forms.URLField()
-    download_uri = forms.URLField()
+    upload_uri = S3URLField()
+    download_uri = S3URLField()
     active = forms.BooleanField(initial=True, required=False)
 
     @staticmethod
@@ -92,7 +107,7 @@ class WarehouseForm(forms.Form):
 
     def save(self):
         if not self.is_valid():
-            raise ValueError("{cls} is not valid".format(type(self)))
+            raise ValueError("{cls} is not valid".format(cls=type(self)))
 
         success, warehouse_id = add_warehouse(
             slug=self.cleaned_data.get("slug"),
@@ -131,7 +146,7 @@ class UserForm(forms.Form):
 
     def save(self):
         if not self.is_valid():
-            raise ValueError("{cls} is not valid".format(type(self)))
+            raise ValueError("{cls} is not valid".format(cls=type(self)))
 
         success, user_id = add_user(
             username=self.cleaned_data.get("username"),
@@ -296,6 +311,7 @@ def refresh_token(request):
     logger.info("Re-authenticated against the scheduler: `{}`".format(ACCESS_TOKEN))
     messages.info(
         request,
-        "Re-authenticated against the scheduler: <code>{}</code>".format(ACCESS_TOKEN[:20]),
+        "Re-authenticated against the scheduler: <code>{}</code>"
+        .format(ACCESS_TOKEN[:20]),
     )
     return redirect("scheduler")
