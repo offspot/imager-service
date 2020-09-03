@@ -10,8 +10,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.core import validators
-from django.db import models
-from django.forms.fields import URLField as FormURLField
 
 from manager.decorators import staff_required
 from manager.scheduler import (
@@ -37,7 +35,6 @@ from manager.scheduler import (
     get_channel_choices,
 )
 
-WH_SCHEMES = ['http', 'https', 'ftp', 'ftps']
 logger = logging.getLogger(__name__)
 
 
@@ -77,21 +74,16 @@ class ChannelForm(forms.Form):
         return channel_id
 
 
-class S3URLFormField(FormURLField):
-    default_validators = [validators.URLValidator(schemes=WH_SCHEMES)]
-
-
-class S3URLField(models.URLField):
-    default_validators = [validators.URLValidator(schemes=WH_SCHEMES)]
-
-    def formfield(self, **kwargs):
-        return super(S3URLField, self).formfield(**{'form_class': S3URLFormField})
+class S3URLFormField(forms.URLField):
+    default_validators = [
+        validators.URLValidator(schemes=["http", "https", "ftp", "ftps", "s3"])
+    ]
 
 
 class WarehouseForm(forms.Form):
     slug = forms.CharField()
-    upload_uri = S3URLField()
-    download_uri = S3URLField()
+    upload_uri = S3URLFormField()
+    download_uri = S3URLFormField()
     active = forms.BooleanField(initial=True, required=False)
 
     @staticmethod
@@ -311,7 +303,8 @@ def refresh_token(request):
     logger.info("Re-authenticated against the scheduler: `{}`".format(ACCESS_TOKEN))
     messages.info(
         request,
-        "Re-authenticated against the scheduler: <code>{}</code>"
-        .format(ACCESS_TOKEN[:20]),
+        "Re-authenticated against the scheduler: <code>{}</code>".format(
+            ACCESS_TOKEN[:20]
+        ),
     )
     return redirect("scheduler")
