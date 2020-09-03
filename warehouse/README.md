@@ -1,5 +1,8 @@
 # Warehouse
 
+⚠️ Note: this is deprecated as we switch to storing images in S3.
+See https://github.com/kiwix/cardshop/wiki/S3-Usage-Policy
+
 The ftp server accepting uploads from cardshop creator workers
 
 ## How to run
