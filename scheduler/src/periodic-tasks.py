@@ -160,17 +160,20 @@ def run_periodic_tasks():
         if not order["sd_card"]["expiration"] < now:
             continue  # expiration not reached
 
-        logger.info(
-            "Order #{} has reach expiration. deleting file".format(order["_id"])
-        )
-        order_fname = "{}.img".format(order["_id"])
+        logger.info("Order #{} has reach expiration.".format(order["_id"]))
+        Orders().update_status(order["_id"], Orders.expired)
 
-        # actually delete file
-        if remove_image(order_fname, order["warehouse"]["upload_uri"]):
-            # update order (all done)
-            Orders().update_status(order["_id"], Orders.expired)
-        else:
-            logger.error("Failed to remove expired file {}".format(order_fname))
+        # logger.info(
+        #     "Order #{} has reach expiration. deleting file".format(order["_id"])
+        # )
+        # order_fname = "{}.img".format(order["_id"])
+
+        # # actually delete file
+        # if remove_image(order_fname, order["warehouse"]["upload_uri"]):
+        #     # update order (all done)
+        #     Orders().update_status(order["_id"], Orders.expired)
+        # else:
+        #     logger.error("Failed to remove expired file {}".format(order_fname))
 
 
 if __name__ == "__main__":
