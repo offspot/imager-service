@@ -301,6 +301,7 @@ class Orders(BaseCollection):
         payload = {
             "order": order_id,
             "media_type": order["sd_card"]["type"],
+            "media_duration": order["sd_card"]["duration"],
             "channel": order["channel"],
             "upload_uri": order["warehouse"]["upload_uri"],
             "worker": None,
@@ -652,6 +653,7 @@ class CreatorTasks(Tasks):
     schema = {
         "order": {"type": "string", "required": True},
         "media_type": {"type": "string", "required": True},
+        "media_duration": {"type": "string", "required": True},
         "channel": {"type": "string", "required": True, "nullable": True},
         "worker": {"type": "string", "required": True, "nullable": True},
         "config": {"type": "dict", "required": True},
