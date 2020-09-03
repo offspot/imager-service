@@ -34,6 +34,9 @@ class Setting:
 
     download_max_connections = 5
 
+    s3_access_key = None
+    s3_secret_key = None
+
     @classmethod
     def get_timer(cls, interval):
         return list(range(0, interval))
@@ -62,6 +65,9 @@ class Setting:
         cls.download_max_connections = int(
             os.getenv("MAX_CONNECTIONS", cls.download_max_connections)
         )
+
+        cls.s3_access_key = os.getenv("S3_ACCESS_KEY", cls.s3_access_key)
+        cls.s3_secret_key = os.getenv("S3_SECRET_KEY", cls.s3_secret_key)
 
         logger.info("Checking Settings...")
 
