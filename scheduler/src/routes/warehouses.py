@@ -62,7 +62,7 @@ def collection(user: dict):
             raise errors.BadRequest(error.message)
 
         if Warehouses().count({"slug": request_json["slug"]}):
-            raise errors.BadRequest("Channel with this slug exists.")
+            raise errors.BadRequest("Warehouse with this slug exists.")
 
         warehouse_id = Warehouses().insert_one(request_json).inserted_id
         return jsonify({"_id": warehouse_id})
