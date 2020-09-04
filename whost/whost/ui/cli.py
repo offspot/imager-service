@@ -53,7 +53,7 @@ def setup(
     title: str = "auto",
     timestamp: bool = False
 ) -> None:
-    """ Configure behavior of message functions.
+    """Configure behavior of message functions.
 
     :param verbose: Whether :func:`debug` messages should get printed
     :param quiet: Hide every message except :func:`warning`, :func:`error`, and
@@ -183,7 +183,7 @@ def write_title_string(mystr: str, fileobj: FileObj) -> None:
 def process_tokens(
     tokens: Sequence[Token], *, end: str = "\n", sep: str = " "
 ) -> Tuple[str, str]:
-    """ Returns two strings from a list of tokens.
+    """Returns two strings from a list of tokens.
     One containing ASCII escape codes, the other
     only the 'normal' characters
 
@@ -245,9 +245,7 @@ def message(
     fileobj: FileObj = sys.stdout,
     update_title: bool = False
 ) -> None:
-    """ Helper method for error, warning, info, debug
-
-    """
+    """Helper method for error, warning, info, debug"""
     if using_colorama():
         global _INITIALIZED
         if not _INITIALIZED:
@@ -283,7 +281,7 @@ def warning(*tokens: Token, **kwargs: Any) -> None:
 
 
 def info(*tokens: Token, **kwargs: Any) -> None:
-    r""" Print an informative message
+    r"""Print an informative message
 
     :param tokens: list of `ui` constants or strings, like ``(cli_ui.red, 'this is an error')``
     :param sep: separator, defaults to ``' '``
@@ -322,7 +320,7 @@ def info_3(*tokens: Token, **kwargs: Any) -> None:
 
 
 def dot(*, last: bool = False, fileobj: FileObj = sys.stdout) -> None:
-    """ Print a dot without a newline unless it is the last one.
+    """Print a dot without a newline unless it is the last one.
 
     Useful when you want to display a progress with very little
     knowledge.
@@ -334,7 +332,7 @@ def dot(*, last: bool = False, fileobj: FileObj = sys.stdout) -> None:
 
 
 def info_count(i: int, n: int, *rest: Token, **kwargs: Any) -> None:
-    """ Display a counter before the rest of the message.
+    """Display a counter before the rest of the message.
 
     ``rest`` and ``kwargs`` are passed to :func:`info`
 
@@ -350,7 +348,7 @@ def info_count(i: int, n: int, *rest: Token, **kwargs: Any) -> None:
 
 
 def info_progress(prefix: str, value: float, max_value: float) -> None:
-    """ Display info progress in percent.
+    """Display info progress in percent.
 
     :param value: the current value
     :param max_value: the max value
@@ -365,7 +363,7 @@ def info_progress(prefix: str, value: float, max_value: float) -> None:
 
 
 def debug(*tokens: Token, **kwargs: Any) -> None:
-    """ Print a debug message.
+    """Print a debug message.
 
     Messages are shown only when ``CONFIG["verbose"]`` is true
     """
@@ -386,9 +384,7 @@ def indent(text: str, num: int = 2) -> str:
 
 
 def tabs(num: int) -> str:
-    """ Compute a blank tab
-
-    """
+    """Compute a blank tab"""
     return "  " * num
 
 
@@ -419,7 +415,7 @@ def info_table(
 
 
 def message_for_exception(exception: Exception, message: str) -> Sequence[Token]:
-    """ Returns a tuple suitable for cli_ui.error()
+    """Returns a tuple suitable for cli_ui.error()
     from the given exception.
     (Traceback will be part of the message, after
     the ``message`` argument)
@@ -442,17 +438,13 @@ def message_for_exception(exception: Exception, message: str) -> Sequence[Token]
 
 
 def read_input() -> str:
-    """ Read input from the user
-
-    """
+    """Read input from the user"""
     info(green, "> ", end="")
     return input()
 
 
 def read_password() -> str:
-    """ Read a password from the user
-
-    """
+    """Read a password from the user"""
     info(green, "> ", end="")
     return getpass.getpass(prompt="")
 
@@ -462,8 +454,7 @@ def get_ask_tokens(tokens: Sequence[Token]) -> List[Token]:
 
 
 def ask_string(*question: Token, default: Optional[str] = None) -> Optional[str]:
-    """Ask the user to enter a string.
-    """
+    """Ask the user to enter a string."""
     tokens = get_ask_tokens(question)
     if default:
         tokens.append("(%s)" % default)
@@ -475,8 +466,7 @@ def ask_string(*question: Token, default: Optional[str] = None) -> Optional[str]
 
 
 def ask_password(*question: Token) -> str:
-    """Ask the user to enter a password.
-    """
+    """Ask the user to enter a password."""
     tokens = get_ask_tokens(question)
     info(*tokens)
     answer = read_password()
@@ -562,9 +552,7 @@ AnyFunc = Callable[..., Any]
 
 
 class Timer:
-    """ Display time taken when executing a list of statements.
-
-    """
+    """Display time taken when executing a list of statements."""
 
     def __init__(self, description: str):
         self.description = description
@@ -610,7 +598,7 @@ class Timer:
 
 
 def did_you_mean(message: str, user_input: str, choices: Sequence[str]) -> str:
-    """ Given a list of choices and an invalid user input, display the closest
+    """Given a list of choices and an invalid user input, display the closest
     items in the list that match the input.
 
     """

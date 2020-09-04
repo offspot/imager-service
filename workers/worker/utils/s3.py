@@ -8,7 +8,6 @@ from kiwixstorage import TransferHook
 
 
 class ImageTransferHook(TransferHook):
-
     def __init__(self, output, fpath=None, size=None, name=""):
         if fpath is None and size is None:
             raise ValueError("either size or fpath must be set")

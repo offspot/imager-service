@@ -59,22 +59,22 @@ def get_temp_folder(in_path):
 
 
 def relpathto(dest, root=None):
-    ''' relative path to an absolute one '''
+    """ relative path to an absolute one """
     if dest is None:
         return None
     return str(Path(dest).relative_to(root))
 
 
 def b64encode(fpath):
-    ''' base64 string of a binary file '''
+    """ base64 string of a binary file """
     with open(fpath, "rb") as fp:
-        return base64.b64encode(fp.read()).decode('utf-8')
+        return base64.b64encode(fp.read()).decode("utf-8")
 
 
 def b64decode(fname, data, to):
-    ''' write back a binary file from its fname and base64 string '''
+    """ write back a binary file from its fname and base64 string """
     fpath = os.path.join(to, fname)
-    with open(fpath, 'wb') as fp:
+    with open(fpath, "wb") as fp:
         fp.write(base64.b64decode(data))
     return fpath
 
@@ -86,9 +86,9 @@ def exfat_fnames_filter(fname):
 
 
 def ensure_zip_exfat_compatible(fpath):
-    """ wether supplied ZIP archive at fpath contains exfat-OK file names
+    """wether supplied ZIP archive at fpath contains exfat-OK file names
 
-        boolean, [erroneous, file, names]"""
+    boolean, [erroneous, file, names]"""
     bad_fnames = []
     try:
         with zipfile.ZipFile(fpath, "r") as zipf:
@@ -148,13 +148,13 @@ def check_user_inputs(
 
 
 def get_adjusted_image_size(size):
-    """ save some space to accomodate real SD card sizes
+    """save some space to accomodate real SD card sizes
 
-        the larger the SD card, the larger the loss space is """
+    the larger the SD card, the larger the loss space is"""
 
     # if size is not a rounded GB multiple, assume it's OK
     if not size % ONE_GB == 0:
         return size
 
-    rate = .97 if size / ONE_GB <= 16 else .96
+    rate = 0.97 if size / ONE_GB <= 16 else 0.96
     return int(size * rate)

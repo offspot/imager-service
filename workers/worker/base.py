@@ -151,6 +151,9 @@ class BaseWorker:
                                 and task["worker"] != Setting.username
                             ):
                                 continue
+                            # TODO: remove
+                            if not task["upload_uri"].startswith("s3://"):
+                                continue
                         except Exception:
                             pass
 

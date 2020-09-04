@@ -40,7 +40,7 @@ def main(worker_cls):
         signal_handler(signal.SIGINT, None)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         worker_type = os.getenv("WORKER_TYPE", sys.argv[-1])
         worker_cls = WORKERS.get(worker_type)

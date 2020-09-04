@@ -770,7 +770,7 @@ class OrderData(dict):
         config = self.get("config", {})
         for key in ("logo", "favicon", "css"):
             try:
-                del (config["branding"][key]["data"])
+                del config["branding"][key]["data"]
             except (TypeError, KeyError):
                 pass
 

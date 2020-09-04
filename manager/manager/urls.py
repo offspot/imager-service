@@ -76,8 +76,6 @@ urlpatterns = (
         path("orders/new", ui.order_new, name="order_new"),
         path("orders/<str:order_min_id>/cancel", ui.order_cancel, name="order_cancel"),
         path("orders/<str:order_min_id>", ui.order_detail, name="order_detail"),
-
-
         path("orders/", ui.order_list, name="order_list"),
         # all orders
         path(

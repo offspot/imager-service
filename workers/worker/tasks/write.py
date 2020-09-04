@@ -56,7 +56,8 @@ class WriteTask(BaseTask):
 
         self.logger.info("Starting await_sdcard on slot {}".format(Setting.usb_slot))
         while (
-            not self.canceled and get_task(self.task["_id"])[1]["status"] == "waiting_for_card"
+            not self.canceled
+            and get_task(self.task["_id"])[1]["status"] == "waiting_for_card"
         ):
             self.logger.info("Waiting for the SD-card to be inserted...")
             time.sleep(60)

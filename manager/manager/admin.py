@@ -6,16 +6,17 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
-from manager.models import (Profile, Organization, Address,
-                            Media, Configuration, Order)
+from manager.models import Profile, Organization, Address, Media, Configuration, Order
 
 
 class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
 
+
 class UserAdmin(BaseUserAdmin):
-    inlines = (ProfileInline, )
+    inlines = (ProfileInline,)
+
 
 class DefaultAdmin(admin.ModelAdmin):
     pass

@@ -1,0 +1,41 @@
+// CardshopWorkers
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CardshopWorkersIPsWhiteList",
+      "Effect": "Deny",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::org-kiwix-hotspot-cardshop-*",
+      "Condition": {
+        "NotIpAddress": {
+          "aws:SourceIp": [
+            "86.207.127.70",
+            "195.154.81.22"
+          ]
+        }
+      }
+    }
+  ]
+}
+
+
+// CardshopWorker
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CardshopWorkersListOwnBuckets",
+      "Effect": "Allow",
+      "Action": "s3:ListAllMyBuckets",
+      "Resource": "arn:aws:s3:::"
+    },
+    {
+      "Sid": "WorkersRWOnCardshopProdBuckets",
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::org-kiwix-hotspot-cardshop-*"
+    }
+  ]
+}

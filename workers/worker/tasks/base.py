@@ -36,7 +36,9 @@ class BaseTask(threading.Thread):
         return self._should_stop
 
     def report_status(self, status, status_log=None):
-        self.logger.info("updating task #{} status to: {}".format(self.task["_id"], status))
+        self.logger.info(
+            "updating task #{} status to: {}".format(self.task["_id"], status)
+        )
         success, tid = update_task_status(
             self.task["_id"], status, status_log, extra=self.extra
         )

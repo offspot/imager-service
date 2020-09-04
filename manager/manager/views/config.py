@@ -75,7 +75,9 @@ def configuration_list(request):
     )
 
     if not config_filter:
-        filtered_configurations = filtered_configurations.filter(updated_by=request.user.profile)
+        filtered_configurations = filtered_configurations.filter(
+            updated_by=request.user.profile
+        )
 
     paginator = Paginator(filtered_configurations, NB_CONFIGURATIONS_PER_PAGE)
     configurations_page = paginator.get_page(page)
@@ -98,8 +100,7 @@ def configuration_list(request):
             else:
                 try:
                     config = Configuration.create_from(
-                        config=js_config or {},
-                        author=request.user.profile
+                        config=js_config or {}, author=request.user.profile
                     )
                 except Exception as exp:
                     messages.error(
@@ -196,10 +197,19 @@ def configuration_delete(request, config_id=None):
 
     try:
         config.delete()
-        messages.success(request, "Successfuly deleted Configuration <em>{}</em>".format(config))
+        messages.success(
+            request, "Successfuly deleted Configuration <em>{}</em>".format(config)
+        )
     except Exception as exp:
-        logger.error("Unable to delete configuration {id}: {exp}".format(id=config.id, exp=exp))
-        messages.error(request, "Unable to delete Configuration <em>{config}</em>: -- ref {exp}".format(config=config, exp=exp))
+        logger.error(
+            "Unable to delete configuration {id}: {exp}".format(id=config.id, exp=exp)
+        )
+        messages.error(
+            request,
+            "Unable to delete Configuration <em>{config}</em>: -- ref {exp}".format(
+                config=config, exp=exp
+            ),
+        )
 
     return redirect("configuration_list")
 
@@ -216,9 +226,23 @@ def configuration_duplicate(request, config_id=None):
 
     try:
         nconfig = config.duplicate(by=request.user.profile)
-        messages.success(request, "Successfuly duplicated Configuration <em>{}</em> into <em>{}</em>".format(config, nconfig))
+        messages.success(
+            request,
+            "Successfuly duplicated Configuration <em>{}</em> into <em>{}</em>".format(
+                config, nconfig
+            ),
+        )
     except Exception as exp:
-        logger.error("Unable to duplicate configuration {id}: {exp}".format(id=config.id, exp=exp))
-        messages.error(request, "Unable to duplicate Configuration <em>{config}</em>: -- ref {exp}".format(config=config, exp=exp))
+        logger.error(
+            "Unable to duplicate configuration {id}: {exp}".format(
+                id=config.id, exp=exp
+            )
+        )
+        messages.error(
+            request,
+            "Unable to duplicate Configuration <em>{config}</em>: -- ref {exp}".format(
+                config=config, exp=exp
+            ),
+        )
 
     return redirect("configuration_list")

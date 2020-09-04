@@ -12,11 +12,11 @@ from manager.pibox.data import YAML_CATALOGS, MIRROR
 from manager.pibox.util import get_checksum, ONE_GiB, ONE_MiB
 
 # prepare CONTENTS from JSON file
-with open(settings.CONTENTS_FILE, 'r') as fp:
+with open(settings.CONTENTS_FILE, "r") as fp:
     CONTENTS = json.load(fp)
     for key, dl_data in CONTENTS.items():
-        if 'url' in dl_data.keys():
-            CONTENTS[key]['url'] = CONTENTS[key]['url'].format(mirror=MIRROR)
+        if "url" in dl_data.keys():
+            CONTENTS[key]["url"] = CONTENTS[key]["url"].format(mirror=MIRROR)
 
 
 def get_content(key):
@@ -43,9 +43,9 @@ def get_alien_content(path_or_url):
 
 
 def get_local_content(fpath):
-    """ content-like dict for a user-provided local file
+    """content-like dict for a user-provided local file
 
-        WARN: file should be copied into cache manually """
+    WARN: file should be copied into cache manually"""
 
     fname = os.path.basename(fpath)
     fsize = os.path.getsize(fpath)
@@ -84,24 +84,24 @@ def get_collection(
     wikifundi_languages=[],
     aflatoun_languages=[],
 ):
-    """ builds complete list of callbacks and options for selected contents
+    """builds complete list of callbacks and options for selected contents
 
-        returns a list of tuples:
-            (project_name, get_content_callback, run_actions_callback, kwargs)
+    returns a list of tuples:
+        (project_name, get_content_callback, run_actions_callback, kwargs)
 
-        - project_name: a string describing the project (for progress/UI)
+    - project_name: a string describing the project (for progress/UI)
 
-        - kwargs: a dict or arguments to pass to callbacks
+    - kwargs: a dict or arguments to pass to callbacks
 
-        - get_content_callback:
-            expects kwargs
-            returns a list of contents (get_content)
+    - get_content_callback:
+        expects kwargs
+        returns a list of contents (get_content)
 
-        - run_action_callback:
-            expects cache_folder, mount_point, logger and kwargs
-            runs the action for the project (copy content into mount_point)
-            no return value
-        """
+    - run_action_callback:
+        expects cache_folder, mount_point, logger and kwargs
+        runs the action for the project (copy content into mount_point)
+        no return value
+    """
 
     collection = []
 

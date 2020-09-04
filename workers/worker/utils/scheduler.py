@@ -174,7 +174,7 @@ def update_task_status(task_id, status, log=None, extra={}):
 def upload_logs(task_id, logs={}):
     for key, value in logs.items():
         if value is None:
-            del (logs[key])
+            del logs[key]
 
     success, code, response = query_api(
         POST,

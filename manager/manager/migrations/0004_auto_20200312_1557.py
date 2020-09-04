@@ -7,23 +7,35 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manager', '0003_auto_20200120_0939'),
+        ("manager", "0003_auto_20200120_0939"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='configuration',
-            name='content_mathews',
-            field=models.BooleanField(default=False, help_text='Un jeu pour réviser les maths', verbose_name='Math Mathews android'),
+            model_name="configuration",
+            name="content_mathews",
+            field=models.BooleanField(
+                default=False,
+                help_text="Un jeu pour réviser les maths",
+                verbose_name="Math Mathews android",
+            ),
         ),
         migrations.AlterField(
-            model_name='configuration',
-            name='content_nomad',
-            field=models.BooleanField(default=False, help_text='Révisions du CP au CM2', verbose_name='Nomad android app'),
+            model_name="configuration",
+            name="content_nomad",
+            field=models.BooleanField(
+                default=False,
+                help_text="Révisions du CP au CM2",
+                verbose_name="Nomad android app",
+            ),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='created_by',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='manager.Profile'),
+            model_name="order",
+            name="created_by",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="manager.Profile",
+            ),
         ),
     ]

@@ -121,8 +121,8 @@ def send_email(to, subject, contents, cc=[], bcc=[], headers={}, attachments=[])
     bcc = [bcc] if not isinstance(bcc, list) else bcc
 
     # bcc SUPPORT_EMAIL to every message
-    if os.getenv('SUPPORT_EMAIL'):
-        bcc.append(os.getenv('SUPPORT_EMAIL'))
+    if os.getenv("SUPPORT_EMAIL"):
+        bcc.append(os.getenv("SUPPORT_EMAIL"))
 
     logger.info("sending --{}-- to --{}--/--{}".format(subject, to, attachments))
     func = (
@@ -132,9 +132,7 @@ def send_email(to, subject, contents, cc=[], bcc=[], headers={}, attachments=[])
     )
     # make sure we don't send message to same address twice
     cc = [a for a in cc if a not in to]
-    bcc = (
-        [a for a in bcc if a not in to and a not in cc]
-    )
+    bcc = [a for a in bcc if a not in to and a not in cc]
     try:
         return func(
             to=to,

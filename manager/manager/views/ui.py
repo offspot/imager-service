@@ -91,7 +91,12 @@ class OrderForm(forms.Form):
         choices=[],
         help_text="You can choose larger media size to add free space to your hotspot",
     )
-    quantity = forms.IntegerField(initial=1, min_value=1, max_value=10, help_text="Number of physical micro-SD cards you want")
+    quantity = forms.IntegerField(
+        initial=1,
+        min_value=1,
+        max_value=10,
+        help_text="Number of physical micro-SD cards you want",
+    )
 
     def VIRTUAL_CHOICES(self):
         return Media.get_choices(kind=Media.VIRTUAL)
@@ -242,9 +247,7 @@ def delete_account(request):
             logger.error(exp)
             messages.error(
                 request,
-                "Failed to delete your account. (ref: {exp})".format(
-                    exp=exp
-                ),
+                "Failed to delete your account. (ref: {exp})".format(exp=exp),
             )
         else:
             messages.success(request, "Account deleted successfuly !")

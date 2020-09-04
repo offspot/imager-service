@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 
 class OrdersQuerySet(APIQuerySet):
-
     def process(self, results):
         return [OrderData(order) for order in super().process(results)]
 

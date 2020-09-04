@@ -47,7 +47,7 @@ class ReportHook:
         elif self._current_size >= total_size:
             line = "[" + "." * avail_dots + "] 100%\n"
         else:
-            ratio = min(float(self._current_size) / total_size, 1.)
+            ratio = min(float(self._current_size) / total_size, 1.0)
             shaded_dots = min(int(ratio * avail_dots), avail_dots)
             percent = min(int(ratio * 100), 100)
             line = "[{sd}{sp}] {pc}%\r".format(
@@ -60,10 +60,10 @@ class ReportHook:
 
 
 def stream(url, write_to=None, callback=None, block_size=1024):
-    """ download an URL without blocking
+    """download an URL without blocking
 
-        - retries download on failure (with increasing wait delay)
-        - feeds a callback to provide progress indication """
+    - retries download on failure (with increasing wait delay)
+    - feeds a callback to provide progress indication"""
 
     # prepare adapter so it retries on failure
     session = requests.Session()
@@ -101,7 +101,11 @@ def stream(url, write_to=None, callback=None, block_size=1024):
         fd.seek(0)
 
     if total_size != 0 and total_downloaded != total_size:
-        raise AssertionError("Downloaded size is different than expected ({} vs {})".format(total_downloaded, total_size))
+        raise AssertionError(
+            "Downloaded size is different than expected ({} vs {})".format(
+                total_downloaded, total_size
+            )
+        )
 
     return total_downloaded, write_to if write_to else fd
 
@@ -121,14 +125,18 @@ def download_file(url, fpath):
 
 def get_sdcard_bytes(sdcard_path):
     try:
-        ps = subprocess.run(["/sbin/fdisk", "-l", sdcard_path], capture_output=True, text=True)
+        ps = subprocess.run(
+            ["/sbin/fdisk", "-l", sdcard_path], capture_output=True, text=True
+        )
         line = ps.stdout.splitlines()[0]
         return int(re.search("([0-9]+) bytes,", line).groups()[0])
     except Exception as exp:
         logger.error(exp)
 
     if sys.platform == "darwin":
-        ps = subprocess.run(["diskutil", "list", "-plist", sdcard_path], capture_output=True, text=True)
+        ps = subprocess.run(
+            ["diskutil", "list", "-plist", sdcard_path], capture_output=True, text=True
+        )
         for line in ps.stdout.splitlines():
             match = re.match(r"\t\t\t<integer>(\d+)</integer>", line)
             if match:

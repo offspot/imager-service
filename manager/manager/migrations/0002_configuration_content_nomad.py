@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manager', '0001_initial'),
+        ("manager", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='configuration',
-            name='content_nomad',
-            field=models.BooleanField(default=False, help_text='Digital Schools Android App', verbose_name='NomadEducation'),
+            model_name="configuration",
+            name="content_nomad",
+            field=models.BooleanField(
+                default=False,
+                help_text="Digital Schools Android App",
+                verbose_name="NomadEducation",
+            ),
         ),
     ]

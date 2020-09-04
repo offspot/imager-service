@@ -80,6 +80,7 @@ def collection(user: dict):
 
         return jsonify({"_id": order_id})
 
+
 @blueprint.route("/anonymize", methods=["PATCH"])
 @authenticate
 @only_for_roles(roles=Users.MANAGER_ROLE)
