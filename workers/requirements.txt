@@ -1,3 +1,4 @@
 requests>=2.21<3.0
 humanfriendly>=4.12,<5.0
 kiwixstorage>=0.4,<0.5
+torf>=3.1.1,<4.0

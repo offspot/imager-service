@@ -304,6 +304,7 @@ class Orders(BaseCollection):
             "media_duration": order["sd_card"]["duration"],
             "channel": order["channel"],
             "upload_uri": order["warehouse"]["upload_uri"],
+            "download_uri": order["warehouse"]["download_uri"],
             "worker": None,
             "config": order["config"],
             "size": order["sd_card"]["size"],

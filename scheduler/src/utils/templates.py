@@ -4,11 +4,15 @@
 
 import re
 import os
+import io
 import base64
 import logging
 import tempfile
+import urllib.parse
 
+import torf
 import qrcode
+import requests
 import langcodes
 import pycountry
 from jinja2 import Markup
@@ -43,9 +47,35 @@ def get_add_shipment_url(order):
 
 
 def get_public_download_url(order):
-    return "{wh_url}/{id}.img".format(
-        wh_url=order["warehouse"]["download_uri"], id=order["_id"]
+    url = urllib.parse.urlparse(order["warehouse"]["download_uri"])
+    fname = f"{order['_id']}.img"
+    if "torrent" in url.scheme:
+        parts = list(urllib.parse.urlsplit(url.geturl()))
+        parts[0] = parts[0].replace("+torrent", "")
+        url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
+        fname = f"{fname}.torrent"
+    return urllib.parse.urljoin(url.geturl(), fname)
+
+
+def public_download_url_is_torrent(order):
+    return (
+        "1"
+        if "torrent" in urllib.parse.urlparse(order["warehouse"]["download_uri"]).scheme
+        else ""
     )
+
+
+def get_public_download_magnet_url(order):
+    if not public_download_url_is_torrent(order):
+        return
+    try:
+        res = requests.get(get_public_download_url(order))
+        torrent = torf.Torrent.read_stream(io.BytesIO(res.content))
+        return torrent.magnet()
+    except Exception as exc:
+        logger.error("Unable to retrieve torrent file")
+        logger.exception(exc)
+    return get_public_download_url(order)
 
 
 def yesno(value):
