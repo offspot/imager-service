@@ -10,6 +10,7 @@ import datetime
 import subprocess
 import urllib.parse
 
+import torf
 from kiwixstorage import KiwixStorage
 
 from tasks.base import BaseTask
@@ -235,6 +236,35 @@ class CreateTask(BaseTask):
             f"S3 initialized for {s3_storage.url.netloc}/{s3_storage.bucket_name}"
         )
 
+        # torrent
+        upload_torrent = (
+            self.task.get("download_uri")
+            and "torrent" in urllib.parse.urlparse(self.task["download_uri"]).scheme
+        )
+
+        if upload_torrent:
+            uploader_logger.info(f"Creating torrent file for {self.img_path.name}")
+            torrent_path = self.img_path.with_suffix(f"{self.img_path.suffix}.torrent")
+            download_url = f"{self.task['download_uri']}/{self.img_path.name}"
+            torrent = torf.Torrent(
+                path=self.img_path,
+                trackers=[
+                    "https://opentracker.xyz:443/announce",
+                    "http://torrent.nwps.ws:80/announce",
+                    "udp://tracker.open-internet.nl:6969/announce",
+                    "udp://tracker.coppersurfer.tk:6969/announce",
+                    "udp://tracker.openbittorrent.com:80/announce",
+                ],
+                webseeds=[download_url],
+            )
+            torrent.generate()
+            torrent.write(torrent_path)
+            uploader_logger.info(f".. created {torrent_path.name}")
+
+            uploader_logger.info(f"Uploading {torrent_path.name}")
+            s3_storage.upload_file(fpath=str(torrent_path), key=torrent_path.name)
+            uploader_logger.info(".. uploaded")
+
         # upload
         uploader_logger.info(f"Uploading to {self.img_path.name}")
         try:
@@ -261,6 +291,14 @@ class CreateTask(BaseTask):
         except Exception as exc:
             uploader_logger.error("Failed to set autodelete")
             uploader_logger.exception(exc)
+
+        if upload_torrent:
+            try:
+                uploader_logger.info(f"Setting torrent autodelete to {expire_on}")
+                s3_storage.set_object_autodelete_on(key=torrent_path.name, on=expire_on)
+            except Exception as exc:
+                uploader_logger.error("Failed to set autodelete on torrent")
+                uploader_logger.exception(exc)
 
         self.logger.info("collecting uploader log")
         try:
