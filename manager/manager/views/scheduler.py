@@ -76,7 +76,17 @@ class ChannelForm(forms.Form):
 
 class S3URLFormField(forms.URLField):
     default_validators = [
-        validators.URLValidator(schemes=["http", "https", "ftp", "ftps", "s3"])
+        validators.URLValidator(
+            schemes=[
+                "http",
+                "https",
+                "ftp",
+                "ftps",
+                "s3",
+                "http+torrent",
+                "https+torrent",
+            ]
+        )
     ]
 
 
