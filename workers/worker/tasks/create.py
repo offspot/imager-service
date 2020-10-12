@@ -237,15 +237,17 @@ class CreateTask(BaseTask):
         )
 
         # torrent
-        upload_torrent = (
-            self.task.get("download_uri")
-            and "torrent" in urllib.parse.urlparse(self.task["download_uri"]).scheme
-        )
+        dl_url = urllib.parse.urlparse(self.task["download_uri"])
+        upload_torrent = "torrent" in dl_url.scheme
 
         if upload_torrent:
+            parts = list(urllib.parse.urlsplit(dl_url.geturl()))
+            parts[0] = parts[0].replace("+torrent", "")
+            dl_url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
+
             uploader_logger.info(f"Creating torrent file for {self.img_path.name}")
             torrent_path = self.img_path.with_suffix(f"{self.img_path.suffix}.torrent")
-            download_url = f"{self.task['download_uri']}/{self.img_path.name}"
+            download_url = f"{dl_url.geturl()}/{self.img_path.name}"
             torrent = torf.Torrent(
                 path=self.img_path,
                 trackers=[
