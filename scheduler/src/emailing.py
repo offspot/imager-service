@@ -23,6 +23,8 @@ from utils.templates import (
     get_insert_card_url,
     get_add_shipment_url,
     get_public_download_url,
+    public_download_url_is_torrent,
+    get_public_download_magnet_url
 )
 
 logger = logging.getLogger(__name__)
@@ -37,6 +39,8 @@ jinja_env.filters["pub_url"] = get_pub_url
 jinja_env.filters["insert_card_url"] = get_insert_card_url
 jinja_env.filters["add_shipment_url"] = get_add_shipment_url
 jinja_env.filters["public_download_url"] = get_public_download_url
+jinja_env.filters["public_download_url_is_torrent"] = public_download_url_is_torrent
+jinja_env.filters["public_download_magnet_url"] = get_public_download_magnet_url
 jinja_env.filters["country"] = country_name
 jinja_env.filters["language"] = language_name
 jinja_env.filters["linebreaksbr"] = linebreaksbr

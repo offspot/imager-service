@@ -6,8 +6,14 @@
 <p>Dear {{ order.recipient.name }},<br />
 Your Hotspot Image is now ready to download.</p>
 {{ button_download(order) }}
-<p>You can pause and resume your download as you wish, and even share this link freely until {{ order.sd_card.expiration.strftime('%c') }} (after which the file will be permanently deleted). If your connection is slow, use a download manager!</p>
-<p>To install the file onto a microSD card, we recommend <a href="https://www.balena.io/etcher/">BalenaEtcher</a>.</p>
+{% if order|public_download_url_is_torrent %}
+<p>Your image is available as a <em>torrent</em>. You need a BitTorrent client (software) to retrieve the actual <em>img</em> file.</p>
+<p>We recommend you use <img style="height: 1em; vertical-align: middle;" src="http://download.kiwix.org/dev/transmission.ico" /> <a href="https://transmissionbt.com/download/">Transmission</a> if you don't already have one. It will allow you to easily pause and resume your donwload and ensure that your file is not corrupt.</p>
+{% else %}
+<p>You can pause and resume your download as you wish. If your connection is slow, use a download manager!</p>
+{% endif %}
+<p>You are allowed to share this link freely until {{ order.sd_card.expiration.strftime('%c') }} (after which the file will be permanently deleted).</p>
+<p>To install the file onto a microSD card, we recommend <a href="https://www.balena.io/etcher/"><img style="height:1em; vertical-align: middle;" src="http://download.kiwix.org/dev/balena.png" alt="Balena Etcher" /></a>.</p>
 <p>Connect to the Hotspot by typing <a href="http://goto.kiwix.hotspot">http://goto.kiwix.hotspot</a> in your browser's address bar.</p>
 
 <p>Have a nice day,</p>
