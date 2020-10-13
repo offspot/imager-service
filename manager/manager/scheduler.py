@@ -223,6 +223,12 @@ def get_channels_list():
 
 
 @auth_required
+def get_autoimages_list():
+    success, code, response = query_api(GET, "/auto-images/")
+    return success, response
+
+
+@auth_required
 def add_channel(
     slug, name, sender_name, sender_email, sender_address, active=True, private=False
 ):
@@ -400,9 +406,41 @@ def get_warehouse_choices():
 
     warehouses = as_items_or_none(*get_warehouses_list())
     if warehouses is None:
-        return [("kiwix", "kiwix")]
+        return [("kiwix", "download")]
     return [
         (warehouse.get("slug"), warehouse.get("slug"))
         for warehouse in warehouses
         if warehouse.get("active", False)
     ]
+
+
+@auth_required
+def add_autoimage(
+    slug,
+    config,
+    contact_email,
+    periodicity,
+    warehouse,
+    channel,
+):
+    payload = {
+        "slug": slug,
+        "config": config,
+        "contact_email": contact_email,
+        "periodicity": periodicity,
+        "warehouse": warehouse,
+        "channel": channel,
+    }
+
+    success, code, response = query_api(POST, "/auto-images/", payload=payload)
+    if not success or "slug" not in response:
+        return False, response
+    return True, response.get("slug")
+
+
+@auth_required
+def delete_autoimage(autoimage_slug):
+    success, code, response = query_api(DELETE, f"/auto-images/{autoimage_slug}")
+    if success or code == 404:
+        return True, None
+    return False, response

@@ -14,5 +14,5 @@ sleep 2
 # reload crontab
 crontab /etc/cron.d/scheduler-cron
 
-echo "run parent's entrypoint"
+echo "run parent's (tiangolo/uwsgi-nginx) entrypoint"
 exec /entrypoint.sh "$@"

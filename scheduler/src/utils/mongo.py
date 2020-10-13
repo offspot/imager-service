@@ -165,6 +165,13 @@ class Warehouses(BaseCollection):
     def __init__(self):
         super().__init__(Database(), "warehouses")
 
+    @classmethod
+    def get(cls, slug):
+        order = cls().find_one({"slug": slug})
+        if order is None:
+            raise ValueError(f"Unable to find/retrieve object with slug {slug}")
+        return order
+
 
 class Orders(BaseCollection):
 
@@ -705,3 +712,84 @@ class WriterTasks(Tasks):
 
     def __init__(self):
         super().__init__(Database(), "writer_tasks")
+
+
+class AutoImages(BaseCollection):
+    schema = {
+        "slug": {"type": "string", "regex": "^[a-zA-Z0-9_.+-]+$", "required": True},
+        "config": {"type": "dict", "required": True},
+        "contact_email": {
+            "type": "string",
+            "regex": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
+            "required": True,
+        },
+        "periodicity": {"type": "string", "regex": "^.+$", "required": True},
+        "warehouse": {"type": "dict", "required": False},
+        "channel": {"type": "string", "required": True},
+        "status": {"type": "string", "required": True, "nullable": True},
+        "url": {"type": "string", "required": True, "nullable": True},
+        "expire_on": {"type": "datetime", "required": True, "nullable": True},
+        "order": {"type": "string", "required": True, "nullable": True},
+    }
+
+    def __init__(self):
+        super().__init__(Database(), "autoimages")
+
+    @classmethod
+    def get(cls, slug):
+        image = cls().find_one({"slug": slug})
+        if image is None:
+            raise ValueError("Unable to retrieve image with slug `{}`".format(slug))
+        return image
+
+    @classmethod
+    def all_needing_rebuild(cls):
+        return cls().find(
+            {
+                "$or": [
+                    {"status": None},
+                    {
+                        "status": {"$in": ["ready", "failed"]},
+                        "expire_on": {"$lte": datetime.datetime.now()},
+                    },
+                ],
+            }
+        )
+
+    @classmethod
+    def all_currently_building(cls):
+        return cls().find({"status": "building"})
+
+    @classmethod
+    def update_status(cls, slug, **update):
+        cls().update_one({"slug": slug}, {"$set": update})
+
+    @classmethod
+    def create_order_payload(cls, slug):
+        image = cls.get(slug)
+        warehouse = Warehouses.get(image["warehouse"])
+        return {
+            "config": image["config"],
+            "sd_card": {
+                "name": "auto",
+                "size": image["config"]["size"],
+                "type": "virtual",
+                "duration": 40,
+            },
+            "quantity": 1,
+            "units": 0,
+            "client": {"name": image["contact_email"], "email": image["contact_email"]},
+            "recipient": {
+                "name": image["contact_email"],
+                "email": image["contact_email"],
+                "phone": "",
+                "address": "",
+                "country": "",
+                "shipment": None,
+            },
+            "channel": image["channel"],
+            "warehouse": {
+                "upload_uri": warehouse["upload_uri"],
+                "download_uri": warehouse["download_uri"],
+            },
+        }

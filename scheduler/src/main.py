@@ -17,6 +17,7 @@ from routes import (
     home,
     warehouses,
     workers,
+    autoimages
 )
 from utils.json import Encoder
 from prestart import Initializer
@@ -34,6 +35,7 @@ flask.register_blueprint(orders.blueprint)
 flask.register_blueprint(tasks.blueprint)
 flask.register_blueprint(warehouses.blueprint)
 flask.register_blueprint(workers.blueprint)
+flask.register_blueprint(autoimages.blueprint)
 
 errors.register_handlers(flask)
 

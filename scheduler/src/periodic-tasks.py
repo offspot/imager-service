@@ -11,10 +11,20 @@ import requests
 import humanfriendly
 
 from emailing import send_order_failed_email
-from utils.mongo import Orders, Tasks
+from utils.mongo import Orders, Tasks, AutoImages
+from utils.templates import get_public_download_url
+from routes.orders import create_order_from
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+
+def get_next_month():
+    """ get next month's 1st day at 08:00 """
+    start_of_month = datetime.date(*datetime.date.today().timetuple()[:2], 1)
+    return datetime.datetime(
+        *(start_of_month + datetime.timedelta(days=31)).timetuple()[:2], 1, 8, 0
+    )
 
 
 def is_expired(status, since, size=0):
@@ -77,6 +87,10 @@ def remove_image(image_fname, upload_uri):
 
 def run_periodic_tasks():
     logger.info("running periodic tasks !!")
+
+    # manage auto-images
+    logger.info("managing auto-images")
+    check_autoimages()
 
     # timeout orders based on status
 
@@ -174,6 +188,53 @@ def run_periodic_tasks():
         #     Orders().update_status(order["_id"], Orders.expired)
         # else:
         #     logger.error("Failed to remove expired file {}".format(order_fname))
+
+
+def check_autoimages():
+    # update images that were building
+    logger.info("Looking for currently building images…")
+    for image in AutoImages.all_currently_building():
+        logger.info(f".. {image['slug']}")
+        # check order status
+        order = Orders.get(image["order"])
+
+        # order is considered failed
+        if order["status"] in Orders.FAILED_STATUSES:
+            logger.info(f".. order failed: {order['status']}")
+            AutoImages.update_status(image["slug"], status="failed")
+            continue
+
+        # order is considered successful
+        if order["status"] in Orders.SUCCESS_STATUSES + [Orders.pending_expiry]:
+            logger.info(f".. order succeeded: {order['status']}")
+            AutoImages.update_status(
+                image["slug"],
+                status="ready",
+                order=None,
+                url=get_public_download_url(order),
+                expire_on=get_next_month(),
+            )
+            continue
+
+        logger.info(f".. order still building: {order['status']}")
+
+    # find images that must be recreated
+    logger.info("Looking for images needing building…")
+    for image in AutoImages.all_needing_rebuild():
+        logger.info(f".. {image['slug']} ; starting build")
+
+        # create order
+        payload = AutoImages.create_order_payload(image["slug"])
+        try:
+            order_id = create_order_from(payload)
+        except Exception as exc:
+            logger.error(f"Error creating image `{image['slug']}`: {exc}")
+            logger.exception(exc)
+            AutoImages.update_status(image["slug"], status="failed")
+            continue
+
+        # update with order ID and status: building
+        AutoImages.update_status(image["slug"], status="building", order=order_id)
 
 
 if __name__ == "__main__":
