@@ -1,4 +1,4 @@
 SHELL=/bin/bash
 BASH_ENV=/container.env
 
-* * * * */2 /usr/local/bin/python /app/periodic-tasks.py > /tmp/periodic.log
+* * * * */2 root /usr/local/bin/python /app/periodic-tasks.py > /tmp/periodic.log
