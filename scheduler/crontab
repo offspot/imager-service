@@ -1,4 +1,5 @@
 SHELL=/bin/bash
 BASH_ENV=/container.env
 
+* * * * *   echo "test $(date)" >> /proc/1/fd/1
 * * * * */2 /usr/local/bin/python /app/periodic-tasks.py >> /proc/1/fd/1 2>&1
