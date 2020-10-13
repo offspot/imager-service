@@ -128,3 +128,12 @@ def clean_datetime(dt):
 
 
 register.filter("datetime", clean_datetime)
+
+
+def short_id(anid):
+    if not anid:
+        return None
+    return anid[:8] + anid[-3:]
+
+
+register.filter("short_id", short_id)

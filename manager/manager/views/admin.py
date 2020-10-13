@@ -53,7 +53,7 @@ class UpdateUnitsForm(forms.Form):
 
     def save(self):
         if not self.is_valid():
-            raise ValueError("{cls} is not valid".format(type(self)))
+            raise ValueError("{cls} is not valid".format(cls=type(self)))
 
         organization = Organization.get_or_none(self.cleaned_data.get("organization"))
         organization.units = self.cleaned_data.get("units")

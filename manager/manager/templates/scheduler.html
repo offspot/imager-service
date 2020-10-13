@@ -112,7 +112,7 @@
 	</tr>
 	{% endfor %}
 </table>
-{% elif channels is None %}
+{% elif users is None %}
 {% include "error.html" with level="warning" message="Could not retrieve users list…" %}
 {% else %}
 <p class="info">hum, there's no existing user…</p>
@@ -127,6 +127,47 @@
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.email %}{{ user_form.email|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.password %}{{ user_form.password|as_widget }}</div>		
 		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add User</button></div>
+	</div>
+</form>
+
+<h3>Auto Images</h3>
+<p class="info">Auto Images are automatically recreated monthly</p>
+{% if images %}
+<table class="table table-bordered table-striped">
+	<tr><th>ID</th><th>Email</th><th>Status</th><th>Expire On</th><th>URL</th><th>Order</th><th>Delete</th></tr>
+	{% for image in images %}
+	<tr>
+		<th><code>{{image.slug }}</code> {{ image.config.size }}</th>
+		<td>{{ image.contact_email }}</td>
+		<td>{{ image.status }}</td>
+		<td>{{ image.expire_on }}</td>
+		<td>{% if image.url %}
+			<ul>
+			<li><a href="{{ image.url }}" target="_blank">direct</a></li>
+			<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/json" target="_blank">JSON</a></li>
+			<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/redirect" target="_blank">redirect</a></li>
+			</ul>
+			{% else %}n/a{% endif %}</td>
+		<td>{% if image.order %}<a href="{% url "all-orders-detail" order_id=image.order %}">{{ image.order|short_id }}</a>{% else %}n/a{% endif %}</td>
+		<td><a data-toggle="confirmation" data-title="Delete {{ image.slug }} ?" class="btn btn-sm btn-danger" href="{% url "scheduler_delete_image" image.slug %}">delete</a></td>
+	</tr>
+	{% endfor %}
+</table>
+{% elif images is None %}
+{% include "error.html" with level="warning" message="Could not retrieve images list…" %}
+{% else %}
+<p class="info">hum, there's no existing image…</p>
+{% endif %}
+<form method="POST" class="form-check form-check-inline">
+	{% csrf_token %}
+	<input type="hidden" name="form" value="image_form">
+	<div class="form-row visual-group">
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.slug %}{{ image_form.slug|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.config %}{{ image_form.config|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.contact_email %}{{ image_form.contact_email|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.channel %}{{ image_form.channel|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.warehouse %}{{ image_form.warehouse|as_widget }}</div>
+		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add Image</button></div>
 	</div>
 </form>
 {% endblock %}

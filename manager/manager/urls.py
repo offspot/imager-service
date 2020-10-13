@@ -138,6 +138,11 @@ urlpatterns = (
             scheduler.user_enable,
             name="scheduler_enable_user",
         ),
+        path(
+            "scheduler/delete_image/<str:image_slug>",
+            scheduler.image_delete,
+            name="scheduler_delete_image",
+        ),
         path("scheduler/refresh", scheduler.refresh_token, name="scheduler-refresh"),
         path("scheduler/", scheduler.dashboard, name="scheduler"),
         # basics

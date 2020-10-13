@@ -33,12 +33,23 @@ from manager.scheduler import (
     authenticate,
     ACCESS_TOKEN,
     get_channel_choices,
+    get_warehouse_choices,
+    get_autoimages_list,
+    add_autoimage,
+    delete_autoimage,
 )
+from manager.models import Configuration
 
 logger = logging.getLogger(__name__)
 
 
-class ChannelForm(forms.Form):
+class SchedulerForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self._client = kwargs.pop("client")
+        super().__init__(*args, **kwargs)
+
+
+class ChannelForm(SchedulerForm):
     slug = forms.CharField()
     name = forms.CharField()
     active = forms.BooleanField(initial=True, required=False)
@@ -90,7 +101,7 @@ class S3URLFormField(forms.URLField):
     ]
 
 
-class WarehouseForm(forms.Form):
+class WarehouseForm(SchedulerForm):
     slug = forms.CharField()
     upload_uri = S3URLFormField()
     download_uri = S3URLFormField()
@@ -122,7 +133,7 @@ class WarehouseForm(forms.Form):
         return warehouse_id
 
 
-class UserForm(forms.Form):
+class UserForm(SchedulerForm):
     username = forms.CharField()
     role = forms.ChoiceField(choices=ROLES.items())
     channel = forms.ChoiceField(choices=get_channel_choices())
@@ -165,6 +176,52 @@ class UserForm(forms.Form):
         return user_id
 
 
+class ImageForm(SchedulerForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["config"].choices = Configuration.get_choices(
+            self._client.organization
+        )
+
+    slug = forms.CharField(label="Image ID/slug")
+    config = forms.ChoiceField(choices=[], label="Configuration")
+    contact_email = forms.EmailField(label="Contact Email")
+    warehouse = forms.ChoiceField(choices=get_warehouse_choices())
+    channel = forms.ChoiceField(choices=get_channel_choices())
+    active = forms.BooleanField(initial=True, required=False)
+
+    @staticmethod
+    def success_message(result):
+        return f"Successfuly created Auto Image <em>{result}</em>"
+
+    def clean_slug(self):
+        if not re.match(r"^[a-zA-Z0-9_.+-]+$", self.cleaned_data.get("slug")):
+            raise forms.ValidationError("Prohibited Characters", code="invalid")
+        return self.cleaned_data.get("slug")
+
+    def clean_config(self):
+        config = Configuration.get_or_none(self.cleaned_data.get("config"))
+        if config is None or config.organization != self._client.organization:
+            raise forms.ValidationError("Not your configuration", code="invalid")
+        return config
+
+    def save(self):
+        if not self.is_valid():
+            raise ValueError("{cls} is not valid".format(cls=type(self)))
+
+        success, autoimage_slug = add_autoimage(
+            slug=self.cleaned_data.get("slug"),
+            config=self.cleaned_data.get("config").to_dict(),
+            contact_email=self.cleaned_data.get("contact_email"),
+            periodicity="monthly",
+            warehouse=self.cleaned_data.get("warehouse"),
+            channel=self.cleaned_data.get("channel"),
+        )
+        if not success:
+            raise SchedulerAPIError(autoimage_slug)
+        return autoimage_slug
+
+
 @staff_required
 def dashboard(request):
 
@@ -185,21 +242,26 @@ def dashboard(request):
         "warehouses": as_items_or_none(*get_warehouses_list()) or None,
         "users": as_items_or_none(*get_users_list()) or None,
         "workers": as_items_or_none(*get_workers_list()) or None,
+        "images": as_items_or_none(*get_autoimages_list()) or None,
+        "api_url": settings.CARDSHOP_API_URL,
     }
 
     forms_map = {
         "channel_form": ChannelForm,
         "user_form": UserForm,
         "warehouse_form": WarehouseForm,
+        "image_form": ImageForm,
     }
     for key, value in forms_map.items():
-        context[key] = value(prefix=key)
+        context[key] = value(prefix=key, client=request.user.profile)
 
     if request.method == "POST" and request.POST.get("form") in forms_map.keys():
 
         # which form is being saved?
         form_key = request.POST.get("form")
-        context[form_key] = forms_map.get(form_key)(request.POST, prefix=form_key)
+        context[form_key] = forms_map.get(form_key)(
+            request.POST, prefix=form_key, client=request.user.profile
+        )
 
         if context[form_key].is_valid():
             try:
@@ -317,4 +379,18 @@ def refresh_token(request):
             ACCESS_TOKEN[:20]
         ),
     )
+    return redirect("scheduler")
+
+
+staff_required
+
+
+def image_delete(request, image_slug):
+    success, _ = delete_autoimage(image_slug)
+    if not success:
+        logger.error(f"Unable to delete image: {image_slug}")
+        messages.error(request, f"Unable to delete image: -- ref: {image_slug}")
+    else:
+        messages.success(request, f"Successfuly deleted image: {image_slug}")
+
     return redirect("scheduler")
