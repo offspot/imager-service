@@ -35,7 +35,7 @@ WORKDIR /app
 
 RUN touch /container.env
 COPY crontab /etc/cron.d/scheduler-cron
-RUN chmod 0644 /etc/cron.d/scheduler-cron
+RUN chmod +x /etc/cron.d/scheduler-cron
 RUN crontab /etc/cron.d/scheduler-cron
 
 RUN rm -rf /lib/systemd/system/supervisor.service
