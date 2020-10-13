@@ -747,9 +747,9 @@ class AutoImages(BaseCollection):
         return cls().find(
             {
                 "$or": [
-                    {"status": None},
+                    {"status": {"$in": [None, "failed"]}},
                     {
-                        "status": {"$in": ["ready", "failed"]},
+                        "status": {"ready", "failed"},
                         "expire_on": {"$lte": datetime.datetime.now()},
                     },
                 ],
