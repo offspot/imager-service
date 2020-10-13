@@ -1,4 +1,4 @@
 SHELL=/bin/bash
 BASH_ENV=/container.env
 
-*/5 * * * * /usr/local/bin/python /app/periodic-tasks.py >> /proc/1/fd/1 2>&1
+*/5 * * * * cd /app && /usr/local/bin/python /app/periodic-tasks.py >> /proc/1/fd/1 2>&1
