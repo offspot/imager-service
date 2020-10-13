@@ -23,6 +23,28 @@ def string_to_bool(string):
     return bool(strtobool(str(string)))
 
 
+def create_order_from(payload):
+    # validate payload
+    validate(payload, Orders().schema)
+
+    payload["status"] = Orders().created
+    payload["tasks"] = {}
+    payload["statuses"] = [
+        {"status": Orders().created, "on": datetime.datetime.now(), "payload": None}
+    ]
+
+    # actually create Order
+    order_id = Orders().insert_one(payload).inserted_id
+
+    # send email about new order
+    send_order_created_email(order_id)
+
+    # create creation task
+    Orders.create_creator_task(order_id)
+
+    return order_id
+
+
 @blueprint.route("/", methods=["GET", "POST"])
 @authenticate
 @only_for_roles(roles=Users.MANAGER_ROLE)
@@ -55,28 +77,10 @@ def collection(user: dict):
         )
     if request.method == "POST":
 
-        # validate request json
         try:
-            request_json = request.get_json()
-            validate(request_json, Orders().schema)
+            order_id = create_order_from(request.get_json())
         except ValidationError as error:
-            raise errors.BadRequest(error.message)
-
-        request_json["status"] = Orders().created
-        request_json["tasks"] = {}
-        request_json["statuses"] = [
-            {"status": Orders().created, "on": datetime.datetime.now(), "payload": None}
-        ]
-
-        # actually create Ordr
-        order_id = Orders().insert_one(request_json).inserted_id
-        print("ORDER_ID", order_id)
-
-        # send email about new order
-        send_order_created_email(order_id)
-
-        # create creation task
-        Orders.create_creator_task(order_id)
+            raise errors.BadRequest(str(error))
 
         return jsonify({"_id": order_id})
 
