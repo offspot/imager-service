@@ -749,7 +749,7 @@ class AutoImages(BaseCollection):
                 "$or": [
                     {"status": {"$in": [None, "failed"]}},
                     {
-                        "status": {"ready", "failed"},
+                        "status": "ready",
                         "expire_on": {"$lte": datetime.datetime.now()},
                     },
                 ],
