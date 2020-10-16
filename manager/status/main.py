@@ -26,6 +26,14 @@ def status_class(value):
 @app.route(r"/", methods=["GET"])
 @app.route(r"/<path>", methods=["GET"])
 def create_checkout_session(path=""):
+    context = collect_statuses()
+    return (
+        render_template("status.html", **context),
+        200 if context["global_status"] else 503,
+    )
+
+
+def collect_statuses():
     scheduler_workers_list = get_scheduler_workers_list()
     scheduler_status = get_scheduler_status(scheduler_workers_list)
     worker_status = get_worker_status(scheduler_workers_list)
@@ -43,7 +51,7 @@ def create_checkout_session(path=""):
             wasabi_status,
         ]
     )
-    context = {
+    return {
         "scheduler_status": scheduler_status,
         "worker_status": worker_status,
         "manager_status": manager_status,
@@ -52,7 +60,6 @@ def create_checkout_session(path=""):
         "wasabi_status": wasabi_status,
         "global_status": global_status,
     }
-    return render_template("status.html", **context), 200 if global_status else 503
 
 
 def get_scheduler_token(url, username, password):
@@ -120,12 +127,14 @@ def get_worker_status(workers_list):
     if not workers_list:
         return False
     try:
-        return [
-            worker
-            for worker in workers_list
-            if datetime.datetime.fromisoformat(worker["on"].replace("Z", ""))
-            >= fifteen_ago
-        ]
+        return bool(
+            [
+                worker
+                for worker in workers_list
+                if datetime.datetime.fromisoformat(worker["on"].replace("Z", ""))
+                >= fifteen_ago
+            ]
+        )
     except Exception as exc:
         print(f"Unable to get Workers status: {exc}")
         return False
