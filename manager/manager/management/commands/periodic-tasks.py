@@ -15,11 +15,11 @@ class Command(BaseCommand):
     help = "Executes periodic tasks"
 
     def handle(self, *args, **options):
-        self.stdout.write("## running periodic tasks...")
+        logger.info("## running periodic tasks...")
 
-        self.stdout.write("updating scheduler data for in-progress orders...")
+        logger.info("updating scheduler data for in-progress orders...")
         for order in Order.objects.filter(status=Order.IN_PROGRESS):
             o = Order.fetch_and_get(order.id)
-            self.stdout.write(o.min_id, o.status)
+            logger.debug(f"..{o.min_id}: {o.status}")
 
-        self.stdout.write(self.style.SUCCESS("    done"))
+        logger.info(">done")
