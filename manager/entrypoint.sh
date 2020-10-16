@@ -24,6 +24,8 @@ fi
 
 echo "start cron"
 cron
+sleep 2
+crontab /etc/cron.d/manager-cron
 
 echo "run parent's entrypoint"
 exec /entrypoint.sh "$@"

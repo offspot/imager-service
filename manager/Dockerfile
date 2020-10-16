@@ -1,4 +1,4 @@
-FROM tiangolo/uwsgi-nginx:python3.7
+FROM tiangolo/uwsgi-nginx:python3.8
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone
@@ -27,15 +27,33 @@ RUN pip install -r /app/requirements.txt
 COPY manage.py /app/manage.py
 COPY manager /app/manager
 COPY contents.json /app/contents.json
+COPY uwsgi-manager.ini /etc/uwsgi/manager.ini
 
-COPY uwsgi.ini /app/uwsgi.ini
+# for status page
+ENV STATUS_S3_URL "http://org-kiwix-hotspot-cardshop-download.s3.us-west-1.wasabisys.com"
+ENV STATUS_CARDSHOP_URL "https://cardshop.hotspot.kiwix.org"
+ENV STATUS_CARDSHOP_API_URL "https://api.cardshop.hotspot.kiwix.org"
+ENV USERNAME ""
+ENV STATUS_MANAGER_PASSWORD ""
+ENV MONGODB_URI "mongodb://mongodb"
+ENV STATUS_SCHEDULER_USERNAME ""
+ENV STATUS_SCHEDULER_PASSWORD ""
+
+COPY status /app/status
+RUN pip install -r /app/status/requirements.txt
+COPY uwsgi-status.ini /etc/uwsgi/uwsgi-status.ini
+
+# replace line in supervisor to enable emperor mode
+RUN sed -i "s/uwsgi --ini \/etc\/uwsgi\/uwsgi.ini/uwsgi --emperor \/etc\/uwsgi/g" /etc/supervisor/conf.d/supervisord.conf
+# add route in uwsgi to enable status page
+RUN printf "\nroute-uri = ^/health-check(/?)$ uwsgi:/tmp/uwsgi-status.sock,0,0" >> /etc/uwsgi/uwsgi.ini
+
+ENV UWSGI_INI /etc/uwsgi/manager.ini
 COPY entrypoint.sh /manager-entrypoint.sh
 RUN chmod 755 /manager-entrypoint.sh
-
-ENV UWSGI_INI /app/uwsgi.ini
 WORKDIR /app
 
-RUN echo "* * * * */5 /usr/local/bin/python /app/manage.py periodic-tasks > /proc/1/fd/1 2>/proc/1/fd/2\n" > /etc/cron.d/manager-cron
+RUN echo "*/5 * * * * /usr/local/bin/python /app/manage.py periodic-tasks > /proc/1/fd/1 2>/proc/1/fd/2\n" > /etc/cron.d/manager-cron
 RUN chmod 0644 /etc/cron.d/manager-cron
 RUN crontab /etc/cron.d/manager-cron
 
