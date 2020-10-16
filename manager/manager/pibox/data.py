@@ -3,7 +3,6 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import logging
-import collections
 
 import yaml
 import requests
@@ -28,8 +27,9 @@ if not len(YAML_CATALOGS):
             YAML_CATALOGS.append(
                 yaml.load(requests.get(catalog.get("url")).content.decode("utf-8"))
             )
-    except Exception:
-        raise
+    except Exception as exc:
+        logger.error(f"Unable to load ideascube catalog: {exc}")
+        raise exc
     cache_set("YAML_CATALOGS", YAML_CATALOGS)
 
 hotspot_languages = [("en", u"English"), ("fr", u"Fran\xe7ais")]

@@ -61,17 +61,15 @@ def get_packages_id():
 
 
 def get_packages_langs():
-    def _name(lk, ln):
-        return ln if ln else lk.upper()
-
     return collections.OrderedDict(
         sorted(
             [
                 (
-                    langcodes.Language.get(l).language,
-                    langcodes.Language.get(l).language_name(),
+                    langcodes.Language.get(lang).language,
+                    langcodes.Language.get(lang).language_name(),
                 )
-                for l in PACKAGES_BY_LANG
+                for lang in PACKAGES_BY_LANG
+                if lang
             ],
             key=lambda x: x[1],
         )
