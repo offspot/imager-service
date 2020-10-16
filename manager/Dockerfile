@@ -15,7 +15,7 @@ ENV SUPPORT_EMAIL stephane@kiwix.org
 VOLUME /data
 
 # update pip
-RUN pip install -U pip setuptools
+RUN pip install -U pip setuptools virtualenv
 
 COPY nginx.conf /etc/nginx/conf.d/
 
@@ -40,7 +40,8 @@ ENV STATUS_SCHEDULER_USERNAME ""
 ENV STATUS_SCHEDULER_PASSWORD ""
 
 COPY status /app/status
-RUN pip install -r /app/status/requirements.txt
+RUN virtualenv -p python3 /app/status-env
+RUN /app/status-env/bin/pip install -r /app/status/requirements.txt
 COPY uwsgi-status.ini /etc/uwsgi/uwsgi-status.ini
 
 # replace line in supervisor to enable emperor mode
@@ -52,8 +53,7 @@ ENV UWSGI_INI /etc/uwsgi/manager.ini
 COPY entrypoint.sh /manager-entrypoint.sh
 RUN chmod 755 /manager-entrypoint.sh
 WORKDIR /app
-
-RUN echo "*/5 * * * * /usr/local/bin/python /app/manage.py periodic-tasks > /proc/1/fd/1 2>/proc/1/fd/2\n" > /etc/cron.d/manager-cron
+RUN printf "SHELL=/bin/bash\nBASH_ENV=/container.env\nDJANGO_SETTINGS_MODULE=manager.settings\n*/5 * * * * cd /app && /usr/local/bin/python ./manage.py periodic-tasks > /proc/1/fd/1 2>/proc/1/fd/2\n" > /etc/cron.d/manager-cron
 RUN chmod 0644 /etc/cron.d/manager-cron
 RUN crontab /etc/cron.d/manager-cron
 

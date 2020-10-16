@@ -9,6 +9,9 @@ else
 	FIRSTRUN=0
 fi
 
+echo "dump environment"
+declare -p | grep -Ev 'BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID' > /container.env
+
 mkdir -p ${DATA_DIR}/media
 
 # always migrate & collect static file
