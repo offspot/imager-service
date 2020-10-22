@@ -78,10 +78,16 @@ class OrderForm(forms.Form):
         self.organization = client.organization
         self.fields["config"].choices = Configuration.get_choices(self.organization)
         self.fields["address"].choices = Address.get_choices(self.organization)
-        self.fields["media"].choices = Media.get_choices()
+        self.fields["media"].choices = Media.get_choices(
+            kind=None if client.can_order_physical else Media.VIRTUAL
+        )
+        self.fields["kind"].choices = filter(
+            lambda item: client.can_order_physical or item[0] != Media.PHYSICAL,
+            self.KIND_CHOICES.items(),
+        )
 
     kind = forms.ChoiceField(
-        choices=KIND_CHOICES.items(),
+        choices=[],
         label="Order Type",
         help_text="Either download link sent via email or micro-SD card shipment",
     )
@@ -120,6 +126,8 @@ class OrderForm(forms.Form):
         media = Media.get_or_none(self.cleaned_data.get("media"))
         if media is None:
             raise forms.ValidationError("Incorrect Media", code="invalid")
+        if media.kind == Media.PHYSICAL and not self.client.can_order_physical:
+            raise forms.ValidationError("Not allowed to order physical", code="invalid")
         return media
 
     def clean_quantity(self):
@@ -138,7 +146,7 @@ class OrderForm(forms.Form):
         kind = cleaned_data.get("kind")
         address = cleaned_data.get("address")
 
-        if kind == media.PHYSICAL and not address.physical_compatible:
+        if kind == Media.PHYSICAL and not address.physical_compatible:
             self.add_error(
                 "address", "This address can't be used as it misses postal details"
             )

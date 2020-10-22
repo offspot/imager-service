@@ -487,6 +487,7 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    can_order_physical = models.BooleanField(default=False)
 
     @property
     def username(self):
@@ -520,7 +521,9 @@ class Profile(models.Model):
         if cls.objects.filter(user=user).count():
             return cls.objects.get(user=user)
 
-        return cls.objects.create(user=user, organization=organization)
+        return cls.objects.create(
+            user=user, organization=organization, can_order_physical=True
+        )
 
     @classmethod
     def exists(cls, username):
@@ -531,7 +534,16 @@ class Profile(models.Model):
         return bool(User.objects.filter(email=email).count())
 
     @classmethod
-    def create(cls, organization, first_name, email, username, password, is_admin):
+    def create(
+        cls,
+        organization,
+        first_name,
+        email,
+        username,
+        password,
+        is_admin,
+        can_order_physical,
+    ):
         if cls.exists(username) or cls.taken(email):
             raise ValueError("Profile parameters non unique")
 
@@ -545,7 +557,11 @@ class Profile(models.Model):
         )
 
         try:
-            return cls.objects.create(user=user, organization=organization)
+            return cls.objects.create(
+                user=user,
+                organization=organization,
+                can_order_physical=is_admin or can_order_physical,
+            )
         except Exception as exp:
             logger.error(exp)
             # make sure we remove the User object so it can be recreated later
