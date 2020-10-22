@@ -3,6 +3,8 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import os
+import sys
+import asyncio
 import datetime
 
 import pymongo
@@ -10,7 +12,10 @@ import requests
 from bs4 import BeautifulSoup
 from flask import Flask, render_template
 
+loop = asyncio.get_event_loop()
 app = Flask(__name__)
+
+HTTP_TIMEOUT = 5  # seconds
 
 
 @app.template_filter("status_text")
@@ -26,14 +31,51 @@ def status_class(value):
 @app.route(r"/", methods=["GET"])
 @app.route(r"/<path>", methods=["GET"])
 def create_checkout_session(path=""):
-    context = collect_statuses()
+    context = loop.run_until_complete(collect_statuses())
     return (
         render_template("status.html", **context),
         200 if context["global_status"] else 503,
     )
 
 
-def collect_statuses():
+async def collect_statuses():
+    """ gather all status checks in a single dict """
+    scheduler_workers_list = get_scheduler_workers_list()
+    loop = asyncio.get_event_loop()
+    context = {}
+
+    def wrap(key, func, *args):
+        return {key: func(*args)}
+
+    futures = [
+        loop.run_in_executor(
+            None,
+            wrap,
+            "scheduler_status",
+            get_scheduler_status,
+            scheduler_workers_list,
+        ),
+        loop.run_in_executor(
+            None,
+            wrap,
+            "worker_status",
+            get_worker_status,
+            scheduler_workers_list,
+        ),
+        loop.run_in_executor(None, wrap, "manager_status", get_manager_status),
+        loop.run_in_executor(None, wrap, "database_status", get_database_status),
+        loop.run_in_executor(None, wrap, "images_status", get_images_status),
+        loop.run_in_executor(None, wrap, "wasabi_status", get_wasabi_status),
+    ]
+
+    for response in await asyncio.gather(*futures):
+        context.update(response)
+
+    context.update({"global_status": all(context.values())})
+    return context
+
+
+def collect_statuses_sequential():
     scheduler_workers_list = get_scheduler_workers_list()
     scheduler_status = get_scheduler_status(scheduler_workers_list)
     worker_status = get_worker_status(scheduler_workers_list)
@@ -70,6 +112,7 @@ def get_scheduler_token(url, username, password):
             "password": password,
             "Content-type": "application/json",
         },
+        timeout=HTTP_TIMEOUT,
     )
     req.raise_for_status()
     return req.json().get("access_token"), req.json().get("refresh_token")
@@ -99,6 +142,7 @@ def get_scheduler_workers_list():
                 "token": access_token,
                 "Content-type": "application/json",
             },
+            timeout=HTTP_TIMEOUT,
         )
         return resp.json().get("items")
     except Exception as exc:
@@ -154,7 +198,7 @@ def get_manager_status():
     }
     try:
         with requests.Session() as session:
-            resp = session.get(url)
+            resp = session.get(url, timeout=HTTP_TIMEOUT)
             html = BeautifulSoup(resp.text, "html.parser")
             payload["csrfmiddlewaretoken"] = html.find("input").attrs["value"]
             resp = session.post(url, data=payload, headers={"Referer": url})
@@ -188,7 +232,9 @@ def get_images_status():
     try:
         return (
             requests.head(
-                f"{url}/auto-images/std-test/redirect", allow_redirects=True
+                f"{url}/auto-images/std-test/redirect",
+                allow_redirects=True,
+                timeout=HTTP_TIMEOUT,
             ).status_code
             == 200
         )
@@ -204,11 +250,30 @@ def get_wasabi_status():
     date and update it"""
     url = os.getenv("STATUS_S3_URL", "") + "/status"
     try:
-        return requests.head(url, allow_redirects=True).status_code == 200
+        return (
+            requests.head(url, allow_redirects=True, timeout=HTTP_TIMEOUT).status_code
+            == 200
+        )
     except Exception as exc:
         print(f"Unable to get Wasabi status: {exc}")
         return False
 
 
+def timed_run():
+    """ DEBUG: run and print the checks once with timeit """
+    import timeit
+
+    print(
+        timeit.timeit(
+            "pprint.pprint(loop.run_until_complete(collect_statuses()))",
+            setup="from __main__ import loop, collect_statuses; import pprint",
+            number=1,
+        )
+    )
+
+
 if __name__ == "__main__":
-    app.run(port=8080)
+    if "cli" in sys.argv:
+        timed_run()
+    else:
+        app.run(port=8080)
