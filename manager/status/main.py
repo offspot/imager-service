@@ -12,6 +12,8 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
+HTTP_TIMEOUT = 3  # seconds
+
 
 @app.template_filter("status_text")
 def status_text(value):
@@ -70,6 +72,7 @@ def get_scheduler_token(url, username, password):
             "password": password,
             "Content-type": "application/json",
         },
+        timeout=HTTP_TIMEOUT,
     )
     req.raise_for_status()
     return req.json().get("access_token"), req.json().get("refresh_token")
@@ -99,6 +102,7 @@ def get_scheduler_workers_list():
                 "token": access_token,
                 "Content-type": "application/json",
             },
+            timeout=HTTP_TIMEOUT,
         )
         return resp.json().get("items")
     except Exception as exc:
@@ -154,7 +158,7 @@ def get_manager_status():
     }
     try:
         with requests.Session() as session:
-            resp = session.get(url)
+            resp = session.get(url, timeout=HTTP_TIMEOUT)
             html = BeautifulSoup(resp.text, "html.parser")
             payload["csrfmiddlewaretoken"] = html.find("input").attrs["value"]
             resp = session.post(url, data=payload, headers={"Referer": url})
@@ -188,7 +192,9 @@ def get_images_status():
     try:
         return (
             requests.head(
-                f"{url}/auto-images/std-test/redirect", allow_redirects=True
+                f"{url}/auto-images/std-test/redirect",
+                allow_redirects=True,
+                timeout=HTTP_TIMEOUT,
             ).status_code
             == 200
         )
@@ -204,7 +210,10 @@ def get_wasabi_status():
     date and update it"""
     url = os.getenv("STATUS_S3_URL", "") + "/status"
     try:
-        return requests.head(url, allow_redirects=True).status_code == 200
+        return (
+            requests.head(url, allow_redirects=True, timeout=HTTP_TIMEOUT).status_code
+            == 200
+        )
     except Exception as exc:
         print(f"Unable to get Wasabi status: {exc}")
         return False
