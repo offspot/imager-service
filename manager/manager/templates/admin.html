@@ -49,7 +49,7 @@
 	<thead><tr><th>Username</th><th>Organization</th><th>Email</th><th>Name</th><th>Active</th><th>Delete</th></tr></thead>
 	<tbody>
 	{% for profile in profiles %}
-	<tr><th><a href="{% url "admin:auth_user_change" profile.user.id %}"><code>{{ profile.user.username }}</code></a>{% if profile.user.is_staff %} (admin){% endif %}</th>
+	<tr><th><a href="{% url "admin:auth_user_change" profile.user.id %}"><code>{{ profile.user.username }}</code></a>{% if profile.can_order_physical %} <i class="fas fa-sd-card"></i>{% endif %}{% if profile.user.is_staff %} (admin){% endif %}</th>
 		<td>{{ profile.organization }}</td>
 		<td><a href="mailto:{{ profile.user.email }}">{{ profile.user.email }}</a></td>
 		<td>{{ profile.name }}</td>
@@ -72,8 +72,8 @@
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=profile_form.username %}{{ profile_form.username|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=profile_form.password %}{{ profile_form.password|as_widget }}</div>
 		<div class="form-group col-md-1">{% include "_label_for.html" with field=profile_form.is_admin %}{{ profile_form.is_admin|as_widget }}</div>
-		
-		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Create User</button></div>
+		<div class="form-group col-md-1">{% include "_label_for.html" with field=profile_form.can_sd %}{{ profile_form.can_sd|as_widget }}</div>
+		<div class="form-group col-md-1"><label>-</label><button class="btn btn-primary form-check-input form-control">Create</button></div>
 	</div>
 </form>
 
@@ -102,7 +102,6 @@
 		<div class="form-group col-md-3">{% include "_label_for.html" with field=media_form.kind %}{{ media_form.kind|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=media_form.size %}{{ media_form.size|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=media_form.units_coef %}{{ media_form.units_coef|as_widget }}</div>
-		
 		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add Media</button></div>
 	</div>
 </form>

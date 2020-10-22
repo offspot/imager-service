@@ -68,6 +68,7 @@ class ProfileForm(forms.Form):
     username = forms.CharField(max_length=100)
     password = forms.CharField(max_length=100)
     is_admin = forms.BooleanField(initial=False, label="admin?", required=False)
+    can_sd = forms.BooleanField(initial=False, label="SD?", required=False)
 
     @staticmethod
     def success_message(result):
@@ -90,7 +91,7 @@ class ProfileForm(forms.Form):
 
     def save(self):
         if not self.is_valid():
-            raise ValueError("{cls} is not valid".format(type(self)))
+            raise ValueError("{cls} is not valid".format(cls=type(self)))
 
         organization = Organization.get_or_none(self.cleaned_data.get("organization"))
         return Profile.create(
@@ -100,6 +101,7 @@ class ProfileForm(forms.Form):
             username=self.cleaned_data.get("username"),
             password=self.cleaned_data.get("password"),
             is_admin=self.cleaned_data.get("is_admin"),
+            can_order_physical=self.cleaned_data.get("can_sd")
         )
 
 
