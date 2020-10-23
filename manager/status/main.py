@@ -16,6 +16,7 @@ loop = asyncio.get_event_loop()
 app = Flask(__name__)
 
 HTTP_TIMEOUT = 5  # seconds
+WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 2  # seconds
 
 
 @app.template_filter("status_text")
@@ -251,7 +252,9 @@ def get_wasabi_status():
     url = os.getenv("STATUS_S3_URL", "") + "/status"
     try:
         return (
-            requests.head(url, allow_redirects=True, timeout=HTTP_TIMEOUT).status_code
+            requests.head(
+                url, allow_redirects=True, timeout=WASABI_HTTP_TIMEOUT
+            ).status_code
             == 200
         )
     except Exception as exc:
