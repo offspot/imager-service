@@ -422,6 +422,7 @@ def add_autoimage(
     periodicity,
     warehouse,
     channel,
+    private,
 ):
     payload = {
         "slug": slug,
@@ -430,6 +431,7 @@ def add_autoimage(
         "periodicity": periodicity,
         "warehouse": warehouse,
         "channel": channel,
+        "private": private,
     }
 
     success, code, response = query_api(POST, "/auto-images/", payload=payload)

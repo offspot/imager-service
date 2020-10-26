@@ -188,6 +188,7 @@ class ImageForm(SchedulerForm):
     contact_email = forms.EmailField(label="Contact Email")
     warehouse = forms.ChoiceField(choices=get_warehouse_choices())
     channel = forms.ChoiceField(choices=get_channel_choices())
+    private = forms.BooleanField(initial=True, required=True)
     active = forms.BooleanField(initial=True, required=False)
 
     @staticmethod
@@ -216,6 +217,7 @@ class ImageForm(SchedulerForm):
             periodicity="monthly",
             warehouse=self.cleaned_data.get("warehouse"),
             channel=self.cleaned_data.get("channel"),
+            private=self.cleaned_data.get("private")
         )
         if not success:
             raise SchedulerAPIError(autoimage_slug)
