@@ -53,11 +53,14 @@ def get_public_download_url(order):
         parts = list(urllib.parse.urlsplit(url.geturl()))
         parts[0] = parts[0].replace("+torrent", "")
         url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
-        fname = f"{fname}.torrent"
     return urllib.parse.urljoin(url.geturl(), fname)
 
 
-def public_download_url_is_torrent(order):
+def get_public_download_torrent_url(order):
+    return f"{get_public_download_url(order)}.torrent"
+
+
+def public_download_url_has_torrent(order):
     return (
         "1"
         if "torrent" in urllib.parse.urlparse(order["warehouse"]["download_uri"]).scheme
@@ -66,10 +69,10 @@ def public_download_url_is_torrent(order):
 
 
 def get_public_download_magnet_url(order):
-    if not public_download_url_is_torrent(order):
+    if not public_download_url_has_torrent(order):
         return
     try:
-        res = requests.get(get_public_download_url(order))
+        res = requests.get(get_public_download_torrent_url(order))
         torrent = torf.Torrent.read_stream(io.BytesIO(res.content))
         return torrent.magnet()
     except Exception as exc:

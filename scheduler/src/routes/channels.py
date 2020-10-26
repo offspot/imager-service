@@ -17,7 +17,7 @@ blueprint = Blueprint("channel", __name__, url_prefix="/channels")
 
 
 @blueprint.route("/", methods=["GET", "POST"])
-@authenticate
+@authenticate()
 def collection(user: dict):
     """
     List or create channels
@@ -56,7 +56,7 @@ def collection(user: dict):
             request_json = request.get_json()
             validate(request_json, Channels.schema)
         except ValidationError as error:
-            raise errors.BadRequest(error.message)
+            raise errors.BadRequest(str(error))
 
         if Channels().count({"slug": request_json["slug"]}):
             raise errors.BadRequest("Channel with this slug exists.")
@@ -66,7 +66,7 @@ def collection(user: dict):
 
 
 @blueprint.route("/<string:channel_id>", methods=["GET", "DELETE"])
-@authenticate
+@authenticate()
 @bson_object_id(["channel_id"])
 def document(channel_id: ObjectId, user: dict):
     if request.method == "GET":
@@ -89,7 +89,7 @@ def document(channel_id: ObjectId, user: dict):
 
 
 @blueprint.route("/<string:channel_id>", methods=["PATCH"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.MANAGER_ROLE)
 @bson_object_id(["channel_id"])
 def change_active_status(channel_id: ObjectId, user: dict):

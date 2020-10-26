@@ -18,7 +18,7 @@ blueprint = Blueprint("user", __name__, url_prefix="/users")
 
 
 @blueprint.route("/", methods=["GET", "POST"])
-@authenticate
+@authenticate()
 def collection(user: dict):
     """
     List or create users
@@ -76,7 +76,7 @@ def collection(user: dict):
 
 
 @blueprint.route("/<string:user_id>", methods=["PATCH"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.MANAGER_ROLE)
 @bson_object_id(["user_id"])
 def change_active_status(user_id: ObjectId, user: dict):
@@ -97,7 +97,7 @@ def change_active_status(user_id: ObjectId, user: dict):
 
 
 @blueprint.route("/<string:user_id>", methods=["GET", "DELETE"])
-@authenticate
+@authenticate()
 @bson_object_id(["user_id"])
 def document(user_id: ObjectId, user: dict):
     if request.method == "GET":
@@ -122,7 +122,7 @@ def document(user_id: ObjectId, user: dict):
 
 
 @blueprint.route("/<string:user_id>/password", methods=["PATCH"])
-@authenticate
+@authenticate()
 @bson_object_id(["user_id"])
 def change_password(user_id: ObjectId, user: dict):
     # check user permission when not updating current user

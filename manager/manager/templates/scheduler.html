@@ -125,7 +125,7 @@
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.username %}{{ user_form.username|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.channel %}{{ user_form.channel|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.email %}{{ user_form.email|as_widget }}</div>
-		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.password %}{{ user_form.password|as_widget }}</div>		
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=user_form.password %}{{ user_form.password|as_widget }}</div>
 		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add User</button></div>
 	</div>
 </form>
@@ -134,18 +134,20 @@
 <p class="info">Auto Images are automatically recreated monthly</p>
 {% if images %}
 <table class="table table-bordered table-striped">
-	<tr><th>ID</th><th>Email</th><th>Status</th><th>Expire On</th><th>URL</th><th>Order</th><th>Delete</th></tr>
+	<tr><th>ID</th><th>Email</th><th>Status</th><th>Expire On</th><th>Private</th><th>URL</th><th>Order</th><th>Delete</th></tr>
 	{% for image in images %}
 	<tr>
 		<th><code>{{image.slug }}</code> {{ image.config.size }}</th>
 		<td>{{ image.contact_email }}</td>
 		<td>{{ image.status }}</td>
 		<td>{{ image.expire_on }}</td>
-		<td>{% if image.url %}
+		<td>{{ image.private|yesno }}</td>
+		<td>{% if image.http_url %}
 			<ul>
-			<li><a href="{{ image.url }}" target="_blank">direct</a></li>
+			<li><a href="{{ image.http_url }}" target="_blank">HTTP</a></li>
+			{% if image.torrent_url %}<li><a href="{{ image.torrent_url }}" target="_blank">torrent</a></li>{% endif %}
 			<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/json" target="_blank">JSON</a></li>
-			<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/redirect" target="_blank">redirect</a></li>
+			{% if not image.private %}<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/redirect" target="_blank">redirect</a></li>{% endif %}
 			</ul>
 			{% else %}n/a{% endif %}</td>
 		<td>{% if image.order %}<a href="{% url "all-orders-detail" order_id=image.order %}">{{ image.order|short_id }}</a>{% else %}n/a{% endif %}</td>
@@ -167,7 +169,8 @@
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.contact_email %}{{ image_form.contact_email|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.channel %}{{ image_form.channel|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.warehouse %}{{ image_form.warehouse|as_widget }}</div>
-		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add Image</button></div>
+		<div class="form-group col-md-1">{% include "_label_for.html" with field=image_form.private %}{{ image_form.private|as_widget }}</div>
+		<div class="form-group col-md-1"><label>-</label><button class="btn btn-primary form-check-input form-control">Create</button></div>
 	</div>
 </form>
 {% endblock %}

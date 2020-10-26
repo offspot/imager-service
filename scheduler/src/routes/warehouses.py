@@ -17,7 +17,7 @@ blueprint = Blueprint("warehouse", __name__, url_prefix="/warehouses")
 
 
 @blueprint.route("/", methods=["GET", "POST"])
-@authenticate
+@authenticate()
 def collection(user: dict):
     """
     List or create warehouses
@@ -69,7 +69,7 @@ def collection(user: dict):
 
 
 @blueprint.route("/<string:warehouse_slug>", methods=["GET", "DELETE"])
-@authenticate
+@authenticate()
 def document(warehouse_slug: ObjectId, user: dict):
     if request.method == "GET":
         # check user permission when not querying current user
@@ -91,7 +91,7 @@ def document(warehouse_slug: ObjectId, user: dict):
 
 
 @blueprint.route("/<string:warehouse_id>", methods=["PATCH"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.MANAGER_ROLE)
 @bson_object_id(["warehouse_id"])
 def change_active_status(warehouse_id: ObjectId, user: dict):

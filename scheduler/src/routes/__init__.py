@@ -7,22 +7,27 @@ from utils.token import AccessToken
 from . import errors
 
 
-def authenticate(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        try:
-            token = request.headers.get("token", None)
-            user = AccessToken.decode(token).get("user", {})
-            kwargs["user"] = user
-            return f(*args, **kwargs)
-        except jwt_exceptions.ExpiredSignatureError:
-            raise errors.Unauthorized("token expired")
-        except jwt_exceptions.InvalidTokenError:
-            raise errors.Unauthorized("token invalid")
-        except jwt_exceptions.PyJWTError:
-            raise errors.Unauthorized("token invalid")
+def authenticate(allow_noauth=False):
+    def decorate(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            try:
+                token = request.headers.get("token", None)
+                if token is None and allow_noauth:
+                    kwargs["user"] = {}
+                else:
+                    user = AccessToken.decode(token).get("user", {})
+                    kwargs["user"] = user
+                return f(*args, **kwargs)
+            except jwt_exceptions.ExpiredSignatureError:
+                raise errors.Unauthorized("token expired")
+            except jwt_exceptions.InvalidTokenError:
+                raise errors.Unauthorized("token invalid")
+            except jwt_exceptions.PyJWTError:
+                raise errors.Unauthorized("token invalid")
 
-    return wrapper
+        return wrapper
+    return decorate
 
 
 def bson_object_id(keys: list):

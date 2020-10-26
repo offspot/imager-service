@@ -16,7 +16,7 @@ blueprint = Blueprint("autoimage", __name__, url_prefix="/auto-images")
 
 
 @blueprint.route("/", methods=["GET", "POST"])
-@authenticate
+@authenticate()
 def collection(user: dict):
     """
     List or create autoimage
@@ -68,7 +68,7 @@ def collection(user: dict):
 
 
 @blueprint.route("/<string:autoimage_slug>", methods=["GET", "DELETE"])
-@authenticate
+@authenticate()
 def document(autoimage_slug: ObjectId, user: dict):
     if request.method == "GET":
         # check user permission when not querying current user
@@ -90,45 +90,38 @@ def document(autoimage_slug: ObjectId, user: dict):
 
 
 @blueprint.route("/<string:autoimage_slug>/json", methods=["GET"])
-def json_document(autoimage_slug: ObjectId):
+@authenticate(allow_noauth=True)
+def json_document(autoimage_slug: ObjectId, user: dict):
 
     autoimage = AutoImages().find_one(
-        {"slug": autoimage_slug}, {"slug": 1, "url": 1, "expire_on": 1, "_id": 0}
+        {"slug": autoimage_slug},
+        {
+            "slug": 1,
+            "private": 1,
+            "http_url": 1,
+            "torrent_url": 1,
+            "expire_on": 1,
+            "_id": 0,
+        },
     )
     if autoimage is None:
         raise errors.NotFound()
 
+    if autoimage.pop("private", True):
+        ensure_user_matches_role(user, Users.MANAGER_ROLE)
+
     return jsonify(autoimage)
 
 
-@blueprint.route("/<string:autoimage_slug>/redirect", methods=["GET"])
-def redirect(autoimage_slug: ObjectId):
+@blueprint.route("/<string:autoimage_slug>/redirect/<string:method>", methods=["GET"])
+def redirect(autoimage_slug: ObjectId, method: str):
+    """ only for public images (user not forwarded) """
+
+    if method not in ["http", "torrent"]:
+        return errors.NotFound()
 
     response = json_document(autoimage_slug)
     if response.status_code != 200:
         return response
 
-    return flask_redirect(location=response.get_json()["url"], code=302)
-
-
-@blueprint.route("/<string:autoimage_slug>", methods=["PATCH"])
-@authenticate
-@only_for_roles(roles=Users.MANAGER_ROLE)
-def change_active_status(autoimage_slug: ObjectId, user: dict):
-    # check user permission when not updating current user
-    ensure_user_matches_role(user, Users.MANAGER_ROLE)
-
-    request_json = request.get_json()
-
-    new_status = request_json.get("active", None)
-    if new_status is None:
-        raise errors.BadRequest()
-
-    autoimage = AutoImages().find_one({"slug": autoimage_slug}, {"active": 1})
-    if autoimage is None:
-        raise errors.NotFound()
-
-    AutoImages().update_one(
-        {"slug": ObjectId(autoimage_slug)}, {"$set": {"active": bool(new_status)}}
-    )
-    return jsonify({"slug": autoimage_slug})
+    return flask_redirect(location=response.get_json()[f"{method}_url"], code=302)
