@@ -15,7 +15,7 @@ blueprint = Blueprint("home", __name__, url_prefix="")
 
 
 @blueprint.route("/", methods=["GET"])
-@authenticate
+@authenticate()
 def collection(user: dict):
     """ ensure a user can auth and access the API """
 

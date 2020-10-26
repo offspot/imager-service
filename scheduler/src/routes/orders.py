@@ -46,7 +46,7 @@ def create_order_from(payload):
 
 
 @blueprint.route("/", methods=["GET", "POST"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.MANAGER_ROLE)
 def collection(user: dict):
     """
@@ -86,7 +86,7 @@ def collection(user: dict):
 
 
 @blueprint.route("/anonymize", methods=["PATCH"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.MANAGER_ROLE)
 def anonymize(user: dict):
     try:
@@ -107,7 +107,7 @@ def anonymize(user: dict):
 
 
 @blueprint.route("/<string:order_id>", methods=["GET", "DELETE", "PATCH"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.MANAGER_ROLE)
 @bson_object_id(["order_id"])
 def document(order_id: ObjectId, user: dict):
@@ -144,7 +144,7 @@ def document(order_id: ObjectId, user: dict):
 
 
 @blueprint.route("/<string:order_id>/cancel", methods=["PATCH"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.MANAGER_ROLE)
 @bson_object_id(["order_id"])
 def cancel(order_id: ObjectId, user: dict):
@@ -159,7 +159,7 @@ def cancel(order_id: ObjectId, user: dict):
 
 
 @blueprint.route("/<string:order_id>/add_shipment", methods=["GET", "POST"])
-# @authenticate
+# @authenticate()
 # @only_for_roles(roles=Users.WORKER_ROLES)
 @bson_object_id(["order_id"])
 def add_shipment(order_id: ObjectId):

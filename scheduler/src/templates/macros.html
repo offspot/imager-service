@@ -16,11 +16,11 @@
 
 {% macro button_download(order) -%}<p style="text-align: center;">
 	<a href="{{ order|public_download_url }}" style="text-decoration: none;">
-		<span style="color: #fff; background-color: #007bff; border-color: #007bff; font-weight: 400; text-align: center; border: 1px solid transparent; padding: .55rem .75rem; font-size: 1.2rem; line-height: 1.5; border-radius: .25rem; cursor: pointer; font-family: sans-serif; text-decoration: none; white-space: nowrap; vertical-align: middle; display: inline-block;">Download {{ order.config.name }} ({{ order.sd_card.size }}GB)</span>
+		<img src="https://cardshop.hotspot.kiwix.org/static/img/http-download-btn_137x40@2x.png" alt="Download {{ order.config.name }} ({{ order.sd_card.size }}GB)" style="height:4em;"/>
 	</a>
-    {% if order|public_download_url_is_torrent %}
-    <a href="{{ order|public_download_magnet_url }}" style="text-decoration: none;">
-        <span style="color: #fff; background-color: #ec0000; border-color: #ec0000; padding: .55rem .75rem; border-radius: .25rem; cursor: pointer; vertical-align: middle; display: inline-block;"><img height="25px" src="http://download.kiwix.org/dev/magnet.png" alt="Magnet" /></span>
+    {% if order|public_download_url_has_torrent %}
+    <a href="{{ order|public_download_torrent_url }}" style="text-decoration: none;">
+        <img height="25px" src="https://cardshop.hotspot.kiwix.org/static/img/torrent-download-btn_137x40@2x.png" alt="Magnet" style="height:4em;" />
     </a>
     {% endif %}
 </p>{%- endmacro %}

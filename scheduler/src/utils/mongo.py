@@ -717,6 +717,7 @@ class WriterTasks(Tasks):
 class AutoImages(BaseCollection):
     schema = {
         "slug": {"type": "string", "regex": "^[a-zA-Z0-9_.+-]+$", "required": True},
+        "private": {"type": "boolean", "default": True, "required": True},
         "config": {"type": "dict", "required": True},
         "contact_email": {
             "type": "string",
@@ -727,7 +728,8 @@ class AutoImages(BaseCollection):
         "warehouse": {"type": "dict", "required": False},
         "channel": {"type": "string", "required": True},
         "status": {"type": "string", "required": True, "nullable": True},
-        "url": {"type": "string", "required": True, "nullable": True},
+        "http_url": {"type": "string", "required": True, "nullable": True},
+        "torrent_url": {"type": "string", "required": True, "nullable": True},
         "expire_on": {"type": "datetime", "required": True, "nullable": True},
         "order": {"type": "string", "required": True, "nullable": True},
     }

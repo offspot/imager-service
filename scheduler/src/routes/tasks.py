@@ -47,7 +47,7 @@ def tasks_cls_for(task_type):
 
 
 @blueprint.route("/<string:task_type>", methods=["GET"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.WORKER_ROLES)
 def typed_collection(task_type: str, user: dict):
     if request.method == "GET":
@@ -62,7 +62,7 @@ def typed_collection(task_type: str, user: dict):
 
 
 @blueprint.route("/<string:task_type>/<string:task_id>", methods=["GET", "DELETE"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.WORKER_ROLES)
 @bson_object_id(["task_id"])
 def document(task_id: ObjectId, task_type: str, user: dict):
@@ -87,7 +87,7 @@ def document(task_id: ObjectId, task_type: str, user: dict):
 
 
 @blueprint.route("/<string:task_type>/<string:task_id>/request", methods=["PATCH"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.WORKER_ROLES)
 @bson_object_id(["task_id"])
 def register_task(task_id: ObjectId, task_type: str, user: dict):
@@ -112,7 +112,7 @@ def register_task(task_id: ObjectId, task_type: str, user: dict):
 @blueprint.route(
     "/<string:task_type>/<string:task_id>/confirm_inserted", methods=["GET"]
 )
-# @authenticate
+# @authenticate()
 # @only_for_roles(roles=Users.WORKER_ROLES)
 @bson_object_id(["task_id"])
 def confirm_inserted_task(task_id: ObjectId, task_type: str):
@@ -130,7 +130,7 @@ def confirm_inserted_task(task_id: ObjectId, task_type: str):
 
 
 @blueprint.route("/<string:task_type>/<string:task_id>/status", methods=["PATCH"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.WORKER_ROLES)
 @bson_object_id(["task_id"])
 def update_status(task_id: ObjectId, task_type: str, user: dict):
@@ -221,7 +221,7 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
 
 
 @blueprint.route("/<string:task_type>/<string:task_id>/logs", methods=["POST"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.WORKER_ROLES)
 @bson_object_id(["task_id"])
 def add_log(task_id: ObjectId, task_type: str, user: dict):

@@ -12,7 +12,7 @@ blueprint = Blueprint("worker", __name__, url_prefix="/workers")
 
 
 @blueprint.route("/", methods=["GET"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.MANAGER_ROLE)
 def collection(user: dict):
 
@@ -39,7 +39,7 @@ def collection(user: dict):
 
 
 @blueprint.route("/sos", methods=["POST"])
-@authenticate
+@authenticate()
 @only_for_roles(roles=Users.WORKER_ROLES)
 def sos(user: dict):
 

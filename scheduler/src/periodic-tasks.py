@@ -12,7 +12,7 @@ import humanfriendly
 
 from emailing import send_order_failed_email
 from utils.mongo import Orders, Tasks, AutoImages
-from utils.templates import get_public_download_url
+from utils.templates import get_public_download_url, get_public_download_torrent_url
 from routes.orders import create_order_from
 
 logging.basicConfig(level=logging.DEBUG)
@@ -211,7 +211,8 @@ def check_autoimages():
                 image["slug"],
                 status="ready",
                 order=None,
-                url=get_public_download_url(order),
+                http_url=get_public_download_url(order),
+                torrent_url=get_public_download_torrent_url(order),
                 expire_on=get_next_month(),
             )
             continue
