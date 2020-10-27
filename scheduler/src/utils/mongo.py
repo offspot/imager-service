@@ -310,6 +310,7 @@ class Orders(BaseCollection):
             "media_type": order["sd_card"]["type"],
             "media_duration": order["sd_card"]["duration"],
             "channel": order["channel"],
+            "fname": order["fname"],
             "upload_uri": order["warehouse"]["upload_uri"],
             "download_uri": order["warehouse"]["download_uri"],
             "worker": None,
@@ -351,6 +352,7 @@ class Orders(BaseCollection):
         payload = {
             "order": order_id,
             "channel": order["channel"],
+            "fname": order["fname"],
             "download_uri": order["warehouse"]["download_uri"],
             "worker": None,
             "image_fname": upload_details.get("fname"),
@@ -380,6 +382,7 @@ class Orders(BaseCollection):
         payload = {
             "order": order_id,
             "channel": order["channel"],
+            "fname": order["fname"],
             "worker": order["tasks"]["download"]["worker"],
             "image_fname": order["tasks"]["download"]["image_fname"],
             "image_checksum": order["tasks"]["download"]["image_checksum"],
@@ -392,7 +395,7 @@ class Orders(BaseCollection):
         }
 
         task_ids = []
-        for index in range(0, order["quantity"]):
+        for _ in range(0, order["quantity"]):
             task_ids.append(WriterTasks().insert_one(payload).inserted_id)
 
         # add task_id to order
@@ -770,8 +773,12 @@ class AutoImages(BaseCollection):
     def create_order_payload(cls, slug):
         image = cls.get(slug)
         warehouse = Warehouses.get(image["warehouse"])
+        fname = "{slug}_{period}_{rand}.img".format(
+            slug=slug, period=datetime.date.today().strftime("%Y-%m"), rand="{rand}"
+        )
         return {
             "config": image["config"],
+            "fname": fname,
             "sd_card": {
                 "name": "auto",
                 "size": image["config"]["size"],
