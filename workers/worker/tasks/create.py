@@ -63,7 +63,7 @@ class CreateTask(BaseTask):
 
     @property
     def img_name(self):
-        return os.path.splitext(self.img_path.name)[0]
+        return self.img_path.stem
 
     @property
     def log_path(self):

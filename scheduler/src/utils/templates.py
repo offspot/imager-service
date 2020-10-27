@@ -48,12 +48,11 @@ def get_add_shipment_url(order):
 
 def get_public_download_url(order):
     url = urllib.parse.urlparse(order["warehouse"]["download_uri"])
-    fname = f"{order['_id']}.img"
     if "torrent" in url.scheme:
         parts = list(urllib.parse.urlsplit(url.geturl()))
         parts[0] = parts[0].replace("+torrent", "")
         url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
-    return urllib.parse.urljoin(url.geturl(), fname)
+    return urllib.parse.urljoin(url.geturl(), order['fname'])
 
 
 def get_public_download_torrent_url(order):

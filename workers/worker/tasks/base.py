@@ -45,9 +45,7 @@ class BaseTask(threading.Thread):
         return success
 
     def file_path(self, ext):
-        return Setting.working_dir.joinpath(
-            "{id}.{ext}".format(id=str(self.task["order"]), ext=ext)
-        )
+        return Setting.working_dir.joinpath(self.task["fname"]).with_suffix(f".{ext}")
 
     def read_log(self, path):
         cat = subprocess.run(["cat", str(path)], text=True, capture_output=True)

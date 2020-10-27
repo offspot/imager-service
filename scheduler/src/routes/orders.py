@@ -1,3 +1,4 @@
+import os
 import datetime
 
 import pymongo
@@ -35,6 +36,18 @@ def create_order_from(payload):
 
     # actually create Order
     order_id = Orders().insert_one(payload).inserted_id
+
+    # define and record fname for this order
+    if "fname" not in payload:
+        fname = f"{order_id}.img"
+    else:
+        short_id = str(order_id)[:10]
+        if "{rand}" in payload["fname"]:
+            fname = payload["fname"].replace("{rand}", short_id)
+        else:
+            stem, ext = os.path.splitext(payload["fname"])
+            fname = "".join((stem + f"_{short_id}", ext))
+    Orders.update(order_id, {"fname": fname})
 
     # send email about new order
     send_order_created_email(order_id)
