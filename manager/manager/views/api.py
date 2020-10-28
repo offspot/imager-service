@@ -127,7 +127,7 @@ def create_user_account(request):
     except Exception as exc:
         return JsonResponse({"error": str(exc)}, status=400)
 
-    email = str(data.get("email"))
+    email = str(data.get("email"), "") or None
 
     if not email:
         return JsonResponse({"error": "missing required email"}, status=400)
