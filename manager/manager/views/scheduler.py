@@ -245,7 +245,7 @@ def dashboard(request):
         "users": as_items_or_none(*get_users_list()) or None,
         "workers": as_items_or_none(*get_workers_list()) or None,
         "images": as_items_or_none(*get_autoimages_list()) or None,
-        "api_url": settings.CARDSHOP_API_URL,
+        "api_url": settings.CARDSHOP_API_URL_EXTERNAL,
     }
 
     forms_map = {
