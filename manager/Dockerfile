@@ -8,6 +8,7 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 ENV DATA_DIR /data
 ENV CARDSHOP_API_URL https://api.cardshop.hotspot.kiwix.org
+ENV CARDSHOP_API_URL_EXTERNAL https://api.cardshop.hotspot.kiwix.org
 ENV MANAGER_API_TOKEN NOT_SET
 ENV ADMIN_PASSWORD admin
 ENV SUPPORT_EMAIL stephane@kiwix.org

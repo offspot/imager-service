@@ -4,7 +4,7 @@
 {% block message %}
 {% call tagged_message("info") %}Your image is ready to download!{% endcall %}
 <p>Dear {{ order.recipient.name }},<br />
-Your Hotspot Image is now ready to download.</p>
+Your Hotspot Image “{{ order.config.name }}” is now ready to download.</p>
 {{ button_download(order) }}
 {% if order|public_download_url_has_torrent %}
 <p>Your image is also available as a <em>torrent</em>. You need a BitTorrent client (software) to retrieve the actual <em>img</em> file.</p>

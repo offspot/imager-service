@@ -19,6 +19,11 @@ urlpatterns = (
     [
         # API
         path(
+            "api/accounts/create",
+            api.create_user_account,
+            name="api_create_user_account",
+        ),
+        path(
             "api/packages/lang_<lang_code>",
             api.packages_for_language,
             name="api_packages_for_language",

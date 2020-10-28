@@ -6,11 +6,13 @@ import json
 import collections
 
 from django.db.models import Max
+from django.conf import settings
 from django.http import JsonResponse
+from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
-from manager.models import Media, Configuration
+from manager.models import Media, Configuration, Organization, Profile
 from manager.pibox.packages import PACKAGES_BY_LANG
 from manager.pibox.util import human_readable_size, ONE_GB
 from manager.pibox.content import get_collection, get_required_image_size
@@ -98,3 +100,90 @@ def media_choices_for_configuration(request, config_id):
     if not len(medias):
         medias = all_medias.filter(size=all_medias.aggregate(Max("size"))["size__max"])
     return JsonResponse(Media.choices_for(medias), safe=False)
+
+
+@csrf_exempt
+@require_POST
+def create_user_account(request):
+    """create a user account automatically from an email address
+
+    - must be authenticated via a `Token: {ACCOUNTS_API_TOKEN}` header
+    - JSON payload must include an `email` field
+    - optionnal payload fields:
+      - username: used instead of email if provided
+      - name: used instead of email if provided
+      - password: used instead of auto-generated one is provided
+    - returns a {"username": str, password: str} payload"""
+    if request.headers.get("Token") != settings.ACCOUNTS_API_TOKEN:
+        return JsonResponse({"error": "PermissionDenied"}, status=403)
+
+    try:
+        payload = request.body
+        if not payload:
+            raise ValueError("Missing payload")
+        if type(payload) is bytes:
+            payload = payload.decode("UTF-8")
+        data = json.loads(payload)
+    except Exception as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+
+    email = str(data.get("email"))
+
+    if not email:
+        return JsonResponse({"error": "missing required email"}, status=400)
+
+    name = str(data.get("name", email.split("@")[0]))
+    username = str(data.get("username", email))
+    password = str(data.get("password", "")) or None
+    if not password:
+        password = User.objects.make_random_password(length=8)
+
+    if (
+        User.objects.filter(username=username).count()
+        or Organization.objects.filter(slug=username).count()
+    ):
+        return JsonResponse(
+            {"error": f"Username `{username}` is already taken"}, status=409
+        )
+
+    if Profile.taken(email):
+        account = Profile.objects.filter(user__email=email).first()
+        return JsonResponse(
+            {"error": f"Email `{email}` already has an account ({account.username})"},
+            status=409,
+        )
+
+    # good to go, create an Organization, User and Profile
+    try:
+        org = None
+        org = Organization.objects.create(
+            slug=username,
+            name="Single" if username == name else name,
+            email=email,
+            units=102400,
+        )
+        profile = Profile.create(
+            organization=org,
+            first_name=name,
+            email=email,
+            username=username,
+            password=password,
+            is_admin=False,
+            can_order_physical=False,
+        )
+    except Exception as exc:
+        if org:
+            try:
+                org.delete()
+            except Exception:
+                pass
+        return JsonResponse({"error": f"Failed to create account: {exc}"}, status=500)
+
+    return JsonResponse(
+        {
+            "username": profile.username,
+            "password": password,
+            "name": profile.name,
+        },
+        status=201,
+    )

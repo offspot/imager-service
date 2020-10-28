@@ -170,6 +170,13 @@ MANAGER_API_KEY = os.getenv("MANAGER_API_KEY", "manager")
 CARDSHOP_API_URL = os.getenv(
     "CARDSHOP_API_URL", "https://api.cardshop.hotspot.kiwix.org"
 )
+CARDSHOP_API_URL_EXTERNAL = os.getenv(
+    "CARDSHOP_API_URL_EXTERNAL", "https://api.cardshop.hotspot.kiwix.org"
+)
+# Token for API allowing creation of user accounts
+ACCOUNTS_API_TOKEN = os.getenv(
+    "ACCOUNTS_API_TOKEN", "dev"
+)
 # content download mirror
 MIRROR = "http://mirror.download.kiwix.org"
 CONTENTS_FILE = os.path.join(BASE_DIR, "contents.json")
