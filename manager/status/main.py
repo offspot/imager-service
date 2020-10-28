@@ -233,7 +233,7 @@ def get_images_status():
     try:
         return (
             requests.head(
-                f"{url}/auto-images/std-test/redirect/http",
+                f"{url}/auto-images/demo/redirect/http",
                 allow_redirects=True,
                 timeout=HTTP_TIMEOUT,
             ).status_code
