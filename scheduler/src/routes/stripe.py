@@ -227,14 +227,34 @@ def handle_access_order(session, customer):
 
 PRODUCTS = {
     # product-id: (stipe-method, stripe-price-id, email-handler)
-    "wikipedia-en": ("payment", "price_1HizZVFwbeEkT850Cow9fNQs", handle_image_order),
-    "wikipedia-es": ("payment", "price_1Hizb7FwbeEkT8501Sz1C2XT", handle_image_order),
-    "wikipedia-de": ("payment", "price_1HizcTFwbeEkT850jCJqWSn3", handle_image_order),
-    "wikipedia-fr": ("payment", "price_1HizdFFwbeEkT850SYUQZCec", handle_image_order),
-    "access-1m": ("payment", "price_1HizRwFwbeEkT850WR4JA4en", handle_access_order),
+    "wikipedia-en": (
+        os.getenv("STRIPE_METHOD_WP"),
+        os.getenv("STRIPE_PRICE_WPEN"),
+        handle_image_order,
+    ),
+    "wikipedia-es": (
+        os.getenv("STRIPE_METHOD_WP"),
+        os.getenv("STRIPE_PRICE_WPES"),
+        handle_image_order,
+    ),
+    "wikipedia-de": (
+        os.getenv("STRIPE_METHOD_WP"),
+        os.getenv("STRIPE_PRICE_WPDE"),
+        handle_image_order,
+    ),
+    "wikipedia-fr": (
+        os.getenv("STRIPE_METHOD_WP"),
+        os.getenv("STRIPE_PRICE_WPFR"),
+        handle_image_order,
+    ),
+    "access-1m": (
+        os.getenv("STRIPE_METHOD_ACCESS1M"),
+        os.getenv("STRIPE_PRICE_ACCESS1M"),
+        handle_access_order,
+    ),
     "access-1y": (
-        "subscription",
-        "price_1HizXuFwbeEkT850lOGdEuxs",
+        os.getenv("STRIPE_METHOD_ACCESS1Y"),
+        os.getenv("STRIPE_PRICE_ACCESS1Y"),
         handle_access_order,
     ),
 }
