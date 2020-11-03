@@ -180,7 +180,18 @@
 .offer .button-holder button:hover:after { opacity:1; margin-left:0; }
     </style>
   </head>
-  <body>
+  <script type="text/javascript">
+function send_height_to_parent(){
+  console.log("send_height_to_parent");
+  try {
+    var actual_height = document.querySelector('body').scrollHeight;
+    parent.postMessage(actual_height, "*");
+  } catch (e) {
+    console.error("Unable to send height to parent…", e.toString());
+  }
+}
+</script>
+  <body onload="send_height_to_parent();">
     <section class="no-container">
 
       <div class="table-offer">

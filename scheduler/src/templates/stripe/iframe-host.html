@@ -1,0 +1,16 @@
+<script type="text/javascript">
+var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+var eventer = window[eventMethod];
+var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+eventer(messageEvent, function(e) { document.getElementById('cardshop-frame').height = e.data.toString() + 'px'; }, false);
+</script>
+
+<iframe id="cardshop-frame"
+        name="cardshop"
+        src="https://api.cardshop.hotspot.kiwix.org/shop/stripe/widget/"
+        width="100%"
+        style="min-height:800px;"
+        seamless="seamless"
+        frameborder="0"
+        scrolling="no"
+        allowpaymentrequest></iframe>
