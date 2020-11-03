@@ -6,6 +6,7 @@ import os
 import logging
 
 from flask import Flask
+from flask_cors import CORS
 
 from routes import (
     auth,
@@ -17,15 +18,19 @@ from routes import (
     home,
     warehouses,
     workers,
-    autoimages
+    autoimages,
+    stripe,
 )
 from utils.json import Encoder
+from utils.templates import strftime
 from prestart import Initializer
 
 logging.basicConfig(level=logging.INFO)
 
 flask = Flask(__name__)
 flask.json_encoder = Encoder
+flask.jinja_env.filters["date"] = strftime
+CORS(flask)
 
 flask.register_blueprint(home.blueprint)
 flask.register_blueprint(auth.blueprint)
@@ -36,6 +41,7 @@ flask.register_blueprint(tasks.blueprint)
 flask.register_blueprint(warehouses.blueprint)
 flask.register_blueprint(workers.blueprint)
 flask.register_blueprint(autoimages.blueprint)
+flask.register_blueprint(stripe.blueprint)
 
 errors.register_handlers(flask)
 

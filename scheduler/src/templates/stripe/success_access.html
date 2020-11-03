@@ -1,0 +1,24 @@
+{% extends "stripe/success_base.html" %}
+    {% block content %}
+    <div class="container intro">
+        <div class="text-center" style="margin-bottom: 5em;">
+            <h1>Success!</h1>
+            <p>{{ customer.email }}, your cardshop access is ready.</p>
+        </div>
+
+        <div class="description">
+            <h2>Using the Cardshop</h2>
+            <p>Access the cardshop at <a href="https://cardshop.hotspot.kiwix.org/">cardshop.hotspot.kiwix.org</a> with your personal credentials.</p>
+            {% if username %}
+            <table class="table table-sm table-striped">
+                <tr><th>Username</th><td><code>{{ username|default("Unavailable – please contact us", true) }}</code></td></tr>
+                <tr><th>Password</th><td><code>{{ password|default("Unavailable – please contact us", true) }}</code></td></tr>
+                <tr><th>Expire On</th><td>{{ expire_on|date|default("Unavailable – please contact us", true) }}</td></tr>
+            </table>
+            {% else %}
+            <p>We'll email those to <em>{{ customer.email }}</em> shortly.</p>
+            {% endif %}
+            <p>Enjoy!</p>
+        </div>
+    </div>
+    {% endblock %}

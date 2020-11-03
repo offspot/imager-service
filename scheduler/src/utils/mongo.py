@@ -803,3 +803,85 @@ class AutoImages(BaseCollection):
                 "download_uri": warehouse["download_uri"],
             },
         }
+
+
+class StripeCustomer(BaseCollection):
+    schema = {
+        "email": {
+            "type": "string",
+            "regex": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
+            "required": True,
+        },
+        "customer_id": {"type": "string", "required": True},
+        "session_id": {"type": "string", "required": True},
+        "product": {"type": "string", "required": True},
+        "username": {"type": "string", "required": False},
+    }
+
+    def __init__(self):
+        super().__init__(Database(), "stripe_customer")
+
+    @classmethod
+    def create(cls, email, customer_id):
+        return (
+            cls().insert_one({"email": email, "customer_id": customer_id}).inserted_id
+        )
+
+    @classmethod
+    def get_or_none(cls, email):
+        record = cls().find_one({"email": email}, {"customer_id": 1})
+        return None if not record else record.get("customer_id")
+
+
+class StripeSession(BaseCollection):
+    schema = {
+        "session_id": {"type": "string", "required": True},
+        "customer_id": {"type": "string", "required": True},
+        "product": {"type": "string", "required": True},
+        "receipt_sent": {"type": "boolean", "required": True},
+        "username": {"type": "string", "required": False},
+        "password": {"type": "string", "required": False},
+        "expiry": {"type": "datetime", "required": False},
+        "recurring": {"type": "boolean", "required": False},
+        "http_url": {"type": "string", "required": False},
+    }
+
+    def __init__(self):
+        super().__init__(Database(), "stripe_session")
+
+    @classmethod
+    def create(
+        cls,
+        customer_id,
+        session_id,
+        product,
+        receipt_sent=False,
+        **extra,
+    ):
+        payload = {
+            "session_id": session_id,
+            "customer_id": customer_id,
+            "product": product,
+            "receipt_sent": receipt_sent,
+        }
+        if extra:
+            payload.update(extra)
+        return cls().insert_one(payload).inserted_id
+
+    @classmethod
+    def get_or_none(cls, session_id):
+        return cls().find_one({"session_id": session_id})
+
+    @classmethod
+    def get_or_create(cls, customer_id, session_id, product, **extra):
+        record = cls.get_or_none(session_id)
+        if record and extra:
+            cls.update(record["_id"], **extra)
+        elif record:
+            return record
+        cls.create(customer_id, session_id, product, **extra)
+        return cls.get_or_none(session_id)
+
+    @classmethod
+    def update(cls, session_id, **update):
+        cls().update_one({"_id": session_id}, {"$set": update})

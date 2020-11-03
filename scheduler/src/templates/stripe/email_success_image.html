@@ -1,0 +1,24 @@
+{% extends "stripe/email_base.html" %}
+{% block content %}
+<table border="0" cellpadding="0" cellspacing="4" style="width: 100%">
+<tr><th style="text-transform: uppercase; color: #ccc; text-align: left;">Product</th>
+    <th style="text-transform: uppercase; color: #ccc; text-align: right;">Amount</th></tr>
+    <td style="width: 70%">{{ product_name }} (<code>{{ product }}</code>)</td>
+    <td style="text-align: right;"><strong>USD {{ price|amount }}</strong></td></tr>
+</table>
+
+<p style="text-align: center;">
+    <a href="{{ http_url }}" style="text-decoration: none;">
+        <img src="https://cardshop.hotspot.kiwix.org/static/img/http-download-btn_137x40@2x.png" alt="Download Image file" style="height:4em; padding: 1em;"/>
+    </a>
+    <a href="{{ torrent_url }}" style="text-decoration: none;">
+        <img height="25px" src="https://cardshop.hotspot.kiwix.org/static/img/torrent-download-btn_137x40@2x.png" alt="Download torrent file" style="height:4em; padding: 1em;" />
+    </a>
+</p>
+
+<h2>Using your hotspot</h2>
+<p>Once the image has been downloaded, flash it onto a microSD card (we recommend <a href="https://www.balena.io/etcher/">balenaEtcher</a>, but any such tool will do).</p>
+<p>Insert it into your Raspberry, plug the device and wait for about 20-30 seconds until you see a <em>Wikipedia</em> network appear in your wifi settings.</p>
+<p>Connect to it and a captive portal should appear after a few seconds. If not, then open <a href="http://wikipedia.hotspot">http://wikipedia.hotspot</a> in your favourite browser.</p>
+<p>Enjoy!</p>
+{% endblock %}

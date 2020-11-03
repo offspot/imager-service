@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Kiwix Shop</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <link rel='stylesheet' id='et-builder-googlefonts-cached-css'  href='https://fonts.googleapis.com/css?family=Quicksand:300,regular,500,600,700&#038;subset=latin,latin-ext&#038;display=swap' type='text/css' media='all' />
+    <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch,formdata"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style type="text/css">
+.container {
+  position: relative;
+}
+.download-buttons { display: none; }
+.download-buttons img { height: 3em; }
+.loader { display: none; color: #ff9933; }
+
+.table-offer { font-family: 'Quicksand',Helvetica,Arial,Lucida,sans-serif; }
+
+.offer {
+  /*display: table-cell;*/
+  border: 1px solid #bebebe;
+  background-color: #fcfcfc;
+
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+
+  -webkit-box-flex: 1;
+  flex: 1 1 auto;
+}
+
+.offer:last-child { border: 1px solid #bebebe; }
+.offer:hover { background-color:rgba(0,0,0,.05) }
+
+.offer.splitter {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
+/* display 2 rows of 2 blocks */
+@media (min-width:767px) {
+  .offer {
+    border-right: 0;
+    display: table-cell;
+    width: 45%;
+    max-width: 45%;
+  }
+  .offer:nth-child(2) {
+    border: 1px solid #bebebe;
+  }
+  .offer.splitter {
+    display: block;
+  }
+}
+@media (min-width:1200px) {
+  .offer {
+    display: table-cell;
+    width: 25%;
+    max-width: 25%;
+  }
+  .offer:nth-child(2) {
+    border-right: 0;
+  }
+  .offer.splitter {
+    display: none;
+  }
+}
+
+/* make sure splitter is never shown */
+.offer.splitter {
+  height: 0;
+  width: 0;
+}
+
+.offer header {
+  background-color: #bebebe;
+  padding: 10px 0;
+  color: #fff;
+  text-align: center;
+}
+.offer header h2 {
+  font-size: 150% !important;
+  padding-top: 0.5em;
+  padding-bottom: 5px;
+  font-weight: 900;
+  line-height: 1.7em;
+}
+.offer header p {
+  font-size: 18px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.offer .price {
+  text-align: center;
+  color: #999;
+  font-size: 16px;
+  padding-top: 17px;
+  padding-bottom: 30px;
+  position: relative;
+  border-bottom: 1px #bebebe;
+  border-bottom-style: solid;
+}
+.offer .price .amount {
+  color: #ff9933;
+  font-size: 80px;
+  line-height: 1.03em;
+  font-weight: 300;
+}
+
+.offer .description {
+  padding: 30px;
+  text-align: left;
+  padding-bottom: 60px;
+}
+.offer .description ul {
+  list-style: none !important;
+  padding: 0 !important;
+  line-height: inherit !important;
+}
+.offer .description ul li {
+  color: #666;
+  line-height: 1.7em;
+  font-weight: 500;
+  line-height: 1.6em;
+  padding: 0 0 1.6em 14px;
+}
+.offer .description ul li::before {
+  content: "• ";
+  color: #2ea3f2;
+}
+
+.offer .button-holder {
+  text-align: center;
+  margin-bottom: 2em;
+
+  position: absolute;
+  bottom: 0px;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.offer .button-holder button {
+  color: #ff9933;
+  font-size: 20px;
+  font-weight: 500;
+  padding: .3em 1em;
+  line-height: 1.7em !important;
+  border: 2px solid;
+  border-radius: 3px;
+  -webkit-transition: all .2s;
+  transition: all .2s;
+}
+.offer .button-holder button:hover { padding: .3em 1.5em; border-color: transparent; }
+.offer .button-holder button:after,
+.offer .button-holder button:before {
+  content:"";
+  opacity:0;
+  position:absolute;
+  -webkit-transition:all .2s;
+  transition:all .2s;
+
+  border: solid #ff9933;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 6px;
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+  margin-left: 3px;
+  margin-top: 10px;
+}
+.offer .button-holder button:hover:after { -webkit-transition:none!important; transition:none!important }
+.offer .button-holder button:before { display:none }
+.offer .button-holder button:hover:after { opacity:1; margin-left:0; }
+    </style>
+  </head>
+  <body>
+    <section class="container">
+
+      <div class="table-offer">
+        <div class="offer">
+          <header>
+            <h2>Demo</h2>
+            <p>Try before you buy</p>
+          </header>
+          <section class="price"><span class="amount">Free</span></section>
+          <section class="description">
+            <ul>
+              <li>Small offspot a selection of Wikipedia’s 50,000 most demanded articles.</li>
+              <li>Includes complete Raspberry Pi StackExchange archive</li>
+            </ul>
+            <div class="download-buttons">
+              <p><a class="btn" href="{{ api_url }}/auto-images/demo/redirect/http"><img src="https://cardshop.hotspot.kiwix.org/static/img/http-download-btn_137x40@2x.png" alt="Download Free Hotspot Demo (http)" /></a>
+              <a class="btn" href="{{ api_url }}/auto-images/demo/redirect/torrent"><img src="https://cardshop.hotspot.kiwix.org/static/img/torrent-download-btn_137x40@2x.png" alt="Download Free Hotspot Demo (torrent)" /></a></p>
+            </div>
+          </section>
+          <div class="button-holder"><button id="free-btn" class="btn btn-outline-secondary">Give it to me!</button></div>
+        </div>
+
+        <div class="offer">
+          <header>
+            <h2>Wikipedia</h2>
+            <p>All of Wikipedia, ready to go</p>
+          </header>
+          <section class="price"><span class="amount">$10</span>/one-time</section>
+          <section class="description">
+            <ul>
+              <li>The entirety of Wikipedia (6.2 million articles, including images)</li>
+              <li><strong>Plus</strong> the Wiktionary (6.4 million entries in 4,200 languages)</li>
+              <li><strong>Plus</strong> the complete Raspberry Pi StackExchange archive</li>
+            </ul>
+          </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="wikipedia-{{ lang }}">
+            <button class="btn btn-outline-secondary">Purchase</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
+        </div>
+
+        <div class="offer splitter"></div>
+
+        <div class="offer">
+          <header>
+            <h2>Build your own</h2>
+            <p>Complete dashboard access</p>
+          </header>
+          <section class="price"><span class="amount">$25</span>/one-time</section>
+          <section class="description">
+            <ul>
+              <li><strong>Full dashboard</strong> access for a month.</li>
+              <li>Chose from thousands of websites and build your own Offspot with Wikipedia, TED videos, the Gutenberg library, StackExchange / StackOverflow, and more!</li>
+              <li>Customize your network’s name and appearance</li>
+            </ul>
+          </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="access-1m">
+            <button class="btn btn-outline-secondary">Access</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
+        </div>
+
+        <div class="offer">
+          <header>
+            <h2>Build your own</h2>
+            <p>Full year dashboard access</p>
+          </header>
+          <section class="price"><span class="amount">$240</span>/year</section>
+          <section class="description">
+            <ul>
+              <li><strong>Full dashboard</strong> access for a year.</li>
+              <li>Create as many configurations as you can, download updates when you want.
+              <li><strong>Save 35%</strong> off monthly access.</li>
+            </ul>
+          </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="access-1y">
+            <button class="btn btn-outline-secondary">Access</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
+        </div>
+
+      </div>
+    </section>
+  </body>
+  <script type="text/javascript">
+    // Stripe public API key
+    var stripe = Stripe("{{ stripe_public_key }}");
+
+    // Free button removed button and brings download div
+    var downloadDiv = document.querySelector(".download-buttons");
+    var freeBtn = document.getElementById("free-btn");
+    freeBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      freeBtn.disabled = "disabled";
+      freeBtn.parentElement.style.display = "none";
+      downloadDiv.style.display = 'block';
+    });
+
+    var forms = document.getElementsByTagName("form");
+    for(var i = forms.length; i--; ) {
+      forms[i].addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // display loader
+        e.target.querySelector(".loader").style.display = "block";
+        // hide button
+        var button = e.target.querySelector("button");
+        button.disabled = "disabled";
+        button.style.display = "none";
+
+        var form = new FormData(e.target);
+        fetch("{{ api_url }}/shop/stripe/create-session", {
+          method: "POST",
+          body: form,
+        })
+        .then(function (response) {
+          if (response.status != 200) {
+            console.error(response);
+            throw("HTTP Error " + response.status);
+          }
+          return response.json();
+        })
+        .then(function (session) {
+          if (session.error) {
+            throw(session.error);
+          }
+          // success ; redirect whole window to stripe
+          return stripe.redirectToCheckout({ sessionId: session.id });
+        })
+        .then(function (result) { // error, restore button
+          // hide loader
+          e.target.querySelector(".loader").style.display = "none";
+          // hide button
+          var button = e.target.querySelector("button");
+          button.disabled = "";
+          button.style.display = "inline-block";
+
+          // should redirectToCheckout fails due to a browser or network error
+          if (result.error) {
+            alert(result.error.message);
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          // js error ; restore button
+          // hide loader
+          e.target.querySelector(".loader").style.display = "none";
+          // hide button
+          var button = e.target.querySelector("button");
+          button.disabled = "";
+          button.style.display = "inline-block";
+          alert("An error occured: " + error);
+        });
+      });
+    }
+  </script>
+</html>

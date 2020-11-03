@@ -13,3 +13,4 @@ git+git://github.com/ojii/pymaging.git#egg=pymaging
 git+git://github.com/ojii/pymaging-png.git#egg=pymaging-png
 git+git://github.com/lincolnloop/python-qrcode.git#egg=qrcode
 torf>=3.1.1,<4.0
+stripe>=2.29.3,<2.30
