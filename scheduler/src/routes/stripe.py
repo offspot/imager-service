@@ -115,7 +115,6 @@ def get_links_for(product):
 
 def create_manager_account(email, expire_on):
     """ create a user account on manager for email and expire datetime using API """
-    raise IOError("oops")
     resp = requests.post(
         f"{MANAGER_API_URL}/accounts/create",
         headers={"Token": MANAGER_ACCOUNTS_API_TOKEN},
