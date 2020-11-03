@@ -3,10 +3,12 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import json
+import datetime
 import collections
 
 from django.db.models import Max
 from django.conf import settings
+from django.utils import timezone
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
@@ -127,10 +129,18 @@ def create_user_account(request):
     except Exception as exc:
         return JsonResponse({"error": str(exc)}, status=400)
 
+    # email is mandatory
     email = str(data.get("email", "")) or None
-
     if not email:
         return JsonResponse({"error": "missing required email"}, status=400)
+
+    # parse expiry if provided
+    expiry = data.get("expiry")
+    if expiry:
+        try:
+            expiry = datetime.datetime.fromisoformat(expiry)
+        except Exception:
+            return JsonResponse({"error": "Unable to parse expiry date"}, status=400)
 
     name = str(data.get("name", email.split("@")[0]))
     username = str(data.get("username", email))
@@ -169,6 +179,7 @@ def create_user_account(request):
             username=username,
             password=password,
             is_admin=False,
+            expiry=expiry,
             can_order_physical=False,
         )
     except Exception as exc:

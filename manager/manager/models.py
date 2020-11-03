@@ -488,6 +488,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     can_order_physical = models.BooleanField(default=False)
+    expire_on = models.DateTimeField(blank=True, null=True)
 
     @property
     def username(self):
@@ -542,6 +543,7 @@ class Profile(models.Model):
         username,
         password,
         is_admin,
+        expiry,
         can_order_physical,
     ):
         if cls.exists(username) or cls.taken(email):
@@ -557,10 +559,13 @@ class Profile(models.Model):
         )
 
         try:
+            if expiry and not expiry.tzinfo:
+                expiry = expiry.astimezone(timezone.utc)
             return cls.objects.create(
                 user=user,
                 organization=organization,
                 can_order_physical=is_admin or can_order_physical,
+                expire_on=expiry,
             )
         except Exception as exp:
             logger.error(exp)
