@@ -11,16 +11,49 @@ RUN curl -k -O -L https://github.com/wkhtmltopdf/packaging/releases/download/0.1
     rm ./wkhtmltox_0.12.6-1.buster_amd64.deb
 RUN wkhtmltopdf --version
 
+# connect to DB
 ENV MONGODB_URI mongo
+# to create initial scheduler user for manager
 ENV MANAGER_ACCOUNT_PASSWORD manager
+# to send URLs via email
 ENV PUBLIC_URL https://cardshop.hotspot.kiwix.org
+# to build URLs Stripe redirects to
+ENV CARDSHOP_API_URL https://api.cardshop.hotspot.kiwix.org
+# manager API URL to create user accounts (use sloppy version)
+ENV MANAGER_API_URL https://cardshop.hotspot.kiwix.org/api
+# API token on manager to create user accounts
+ENV MANAGER_ACCOUNTS_API_TOKEN dev
+# to include in shop widget
+ENV STRIPE_PUBLIC_API_KEY -
+# to create sessions
+ENV STRIPE_API_KEY -
+# to send to Stripe as “go back” button
+ENV SHOP_PUBLIC_URL https://www.kiwix.org/en/cardshop-access/
+# SMTP email-related (we use mailgun)
+# enctype: auto,tls,ssl,none (defaults to tls)
+# port: based on enctype or set for local debug
+# skip_login: for local debug (without auth)
 ENV SMTP_USERNAME SMTP_USERNAME
 ENV SMTP_PASSWORD SMTP_PASSWORD
 ENV SMTP_HOST smtp.gmail.com
-ENV SMTP_ENCTYPE auto  # auto,tls,ssl,none (defaults to tls)
-ENV SMTP_PORT auto # based on enctype or set for local debug
-ENV SMTP_SKIP_LOGIN 0  # for local debug
+ENV SMTP_ENCTYPE auto
+ENV SMTP_PORT auto
+ENV SMTP_SKIP_LOGIN 0
+# mailgun-related (used if defined)
+ENV MAILGUN_API_KEY
+ENV MAILGUN_API_URL https://api.mailgun.net/v3/cardshop.hotspot.kiwix.org
+ENV MAIL_FROM Hotspot Cardshop <hotspot@kiwix.org>
+# sends an email to this address on startup
+ENV TEST_EMAIL
 ENV SUPPORT_EMAIL stephane@kiwix.org
+# sloppy-specific (sloppy cant access other container via public routes)
+ENV CARDSHOP_API_INTERNAL_URL http://scheduler.backend.cardshop.kiwixoffline.node.intern
+# default values for warehouses
+ENV DEFAULT_WAREHOUSE_DOWNLOAD_URI s3://s3.us-west-1.wasabisys.com/?bucketName=org-kiwix-hotspot-cardshop-warehouse
+ENV DEFAULT_WAREHOUSE_UPLOAD_URI s3://s3.us-west-1.wasabisys.com/?bucketName=org-kiwix-hotspot-cardshop-warehouse
+ENV DOWNLOAD_WAREHOUSE_DOWNLOAD_URI https+torrent://org-kiwix-hotspot-cardshop-download.s3.us-west-1.wasabisys.com
+ENV DOWNLOAD_WAREHOUSE_UPLOAD_URI s3://s3.us-west-1.wasabisys.com/?bucketName=org-kiwix-hotspot-cardshop-download
+
 
 RUN rm -rf /app
 COPY src /app

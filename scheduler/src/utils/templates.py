@@ -67,6 +67,16 @@ def public_download_url_has_torrent(order):
     )
 
 
+def get_magnet_for_torrent(torrent_url):
+    try:
+        res = requests.get(torrent_url)
+        torrent = torf.Torrent.read_stream(io.BytesIO(res.content))
+        return torrent.magnet()
+    except Exception as exc:
+        logger.error("Unable to retrieve torrent file")
+        logger.exception(exc)
+
+
 def get_public_download_magnet_url(order):
     if not public_download_url_has_torrent(order):
         return
@@ -115,3 +125,15 @@ def b64qrcode(text):
         img.save(qfile)
         qfile.seek(0)
         return base64.b64encode(qfile.read()).decode("utf-8")
+
+
+def amount_str(amount):
+    """ string version of amount from int:1000 ($10) to 10.00 """
+    ps = str(amount / 100).split(".")
+    au = ps[0].zfill(2)
+    ac = ps[1].ljust(2, "0") if len(ps[1]) < 2 else ps[1]
+    return f"{au}.{ac.zfill(2)}"
+
+
+def strftime(dt, fmt="%c"):
+    return None if dt is None else dt.strftime(fmt)
