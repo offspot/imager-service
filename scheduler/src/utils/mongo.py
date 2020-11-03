@@ -733,6 +733,7 @@ class AutoImages(BaseCollection):
         "status": {"type": "string", "required": True, "nullable": True},
         "http_url": {"type": "string", "required": True, "nullable": True},
         "torrent_url": {"type": "string", "required": True, "nullable": True},
+        "magnet_url": {"type": "string", "required": True, "nullable": True},
         "expire_on": {"type": "datetime", "required": True, "nullable": True},
         "order": {"type": "string", "required": True, "nullable": True},
     }

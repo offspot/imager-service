@@ -67,6 +67,16 @@ def public_download_url_has_torrent(order):
     )
 
 
+def get_magnet_for_torrent(torrent_url):
+    try:
+        res = requests.get(torrent_url)
+        torrent = torf.Torrent.read_stream(io.BytesIO(res.content))
+        return torrent.magnet()
+    except Exception as exc:
+        logger.error("Unable to retrieve torrent file")
+        logger.exception(exc)
+
+
 def get_public_download_magnet_url(order):
     if not public_download_url_has_torrent(order):
         return

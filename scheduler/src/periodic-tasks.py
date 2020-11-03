@@ -12,7 +12,11 @@ import humanfriendly
 
 from emailing import send_order_failed_email
 from utils.mongo import Orders, Tasks, AutoImages
-from utils.templates import get_public_download_url, get_public_download_torrent_url
+from utils.templates import (
+    get_public_download_url,
+    get_public_download_torrent_url,
+    get_magnet_for_torrent,
+)
 from routes.orders import create_order_from
 
 logging.basicConfig(level=logging.DEBUG)
@@ -207,12 +211,14 @@ def check_autoimages():
         # order is considered successful
         if order["status"] in Orders.SUCCESS_STATUSES + [Orders.pending_expiry]:
             logger.info(f".. order succeeded: {order['status']}")
+            torrent_url = get_public_download_torrent_url(order)
             AutoImages.update_status(
                 image["slug"],
                 status="ready",
                 order=None,
                 http_url=get_public_download_url(order),
-                torrent_url=get_public_download_torrent_url(order),
+                torrent_url=torrent_url,
+                magnet_url=get_magnet_for_torrent(torrent_url),
                 expire_on=get_next_month(),
             )
             continue
