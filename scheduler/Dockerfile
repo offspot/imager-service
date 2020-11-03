@@ -28,15 +28,15 @@ ENV STRIPE_PUBLIC_API_KEY -
 # to create sessions
 ENV STRIPE_API_KEY -
 # Stripe Products
-ENV STRIPE_METHOD_WP payment
-ENV STRIPE_METHOD_ACCESS1M payment
-ENV STRIPE_METHOD_ACCESS1Y payment
-ENV STRIPE_PRICE_WPEN
-ENV STRIPE_PRICE_WPFR
-ENV STRIPE_PRICE_WPDE
-ENV STRIPE_PRICE_WPES
-ENV STRIPE_PRICE_ACCESS1M
-ENV STRIPE_PRICE_ACCESS1Y
+ENV STRIPE_METHOD_WP payment -
+ENV STRIPE_METHOD_ACCESS1M payment -
+ENV STRIPE_METHOD_ACCESS1Y payment -
+ENV STRIPE_PRICE_WPEN -
+ENV STRIPE_PRICE_WPFR -
+ENV STRIPE_PRICE_WPDE -
+ENV STRIPE_PRICE_WPES -
+ENV STRIPE_PRICE_ACCESS1M -
+ENV STRIPE_PRICE_ACCESS1Y -
 # to send to Stripe as “go back” button
 ENV SHOP_PUBLIC_URL https://www.kiwix.org/en/cardshop-access/
 # SMTP email-related (we use mailgun)
@@ -50,11 +50,11 @@ ENV SMTP_ENCTYPE auto
 ENV SMTP_PORT auto
 ENV SMTP_SKIP_LOGIN 0
 # mailgun-related (used if defined)
-ENV MAILGUN_API_KEY
+# ENV MAILGUN_API_KEY
 ENV MAILGUN_API_URL https://api.mailgun.net/v3/cardshop.hotspot.kiwix.org
 ENV MAIL_FROM Hotspot Cardshop <hotspot@kiwix.org>
 # sends an email to this address on startup
-ENV TEST_EMAIL
+#ENV TEST_EMAIL
 ENV SUPPORT_EMAIL stephane@kiwix.org
 # sloppy-specific (sloppy cant access other container via public routes)
 ENV CARDSHOP_API_INTERNAL_URL http://scheduler.backend.cardshop.kiwixoffline.node.intern
