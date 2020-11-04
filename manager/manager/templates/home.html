@@ -6,18 +6,14 @@
 
 <h2>Welcome {{ user.profile.name }}!</h2>
 
-<p>This is an online shop where you can prepare and order <strong>custom RaspberryPi SD-cards Images</strong> for <u>download</u> or to be shipped to you via <u>standard mail</u>.</p>
+<p>This is an online shop where you can prepare, order and download custom images to run on your RaspberryPi.</p>
 
 <p>Placing such an order requires the following from you:</p>
 <ul>
-	<li>A <a href="{% url 'configuration_list' %}">configuration</a>, this is the list of the content and options (WiFi name, password, etc.) that you would like on your Card.</li>
-	<li>A <a href="{% url 'address_list' %}">recipient address</a> to ship or send the download link to. This can be you or anyone else.</li>
-	<li>A wanted <em>media</em> and quantity: do you want to download the image file or do you want one (or several) physical SD-card? Both option require you to <em>pay a fee</em> but obviously the virtual one is cheaper.</li>
+	<li>A <a href="{% url 'configuration_list' %}">configuration</a>: this is where you select the content that will be available on your hotspot, as well as a few options options (WiFi name, logo, etc.);</li>
+	<li>A <a href="{% url 'address_list' %}">recipient address</a> to send the download link to. This can be you, or anyone else;</li>
+	<li>An <a href="{% url 'order_list' %}">Order</a> to confirm the configuration you want, and to which address you want it sent to.</li>
 </ul>
-
-<p>Although your account is personnal ({{ user.profile.name }}), you are linked to an organization (<strong>{{ user.profile.organization }}</strong>). Configurations, Addresses, Orders and Units (the payment system) are shared with all members of your organization. This makes sharing and reusing easier and also abstracts the payment for you.</p>
-
-<p>Currently, <em>{{ user.profile.organization }}</em>'s balance is <strong>{{ user.profile.organization.units|human_number }}U</strong>. If you do not have enough units to order, contact {{ user.profile.organization }}'s manager.</p>
 
 <p>If you require assistance, please contact <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
 
