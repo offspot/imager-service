@@ -44,8 +44,22 @@ def configure_credentials():
     )
     if api_url == "reset":
         api_url = DEFAULT_API_URL
+    s3_access_key = get_valid_string(
+        "S3 Access Key", nonempty_validator, config.get("s3_access_key")
+    )
+    s3_secret_key = get_valid_string(
+        "S3 Secret Key", nonempty_validator, config.get("s3_secret_key")
+    )
 
-    update_conf({"username": username, "password": password, "api_url": api_url})
+    update_conf(
+        {
+            "username": username,
+            "password": password,
+            "api_url": api_url,
+            "s3_access_key": s3_access_key,
+            "s3_secret_key": s3_secret_key,
+        }
+    )
     cli.info_2(
         "Saved crentials as",
         cli.bold,
@@ -58,6 +72,14 @@ def configure_credentials():
         "for",
         cli.bold,
         api_url,
+        cli.reset,
+        "with",
+        cli.bold,
+        s3_access_key,
+        cli.reset,
+        "and",
+        cli.bold,
+        s3_secret_key,
     )
 
     pause()

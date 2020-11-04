@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ $# -ne 6 ];
+if [ $# -ne 8 ];
 then
-	echo "Usage: $0 WORKER SLOT DEV USERNAME PASSWORD API_URL"
+	echo "Usage: $0 WORKER SLOT DEV USERNAME PASSWORD API_URL S3_ACCESS_KEY S3_SECRET_KEY"
 	exit 1
 fi
 
@@ -12,6 +12,8 @@ USB_DEVICE=$3 # /dev/sde
 USERNAME=$4
 PASSWORD=$5
 API_URL=$6
+S3_ACCESS_KEY=$7
+S3_SECRET_KEY=$8
 # USB_PATH="/dev/sdcard"
 USB_PATH="${USB_DEVICE}"
 WORKER_NAME="cardshop-worker-$WORKER"
@@ -33,4 +35,6 @@ docker run --privileged \
 	-e PASSWORD="${PASSWORD}" \
 	-e WORKER_TYPE="${WORKER}" \
 	-e CARDSHOP_API_URL="${API_URL}" \
+	-e S3_ACCESS_KEY="${S3_ACCESS_KEY}" \
+	-e S3_SECRET_KEY="${S3_SECRET_KEY}" \
 	--detach --restart unless-stopped kiwix/cardshop-worker

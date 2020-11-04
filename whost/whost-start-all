@@ -60,6 +60,8 @@ def main():
     username = config.get("username", "")
     password = config.get("password", "")
     api_url = config.get("api_url", "")
+    s3_access_key = config.get("s3_access_key", "")
+    s3_secret_key = config.get("s3_secret_key", "")
     if not username or not password or not api_url:
         logger.error("Host is missing credentials. exiting.")
         sys.exit(1)
@@ -81,6 +83,8 @@ def main():
             username,
             password,
             api_url,
+            s3_access_key,
+            s3_secret_key,
         ]
         subprocess.run(["echo", " ".join(args)])
         subprocess.run(args)
@@ -90,7 +94,7 @@ def main():
     # downloader
     _start_worker("downloader", "-", "-")
 
-    for index, slot in enumerate(writers.keys()):
+    for _, slot in enumerate(writers.keys()):
         block_name = get_block_name(Path(writers.get(slot)))
         if block_name is None:
             logger.error("\tnot starting its writer container.")
