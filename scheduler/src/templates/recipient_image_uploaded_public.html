@@ -3,18 +3,18 @@
 
 {% block message %}
 {% call tagged_message("info") %}Your image is ready to download!{% endcall %}
-<p>Dear {{ order.recipient.name }},<br />
-Your Hotspot Image “{{ order.config.name }}” is now ready to download.</p>
-{{ button_download(order) }}
+<p>Dear {{ order.recipient.name }},</p>
+<p>Your Hotspot Image “{{ order.config.name }}” is now ready to download.</p>
+<br/><br/>{{ button_download(order) }}<br/><br/>
 {% if order|public_download_url_has_torrent %}
 <p>Your image is also available as a <em>torrent</em>. You need a BitTorrent client (software) to retrieve the actual <em>img</em> file.</p>
 <p>We recommend you use <img style="height: 1em; vertical-align: middle;" src="https://cardshop.hotspot.kiwix.org/static/img/transmission-32@2x.png" /> <a href="https://transmissionbt.com/download/">Transmission</a> if you don't already have one. It will allow you to easily pause and resume your download and ensure that your file is not corrupt.</p>
 {% else %}
 <p>You can pause and resume your download as you wish. If your connection is slow, use a download manager!</p>
 {% endif %}
-<p>You are allowed to share this link freely until {{ order.sd_card.expiration.strftime('%c') }} (after which the file will be permanently deleted).</p>
-<p>To install the file onto a microSD card, we recommend <a href="https://www.balena.io/etcher/"><img style="height:1em; vertical-align: middle;" src="https://cardshop.hotspot.kiwix.org/static/img/etcher_221x40@2x.png" alt="Balena Etcher" /></a>.</p>
-<p>Connect to the Hotspot by typing <a href="http://goto.kiwix.hotspot">http://goto.kiwix.hotspot</a> in your browser's address bar.</p>
+<p>You are allowed to share this link freely until {{ order.sd_card.expiration.strftime('%c') }}, after which the file will be permanently deleted.</p>
+<p>To install the file onto a microSD card, we recommend using <a href="https://www.balena.io/etcher/">balenaEtcher</a>.</p>
+<p>You do not need to connect your Raspberry to a screen. Simply connect to the Hotspot by typing <a href="http://goto.kiwix.hotspot">http://goto.kiwix.hotspot</a> (or http://<em>name</em>.hotspot in your browser's address bar (be mindful to use <em>http</em> and not https.</p>
 
 <p>Have a nice day,</p>
 {% endblock %}
