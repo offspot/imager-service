@@ -13,8 +13,6 @@
 .container {
   position: relative;
 }
-.download-buttons { display: none; }
-.download-buttons img { height: 3em; }
 .loader { display: none; color: #ff9933; }
 
 .table-offer { font-family: 'Quicksand',Helvetica,Arial,Lucida,sans-serif; }
@@ -146,7 +144,8 @@
   margin-right: auto;
 }
 
-.offer .button-holder button {
+.offer .button-holder button,
+.offer .button-holder a {
   color: #ff9933;
   font-size: 20px;
   font-weight: 500;
@@ -157,9 +156,13 @@
   -webkit-transition: all .2s;
   transition: all .2s;
 }
-.offer .button-holder button:hover { padding: .3em 1.5em; border-color: transparent; }
+.offer .button-holder button:hover,
+.offer .button-holder a:hover {
+  padding: .3em 1.5em; border-color: transparent; }
 .offer .button-holder button:after,
-.offer .button-holder button:before {
+.offer .button-holder button:before,
+.offer .button-holder a:after,
+.offer .button-holder a:before {
   content:"";
   opacity:0;
   position:absolute;
@@ -175,9 +178,15 @@
   margin-left: 3px;
   margin-top: 10px;
 }
-.offer .button-holder button:hover:after { -webkit-transition:none!important; transition:none!important }
-.offer .button-holder button:before { display:none }
-.offer .button-holder button:hover:after { opacity:1; margin-left:0; }
+.offer .button-holder button:hover:after,
+.offer .button-holder a:hover:after {
+ -webkit-transition:none!important; transition:none!important }
+.offer .button-holder button:before,
+.offer .button-holder a:before {
+  display:none }
+.offer .button-holder button:hover:after,
+.offer .button-holder a:hover:after {
+  opacity:1; margin-left:0; }
     </style>
   </head>
   <script type="text/javascript">
@@ -206,12 +215,11 @@ function send_height_to_parent(){
               <li>Small offspot a selection of Wikipedia’s 50,000 most demanded articles.</li>
               <li>Includes complete Raspberry Pi StackExchange archive</li>
             </ul>
-            <div class="download-buttons">
-              <p><a class="btn" href="{{ api_url }}/auto-images/demo/redirect/http"><img src="https://cardshop.hotspot.kiwix.org/static/img/http-download-btn_137x40@2x.png" alt="Download Free Hotspot Demo (http)" /></a>
-              <a class="btn" href="{{ api_url }}/auto-images/demo/redirect/magnet"><img src="https://cardshop.hotspot.kiwix.org/static/img/torrent-download-btn_137x40@2x.png" alt="Download Free Hotspot Demo (magnet)" /></a></p>
-            </div>
+            <form class="text-center button-holder">
+              <a class="btn btn-outline-secondary" style="display: inline-block; margin-bottom: .5em;" href="{{ api_url }}/auto-images/demo/redirect/http">Download</a>
+              <a class="btn btn-outline-secondary" style="display: inline-block;" href="{{ api_url }}/auto-images/demo/redirect/torrent">Download torrent</a>
+            </form>
           </section>
-          <div class="button-holder"><button id="free-btn" class="btn btn-outline-secondary">Give it to me!</button></div>
         </div>
 
         <div class="offer">
@@ -282,17 +290,6 @@ function send_height_to_parent(){
   <script type="text/javascript">
     // Stripe public API key
     var stripe = Stripe("{{ stripe_public_key }}");
-
-    // Free button removed button and brings download div
-    var downloadDiv = document.querySelector(".download-buttons");
-    var freeBtn = document.getElementById("free-btn");
-    freeBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-
-      freeBtn.disabled = "disabled";
-      freeBtn.parentElement.style.display = "none";
-      downloadDiv.style.display = 'block';
-    });
 
     var forms = document.getElementsByTagName("form");
     for(var i = forms.length; i--; ) {
