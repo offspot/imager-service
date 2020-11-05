@@ -158,6 +158,9 @@ def create_user_account(request):
 
     if Profile.taken(email):
         account = Profile.objects.filter(user__email=email).first()
+        if expiry and account.expire_on is not None:
+            account.expire_on = expiry
+            account.save()
         return JsonResponse(
             {"error": f"Email `{email}` already has an account ({account.username})"},
             status=409,
