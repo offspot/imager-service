@@ -1,16 +1,31 @@
 <script type="text/javascript">
-var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
-var eventer = window[eventMethod];
-var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
-eventer(messageEvent, function(e) { document.getElementById('cardshop-frame').height = e.data.toString() + 'px'; }, false);
+    function resizeFrame(height) {
+        document.getElementById('cardshop-frame').style.height = height.toString() + 'px';
+    }
+    var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+    var eventer = window[eventMethod];
+    var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+    eventer(messageEvent, function(e) {
+        try {
+            var message = JSON.parse(e.data);
+            console.debug("received message", message);
+            if (message.height) {
+                setTimeout(resizeFrame, 50, message.height);
+            }
+        } catch (e) {
+            console.error("can't parse received message as JSON");
+            return;
+        }
+    }, false);
 </script>
 
-<iframe id="cardshop-frame"
-        name="cardshop"
-        src="https://api.cardshop.hotspot.kiwix.org/shop/stripe/widget/"
-        width="100%"
-        style="min-height:800px;"
-        seamless="seamless"
-        frameborder="0"
-        scrolling="no"
-        allowpaymentrequest></iframe>
+<iframe
+    id="cardshop-frame"
+    name="cardshop"
+    src="https://api.cardshop.hotspot.kiwix.org/shop/stripe/widget/"
+    width="100%"
+    style="height:745px;"
+    seamless="seamless"
+    frameborder="0"
+    scrolling="no"
+    allowpaymentrequest></iframe>

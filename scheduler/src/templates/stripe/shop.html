@@ -200,15 +200,18 @@
     </style>
   </head>
   <script type="text/javascript">
-function send_height_to_parent(e){
+function send_height_to_parent(){
   try {
     var actual_height = document.querySelector('body').scrollHeight;
-    parent.postMessage(actual_height, "*");
+    console.debug(parent.postMessage(JSON.stringify({height: actual_height}), "*"));
   } catch (e) {
     console.error("Unable to send height to parent…", e.toString());
   }
 }
-window.onresize = send_height_to_parent;
+function onframeresize(e) {
+  send_height_to_parent();
+}
+window.onresize = onframeresize;
 </script>
   <body onload="send_height_to_parent();">
     <section class="no-container">
