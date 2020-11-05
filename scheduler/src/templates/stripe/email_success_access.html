@@ -15,7 +15,12 @@
 {% if username %}
 <table class="table table-sm table-striped">
     <tr><th>Username</th><td><code>{{ username|default("Unavailable – please contact us", true) }}</code></td></tr>
-    <tr><th>Password</th><td><code>{{ password|default("Unavailable – please contact us", true) }}</code></td></tr>
+    <tr><th>Password</th>
+        {% if existing_account %}
+        <td>You already have an account. Password remains unchanged. To reset your password <a href="https://cardshop.hotspot.kiwix.org/password-reset">click here</a>.</td>
+        {% else %}
+        <td><code>{{ password|default("Unavailable – please contact us", true) }}</code></td>{% endif %}
+    </tr>
     <tr><th>Expires on</th><td>{{ expire_on|date|default("Unavailable – please contact us", true) }} UTC</td></tr>
 </table>
 {% else %}

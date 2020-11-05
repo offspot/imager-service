@@ -129,6 +129,7 @@ def create_manager_account(email, expire_on):
             "email": email,
             "username": email,
             "password": "<your-existing-password>",
+            "existing": True,
         }
     if resp.status_code not in (200, 201):
         return False, {"status": resp.status_code}
@@ -167,6 +168,7 @@ def handle_credentials_creation(session, customer):
         session_record["_id"],
         username=credentials.get("username"),
         password=credentials.get("password"),
+        existing_account=credentials.get("existing", False),
         expiry=expire_on,
         recurring=recurring,
     )
@@ -219,6 +221,7 @@ def handle_access_order(session, customer):
         price=session.amount_total,
         username=record.get("username", "Unavailable – please contact us"),
         password=record.get("password", "Unavailable – please contact us"),
+        existing_account=record.get("existing_account", False),
         expire_on=record.get("expiry"),
         recurring=record.get("recurring"),
     )
@@ -403,6 +406,7 @@ def success():
                 "password": record.get("password"),
                 "expire_on": record.get("expiry"),
                 "recurring": record.get("recurring"),
+                "existing_account": record.get("existing_account", False),
             }
         )
     else:

@@ -841,6 +841,7 @@ class StripeSession(BaseCollection):
         "receipt_sent": {"type": "boolean", "required": True},
         "username": {"type": "string", "required": False},
         "password": {"type": "string", "required": False},
+        "existing_account": {"type": "boolean", "required": False},
         "expiry": {"type": "datetime", "required": False},
         "recurring": {"type": "boolean", "required": False},
         "http_url": {"type": "string", "required": False},
