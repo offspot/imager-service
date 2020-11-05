@@ -388,8 +388,8 @@ def success():
     product = session.metadata.get("product")
     if product.startswith("wikipedia-"):
         kind = "image"
-        http_url, torrent_url, magnet_url = get_links_for(product)
-        context.update({"http_url": http_url, "torrent_url": magnet_url or torrent_url})
+        http_url, torrent_url, _ = get_links_for(product)
+        context.update({"http_url": http_url, "torrent_url": torrent_url})
     elif product.startswith("access"):
         kind = "access"
         record = handle_credentials_creation(session, customer)
