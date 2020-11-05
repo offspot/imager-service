@@ -132,6 +132,16 @@
   color: #2ea3f2;
 }
 
+
+.download-btn { display: inline-block; }
+@media (max-width:380px) {
+  .offer .description { padding-bottom: 120px; }
+  .download-btn:first-child { margin-bottom: .5em; }
+}
+@media (min-width:1080px) and (max-width: 1400px) {
+  .download-btn:first-child { margin-bottom: .5em; }
+}
+
 .offer .button-holder {
   text-align: center;
   margin-bottom: 2em;
@@ -190,8 +200,7 @@
     </style>
   </head>
   <script type="text/javascript">
-function send_height_to_parent(){
-  console.log("send_height_to_parent");
+function send_height_to_parent(e){
   try {
     var actual_height = document.querySelector('body').scrollHeight;
     parent.postMessage(actual_height, "*");
@@ -199,6 +208,7 @@ function send_height_to_parent(){
     console.error("Unable to send height to parent…", e.toString());
   }
 }
+window.onresize = send_height_to_parent;
 </script>
   <body onload="send_height_to_parent();">
     <section class="no-container">
@@ -216,8 +226,8 @@ function send_height_to_parent(){
               <li>Includes complete Raspberry Pi StackExchange archive</li>
             </ul>
             <form class="text-center button-holder">
-              <a class="btn btn-outline-secondary" style="display: inline-block; margin-bottom: .5em;" href="{{ api_url }}/auto-images/demo/redirect/http">Download</a>
-              <a class="btn btn-outline-secondary" style="display: inline-block;" href="{{ api_url }}/auto-images/demo/redirect/torrent">Download torrent</a>
+              <a class="btn btn-outline-secondary download-btn" href="{{ api_url }}/auto-images/demo/redirect/http">Download</a>
+              <a class="btn btn-outline-secondary download-btn" href="{{ api_url }}/auto-images/demo/redirect/torrent">Download torrent</a>
             </form>
           </section>
         </div>
