@@ -77,6 +77,7 @@ def send_paid_order_email(
     torrent_url=None,
     username=None,
     password=None,
+    existing_account=False,
     expire_on=None,
     recurring=False,
 ):
@@ -92,6 +93,7 @@ def send_paid_order_email(
         "torrent_url": torrent_url,
         "username": username,
         "password": password,
+        "existing_account": existing_account,
         "expire_on": expire_on,
         "recurring": recurring,
     }
@@ -99,10 +101,11 @@ def send_paid_order_email(
     content = email_env.get_template(f"stripe/email_success_{kind}.html").render(
         **context
     )
-    send_email(
+    return send_email(
         to=email,
         subject=subject,
         contents=content,
+        copy_support=False,
     )
 
 
@@ -128,6 +131,7 @@ def create_manager_account(email, expire_on):
             "email": email,
             "username": email,
             "password": "<your-existing-password>",
+            "existing": True,
         }
     if resp.status_code not in (200, 201):
         return False, {"status": resp.status_code}
@@ -166,6 +170,7 @@ def handle_credentials_creation(session, customer):
         session_record["_id"],
         username=credentials.get("username"),
         password=credentials.get("password"),
+        existing_account=credentials.get("existing", False),
         expiry=expire_on,
         recurring=recurring,
     )
@@ -178,7 +183,7 @@ def handle_image_order(session, customer):
     http_url, torrent_url, _ = get_links_for(product)
     product_lang = product.split("-")[-1]
 
-    send_paid_order_email(
+    email_id = send_paid_order_email(
         kind="image",
         email=customer.email,
         name=customer.name,
@@ -196,6 +201,7 @@ def handle_image_order(session, customer):
         session.id,
         session.metadata["product"],
         receipt_sent=True,
+        email_id=email_id,
         http_url=http_url,
     )
 
@@ -206,7 +212,7 @@ def handle_access_order(session, customer):
     record = handle_credentials_creation(session, customer)
 
     # send email receipt
-    send_paid_order_email(
+    email_id = send_paid_order_email(
         kind="access",
         email=customer.email,
         name=customer.name,
@@ -218,10 +224,11 @@ def handle_access_order(session, customer):
         price=session.amount_total,
         username=record.get("username", "Unavailable – please contact us"),
         password=record.get("password", "Unavailable – please contact us"),
+        existing_account=record.get("existing_account", False),
         expire_on=record.get("expiry"),
         recurring=record.get("recurring"),
     )
-    StripeSession.update(record["_id"], receipt_sent=True)
+    StripeSession.update(record["_id"], receipt_sent=True, email_id=email_id)
 
 
 PRODUCTS = {
@@ -384,12 +391,12 @@ def success():
         logger.error(f"Session {session.id} is not paid: {session.payment_status}")
         return flask.Response("ERROR !!! not paid")
 
-    context = {"customer": customer, "session": session}
+    context = {"customer": customer, "session": session, "shop_url": SHOP_PUBLIC_URL}
     product = session.metadata.get("product")
     if product.startswith("wikipedia-"):
         kind = "image"
-        http_url, torrent_url, magnet_url = get_links_for(product)
-        context.update({"http_url": http_url, "torrent_url": magnet_url or torrent_url})
+        http_url, torrent_url, _ = get_links_for(product)
+        context.update({"http_url": http_url, "torrent_url": torrent_url})
     elif product.startswith("access"):
         kind = "access"
         record = handle_credentials_creation(session, customer)
@@ -402,6 +409,7 @@ def success():
                 "password": record.get("password"),
                 "expire_on": record.get("expiry"),
                 "recurring": record.get("recurring"),
+                "existing_account": record.get("existing_account", False),
             }
         )
     else:

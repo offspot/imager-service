@@ -3,7 +3,7 @@
     <div class="container intro">
         <div class="text-center">
             <h1>Success!</h1>
-            <p>{{ customer.email }}, your image is now ready to download.</p>
+            <p>{{ customer.email }}, your image is now ready to download. You have 7 days to download it.</p>
             <div class="row buttons">
             <div class="col col-http">
                 <a href="{{ http_url }}" class="http-btn">
@@ -27,7 +27,7 @@
             <p>Connect to it and a captive portal should appear after a few seconds. If not, then open <a href="http://wikipedia.hotspot">http://wikipedia.hotspot</a> in your favourite browser.</p>
             <p>Enjoy!</p>
             <p>&nbsp;</p>
-            <p>Once the download has started you can go back to <a href="https://www.kiwix.org">kiwix.org</a>.</p>
+            <p>Once the download has started you can go back to <a href="{{ shop_url }}">kiwix.org</a>.</p>
         </div>
     </div>
     {% endblock %}
