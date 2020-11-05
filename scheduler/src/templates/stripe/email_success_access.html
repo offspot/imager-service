@@ -16,7 +16,7 @@
 <table class="table table-sm table-striped">
     <tr><th>Username</th><td><code>{{ username|default("Unavailable – please contact us", true) }}</code></td></tr>
     <tr><th>Password</th><td><code>{{ password|default("Unavailable – please contact us", true) }}</code></td></tr>
-    <tr><th>Expire On</th><td>{{ expire_on|date|default("Unavailable – please contact us", true) }}</td></tr>
+    <tr><th>Expires on</th><td>{{ expire_on|date|default("Unavailable – please contact us", true) }} UTC</td></tr>
 </table>
 {% else %}
 <p>Hum, your credentials at not ready just yet. We shall email those to you shortly. If you don't receive them, please contact us.</p>
