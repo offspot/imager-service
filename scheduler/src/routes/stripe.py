@@ -388,7 +388,7 @@ def success():
         logger.error(f"Session {session.id} is not paid: {session.payment_status}")
         return flask.Response("ERROR !!! not paid")
 
-    context = {"customer": customer, "session": session}
+    context = {"customer": customer, "session": session, "shop_url": SHOP_PUBLIC_URL}
     product = session.metadata.get("product")
     if product.startswith("wikipedia-"):
         kind = "image"
