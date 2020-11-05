@@ -4,6 +4,7 @@
 
 import os
 import logging
+from typing import Optional, Sequence
 
 import pdfkit
 import yagmail
@@ -77,7 +78,13 @@ def get_sender():
 
 
 def send_email_via_smtp(
-    to, subject, contents, cc=[], bcc=[], headers={}, attachments=[]
+    to,
+    subject,
+    contents,
+    cc: Optional[Sequence] = None,
+    bcc: Optional[Sequence] = None,
+    headers: Optional[dict] = None,
+    attachments: Optional[Sequence] = None,
 ):
     yag = get_sender()
     if attachments:
@@ -88,7 +95,13 @@ def send_email_via_smtp(
 
 
 def send_email_via_api(
-    to, subject, contents, cc=[], bcc=[], headers={}, attachments=[]
+    to,
+    subject,
+    contents,
+    cc: Optional[Sequence] = None,
+    bcc: Optional[Sequence] = None,
+    headers: Optional[dict] = None,
+    attachments: Optional[Sequence] = None,
 ):
     values = [
         ("from", os.getenv("MAIL_FROM", "cardshop@kiwix.org")),
@@ -120,12 +133,19 @@ def send_email_via_api(
 
 
 def send_email(
-    to, subject, contents, cc=[], bcc=[], headers={}, attachments=[], copy_support=True
+    to,
+    subject,
+    contents,
+    cc: Optional[Sequence] = None,
+    bcc: Optional[Sequence] = None,
+    headers: Optional[dict] = None,
+    attachments: Optional[Sequence] = None,
+    copy_support=True,
 ):
 
-    to = [to] if not isinstance(to, list) else to
-    cc = [cc] if not isinstance(cc, list) else cc
-    bcc = [bcc] if not isinstance(bcc, list) else bcc
+    to = [to] if to and not isinstance(to, list) else to
+    cc = [cc] if cc and not isinstance(cc, list) else cc
+    bcc = [bcc] if bcc and not isinstance(bcc, list) else bcc
 
     # bcc SUPPORT_EMAIL to every message
     if copy_support and os.getenv("SUPPORT_EMAIL"):
@@ -147,15 +167,15 @@ def send_email(
             contents=contents,
             cc=cc or None,
             bcc=bcc or None,
-            headers=headers,
-            attachments=attachments,
+            headers=headers or {},
+            attachments=attachments or [],
         )
     except Exception as exp:
         logger.error("Unable to send email: {}".format(exp))
         logger.exception(exp)
 
 
-def get_full_context(order_id, extra={}):
+def get_full_context(order_id, extra: Optional[dict] = None):
     order = Orders().get_with_tasks(order_id, {"logs": 0})
     order.update(
         {
@@ -165,7 +185,8 @@ def get_full_context(order_id, extra={}):
         }
     )
     context = {"order": order}
-    context.update(extra)
+    if extra:
+        context.update(extra)
     return context
 
 
@@ -194,21 +215,28 @@ def get_email_for(order_id, kind, formatted=True):
 
 
 def send_order_email_for(
-    order_id, subject_tmpl, content_tmpl, to, cc=[], bcc=[], attachments=[], extra={}
+    order_id,
+    subject_tmpl,
+    content_tmpl,
+    to,
+    cc: Optional[Sequence] = None,
+    bcc: Optional[Sequence] = None,
+    attachments: Optional[Sequence] = None,
+    extra: Optional[dict] = None,
 ):
     context = get_full_context(str(order_id), extra=extra)
 
     subject = jinja_env.get_template("{}.txt".format(subject_tmpl)).render(**context)
     content = jinja_env.get_template("{}.html".format(content_tmpl)).render(**context)
-    cc = [cc] if not isinstance(cc, list) else cc
-    bcc = [bcc] if not isinstance(bcc, list) else bcc
+    cc = [cc] if cc and not isinstance(cc, list) else cc
+    bcc = [bcc] if bcc and not isinstance(bcc, list) else bcc
     send_email(
         to=get_email_for(order_id, kind=to),
         subject=subject,
         contents=content,
         cc=[get_email_for(order_id, kind=item) for item in cc],
         bcc=[get_email_for(order_id, kind=item) for item in bcc],
-        attachments=attachments,
+        attachments=attachments or {},
     )
 
 
