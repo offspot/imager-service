@@ -25,7 +25,7 @@ from utils.templates import (
     get_public_download_url,
     get_public_download_torrent_url,
     public_download_url_has_torrent,
-    get_public_download_magnet_url
+    get_public_download_magnet_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -119,14 +119,16 @@ def send_email_via_api(
     req.raise_for_status()
 
 
-def send_email(to, subject, contents, cc=[], bcc=[], headers={}, attachments=[]):
+def send_email(
+    to, subject, contents, cc=[], bcc=[], headers={}, attachments=[], copy_support=True
+):
 
     to = [to] if not isinstance(to, list) else to
     cc = [cc] if not isinstance(cc, list) else cc
     bcc = [bcc] if not isinstance(bcc, list) else bcc
 
     # bcc SUPPORT_EMAIL to every message
-    if os.getenv("SUPPORT_EMAIL"):
+    if copy_support and os.getenv("SUPPORT_EMAIL"):
         bcc.append(os.getenv("SUPPORT_EMAIL"))
 
     logger.info("sending --{}-- to --{}--/--{}".format(subject, to, attachments))

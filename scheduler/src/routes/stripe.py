@@ -103,6 +103,7 @@ def send_paid_order_email(
         to=email,
         subject=subject,
         contents=content,
+        copy_support=False,
     )
 
 
