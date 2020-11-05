@@ -77,6 +77,7 @@ def send_paid_order_email(
     torrent_url=None,
     username=None,
     password=None,
+    existing_account=False,
     expire_on=None,
     recurring=False,
 ):
@@ -92,6 +93,7 @@ def send_paid_order_email(
         "torrent_url": torrent_url,
         "username": username,
         "password": password,
+        "existing_account": existing_account,
         "expire_on": expire_on,
         "recurring": recurring,
     }
@@ -99,7 +101,7 @@ def send_paid_order_email(
     content = email_env.get_template(f"stripe/email_success_{kind}.html").render(
         **context
     )
-    send_email(
+    return send_email(
         to=email,
         subject=subject,
         contents=content,
@@ -181,7 +183,7 @@ def handle_image_order(session, customer):
     http_url, torrent_url, _ = get_links_for(product)
     product_lang = product.split("-")[-1]
 
-    send_paid_order_email(
+    email_id = send_paid_order_email(
         kind="image",
         email=customer.email,
         name=customer.name,
@@ -199,6 +201,7 @@ def handle_image_order(session, customer):
         session.id,
         session.metadata["product"],
         receipt_sent=True,
+        email_id=email_id,
         http_url=http_url,
     )
 
@@ -209,7 +212,7 @@ def handle_access_order(session, customer):
     record = handle_credentials_creation(session, customer)
 
     # send email receipt
-    send_paid_order_email(
+    email_id = send_paid_order_email(
         kind="access",
         email=customer.email,
         name=customer.name,
@@ -225,7 +228,7 @@ def handle_access_order(session, customer):
         expire_on=record.get("expiry"),
         recurring=record.get("recurring"),
     )
-    StripeSession.update(record["_id"], receipt_sent=True)
+    StripeSession.update(record["_id"], receipt_sent=True, email_id=email_id)
 
 
 PRODUCTS = {

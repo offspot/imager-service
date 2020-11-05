@@ -26,7 +26,6 @@ from utils.templates import (
     get_public_download_url,
     get_public_download_torrent_url,
     public_download_url_has_torrent,
-    get_public_download_magnet_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -120,7 +119,7 @@ def send_email_via_api(
     data = MultiDict(values)
     print(attachments)
 
-    req = requests.post(
+    resp = requests.post(
         url=os.getenv("MAILGUN_API_URL") + "/messages",
         auth=("api", os.getenv("MAILGUN_API_KEY")),
         data=data,
@@ -129,7 +128,8 @@ def send_email_via_api(
             for fpath in attachments
         ],
     )
-    req.raise_for_status()
+    resp.raise_for_status()
+    return resp.json().get("id")
 
 
 def send_email(
@@ -158,8 +158,8 @@ def send_email(
         else send_email_via_smtp
     )
     # make sure we don't send message to same address twice
-    cc = [a for a in cc if a not in to]
-    bcc = [a for a in bcc if a not in to and a not in cc]
+    cc = [a for a in cc if a not in to] if cc else []
+    bcc = [a for a in bcc if a not in to and a not in cc] if bcc else []
     try:
         return func(
             to=to,

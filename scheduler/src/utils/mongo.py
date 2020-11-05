@@ -839,6 +839,7 @@ class StripeSession(BaseCollection):
         "customer_id": {"type": "string", "required": True},
         "product": {"type": "string", "required": True},
         "receipt_sent": {"type": "boolean", "required": True},
+        "email_id": {"type": "string", "required": False},
         "username": {"type": "string", "required": False},
         "password": {"type": "string", "required": False},
         "existing_account": {"type": "boolean", "required": False},
