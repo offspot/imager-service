@@ -41,7 +41,8 @@ def create_checkout_session(path=""):
 
 async def collect_statuses():
     """ gather all status checks in a single dict """
-    scheduler_workers_list = get_scheduler_workers_list()
+    scheduler_token = get_scheduler_token()
+    scheduler_workers_list = get_scheduler_workers_list(scheduler_token)
     loop = asyncio.get_event_loop()
     context = {}
 
@@ -67,6 +68,9 @@ async def collect_statuses():
         loop.run_in_executor(None, wrap, "database_status", get_database_status),
         loop.run_in_executor(None, wrap, "images_status", get_images_status),
         loop.run_in_executor(None, wrap, "wasabi_status", get_wasabi_status),
+        loop.run_in_executor(
+            None, wrap, "creatorload_status", get_creatorload_status, scheduler_token
+        ),
     ]
 
     for response in await asyncio.gather(*futures):
@@ -77,13 +81,15 @@ async def collect_statuses():
 
 
 def collect_statuses_sequential():
-    scheduler_workers_list = get_scheduler_workers_list()
+    scheduler_token = get_scheduler_token()
+    scheduler_workers_list = get_scheduler_workers_list(scheduler_token)
     scheduler_status = get_scheduler_status(scheduler_workers_list)
     worker_status = get_worker_status(scheduler_workers_list)
     manager_status = get_manager_status()
     database_status = get_database_status()
     images_status = get_images_status()
     wasabi_status = get_wasabi_status()
+    creatorload_status = get_creatorload_status(scheduler_token)
     global_status = all(
         [
             scheduler_status,
@@ -92,6 +98,7 @@ def collect_statuses_sequential():
             database_status,
             images_status,
             wasabi_status,
+            creatorload_status,
         ]
     )
     return {
@@ -101,11 +108,12 @@ def collect_statuses_sequential():
         "database_status": database_status,
         "images_status": images_status,
         "wasabi_status": wasabi_status,
+        "creatorload_status": creatorload_status,
         "global_status": global_status,
     }
 
 
-def get_scheduler_token(url, username, password):
+def _get_scheduler_token(url, username, password):
     req = requests.post(
         url=f"{url}/auth/authorize",
         headers={
@@ -119,15 +127,11 @@ def get_scheduler_token(url, username, password):
     return req.json().get("access_token"), req.json().get("refresh_token")
 
 
-def get_scheduler_workers_list():
-    """ Retrieve workers list from scheduler API to test scheduler and workers """
-
-    # fetch our urls
+def get_scheduler_token():
     url = os.getenv("STATUS_CARDSHOP_API_URL", "")
-
     # authenticate over scheduler
     try:
-        access_token, _ = get_scheduler_token(
+        access_token, _ = _get_scheduler_token(
             url,
             os.getenv("STATUS_SCHEDULER_USERNAME", ""),
             os.getenv("STATUS_SCHEDULER_PASSWORD", ""),
@@ -135,6 +139,14 @@ def get_scheduler_workers_list():
     except Exception as exc:
         print(f"Unable to get scheduler token: {exc}")
         return None
+    return access_token
+
+
+def get_scheduler_workers_list(access_token):
+    """ Retrieve workers list from scheduler API to test scheduler and workers """
+
+    # fetch our urls
+    url = os.getenv("STATUS_CARDSHOP_API_URL", "")
 
     try:
         resp = requests.get(
@@ -259,6 +271,33 @@ def get_wasabi_status():
         )
     except Exception as exc:
         print(f"Unable to get Wasabi status: {exc}")
+        return False
+
+
+def get_creatorload_status(access_token):
+
+    url = os.getenv("STATUS_CARDSHOP_API_URL", "")
+
+    try:
+        resp = requests.get(
+            f"{url}/workers/load",
+            headers={
+                "token": access_token,
+                "Content-type": "application/json",
+            },
+            timeout=HTTP_TIMEOUT,
+        )
+        load = resp.json()
+        if load.get("pending_tasks") == 0:
+            return True
+        if not load.get("estimated_completion"):
+            return False
+        completes_on = datetime.datetime.fromisoformat(
+            load["estimated_completion"].replace("Z", "")
+        )
+        return (completes_on - datetime.datetime.now()).total_seconds() <= 86400
+    except Exception as exc:
+        print(f"Unable to get creators load: {exc}")
         return False
 
 

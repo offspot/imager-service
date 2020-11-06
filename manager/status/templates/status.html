@@ -31,6 +31,9 @@
         <tr><th>Workers</th>
             <td>At least one worker is currently connected to the scheduler</td>
             <td class="text-right {{ worker_status|status_class }}">{{ worker_status|status_text }}</td></tr>
+        <tr><th>Creator Load</th>
+            <td>Creator workers are able to process queue within 24h</td>
+            <td class="text-right {{ creatorload_status|status_class }}">{{ creatorload_status|status_text }}</td></tr>
         <tr><th>Manager (Cardshop UI)</th>
             <td>Can log-in to and retrieve config page on manager</td>
             <td class="text-right {{ manager_status|status_class }}">{{ manager_status|status_text }}</td></tr>
