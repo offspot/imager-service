@@ -81,9 +81,9 @@ def calculate_load(user: dict):
     def is_connected(worker):
         """ whether a worker is considered connected (ping 15mn ago) """
         try:
-            dt = datetime.datetime.fromisoformat(worker["on"].replace("Z", "")) - now
-            return dt.total_seconds <= 900  # 10mn
+            return (now - worker["on"]).total_seconds() <= 900  # 15mn
         except Exception:
+            raise
             return False
 
     def get_remaining_minutes(task):
@@ -104,7 +104,7 @@ def calculate_load(user: dict):
                 passed = datetime.datetime.now() - datetime.datetime.fromisoformat(
                     event["on"].replace("Z", "")
                 )
-                return duration - (passed.total_seconds // 60)
+                return duration - (passed.total_seconds() // 60)
 
         # couldn't find received ; returning full duration
         return duration
@@ -130,12 +130,13 @@ def calculate_load(user: dict):
         tasks.append(task)
     nb_pending_taks = len(tasks)
 
-    cumulative_duration = sum(task["duration"] for task in tasks)
-    remaining_minutes = (
-        cumulative_duration // nb_connected_workers if nb_connected_workers else None
-    )
+    cumulative_duration = sum([task["duration"] for task in tasks])
+    try:
+        remaining_minutes = cumulative_duration // nb_connected_workers
+    except ZeroDivisionError:
+        remaining_minutes = None  # no worker
     estimated_completion = (
-        now + datetime.timedelta(total_seconds=remaining_minutes * 60)
+        now + datetime.timedelta(seconds=remaining_minutes * 60)
         if remaining_minutes
         else None
     )
