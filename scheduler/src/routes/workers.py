@@ -99,7 +99,7 @@ def calculate_load(user: dict):
             return duration
 
         # already started, remove spent time from received
-        for event in task["events"]:
+        for event in task.get("statuses", []):
             if event["status"] == "received":
                 passed = datetime.datetime.now() - datetime.datetime.fromisoformat(
                     event["on"].replace("Z", "")
@@ -123,7 +123,7 @@ def calculate_load(user: dict):
     tasks = []
     for task in CreatorTasks().find(
         {"status": {"$in": ["pending", "received", "building", "built", "uploading"]}},
-        {"status": 1, "events": 1, "order": 1, "worker": 1},
+        {"status": 1, "statuses": 1, "order": 1, "worker": 1},
     ):
         task["units"] = Orders().find_one({"_id": task["order"]}, {"units": 1})["units"]
         task["duration"] = get_remaining_minutes(task)
