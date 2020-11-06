@@ -143,14 +143,12 @@ def send_email(
     copy_support=True,
 ):
 
-    to = [to] if to and not isinstance(to, list) else to
-    cc = [cc] if cc and not isinstance(cc, list) else cc
-    bcc = [bcc] if bcc and not isinstance(bcc, list) else bcc
+    to = [to] if isinstance(to, str) else to
+    cc = ([cc] if isinstance(cc, str) else cc) or []
+    bcc = ([bcc] if isinstance(bcc, str) else bcc) or []
 
     # bcc SUPPORT_EMAIL to every message
     if copy_support and os.getenv("SUPPORT_EMAIL"):
-        if bcc is None:
-            bcc = []
         bcc.append(os.getenv("SUPPORT_EMAIL"))
 
     logger.info("sending --{}-- to --{}--/--{}".format(subject, to, attachments))
@@ -160,15 +158,15 @@ def send_email(
         else send_email_via_smtp
     )
     # make sure we don't send message to same address twice
-    cc = [a for a in cc if a not in to] if cc else []
-    bcc = [a for a in bcc if a not in to and a not in cc] if bcc else []
+    cc = [a for a in cc if a not in to]
+    bcc = [a for a in bcc if a not in to and a not in cc]
     try:
         return func(
             to=to,
             subject=subject,
             contents=contents,
-            cc=cc or None,
-            bcc=bcc or None,
+            cc=cc,
+            bcc=bcc,
             headers=headers or {},
             attachments=attachments or [],
         )
@@ -230,8 +228,8 @@ def send_order_email_for(
 
     subject = jinja_env.get_template("{}.txt".format(subject_tmpl)).render(**context)
     content = jinja_env.get_template("{}.html".format(content_tmpl)).render(**context)
-    cc = [cc] if cc and not isinstance(cc, list) else cc
-    bcc = [bcc] if bcc and not isinstance(bcc, list) else bcc
+    cc = ([cc] if isinstance(cc, str) else cc) or []
+    bcc = ([bcc] if isinstance(bcc, str) else bcc) or []
     send_email(
         to=get_email_for(order_id, kind=to),
         subject=subject,
