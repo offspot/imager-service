@@ -101,9 +101,7 @@ def calculate_load(user: dict):
         # already started, remove spent time from received
         for event in task.get("statuses", []):
             if event["status"] == "received":
-                passed = datetime.datetime.now() - datetime.datetime.fromisoformat(
-                    event["on"].replace("Z", "")
-                )
+                passed = datetime.datetime.now() - event["on"]
                 return duration - (passed.total_seconds() // 60)
 
         # couldn't find received ; returning full duration
