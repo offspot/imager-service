@@ -149,6 +149,8 @@ def send_email(
 
     # bcc SUPPORT_EMAIL to every message
     if copy_support and os.getenv("SUPPORT_EMAIL"):
+        if bcc is None:
+            bcc = []
         bcc.append(os.getenv("SUPPORT_EMAIL"))
 
     logger.info("sending --{}-- to --{}--/--{}".format(subject, to, attachments))
