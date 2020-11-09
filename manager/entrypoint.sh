@@ -1,14 +1,5 @@
 #!/bin/bash
 
-echo "execute our prestart script"
-if [ ! -f "${DATA_DIR}/manager.sqlite3" ]; then
-	echo "first run !"
-	FIRSTRUN=1
-else
-	echo "not first run !"
-	FIRSTRUN=0
-fi
-
 echo "dump environment"
 declare -p | grep -Ev 'BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID' > /container.env
 
@@ -21,7 +12,7 @@ python3 ./manage.py collectstatic --no-input
 chmod -R o+rx ${DATA_DIR}
 
 # create user on first run
-if [ $FIRSTRUN -eq 1 ]; then
+if [ "${FIRSTRUN}" = "y" ]; then
 	python3 ./manage.py shell -c "from manager.models import Profile ; print(Profile.create_admin())"
 fi
 
@@ -31,4 +22,13 @@ sleep 2
 crontab /etc/cron.d/manager-cron
 
 echo "run parent's entrypoint"
-exec /entrypoint.sh "$@"
+/entrypoint.sh
+if [ "${MAINTENANCE_MODE}" = "y" ]
+then
+    echo "Enabling maintenance mode"
+    printf "server {\n\tlocation / {\n\t\treturn 200 'Cardshop is in maintenance. Please give us a moment.';\n\t\tadd_header Content-Type text/html;\n\t}\n}\n" > /etc/nginx/conf.d/nginx.conf
+else
+    cp /app/manager/nginx.conf /etc/nginx/conf.d/nginx.conf
+fi
+echo "starting CMD"
+exec "$@"

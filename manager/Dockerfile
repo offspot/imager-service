@@ -3,7 +3,7 @@ FROM tiangolo/uwsgi-nginx:python3.8
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone
 RUN apt-get update -y && \
-    apt-get -y --no-install-recommends install cron && \
+    apt-get -y --no-install-recommends install cron python3-dev default-libmysqlclient-dev build-essential && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 ENV DATA_DIR /data

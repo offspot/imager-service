@@ -101,7 +101,8 @@ class ProfileForm(forms.Form):
             username=self.cleaned_data.get("username"),
             password=self.cleaned_data.get("password"),
             is_admin=self.cleaned_data.get("is_admin"),
-            can_order_physical=self.cleaned_data.get("can_sd")
+            can_order_physical=self.cleaned_data.get("can_sd"),
+            expiry=None,
         )
 
 

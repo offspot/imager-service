@@ -84,7 +84,7 @@ class Configuration(models.Model):
     updated_by = models.ForeignKey(
         "Profile", on_delete=models.CASCADE, related_name="configurations"
     )
-    size = models.IntegerField(blank=True)
+    size = models.BigIntegerField(blank=True)
 
     name = models.CharField(
         max_length=100, help_text="Used <strong>only within the Cardshop</strong>"
@@ -687,8 +687,8 @@ class Media(models.Model):
 
     name = models.CharField(max_length=50)
     kind = models.CharField(max_length=50, choices=KINDS.items())
-    size = models.IntegerField(help_text="In GB")
-    actual_size = models.IntegerField(help_text="In bytes (auto calc)", blank=True)
+    size = models.BigIntegerField(help_text="In GB")
+    actual_size = models.BigIntegerField(help_text="In bytes (auto calc)", blank=True)
     units_coef = models.FloatField(
         verbose_name="Units", help_text="How much units per GB"
     )
@@ -840,7 +840,7 @@ class Order(models.Model):
     media_name = models.CharField(max_length=50)
     media_type = models.CharField(max_length=50)
     media_duration = models.IntegerField(blank=True, null=True)
-    media_size = models.IntegerField()
+    media_size = models.BigIntegerField()
     quantity = models.IntegerField()
     units = models.IntegerField()
     recipient_name = models.CharField(max_length=100)
