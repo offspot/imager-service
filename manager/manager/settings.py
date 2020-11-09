@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import urllib
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -142,14 +143,30 @@ LOGGING = {
     },
 }
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(DATA_DIR, "manager.sqlite3"),
-    }
-}
+# configure database from env DSN
+if os.getenv("DATABASE", ""):
+    database = {}
+    dsn = urllib.parse.urlparse(os.getenv("DATABASE"))
+    if dsn.scheme in ("mariadb", "mysql"):
+        database = {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': dsn.path[1:] if dsn.path else None,
+            'USER': dsn.username,
+            'PASSWORD': dsn.password or '',
+            'HOST': dsn.hostname,
+            'PORT': str(dsn.port or 3306),
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+            }
+        }
+    elif dsn.scheme.startswith("sqlite"):
+        database = {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": dsn.path,
+        }
+    DATABASES["default"] = database
 
-MESSAGE_STORAGE = "django.contrib.messages.storage.fallback.FallbackStorage"
+    MESSAGE_STORAGE = "django.contrib.messages.storage.fallback.FallbackStorage"
 
 
 MEDIA_ROOT = os.path.join(DATA_DIR, "media")
