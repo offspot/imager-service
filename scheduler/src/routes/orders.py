@@ -107,7 +107,7 @@ def anonymize(user: dict):
         validate(request_json, {"order_ids": {"type": "list", "required": True}})
         order_ids = [ensure_objectid(oid) for oid in request_json.get("order_ids")]
     except ValidationError as error:
-        raise errors.BadRequest(error.message)
+        raise errors.BadRequest(str(error))
     except Exception:
         raise errors.BadRequest("Orders IDs are not all valid IDs")
 

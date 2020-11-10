@@ -40,7 +40,7 @@ def get_orgs():
 
 class UpdateUnitsForm(forms.Form):
     organization = forms.ChoiceField(choices=get_orgs)
-    units = forms.IntegerField()
+    units = forms.IntegerField(required=False)
 
     @staticmethod
     def success_message(result):

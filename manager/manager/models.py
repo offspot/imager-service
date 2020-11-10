@@ -452,7 +452,11 @@ class Organization(models.Model):
         verbose_name="Pub WH",
     )
     email = models.EmailField()
-    units = models.IntegerField()
+    units = models.IntegerField(null=True, blank=True, default=0)
+
+    @property
+    def is_limited(self):
+        return self.units is not None
 
     @classmethod
     def get_or_none(cls, slug):
@@ -489,6 +493,12 @@ class Profile(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     can_order_physical = models.BooleanField(default=False)
     expire_on = models.DateTimeField(blank=True, null=True)
+
+    @property
+    def is_limited(self):
+        if self.user.is_staff:
+            return False
+        return self.organization.is_limited
 
     @property
     def username(self):
@@ -698,9 +708,10 @@ class Media(models.Model):
         return super(Media, self).save(*args, **kwargs)
 
     @staticmethod
-    def choices_for(items):
+    def choices_for(items, display_units=True):
+        print("choices_for", f"{display_units=}")
         return [
-            (item.id, "{name} ({units}U)".format(name=item.name, units=item.units))
+            (item.id, f"{item.name} ({item.units}U)" if display_units else item.name)
             for item in items
         ]
 
@@ -712,11 +723,11 @@ class Media(models.Model):
             return None
 
     @classmethod
-    def get_choices(cls, kind=None):
+    def get_choices(cls, kind=None, display_units=True):
         qs = cls.objects.all()
         if kind is not None:
             qs = qs.filter(kind=kind)
-        return cls.choices_for(qs)
+        return cls.choices_for(qs, display_units=display_units)
 
     @classmethod
     def get_min_for(cls, size):
@@ -834,6 +845,7 @@ class Order(models.Model):
     channel = models.CharField(max_length=50)
     client_name = models.CharField(max_length=100)
     client_email = models.EmailField()
+    client_limited = models.BooleanField(default=True)
     config = jsonfield.JSONField(
         load_kwargs={"object_pairs_hook": collections.OrderedDict}
     )
@@ -913,6 +925,7 @@ class Order(models.Model):
             channel=client.organization.channel,
             client_name=client.name,
             client_email=client.email,
+            client_limited=client.is_limited,
             config=config.json,
             media_name=media.name,
             media_type=media.kind,
@@ -989,7 +1002,11 @@ class Order(models.Model):
             },
             "quantity": self.quantity,
             "units": self.units,
-            "client": {"name": self.client_name, "email": self.client_email},
+            "client": {
+                "name": self.client_name,
+                "email": self.client_email,
+                "limited": self.client_limited,
+            },
             "recipient": {
                 "name": self.recipient_name,
                 "email": self.recipient_email,

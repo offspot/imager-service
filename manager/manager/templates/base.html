@@ -82,8 +82,9 @@
       <nav class="nav-item dropdown">
         <a class="nav-link dropdown-toggle p-2 text-dark" href="#" id="user-dd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ user.profile.name }} ({{ user.profile.organization.slug }})</a>
         <div class="dropdown-menu" aria-labelledby="user-dd">
-          <a class="dropdown-item" href="{% url 'logout' %}">Sign out</a>
           <a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="{% url 'logout' %}">Sign out</a>
         </div>
       </nav>{% else %}<a class="btn btn-outline-primary" href="{% url 'login' %}">Sign in</a>{% endif %}
     </div>
