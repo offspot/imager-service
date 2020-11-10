@@ -32,7 +32,7 @@
 			  		<span class="quantity-label">Quantity</span>: <em class="media-quantity">?</em><br />
 			  		To: <em class="recipient"></em>
 			  	</p>
-			  	<p class="card-text">Cost: <strong class="cost">n/a</strong> (balance: <span class="balance"></span>)</p>
+			  	<p class="card-text {% if not user.profile.limited %}hidden{% endif%}">Cost: <strong class="cost">n/a</strong> (balance: <span class="balance"></span>)</p>
 			  	<p><button type="submit" class="btn btn-primary">Order now</button></p>
 			  </div>
 			</div>
@@ -61,6 +61,7 @@
 			{% for config in configurations %}"{{ config.id }}": [{% for media in config.compatible_medias %}"{{ media.id }}", {% endfor %}],{% endfor %}
 		},
 		balance: {{ user.profile.organization.units }},
+		limited: {{ user.profile.is_limited|lower }},
 	};
 
 	function get_select_element(selectName) {
@@ -95,7 +96,7 @@
 			if (option.kind == kind) {
 				let elem = $("<option />");
 				elem.val(optkey);
-				elem.text(option.name + " ("+ option.units + "U)");
+				elem.text((dataset.limited) ? option.name + " ("+ option.units + "U)" : option.name);
 				media_select.append(elem);
 			}
 		});
@@ -119,7 +120,7 @@
 		let quantity_name = "";
 		let quantity_label = "";
 		let recipient = dataset.address[get_select_element_value("address")];
-		
+
 		if (kind == "virtual") {
 			quantity_label = "Link validity";
 			quantity_name = "{{ LINK_VALIDITY_DAYS }} days";

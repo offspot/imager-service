@@ -73,6 +73,7 @@ class OrderForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         client = kwargs.pop("client")
+        print(client, client.is_limited)
         super().__init__(*args, **kwargs)
         self.client = client
         self.organization = client.organization
@@ -81,7 +82,8 @@ class OrderForm(forms.Form):
             self.organization
         )
         self.fields["media"].choices = Media.get_choices(
-            kind=None if client.can_order_physical else Media.VIRTUAL
+            kind=None if client.can_order_physical else Media.VIRTUAL,
+            display_units=client.is_limited,
         )
         self.fields["kind"].choices = filter(
             lambda item: client.can_order_physical or item[0] != Media.PHYSICAL,

@@ -142,6 +142,8 @@ def create_user_account(request):
         except Exception:
             return JsonResponse({"error": "Unable to parse expiry date"}, status=400)
 
+    limited = bool(data.get("limited", True))
+
     name = str(data.get("name", email.split("@")[0]))
     username = str(data.get("username", email))
     password = str(data.get("password", "")) or None
@@ -173,7 +175,7 @@ def create_user_account(request):
             slug=username,
             name="Single" if username == name else name,
             email=email,
-            units=102400,
+            units=102400 if limited else None,
         )
         profile = Profile.create(
             organization=org,

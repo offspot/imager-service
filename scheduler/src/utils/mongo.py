@@ -232,6 +232,7 @@ class Orders(BaseCollection):
                     "required": True,
                 },
             },
+            "limited": {"type": "boolean", "required": False},
         },
         "recipient": {
             "type": "dict",
@@ -788,7 +789,11 @@ class AutoImages(BaseCollection):
             },
             "quantity": 1,
             "units": 0,
-            "client": {"name": image["contact_email"], "email": image["contact_email"]},
+            "client": {
+                "name": image["contact_email"],
+                "email": image["contact_email"],
+                "limited": False,
+            },
             "recipient": {
                 "name": image["contact_email"],
                 "email": image["contact_email"],

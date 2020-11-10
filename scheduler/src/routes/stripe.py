@@ -121,7 +121,7 @@ def create_manager_account(email, expire_on):
     resp = requests.post(
         f"{MANAGER_API_URL}/accounts/create",
         headers={"Token": MANAGER_ACCOUNTS_API_TOKEN},
-        json={"email": email, "expire_on": expire_on.isoformat()},
+        json={"email": email, "expire_on": expire_on.isoformat(), "limited": False},
         timeout=10,
     )
     # existing cardshop account with this email

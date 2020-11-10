@@ -15,24 +15,30 @@
 		<th style="text-align: left;">Size</th>
 		<td>{{ order.sd_card.size }}GB</td>
 	</tr>
+	{% order.sd_card.type == "physical" %}
 	<tr>
 		<th style="text-align: left;">Quantity</th>
 		<td>{{ order.quantity }}</td>
 	</tr>
+	{% endif %}
+	{% if order.client.limited %}
 	<tr>
 		<th style="text-align: left;">Units</th>
 		<td>{{ order.units }}</td>
 	</tr>
+	{% endif %}
 	<tr>
 		<th style="text-align: left;">Destination</th>
 		<td>{{ order.recipient.name }}{% if order.recipient.phone %}, {{ order.recipient.phone }}{% endif %}<br />
 		{{ order.recipient.address|default("-", true)|linebreaksbr}} – {{ order.recipient.country|country|default("-", true) }}.<br />
 		<a href="mailto:{{ order.recipient.email }}">{{ order.recipient.email }}</a></td>
 	</tr>
+	{% if order.client.email != order.recipient.email %}
 	<tr>
 		<th style="text-align: left;">Cardshop Contact</th>
 		<td>{{ order.client.name }}, <a href="mailto:{{ order.client.email }}">{{ order.client.email }}</a>.</td>
 	</tr>
+	{% endif %}
 	<tr>
 		<th style="text-align: left;">Status</th>
 		<td><code>{{ order.statuses[-1].status }}</code>, {{ order.statuses[-1].on.strftime('%c') }}</td>
