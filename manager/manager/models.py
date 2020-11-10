@@ -901,7 +901,9 @@ class Order(models.Model):
             return None
 
     @classmethod
-    def create_from(cls, client, config, media, quantity, address):
+    def create_from(cls, client, config, media, quantity, address=None):
+        if not address and media.kind != Media.VIRTUAL:
+            raise ValueError("Non-virtual order requires an address")
         warehouse = client.organization.get_warehouse_details(
             use_public=media.kind == Media.VIRTUAL
         )
@@ -918,11 +920,11 @@ class Order(models.Model):
             media_duration=media.get_duration_for(quantity),
             quantity=quantity,
             units=media.units * quantity,
-            recipient_name=address.recipient,
-            recipient_email=address.email,
-            recipient_phone=address.phone,
-            recipient_address=address.address,
-            recipient_country_code=address.country,
+            recipient_name=address.recipient if address else client.name,
+            recipient_email=address.email if address else client.email,
+            recipient_phone=address.phone if address else "",
+            recipient_address=address.address if address else "",
+            recipient_country_code=address.country if address else "",
             warehouse_upload_uri=warehouse["upload_uri"],
             warehouse_download_uri=warehouse["download_uri"],
         )
