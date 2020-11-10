@@ -48,6 +48,7 @@
 
 	dataset = {
 		address: {
+			"none": {"name": "{{ user.profile.name }}", "virtualonly": true, "country": "n/a", "email": "{{ user.profile.email }}"},
 			{% for addr in addresses %}"{{ addr.id }}": {"name": "{{ addr.name }}", "virtualonly": {% if addr.physical_compatible %}false{% else %}true{% endif %}, "country": "{{ addr.country|country|default_if_none:"-" }}", "email": "{{ addr.email }}"},{% endfor %}
 		},
 		config: {

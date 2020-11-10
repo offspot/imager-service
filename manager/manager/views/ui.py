@@ -77,7 +77,9 @@ class OrderForm(forms.Form):
         self.client = client
         self.organization = client.organization
         self.fields["config"].choices = Configuration.get_choices(self.organization)
-        self.fields["address"].choices = Address.get_choices(self.organization)
+        self.fields["address"].choices = [("none", "Myself")] + Address.get_choices(
+            self.organization
+        )
         self.fields["media"].choices = Media.get_choices(
             kind=None if client.can_order_physical else Media.VIRTUAL
         )
@@ -117,8 +119,10 @@ class OrderForm(forms.Form):
         return config
 
     def clean_address(self):
+        if self.cleaned_data.get("address", "none") == "none":
+            return
         address = Address.get_or_none(self.cleaned_data.get("address"))
-        if address is None or address.organization != self.organization:
+        if address and address.organization != self.organization:
             raise forms.ValidationError("Not your address", code="invalid")
         return address
 
@@ -146,7 +150,7 @@ class OrderForm(forms.Form):
         kind = cleaned_data.get("kind")
         address = cleaned_data.get("address")
 
-        if kind == Media.PHYSICAL and not address.physical_compatible:
+        if kind == Media.PHYSICAL and (not address or not address.physical_compatible):
             self.add_error(
                 "address", "This address can't be used as it misses postal details"
             )
@@ -399,11 +403,6 @@ def order_new(request, kind=Media.VIRTUAL):
             request, "You need a Configuration to place an Order. Add one first!"
         )
         return redirect("configuration_list")
-    if not context["addresses"].count():
-        messages.warning(
-            request, "You need an Address to place an Order. Add one first!"
-        )
-        return redirect("address_list")
 
     form = OrderForm(client=request.user.profile)
     if request.method == "POST":
