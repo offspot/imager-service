@@ -110,10 +110,8 @@ def register_task(task_id: ObjectId, task_type: str, user: dict):
 
 
 @blueprint.route(
-    "/<string:task_type>/<string:task_id>/confirm_inserted", methods=["GET"]
+    "/<string:task_type>/<string:task_id>/confirm_inserted", methods=["GET", "POST"]
 )
-# @authenticate()
-# @only_for_roles(roles=Users.WORKER_ROLES)
 @bson_object_id(["task_id"])
 def confirm_inserted_task(task_id: ObjectId, task_type: str):
     task_cls = tasks_cls_for(task_type)
@@ -121,12 +119,18 @@ def confirm_inserted_task(task_id: ObjectId, task_type: str):
     if task is None:
         raise errors.NotFound()
 
-    task_cls.update_status(task_id, status=task_cls.card_inserted)
-    task_cls.cascade_status(task_id, task_cls.card_inserted)
+    if request.method == "GET":
+        order = Orders().get(task["order"])
+        return render_template("pub_confirm_inserted.html", order=order, task=task)
 
-    order = Orders().get(task["order"])
+    elif request.method == "POST":
+        task_cls.update_status(task_id, status=task_cls.card_inserted)
+        task_cls.cascade_status(task_id, task_cls.card_inserted)
 
-    return render_template("pub_thank_inserted.html", order=order, task=task)
+        order = Orders().get(task["order"])
+
+        return render_template("pub_thank_inserted.html", order=order, task=task)
+    raise errors.BadRequest("?")
 
 
 @blueprint.route("/<string:task_type>/<string:task_id>/status", methods=["PATCH"])
