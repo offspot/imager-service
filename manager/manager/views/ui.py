@@ -3,10 +3,13 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import logging
+import datetime
 
 from django import forms
 from django.http import Http404
 from django.conf import settings
+from django.utils import timezone
+from django.template import loader
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth import logout
@@ -16,7 +19,15 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 
-from manager.models import Address, Media, Configuration, Order
+from manager.models import (
+    Address,
+    Media,
+    Configuration,
+    Order,
+    Profile,
+    PasswordResetCode,
+)
+from manager.email import send_mailgun_email
 from manager.scheduler import add_order_shipment, anonymize_orders, SchedulerAPIError
 
 logger = logging.getLogger(__name__)
@@ -218,9 +229,7 @@ def password_change(request):
                 logger.error(exp)
                 messages.error(
                     request,
-                    "Failed to update your password although it looks good. (ref: {exp})".format(
-                        exp=exp
-                    ),
+                    f"Failed to update your password although it looks OK. ref: {exp}",
                 )
             else:
                 messages.success(request, "Password Updated successfuly !")
@@ -230,6 +239,100 @@ def password_change(request):
         form = PasswordChangeForm(user=request.user)
     context["password_form"] = form
     return render(request, "password_change.html", context)
+
+
+class EmailForm(forms.Form):
+    email = forms.EmailField(label="E-mail address")
+
+    def clean_email(self):
+        try:
+            return Profile.get_using(self.cleaned_data.get("email"))
+        except Exception:
+            raise forms.ValidationError("No account for e-mail", code="invalid")
+
+
+def password_reset(request):
+    context = {}
+    if request.method == "POST":
+        form = EmailForm(data=request.POST)
+        if form.is_valid():
+            try:
+                prc = PasswordResetCode.objects.create(
+                    profile=form.cleaned_data["email"]
+                )
+                send_mailgun_email(
+                    to=prc.profile.email,
+                    subject="Cardshop Password Reset",
+                    contents=loader.render_to_string(
+                        "password_reset_email.html",
+                        {
+                            "prc": prc,
+                            "CARDSHOP_PUBLIC_URL": settings.CARDSHOP_PUBLIC_URL,
+                        },
+                    ),
+                )
+
+                messages.info(
+                    request,
+                    f"Password reset validation code sent to "
+                    f"<code>{form.cleaned_data['email'].email}</code>",
+                )
+                return redirect("reset_password_confirm")
+            except Exception as exc:
+                logger.error(
+                    f"Error sending password reset to {form.cleaned_data['email']}"
+                )
+                logger.exception(exc)
+                messages.error(
+                    request,
+                    f"An error has occured trying to reset your password. "
+                    f"Please try again later: {exc}",
+                )
+                return redirect("reset_password")
+    else:
+        form = EmailForm()
+    context["form"] = form
+    return render(request, "password_reset.html", context)
+
+
+class PasswordResetForm(forms.Form):
+    code = forms.UUIDField(label="Validation Code")
+    password = forms.CharField(max_length=50, label="New Password")
+
+    def clean_code(self):
+        prc = PasswordResetCode.get_or_none(self.cleaned_data.get("code"))
+        if not prc:
+            raise forms.ValidationError("Invalid validation code", code="invalid")
+        if prc.created_on + datetime.timedelta(days=1) < timezone.now():
+            raise forms.ValidationError("Expired validation code", code="invalid")
+        return prc
+
+
+def password_reset_confirm(request):
+    context = {}
+    if request.method == "POST":
+        form = PasswordResetForm(data=request.POST)
+        if form.is_valid():
+            prc = form.cleaned_data.get("code")
+            try:
+                prc.profile.user.set_password(form.cleaned_data.get("password"))
+                prc.profile.user.save()
+            except Exception as exc:
+                logger.error(f"Failed to reset password for {prc}")
+                logger.exception(exc)
+                messages.error(request, f"Error updating your password: {exc}")
+                return redirect("reset_password_confirm")
+            try:
+                prc.delete()
+            except Exception as exc:
+                logger.error(f"Failed to remove PRC: {exc}")
+                logger.exception(exc)
+            messages.success(request, "Password Updated successfuly !")
+            return redirect("home")
+    else:
+        form = PasswordResetForm(initial=request.GET)
+    context["form"] = form
+    return render(request, "password_reset_confirm.html", context)
 
 
 def do_delete_account(profile):

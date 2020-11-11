@@ -159,6 +159,12 @@ urlpatterns = (
         ),
         path("logout/", auth_views.LogoutView.as_view(), name="logout"),
         path("password", ui.password_change, name="change_password"),
+        path(
+            "reset-password/confirm",
+            ui.password_reset_confirm,
+            name="reset_password_confirm",
+        ),
+        path("reset-password", ui.password_reset, name="reset_password"),
         path("delete", ui.delete_account, name="delete_account"),
         path("", ui.home, name="home"),
     ]
