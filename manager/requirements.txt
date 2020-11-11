@@ -11,3 +11,4 @@ phonenumbers==8.9.15
 python-dateutil==2.7.5
 ansi2html==1.5.2
 mysqlclient>=2.0.1,<2.1
+werkzeug>=1.0.1
