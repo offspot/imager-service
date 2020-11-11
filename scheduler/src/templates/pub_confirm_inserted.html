@@ -1,0 +1,16 @@
+{% extends "pub_base.html" %}
+
+{% block title %}Order #{{ order.min_id }}: insert {{ order.sd_card.name }} onto slot {{ task.slot }}{% endblock %}
+
+{% block content %}
+<h1>Action Required!</h1>
+<p class="alert alert-warning">Please insert <strong>{{ order.sd_card.name }}</strong> onto slot <strong>{{ task.slot }}</strong></p>
+<form method="POST" class="form">
+    <input type="submit" class="btn btn-primary" value="Confirm SD card has been inserted"/>
+</form>
+
+<table class="table">
+	<tr><th>Order</th><td><code>{{ task.order }}</code></td></tr>
+	<tr><th>Status</th><td><code>{{ order.status }}</code></td></tr>
+</table>
+{% endblock %}
