@@ -117,7 +117,6 @@ def send_email_via_api(
         ("bcc", value) for value in (bcc if isinstance(bcc, (list, tuple)) else [bcc])
     ]
     data = MultiDict(values)
-    print(attachments)
 
     resp = requests.post(
         url=os.getenv("MAILGUN_API_URL") + "/messages",
@@ -126,7 +125,7 @@ def send_email_via_api(
         files=[
             ("attachment", (os.path.basename(fpath), open(fpath, "rb").read()))
             for fpath in attachments
-        ],
+        ] if attachments else [],
     )
     resp.raise_for_status()
     return resp.json().get("id")

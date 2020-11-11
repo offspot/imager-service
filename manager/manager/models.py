@@ -4,6 +4,7 @@
 
 import re
 import json
+import uuid
 import logging
 import collections
 from pathlib import Path
@@ -514,6 +515,10 @@ class Profile(models.Model):
             return cls.objects.get(user__username=username)
         except (cls.DoesNotExist, User.DoesNotExist):
             return None
+
+    @classmethod
+    def get_using(cls, email):
+        return cls.objects.get(user__email=email)
 
     @classmethod
     def create_admin(cls):
@@ -1043,3 +1048,22 @@ class Order(models.Model):
         self.recipient_phone = redacted
         self.recipient_address = redacted
         self.save()
+
+
+class PasswordResetCode(models.Model):
+
+    code = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    profile = models.ForeignKey(
+        "Profile", on_delete=models.CASCADE, related_name="passwordresets"
+    )
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.profile} -- {self.code}"
+
+    @classmethod
+    def get_or_none(cls, code):
+        try:
+            return cls.objects.get(code=code)
+        except cls.DoesNotExist:
+            return None
