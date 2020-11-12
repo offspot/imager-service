@@ -15,7 +15,7 @@
 		<th style="text-align: left;">Size</th>
 		<td>{{ order.sd_card.size }}GB</td>
 	</tr>
-	{% order.sd_card.type == "physical" %}
+	{% if order.sd_card.type == "physical" %}
 	<tr>
 		<th style="text-align: left;">Quantity</th>
 		<td>{{ order.quantity }}</td>
