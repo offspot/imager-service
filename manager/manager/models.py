@@ -946,13 +946,13 @@ class Order(models.Model):
             warehouse_upload_uri=warehouse["upload_uri"],
             warehouse_download_uri=warehouse["download_uri"],
         )
-        if order.units > client.organization.units:
+        if client.is_limited and order.units > client.organization.units:
             raise ValueError(
                 "Order requires {r}U but {org} has only {a}".format(
                     r=order.units, org=client.organization, a=client.organization.units
                 )
             )
-        else:
+        elif client.is_limited:
             # remove units from org
             client.organization.units -= order.units
             client.organization.save()
@@ -962,8 +962,9 @@ class Order(models.Model):
         if not created:
             logger.error(scheduler_id)
             # restore units on org
-            client.organization.units += order.units
-            client.organization.save()
+            if client.is_limited:
+                client.organization.units += order.units
+                client.organization.save()
             raise SchedulerAPIError(scheduler_id)
         order.scheduler_id = scheduler_id
         order.save()
