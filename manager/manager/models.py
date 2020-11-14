@@ -92,9 +92,9 @@ class Configuration(models.Model):
     )
     project_name = models.CharField(
         max_length=100,
-        default="Kiwix Hotspot",
+        default="kiwix",
         verbose_name="Hospot name",
-        help_text="Used to name your Box and its WiFi network",
+        help_text="Network name; the landing page will also be at http://name.hotspot",
     )
     language = models.CharField(
         max_length=3,
@@ -114,7 +114,7 @@ class Configuration(models.Model):
         max_length=100,
         default=None,
         verbose_name="WiFi Password",
-        help_text="Leave Empty for Open WiFi",
+        help_text="Leave empty for Open WiFi (recommended); do <strong>not</strong> use special characters",
         null=True,
         blank=True,
     )
