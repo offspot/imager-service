@@ -611,10 +611,10 @@ class Address(models.Model):
     name = models.CharField(
         max_length=100,
         verbose_name="Address Name",
-        help_text="Used only within the Cardshop",
+        help_text="Mandatory. Used only within the Cardshop",
     )
-    recipient = models.CharField(max_length=100, verbose_name="Recipient Name")
-    email = models.EmailField(max_length=255)
+    recipient = models.CharField(max_length=100, verbose_name="Recipient Name", help_text="Mandatory field")
+    email = models.EmailField(max_length=255, help_text="Mandatory field")
     phone = models.CharField(
         null=True, blank=True, max_length=30, help_text="In international “+” format"
     )
