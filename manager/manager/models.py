@@ -114,7 +114,8 @@ class Configuration(models.Model):
         max_length=100,
         default=None,
         verbose_name="WiFi Password",
-        help_text="Leave empty for Open WiFi (recommended); do <strong>not</strong> use special characters",
+        help_text="Leave empty for Open WiFi (recommended)"
+        "<br />Do <strong>not</strong> use special characters. 8 chars min.",
         null=True,
         blank=True,
     )
