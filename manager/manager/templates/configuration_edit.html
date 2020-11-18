@@ -68,7 +68,6 @@
 	</div>
 
 	<div class="tab-pane fade" id="branding" role="tabpanel" aria-labelledby="branding-tab">
-		
 		<h3>Branding</h3>
 		<p>This section allows you to replace some visual elements with your own branding.</p>
 		<div class="form-row visual-group">
@@ -101,18 +100,26 @@
 
   		<h3>Interactive Tools</h3>
 		<div class="form-row visual-group">
-			<div class="form-group col-md-3">
+			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_edupi type="checkbox" size="10 MiB" %}
+			</div>
+			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
 			</div>
-			<div class="form-group col-md-3">
+			<div class="form-group col-md-4">
+				{% include "_input_field.html" with field=form.content_aflatoun type="checkbox" size="3.67GiB" %}
+			</div>
+		</div>
+
+		<div class="form-row visual-group">
+			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_nomad type="checkbox" size="50 MiB" %}
 			</div>
-			<div class="form-group col-md-3">
+			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_mathews type="checkbox" size="50 MiB" %}
 			</div>
-			<div class="form-group col-md-3">
-				{% include "_input_field.html" with field=form.content_aflatoun type="checkbox" size="3.67GiB" %}
+			<div class="form-group col-md-4">
+				{% include "_input_field.html" with field=form.content_africatik type="checkbox" size="50 MiB" %}
 			</div>
 		</div>
 
@@ -175,7 +182,6 @@
   	</div>
 
 	</div> <!-- tabs -->
-	
 	</form>
 {% endblock %}
 
@@ -184,6 +190,7 @@
 	var edupi_resources_id = "{{ form.content_edupi_resources.id_for_label }}";
 	var nomad_id = "{{ form.content_nomad.id_for_label }}";
 	var mathews_id = "{{ form.content_mathews.id_for_label }}";
+	var africatik_id = "{{ form.content_africatik.id_for_label }}";
 	var aflatoun_id = "{{ form.content_aflatoun.id_for_label }}";
 	var kalite_fr_id = "{{ form.content_kalite_fr.id_for_label }}";
 	var kalite_en_id = "{{ form.content_kalite_en.id_for_label }}";
@@ -280,7 +287,7 @@
 
 			// make sure new item can popover
 			registerPopovers();
-			
+
 			registerRemovePackage();
 		});
 	}
@@ -343,7 +350,7 @@
 						let main_td = '<a href="#" class="add-package" data-package-id="'+package.key +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ package_key +'" class="fas fa-plus-circle primary"></i></a> <strong>' + package.sname + '</strong> ' + tags.html() + '<p><em>' + package.description+'</em></p>';
 						row.append($('<td>').html(main_td));
 						row.append($('<td>').text(package.hsize));
-					
+
 						packages_list.append(row);
 					});
 
@@ -391,6 +398,7 @@
 			edupi_resources: $('#' + edupi_resources_id).val(),
 			nomad: $('#' + nomad_id).is(':checked'),
 			mathews: $('#' + mathews_id).is(':checked'),
+			africatik: $('#' + africatik_id).is(':checked'),
 			aflatoun: $('#' + aflatoun_id).is(':checked'),
 			kalite: [],
 			wikifundi: [],
@@ -411,7 +419,7 @@
 			.done(function (data) {
 				console.log(data);
 				$('#image_req_size').text(data.hsize);
-				
+
 				if (data.media_size == null) {
 					$('#sd_size_holder')[0].className = "danger";
 					$('#sd_size').text("n/a");
@@ -421,7 +429,7 @@
 					$('#sd_size').html(data.media_size + " <small>(" + data.hfree + " free)</small>");
 					$('button[type=submit]').removeClass("btn-danger");
 				}
-				
+
 			})
 			.fail(function (error) {
 				console.log(error);
