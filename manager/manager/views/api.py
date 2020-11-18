@@ -72,6 +72,7 @@ def required_size_for_config(request):
         edupi_resources=data.get("edupi_resources", None),
         nomad=data.get("nomad", False),
         mathews=data.get("mathews", False),
+        africatik=data.get("africatik", False),
         packages=data.get("packages", []),
         kalite_languages=data.get("kalite", []),
         wikifundi_languages=data.get("wikifundi", []),

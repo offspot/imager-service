@@ -79,6 +79,7 @@ def get_collection(
     edupi_resources=None,
     nomad=False,
     mathews=False,
+    africatik=False,
     packages=[],
     kalite_languages=[],
     wikifundi_languages=[],
@@ -127,6 +128,16 @@ def get_collection(
                 get_mathews_contents,
                 run_mathews_actions,
                 {"enable": mathews},
+            )
+        )
+
+    if africatik:
+        collection.append(
+            (
+                "Africatik",
+                get_africatik_contents,
+                run_africatik_actions,
+                {"enable": africatik},
             )
         )
 
@@ -195,6 +206,11 @@ def get_mathews_contents(enable=False):
     return [get_content("mathews_apk")]
 
 
+def get_africatik_contents(enable=False):
+    """ africatik: various apks and exes in an archive """
+    return [get_content("africatik_all")]
+
+
 def get_kalite_contents(languages=[]):
     """ kalite: medium lang packs and huge tarball of videos for each lang """
 
@@ -258,6 +274,10 @@ def run_nomad_actions(cache_folder, mount_point, logger, enable=False):
 
 
 def run_mathews_actions(cache_folder, mount_point, logger, enable=False):
+    return
+
+
+def run_africatik_actions(cache_folder, mount_point, logger, enable=False):
     return
 
 

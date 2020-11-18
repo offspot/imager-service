@@ -192,6 +192,11 @@ class Configuration(models.Model):
         verbose_name="Math Mathews android",
         help_text="Un jeu pour réviser les maths",
     )
+    content_africatik = models.BooleanField(
+        default=False,
+        verbose_name="Africatik apps",
+        help_text="Applications éducatives pour l'Afrique",
+    )
 
     @classmethod
     def create_from(cls, config, author):
@@ -273,6 +278,7 @@ class Configuration(models.Model):
             ),
             "content_nomad": bool(get_nested_key(config, ["content", "nomad"])),
             "content_mathews": bool(get_nested_key(config, ["content", "mathews"])),
+            "content_africatik": bool(get_nested_key(config, ["content", "africatik"])),
         }
 
         try:
@@ -380,6 +386,7 @@ class Configuration(models.Model):
             edupi_resources=self.content_edupi_resources or None,
             nomad=self.content_nomad,
             mathews=self.content_mathews,
+            africatik=self.content_africatik,
             packages=self.content_zims or [],
             kalite_languages=self.kalite_languages,
             wikifundi_languages=self.wikifundi_languages,
@@ -418,6 +425,7 @@ class Configuration(models.Model):
                             ("edupi_resources", self.content_edupi_resources),
                             ("nomad", self.content_nomad),
                             ("mathews", self.content_mathews),
+                            ("africatik", self.content_africatik),
                         ]
                     ),
                 ),
