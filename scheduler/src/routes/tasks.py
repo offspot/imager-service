@@ -214,7 +214,7 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
 
             # find matching download task and mark it for file removal
             DownloaderTasks().update_status(
-                task_id=order["tasks"]["download"]["_id"],
+                task_id=order["tasks"]["download"],
                 status=Tasks.pending_image_removal,
             )
 
