@@ -1,2 +1,0 @@
-pyftpdlib==1.5.4
-requests==2.20.1
