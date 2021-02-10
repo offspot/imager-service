@@ -7,7 +7,7 @@ on:
 
 jobs:
   scheduler:
-    name: Deploy dnscache Image
+    name: Deploy scheduler Image
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -25,7 +25,7 @@ jobs:
             GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
 
   manager:
-    name: Deploy dnscache Image
+    name: Deploy manager Image
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -43,7 +43,7 @@ jobs:
             GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
 
   worker:
-    name: Deploy dnscache Image
+    name: Deploy worker Image
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
