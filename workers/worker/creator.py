@@ -32,8 +32,12 @@ class CreatorWorker(BaseWorker):
             "https://api.github.com/repos/kiwix/kiwix-hotspot/git/refs/tags"
         )
         try:
-            version = req.json()[-1]["ref"].replace("refs/tags/", "")
-            version = version[1:]  # remote version (tag) has an extra v at char 0
+            version = req.json()[-1]["ref"].replace("refs/tags/", "")[1:]  # default
+            for item in reversed(req.json()):
+                tag = item["ref"].replace("refs/tags/", "")
+                if tag.startswith("v"):
+                    version = tag[1:]  # remote version (tag) has an extra v at char 0
+                    break
         except Exception as exp:
             logger.info("Could not guess latest version, skipping: {}".format(exp))
             return
@@ -69,8 +73,9 @@ class CreatorWorker(BaseWorker):
             return
 
         # download new version
-        url = "http://download.kiwix.org/release/kiwix-hotspot/v{version}/kiwix-hotspot-linux.tar.gz".format(
-            version=version
+        url = (
+            "http://mirror.download.kiwix.org/release/kiwix-hotspot/v{version}/"
+            "kiwix-hotspot-linux.tar.gz".format(version=version)
         )
         logger.info("Downloading new Kiwix-hotspot {}".format(version))
         with tempfile.NamedTemporaryFile() as tmpf:
