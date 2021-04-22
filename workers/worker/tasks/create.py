@@ -27,10 +27,10 @@ def free_space():
     logger.info("clean-up cache folder to free space")
     clean_cache_output = subprocess.run(
         args=[
-            Setting.installer_binary_path,
+            str(Setting.installer_binary_path),
             "cache",
             "--build",
-            Setting.working_dir,
+            str(Setting.working_dir),
             "reset",
         ],
         universal_newlines=True,
