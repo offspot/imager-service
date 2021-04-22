@@ -1,4 +1,4 @@
-FROM python:3.7.0-slim-stretch
+FROM python:3.8-slim-buster
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone
