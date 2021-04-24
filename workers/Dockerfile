@@ -15,7 +15,7 @@ RUN rm -rf aria2-1.35.0-linux-gnu-64bit-build1 aria2-1.35.0-linux-gnu-64bit-buil
 
 # kiwix-hotspot
 # RUN curl -LO http://mirror.download.kiwix.org/release/kiwix-hotspot/v2.4.0/kiwix-hotspot-linux.tar.gz
-RUN curl -LO http://tmp.kiwix.org/ci/kiwix-hotspot-linux-arialogs.tar.gz
+RUN curl -L -o kiwix-hotspot-linux.tar.gz http://tmp.kiwix.org/ci/kiwix-hotspot-linux-arialogs.tar.gz
 RUN tar xf kiwix-hotspot-linux.tar.gz && mv kiwix-hotspot /usr/bin/kiwix-hotspot
 RUN rm -f kiwix-hotspot-linux.tar.gz
 
