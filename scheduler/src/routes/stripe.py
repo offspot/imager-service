@@ -258,11 +258,11 @@ PRODUCTS = {
         os.getenv("STRIPE_PRICE_ACCESS1M"),
         handle_access_order,
     ),
-    "access-1y": (
-        os.getenv("STRIPE_METHOD_ACCESS1Y"),
-        os.getenv("STRIPE_PRICE_ACCESS1Y"),
-        handle_access_order,
-    ),
+    # "access-1y": (
+    #     os.getenv("STRIPE_METHOD_ACCESS1Y"),
+    #     os.getenv("STRIPE_PRICE_ACCESS1Y"),
+    #     handle_access_order,
+    # ),
 }
 
 
