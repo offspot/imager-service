@@ -266,6 +266,7 @@ class CreateTask(BaseTask):
             uploader_logger.info(f"Uploading {torrent_path.name}")
             s3_storage.upload_file(fpath=str(torrent_path), key=torrent_path.name)
             uploader_logger.info(".. uploaded")
+            torrent_path.unlink()
 
         # upload
         uploader_logger.info(f"Uploading to {self.img_path.name}")
