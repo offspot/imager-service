@@ -1013,7 +1013,7 @@ class Order(models.Model):
             recipient_email=address.email if address else client.email,
             recipient_phone=address.phone if address else "",
             recipient_address=address.address if address else "",
-            recipient_country_code=address.country if address else "",
+            recipient_country_code=address.country or "",
             warehouse_upload_uri=warehouse["upload_uri"],
             warehouse_download_uri=warehouse["download_uri"],
         )
