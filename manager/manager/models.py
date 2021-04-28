@@ -18,6 +18,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 from manager.scheduler import (
     create_order,
@@ -36,6 +37,12 @@ from manager.pibox.util import (
     b64decode,
     human_readable_size,
     get_adjusted_image_size,
+    is_valid_project_name,
+    is_valid_language,
+    is_valid_timezone,
+    is_valid_wifi_pwd,
+    is_valid_admin_login,
+    is_valid_admin_pwd,
 )
 from manager.pibox.config import (
     get_uuid,
@@ -70,6 +77,54 @@ def retrieve_branding_file(field):
     return {"fname": fname, "data": b64encode(fpath)}
 
 
+def validate_project_name(value):
+    if not is_valid_project_name(value):
+        raise ValidationError(
+            "%(value)s is not a valid project name (A-Z,a-z,0-9,-, )",
+            params={"value": value},
+        )
+
+
+def validate_language(value):
+    if not is_valid_language(value):
+        raise ValidationError(
+            "%(value)s is not a valid language code",
+            params={"value": value},
+        )
+
+
+def validate_timezone(value):
+    if not is_valid_timezone(value):
+        raise ValidationError(
+            "%(value)s is not a valid timezone",
+            params={"value": value},
+        )
+
+
+def validate_wifi_pwd(value):
+    if not is_valid_wifi_pwd(value):
+        raise ValidationError(
+            "%(value)s is not a valid WiFi password (8-31 chars, A-Z,a-z,0-9,-,_)",
+            params={"value": value},
+        )
+
+
+def validate_admin_login(value):
+    if not is_valid_admin_login(value):
+        raise ValidationError(
+            "%(value)s is not a valid WiFi password (31 chars max, A-Z,a-z,0-9,-,_)",
+            params={"value": value},
+        )
+
+
+def validate_admin_pwd(value):
+    if not is_valid_admin_pwd(value):
+        raise ValidationError(
+            "%(value)s is not a valid WiFi password (31 chars max, A-Z,a-z,0-9,-,_)",
+            params={"value": value},
+        )
+
+
 class Configuration(models.Model):
     class Meta:
         get_latest_by = "-id"
@@ -91,39 +146,46 @@ class Configuration(models.Model):
         max_length=100, help_text="Used <strong>only within the Cardshop</strong>"
     )
     project_name = models.CharField(
-        max_length=100,
+        max_length=64,
         default="kiwix",
         verbose_name="Hospot name",
         help_text="Network name; the landing page will also be at http://name.hotspot",
+        validators=[validate_project_name],
     )
     language = models.CharField(
         max_length=3,
         choices=hotspot_languages,
         default="en",
         help_text="Hotspot interface language",
+        validators=[validate_language],
     )
     timezone = models.CharField(
-        max_length=50,
+        max_length=75,
         choices=[("UTC", "UTC"), ("Europe/Paris", "Europe/Paris")]
         + [(tz, tz) for tz in pytz.common_timezones],
         default="Europe/Paris",
         help_text="Where the plug would be deployed",
+        validators=[validate_timezone],
     )
 
     wifi_password = models.CharField(
-        max_length=100,
+        max_length=31,
         default=None,
         verbose_name="WiFi Password",
         help_text="Leave empty for Open WiFi (recommended)"
         "<br />Do <strong>not</strong> use special characters. 8 chars min.",
         null=True,
         blank=True,
+        validators=[validate_wifi_pwd],
     )
-    admin_account = models.CharField(max_length=50, default="admin")
+    admin_account = models.CharField(
+        max_length=31, default="admin", validators=[validate_admin_login]
+    )
     admin_password = models.CharField(
-        max_length=50,
+        max_length=31,
         default="admin-password",
         help_text="To manage Ideascube, KA-Lite, Aflatoun, EduPi and Wikifundi",
+        validators=[validate_admin_pwd],
     )
 
     branding_logo = models.FileField(
