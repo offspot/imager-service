@@ -168,6 +168,11 @@ class OrderForm(forms.Form):
                 "address", "This address can't be used as it misses postal details"
             )
 
+        if config is not None:
+            # save config if its size changed
+            if config.size_value_changed():
+                config.save()
+
         if config is not None and media is not None and not config.can_fit_on(media):
             min_media = Media.get_min_for(config.size)
             if min_media is None:

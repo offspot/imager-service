@@ -369,8 +369,15 @@ class Configuration(models.Model):
 
         return new_instance
 
+    def size_value_changed(self):
+        computed_size = self.get_required_image_size(self.collection)
+        if computed_size != self.size:
+            self.size = computed_size
+            return True
+        return False
+
     def save(self, *args, **kwargs):
-        self.size = get_required_image_size(self.collection)
+        self.size_value_changed()
         super().save(*args, **kwargs)
 
     @classmethod
