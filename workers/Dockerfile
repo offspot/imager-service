@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM rgaudin/python-ubuntu:3.8-18.04
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone
