@@ -895,7 +895,7 @@ class Order(models.Model):
         IN_PROGRESS: "In Progress",
         COMPLETED: "Completed",
         FAILED: "Failed",
-        CANCELED: "Cancelef",
+        CANCELED: "Canceled",
         NOT_CREATED: "Not accepted by Scheduler",
     }
 

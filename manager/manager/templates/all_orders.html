@@ -5,7 +5,7 @@
 <h2>Orders</h2>
 {% if orders %}
 <table class="table table-striped">
-	<thead><tr><th>ID</th><th>Summary</th><th>Client</th><th>Country</th><th>Created On</th><th>Delete</th></tr></thead>
+	<thead><tr><th>ID</th><th>Summary</th><th>Client</th><th>Country</th><th>Created On</th><th>Status</th><th>Delete</th></tr></thead>
 	<tbody>
 	{% for order in orders %}
 	<tr>
@@ -14,6 +14,7 @@
 		<td>{{ order.client.name }}</td>
 		<td>{{ order.recipient.country|country|default_if_none:"-" }}</td>
 		<td>{% if order.statuses %}{{ order.statuses.0.on|datetime }}{% else %}-{% endif %}</td>
+		<td>{{ order.status }}</td>
 		<td><a href="{% url "all-orders-delete" order_id=order.id %}" class="btn btn-sm btn-danger" data-toggle="confirmation" data-title="Delete this order?">delete</a></td>
 	</tr>
 	{% endfor %}

@@ -6,6 +6,7 @@
 <p class="info">Requests for creation of an actual Hotspot Image, either prepared for Download or physical sent by mail as a micro-SD card.</p>
 <p><div class="btn-group" role="group" aria-label="Filter">
 	<a class="btn btn-sm {% if order_filter == "in-progress" %} btn-secondary{% else %}btn-outline-secondary{% endif %}"  href="?only=in-progress">In Progress</a>
+	<a class="btn btn-sm {% if order_filter == "canceled" %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?only=canceled">Canceled</a>
 	<a class="btn btn-sm {% if order_filter == "failed" %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?only=failed">Failed</a>
 	<a class="btn btn-sm {% if order_filter == "completed" %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?only=completed">Completed</a>
 </div><a href="{% url 'order_new' %}" class="btn btn-sm btn-primary float-right">Place An Order</a></p>
