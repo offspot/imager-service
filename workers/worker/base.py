@@ -10,6 +10,7 @@ from utils.setting import Setting
 from utils.scheduler import (
     get_available_tasks,
     request_task,
+    get_task,
     upload_logs,
     set_worker_type,
 )
@@ -67,6 +68,16 @@ class BaseWorker:
         self.job = self.job_cls(args=(self.task, logger))
         self.job.start()
 
+    def stop_task(self):
+        if not self.busy:
+            return
+
+        if self.job is not None and self.job.is_alive():
+            self.job.stop()
+            self.job.join(timeout=30)
+
+        self.cleanup_task()
+
     def _attach_logger(self):
         # plug dedicated stream to logger
         self.log_stream = io.StringIO("")
@@ -109,11 +120,21 @@ class BaseWorker:
 
     def cleanup_task(self):
         logs = {"worker_log": self.read_worker_log()}
-        logs.update(self.job.logs)
+        if self.job:
+            logs.update(self.job.logs)
         self.upload_worker_logs(logs)
         # clean-up
         self.job = None
         self.task = None
+
+    @property
+    def has_been_canceled(self):
+        if not self.busy:
+            return False
+        success, task = get_task(self.task["_id"])
+        if success:
+            return task.get("status") == "canceled"
+        return False
 
     def run_loop(self):
         logger.info("Starting...")
@@ -131,6 +152,11 @@ class BaseWorker:
                     logger.info("periodic log upload..................")
                     self.upload_worker_logs(self.job.logs)
                     log_upload_timer = Setting.get_timer(Setting.log_upload_interval)
+
+                if self.has_been_canceled:
+                    logger.info("task cancelation requested. stopping task")
+                    self.stop_task()
+                    continue
 
                 if not self.job.is_alive():
                     logger.info("job is not alive")

@@ -6,6 +6,10 @@ import ipaddress
 import subprocess
 
 import yaml
+try:
+    from yaml import CSafeLoader as Loader, CSafeDumper as Dumper
+except ImportError:
+    from yaml import SafeLoader as Loader, SafeDumper as Dumper
 import netifaces
 import requests
 
@@ -20,13 +24,13 @@ NETPLAN_NS = {"nameservers": {"addresses": NAME_SERVERS}}
 def read_netplan():
     """ read netplan config file (yaml) """
     with open(str(NETPLAN_CONF), "r") as fd:
-        return yaml.load(fd.read())
+        return yaml.load(fd.read(), Loader=Loader)
 
 
 def save_netplan(config, apply_conf=True):
     """ save netplan config file (yaml) """
     with open(str(NETPLAN_CONF), "w") as fd:
-        yaml.safe_dump(config, fd)
+        yaml.dump(config, fd, Dumper=Dumper)
     if apply_conf:
         return subprocess.run(["netplan", "try", "--timeout", "1"]).returncode == 0
     return True
