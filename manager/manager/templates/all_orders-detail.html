@@ -2,6 +2,11 @@
 {% load manager %}
 
 {% block content %}
+{% if orderdata.can_recreate %}<a href="{% url 'all-orders-recreate' order_id=orderdata.id %}"
+                                  class="btn btn-sm btn-warning"
+                                  data-toggle="confirmation"
+                                  data-title="Create a new identical order?"
+                                  style="float:right;">re-create</a>{% endif %}
 <h3>Order #<code>{{ orderdata.id }}</code></h3>
 {% include "order_detail.html" with orderdata=orderdata %}
 {% endblock %}

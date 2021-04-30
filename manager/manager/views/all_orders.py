@@ -11,7 +11,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from ansi2html import Ansi2HTMLConverter
 
-from manager.models import OrderData
+from manager.models import OrderData, Order
 from manager.decorators import staff_required
 from manager.scheduler import (
     test_connection,
@@ -75,6 +75,25 @@ def delete(request, order_id):
         )
     else:
         messages.success(request, "Successfuly deleted order: {}".format(order_id))
+
+    return redirect("all-orders")
+
+
+@staff_required
+def recreate(request, order_id):
+    order = Order.get_by_scheduler_id(order_id)
+    if order is None:
+        raise Http404(f"Order `{order_id}` does not exists")
+    try:
+        new_order = order.recreate()
+    except Exception as exc:
+        logger.error(f"Unable to recreate order: {exc}")
+        logger.exception(exc)
+        messages.error(request, f"Unable to recreate order {order_id}: -- ref: {exc}")
+    else:
+        messages.success(
+            request, f"Successfuly recreated order: {new_order.scheduler_id} (NEW)"
+        )
 
     return redirect("all-orders")
 

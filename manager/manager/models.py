@@ -792,7 +792,6 @@ class Media(models.Model):
 
     @staticmethod
     def choices_for(items, display_units=True):
-        print("choices_for", f"{display_units=}")
         return [
             (item.id, f"{item.name} ({item.units}U)" if display_units else item.name)
             for item in items
@@ -890,6 +889,23 @@ class OrderData(dict):
                 pass
 
         return json.dumps(config, indent=4)
+
+    @property
+    def can_recreate(self):
+        """whether to allow recreating an order
+
+        Failed and Canceled are OK
+        Completed are OK
+        In Progress only if pending_expiry (work completed)"""
+        statuses = self.get("statuses", [])
+        status = Order.status_from_statuses(statuses)
+        if status == Order.IN_PROGRESS:
+            return statuses[-1]["status"] == "pending_expiry"
+        return status in (
+            Order.CANCELED,
+            Order.FAILED,
+            Order.COMPLETED,
+        )
 
 
 class Order(models.Model):
@@ -996,6 +1012,38 @@ class Order(models.Model):
             return None
 
     @classmethod
+    def _submit_provisionned_order(cls, order, skip_units=False):
+        if not skip_units:
+            if (
+                order.created_by.is_limited
+                and order.units > order.created_by.organization.units
+            ):
+                raise ValueError(
+                    "Order requires {r}U but {org} has only {a}".format(
+                        r=order.units,
+                        org=order.created_by.organization,
+                        a=order.created_by.organization.units,
+                    )
+                )
+            elif order.created_by.is_limited:
+                # remove units from org
+                order.created_by.organization.units -= order.units
+                order.created_by.organization.save()
+
+        payload = order.to_payload()
+        created, scheduler_id = create_order(payload)
+        if not created:
+            logger.error(scheduler_id)
+            # restore units on org
+            if not skip_units and order.created_by.is_limited:
+                order.created_by.organization.units += order.units
+                order.created_by.organization.save()
+            raise SchedulerAPIError(scheduler_id)
+        order.scheduler_id = scheduler_id
+        order.save()
+        return order
+
+    @classmethod
     def create_from(cls, client, config, media, quantity, address=None):
         if not address and media.kind != Media.VIRTUAL:
             raise ValueError("Non-virtual order requires an address")
@@ -1025,29 +1073,24 @@ class Order(models.Model):
             warehouse_upload_uri=warehouse["upload_uri"],
             warehouse_download_uri=warehouse["download_uri"],
         )
-        if client.is_limited and order.units > client.organization.units:
-            raise ValueError(
-                "Order requires {r}U but {org} has only {a}".format(
-                    r=order.units, org=client.organization, a=client.organization.units
-                )
-            )
-        elif client.is_limited:
-            # remove units from org
-            client.organization.units -= order.units
-            client.organization.save()
 
-        payload = order.to_payload()
-        created, scheduler_id = create_order(payload)
-        if not created:
-            logger.error(scheduler_id)
-            # restore units on org
-            if client.is_limited:
-                client.organization.units += order.units
-                client.organization.save()
-            raise SchedulerAPIError(scheduler_id)
-        order.scheduler_id = scheduler_id
-        order.save()
-        return order
+        return Order._submit_provisionned_order(order)
+
+    def recreate(self):
+        order = Order.fetch_and_get(self.id)
+        if not order.data.can_recreate:
+            raise ValueError("Unable to recreate order (cancel first?).")
+
+        order.id = None
+        order.scheduler_id = None
+        order.scheduler_data = None
+        order.created_on = None
+        order.scheduler_data_on = None
+        order.status = self.IN_PROGRESS
+
+        return Order._submit_provisionned_order(
+            order, skip_units=order.status in (self.COMPLETED, self.IN_PROGRESS)
+        )
 
     @property
     def data(self):
