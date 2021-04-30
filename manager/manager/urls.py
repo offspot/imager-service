@@ -94,6 +94,11 @@ urlpatterns = (
             name="order_log",
         ),
         path(
+            "all-orders/<str:order_id>/recreate",
+            all_orders.recreate,
+            name="all-orders-recreate",
+        ),
+        path(
             "all-orders/<str:order_id>/delete",
             all_orders.delete,
             name="all-orders-delete",
