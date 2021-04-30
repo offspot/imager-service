@@ -5,6 +5,11 @@
 import logging
 
 import yaml
+
+try:
+    from yaml import CSafeLoader as Loader
+except ImportError:
+    from yaml import SafeLoader as Loader
 import requests
 
 from manager.utils import cache_get, cache_set
@@ -25,13 +30,16 @@ if not len(YAML_CATALOGS):
     try:
         for catalog in CATALOGS:
             YAML_CATALOGS.append(
-                yaml.load(requests.get(catalog.get("url")).content.decode("utf-8"))
+                yaml.load(
+                    requests.get(catalog.get("url")).content.decode("utf-8"),
+                    Loader=Loader,
+                )
             )
     except Exception as exc:
         logger.error(f"Unable to load ideascube catalog: {exc}")
         raise exc
     cache_set("YAML_CATALOGS", YAML_CATALOGS)
 
-hotspot_languages = [("en", u"English"), ("fr", u"Fran\xe7ais")]
+hotspot_languages = [("en", "English"), ("fr", "Fran\xe7ais")]
 
 MIRROR = "http://mirror.download.kiwix.org"
