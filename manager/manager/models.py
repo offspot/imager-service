@@ -393,9 +393,9 @@ class Configuration(models.Model):
         ]
 
     @classmethod
-    def get_or_none(cls, id):
+    def get_or_none(cls, aid):
         try:
-            return cls.objects.get(id=id)
+            return cls.objects.get(id=aid)
         except cls.DoesNotExist:
             return None
 
@@ -980,7 +980,7 @@ class Order(models.Model):
 
     @staticmethod
     def status_from_statuses(statuses):
-        if not isinstance(statuses, list) or not len(statuses):
+        if not isinstance(statuses, list) or not statuses:
             return Order.FAILED
 
         status = statuses[-1].get("status")
@@ -1025,7 +1025,7 @@ class Order(models.Model):
                         a=order.created_by.organization.units,
                     )
                 )
-            elif order.created_by.is_limited:
+            if order.created_by.is_limited:
                 # remove units from org
                 order.created_by.organization.units -= order.units
                 order.created_by.organization.save()
