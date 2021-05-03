@@ -36,7 +36,7 @@ from manager.pibox.util import (
     b64encode,
     b64decode,
     human_readable_size,
-    get_adjusted_image_size,
+    get_hardware_adjusted_image_size,
     is_valid_project_name,
     is_valid_language,
     is_valid_timezone,
@@ -824,7 +824,7 @@ class Media(models.Model):
         return self.actual_size or self.get_bytes()
 
     def get_bytes(self):
-        return get_adjusted_image_size(self.size * ONE_GB)
+        return get_hardware_adjusted_image_size(self.size * ONE_GB)
 
     @property
     def human(self):

@@ -84,7 +84,6 @@ class OrderForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         client = kwargs.pop("client")
-        print(client, client.is_limited)
         super().__init__(*args, **kwargs)
         self.client = client
         self.organization = client.organization
@@ -523,9 +522,6 @@ def order_new(request, kind=Media.VIRTUAL):
             try:
                 res = form.save()
             except Exception as exp:
-                import traceback
-
-                print(traceback.format_exc())
                 logger.error(exp)
                 messages.error(request, "Error while saving… {exp}".format(exp=exp))
             else:
