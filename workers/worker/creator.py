@@ -27,9 +27,6 @@ class CreatorWorker(BaseWorker):
     def check_kiwix_hotspot(self):
         """ check latest version of kiwix-hotspot and download if different """
 
-        # TODO: remove TEMP
-        return
-
         # guess latest version
         req = requests.get(
             "https://api.github.com/repos/kiwix/kiwix-hotspot/git/refs/tags"
