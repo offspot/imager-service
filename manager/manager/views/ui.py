@@ -513,8 +513,26 @@ def order_new(request, kind=Media.VIRTUAL):
         )
         return redirect("configuration_list")
 
+    # staff and admin are allowed to place multiple orders at once
+    if request.user.is_staff or request.user.is_superuser:
+        can_order = True
+        previous_order_id = None
+    else:
+        previous_order_id = Order.profile_has_active(request.user.profile)
+        can_order = not previous_order_id
+    context.update({"can_order": can_order, "previous_order_id": previous_order_id})
+
+    # display an alert informing user he cannot order at the moment
+    # if he had just clicked on Order, using an error message and blocking the process
+    # otherwise a warning is enough
+    if not context["can_order"]:
+        func = getattr(messages, "error" if request.method == "POST" else "warning")
+        func(request,
+             f"Your previous Order (#{previous_order_id}) must complete "
+             "before you're allowed to request a new one.")
+
     form = OrderForm(client=request.user.profile)
-    if request.method == "POST":
+    if request.method == "POST" and can_order:
 
         # which form is being saved?
         form = OrderForm(request.POST, client=request.user.profile)
@@ -544,6 +562,7 @@ def order_detail(request, order_min_id):
     return render(request, "order.html", context)
 
 
+@login_required
 def order_detail_scheduler_id(request, order_id):
     order = Order.get_by_scheduler_id(order_id)
     if order is None:
@@ -552,6 +571,7 @@ def order_detail_scheduler_id(request, order_id):
     return redirect("order_detail", order_min_id=order.min_id)
 
 
+@login_required
 def order_cancel(request, order_min_id):
     order = Order.get_or_none(order_min_id)
     if order is None:

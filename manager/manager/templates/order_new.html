@@ -33,7 +33,7 @@
 			  		To: <em class="recipient"></em>
 			  	</p>
 			  	<p class="card-text {% if not user.profile.limited %}hidden{% endif%}">Cost: <strong class="cost">n/a</strong> (balance: <span class="balance"></span>)</p>
-			  	<p><button type="submit" class="btn btn-primary">Order now</button></p>
+			  	<p><button type="submit" class="btn btn-primary" {% if not can_order %}disabled="disabled"{% endif %}>Order now</button></p>
 			  </div>
 			</div>
 			</div>

@@ -1076,6 +1076,14 @@ class Order(models.Model):
 
         return Order._submit_provisionned_order(order)
 
+    @classmethod
+    def profile_has_active(cls, client):
+        for order in cls.objects.filter(created_by=client, status=cls.IN_PROGRESS):
+            order = cls.fetch_and_get(order.id)
+            if order.status == cls.IN_PROGRESS:
+                return order.min_id
+        return False
+
     def recreate(self):
         order = Order.fetch_and_get(self.id)
         if not order.data.can_recreate:
