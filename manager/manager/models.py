@@ -772,7 +772,7 @@ class Media(models.Model):
     PHYSICAL = "physical"
     VIRTUAL = "virtual"
     KINDS = {PHYSICAL: "Physical", VIRTUAL: "Virtual"}
-    EXPIRATION_DELAY = 7
+    EXPIRATION_DELAY = 14
 
     class Meta:
         unique_together = (("kind", "size"),)
