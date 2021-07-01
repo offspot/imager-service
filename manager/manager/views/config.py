@@ -10,7 +10,8 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, JsonResponse
+from django.core.exceptions import PermissionDenied
 
 from manager.models import Configuration
 from manager.pibox.packages import PACKAGES_LANGS
@@ -132,7 +133,7 @@ def configuration_edit(request, config_id=None):
             raise Http404("Configuration not found")
 
         if config.organization != request.user.profile.organization:
-            raise HttpResponse("Unauthorized", status=401)
+            raise PermissionDenied()
     else:
         # new config
         config = Configuration(organization=request.user.profile.organization)
@@ -175,7 +176,7 @@ def configuration_export(request, config_id=None):
         raise Http404("Configuration not found")
 
     if config.organization != request.user.profile.organization:
-        raise HttpResponse("Unauthorized", status=401)
+        raise PermissionDenied()
 
     response = JsonResponse(
         config.to_dict(), safe=False, json_dumps_params={"indent": 4}
@@ -194,7 +195,7 @@ def configuration_delete(request, config_id=None):
         raise Http404("Configuration not found")
 
     if config.organization != request.user.profile.organization:
-        raise HttpResponse("Unauthorized", status=401)
+        raise PermissionDenied()
 
     try:
         config.delete()
@@ -223,7 +224,7 @@ def configuration_duplicate(request, config_id=None):
         raise Http404("Configuration not found")
 
     if config.organization != request.user.profile.organization:
-        raise HttpResponse("Unauthorized", status=401)
+        raise PermissionDenied()
 
     try:
         nconfig = config.duplicate(by=request.user.profile)

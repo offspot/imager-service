@@ -11,10 +11,10 @@ from django.conf import settings
 from django.utils import timezone
 from django.template import loader
 from django.contrib import messages
-from django.http import HttpResponse
 from django.contrib.auth import logout
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
@@ -413,7 +413,7 @@ def address_edit(request, address_id=None):
         address is not None
         and address.organization != request.user.profile.organization
     ):
-        return HttpResponse("Unauthorized", status=401)
+        return PermissionDenied()
 
     context = {"address": address}
     form = AddressForm(client=request.user.profile, instance=address)
@@ -447,7 +447,7 @@ def address_delete(request, address_id=None):
         raise Http404("Address not found")
 
     if address.organization != request.user.profile.organization:
-        return HttpResponse("Unauthorized", status=401)
+        return PermissionDenied()
 
     try:
         address.delete()
