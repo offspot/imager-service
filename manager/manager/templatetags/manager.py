@@ -53,7 +53,9 @@ register.filter("fname", fname)
 
 
 def as_packages(value):
-    return [get_package(pid) for pid in json.loads(value) or []]
+    return filter(
+        lambda x: x is not None, [get_package(pid) for pid in json.loads(value) or []]
+    )
 
 
 register.filter("as_packages", as_packages)
