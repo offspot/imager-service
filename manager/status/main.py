@@ -4,19 +4,20 @@
 
 import os
 import sys
+import time
 import asyncio
 import datetime
 
 import pymongo
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, request
 
 loop = asyncio.get_event_loop()
 app = Flask(__name__)
 
 HTTP_TIMEOUT = 5  # seconds
-WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 4  # seconds
+WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 2  # seconds
 
 
 @app.template_filter("status_text")
@@ -29,9 +30,19 @@ def status_class(value):
     return "text-success" if value else "text-danger"
 
 
+@app.route(r"/test", methods=["GET"])
+def test(path=""):
+    try:
+        timeout = int(request.args.get("timeout", HTTP_TIMEOUT))
+    except Exception:
+        timeout = HTTP_TIMEOUT
+    time.sleep(timeout)
+    return jsonify({"timeout": timeout})
+
+
 @app.route(r"/", methods=["GET"])
 @app.route(r"/<path>", methods=["GET"])
-def create_checkout_session(path=""):
+def status(path=""):
     context = loop.run_until_complete(collect_statuses())
     return (
         render_template("status.html", **context),
