@@ -29,6 +29,7 @@ COPY manage.py /app/manage.py
 COPY manager /app/manager
 COPY contents.json /app/contents.json
 COPY uwsgi-manager.ini /etc/uwsgi/manager.ini
+COPY nginx.conf /app/manager
 
 # for status page
 ENV STATUS_S3_URL "http://org-kiwix-hotspot-cardshop-download.s3.us-west-1.wasabisys.com"
@@ -48,7 +49,8 @@ COPY uwsgi-status.ini /etc/uwsgi/uwsgi-status.ini
 # replace line in supervisor to enable emperor mode
 RUN sed -i "s/uwsgi --ini \/etc\/uwsgi\/uwsgi.ini/uwsgi --emperor \/etc\/uwsgi/g" /etc/supervisor/conf.d/supervisord.conf
 # add route in uwsgi to enable status page
-RUN printf "\nroute-uri = ^/health-check(/?)$ uwsgi:/tmp/uwsgi-status.sock,0,0" >> /etc/uwsgi/uwsgi.ini
+RUN printf "\nsocket-timeout = 300" >> /etc/uwsgi/uwsgi.ini
+RUN printf "\nroute-uri = ^/health-check(/?).*$ uwsgi:/tmp/uwsgi-status.sock,0,0" >> /etc/uwsgi/uwsgi.ini
 
 ENV UWSGI_INI /etc/uwsgi/manager.ini
 COPY entrypoint.sh /manager-entrypoint.sh

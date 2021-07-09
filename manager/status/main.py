@@ -17,7 +17,7 @@ loop = asyncio.get_event_loop()
 app = Flask(__name__)
 
 HTTP_TIMEOUT = 5  # seconds
-WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 2  # seconds
+WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 6  # seconds
 
 
 @app.template_filter("status_text")
@@ -30,19 +30,17 @@ def status_class(value):
     return "text-success" if value else "text-danger"
 
 
-@app.route(r"/test", methods=["GET"])
-def test(path=""):
-    try:
-        timeout = int(request.args.get("timeout", HTTP_TIMEOUT))
-    except Exception:
-        timeout = HTTP_TIMEOUT
-    time.sleep(timeout)
-    return jsonify({"timeout": timeout})
-
-
 @app.route(r"/", methods=["GET"])
 @app.route(r"/<path>", methods=["GET"])
 def status(path=""):
+    if request.args.get("timeout", ""):
+        try:
+            timeout = int(request.args.get("timeout"))
+        except Exception:
+            timeout = HTTP_TIMEOUT
+        time.sleep(timeout)
+        return jsonify({"timeout": timeout})
+
     context = loop.run_until_complete(collect_statuses())
     return (
         render_template("status.html", **context),
