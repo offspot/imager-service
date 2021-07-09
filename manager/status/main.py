@@ -17,7 +17,7 @@ loop = asyncio.get_event_loop()
 app = Flask(__name__)
 
 HTTP_TIMEOUT = 5  # seconds
-WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 6  # seconds
+WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 5  # seconds
 
 
 @app.template_filter("status_text")
