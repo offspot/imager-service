@@ -3,10 +3,9 @@
 
 {% block content %}
 <h3>{{ user.profile.organization }}'s configurations</h3>
-<p class="info">Sets of options and selection of contents you want on your Hotspot Image/Card.</p>
-<p class="info">Create one for <strong>each individual deployment</strong> as all options are customizable only at this stage.<br />
-A running hotspot can't be renamed or content added to it <sup>(mostly)</sup>.</p>
-<p class="info">Create from scratch or start by importing an existing JSON file (from an export).</p>
+<p class="info">This is where your choice of options and contents for your Hotspot images will be stored.</p>
+<p class="info">You can create as many configurations as you want by clicking on New configuration, or modify existing configurations by clicking on their names. You can also import JSON configuration files from the desktop installer.</p>
+<p class="info"></p>
 
 <p><div class="btn-group" role="group" aria-label="Filter">
 	<a class="btn btn-sm {% if not config_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}"  href="?">Updated by me</a>
