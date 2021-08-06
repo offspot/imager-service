@@ -1,4 +1,5 @@
 FROM rgaudin/python-ubuntu:3.8-18.04
+LABEL org.opencontainers.image.source https://github.com/offspot/cardshop
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone

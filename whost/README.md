@@ -46,7 +46,7 @@ Just a regular, fresh Ubuntu-server install. Bellow are the __defaults used for 
   * Copy `/root/.ssh/id_rsa` to `/root/.ssh/tunnel`
   * Share (via email for example) public key with cardshop admin (it's located at `/root/.ssh/id_rsa.pub`).
   * This file will be appened to `/home/tunnel/.ssh/authorized_keys` on the the tunneling server gateway by the cardshop admin, so the writer can connect.
-* Download setup script `curl -L -o /tmp/whost-setup https://raw.githubusercontent.com/kiwix/cardshop/master/whost/whost-setup`
+* Download setup script `curl -L -o /tmp/whost-setup https://raw.githubusercontent.com/offspot/cardshop/master/whost/whost-setup`
 * Go to https://wiki.kiwix.org/wiki/Cardshop/maintenance, pick a port for your host and update the writers table
 * run the setup script `chmod +x /tmp/whost-setup && REVERSE_SSH_PORT=XXX /tmp/whost-setup`. 
 

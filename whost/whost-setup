@@ -79,7 +79,7 @@ step "Add reverse-SSH connection"
 #echo "    UserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
 systemctl enable ssh
 echo "REVERSE_SSH_PORT=${REVERSE_SSH_PORT}" > /etc/default/reverse-ssh
-curl -L -o /etc/systemd/system/reverse-ssh.service https://raw.githubusercontent.com/kiwix/cardshop/master/whost/reverse-ssh.service
+curl -L -o /etc/systemd/system/reverse-ssh.service https://raw.githubusercontent.com/offspot/cardshop/master/whost/reverse-ssh.service
 systemctl daemon-reload
 systemctl enable reverse-ssh.service
 systemctl restart reverse-ssh.service
@@ -117,7 +117,7 @@ addifnot "source /root/whostenv/bin/activate" /root/.bash_profile
 addifnot "whost-config" /root/.bash_profile
 
 step "Pulling worker"
-docker pull kiwix/cardshop-worker
+docker pull ghcr.io/offspot/cardshop-worker
 docker update --restart=unless-stopped $(docker ps -a -q)
 
 step "Start containers on boot"

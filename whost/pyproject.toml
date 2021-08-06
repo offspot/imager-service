@@ -2,7 +2,7 @@
 name = "whost"
 version = "0.2"
 readme = "README.md"
-repository = "https://github.com/kiwix/cardshop"
+repository = "https://github.com/offspot/cardshop"
 homepage = "https://www.kiwix.org/kiwix-hotspot/"
 description = "Cardshop Writer Host Tools"
 authors = ["renaud gaudin <reg@kiwix.org>"]
