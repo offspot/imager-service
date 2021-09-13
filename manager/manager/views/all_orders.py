@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+from django.utils.translation import gettext as _
 from ansi2html import Ansi2HTMLConverter
 
 from manager.models import OrderData, Order
@@ -35,11 +36,12 @@ def list(request):
     if not success:
         messages.error(
             request,
-            "Unable to connect (HTTP {code}) to API at <code>{url}</code>{msg}".format(
-                url=settings.CARDSHOP_API_URL,
-                code=code,
-                msg=" -- " + msg if msg else "",
-            ),
+            _("Unable to connect (HTTP %(code)s) to API at <code>%(url)s</code>%(msg)s")
+            % {
+                "url": settings.CARDSHOP_API_URL,
+                "code": code,
+                "msg": " -- " + msg if msg else "",
+            },
         )
         return redirect("admin")
 
@@ -57,9 +59,8 @@ def list(request):
         messages.set_level(request, messages.DEBUG)
         messages.debug(
             request,
-            "Connected to Scheduler API at <code>{url}</code>".format(
-                url=settings.CARDSHOP_API_URL
-            ),
+            _("Connected to Scheduler API at <code>%(url)s</code>")
+            % {"url": settings.CARDSHOP_API_URL},
         )
 
     return render(request, "all_orders.html", context)
@@ -71,10 +72,15 @@ def delete(request, order_id):
     if not success:
         logger.error("Unable to delete order: {}".format(res))
         messages.error(
-            request, "Unable to delete order {}: -- ref: {}".format(order_id, res)
+            request,
+            _("Unable to delete order %(order_id)s: -- ref: %(err)s")
+            % {"order_id": order_id, "err": res},
         )
     else:
-        messages.success(request, "Successfuly deleted order: {}".format(order_id))
+        messages.success(
+            request,
+            _("Successfuly deleted order: %(order_id)s") % {"order_id": order_id},
+        )
 
     return redirect("all-orders")
 
@@ -83,16 +89,24 @@ def delete(request, order_id):
 def recreate(request, order_id):
     order = Order.get_by_scheduler_id(order_id)
     if order is None:
-        raise Http404(f"Order `{order_id}` does not exists")
+        raise Http404(
+            _("Order `%(order_id)s` does not exists") % {"order_id": order_id}
+        )
     try:
         new_order = order.recreate()
     except Exception as exc:
         logger.error(f"Unable to recreate order: {exc}")
         logger.exception(exc)
-        messages.error(request, f"Unable to recreate order {order_id}: -- ref: {exc}")
+        messages.error(
+            request,
+            _("Unable to recreate order %(order_id)s: -- ref: %(err)s")
+            % {"order_id": order_id, "err": exc},
+        )
     else:
         messages.success(
-            request, f"Successfuly recreated order: {new_order.scheduler_id} (NEW)"
+            request,
+            _("Successfuly recreated order: %(new_id)s (NEW)")
+            % {"new_id": new_order.scheduler_id},
         )
 
     return redirect("all-orders")
@@ -104,11 +118,12 @@ def detail(request, order_id):
     if not success:
         messages.error(
             request,
-            "Unable to connect (HTTP {code}) to API at <code>{url}</code>{msg}".format(
-                url=settings.CARDSHOP_API_URL,
-                code=code,
-                msg=" -- " + msg if msg else "",
-            ),
+            _("Unable to connect (HTTP %(code)s) to API at <code>%(url)s</code>%(msg)s")
+            % {
+                "url": settings.CARDSHOP_API_URL,
+                "code": code,
+                "msg": " -- " + msg if msg else "",
+            },
         )
         return redirect("admin")
 
@@ -119,9 +134,8 @@ def detail(request, order_id):
         messages.set_level(request, messages.DEBUG)
         messages.debug(
             request,
-            "Connected to Scheduler API at <code>{url}</code>".format(
-                url=settings.CARDSHOP_API_URL
-            ),
+            _("Connected to Scheduler API at <code>%(url)s</code>")
+            % {"url": settings.CARDSHOP_API_URL},
         )
     return render(request, "all_orders-detail.html", context)
 
@@ -129,7 +143,7 @@ def detail(request, order_id):
 @staff_required
 def order_log(request, order_id, step, kind, index=None, fmt="txt"):
     if fmt not in ("txt", "html"):
-        raise Http404("Unhandled format `{}`".format(fmt))
+        raise Http404(_("Unhandled format `%(fmt)s`") % {"fmt": fmt})
     else:
         mime = {"txt": "text/plain", "html": "text/html"}.get(fmt)
 
@@ -141,7 +155,7 @@ def order_log(request, order_id, step, kind, index=None, fmt="txt"):
         "wipe",
         "writer",
     ):
-        raise Http404("`{}` log does not exists".format(kind))
+        raise Http404(_("`%(kind)s` log does not exists") % {"kind": kind})
 
     retrieved, order = get_order(order_id, with_logs=True)
     if not retrieved:
@@ -156,9 +170,8 @@ def order_log(request, order_id, step, kind, index=None, fmt="txt"):
     except Exception as exp:
         logger.exception(exp)
         raise Http404(
-            "Log {step}/{kind}.txt does not exists for Order #{id}".format(
-                step=step, kind=kind, id=order_id
-            )
+            _("Log %(step)s/%(kind)s.txt does not exists for Order #%(id)s")
+            % {"step": step, "kind": kind, "id": order_id}
         )
 
     if content and fmt == "html":

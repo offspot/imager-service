@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block css %}
 .form-signin {
@@ -33,16 +34,16 @@
 {% endblock %}
 
 {% block content %}
-
+{% url 'reset_password' as reset_password_url %}
 <form method="post" action="{% url 'login' %}" id="login-form" class="form-signin">
 {% csrf_token %}
-<h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+<h1 class="h3 mb-3 font-weight-normal">{% blocktrans %}Please sign in{% endblocktrans %}</h1>
 {% if next %}
     {% if user.is_authenticated %}
-    <p class="alert alert-warning"><strong>Access Refused:</strong> Your account doesn't have access to this page. To proceed, please login with an account that has access.</p>
+    <p class="alert alert-warning">{% blocktrans %}<strong>Access Refused:</strong> Your account doesn't have access to this page. To proceed, please login with an account that has access.{% endblocktrans %}</p>
     {% endif %}
 {% endif %}
-{% if form.errors %}<p class="alert alert-danger">Your username and password didn't match. Please try again.</p>{% endif %}
+{% if form.errors %}<p class="alert alert-danger">{% blocktrans %}Your username and password didn't match. Please try again.{% endblocktrans %}</p>{% endif %}
 <label for="{{ form.username.id_for_label }}" class="sr-only">{{ form.username.label }}</label>
 {{ form.username.errors }}
 <input type="text" class="form-control" value="{{ form.username.value|default_if_none:"" }}" placeholder="{{ form.username.label }}" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" required autofocus>
@@ -50,8 +51,8 @@
 {{ form.password.errors }}
 <input type="password" id="inputPassword" class="form-control" placeholder="{{ form.password.label }}" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}"  required>
 <input type="hidden" name="next" value="{{ next }}" />
-<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+<button class="btn btn-lg btn-primary btn-block" type="submit">{% blocktrans context "Sign In Button" %}Sign in{% endblocktrans %}</button>
 <hr />
-<p>Forgot password? <a href="{% url 'reset_password' %}">Password reset</a>.</p>
+<p>{% blocktrans %}Forgot password? <a href="{{ reset_password_url }}">Password reset</a>.{% endblocktrans %}</p>
 </form>
 {% endblock %}

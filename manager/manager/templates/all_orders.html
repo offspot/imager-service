@@ -1,11 +1,20 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load manager %}
 
 {% block content %}
-<h2>Orders</h2>
+<h2>{% blocktrans %}Orders{% endblocktrans %}</h2>
 {% if orders %}
 <table class="table table-striped">
-	<thead><tr><th>ID</th><th>Summary</th><th>Client</th><th>Country</th><th>Created On</th><th>Status</th><th>Delete</th></tr></thead>
+	<thead><tr>
+		<th>{% blocktrans %}ID{% endblocktrans %}</th>
+		<th>{% blocktrans %}Summary{% endblocktrans %}</th>
+		<th>{% blocktrans %}Client{% endblocktrans %}</th>
+		<th>{% blocktrans %}Country{% endblocktrans %}</th>
+		<th>{% blocktrans %}Created On{% endblocktrans %}</th>
+		<th>{% blocktrans %}Status{% endblocktrans %}</th>
+		<th>{% blocktrans %}Delete{% endblocktrans %}</th>
+	</tr></thead>
 	<tbody>
 	{% for order in orders %}
 	<tr>
@@ -15,14 +24,14 @@
 		<td>{{ order.recipient.country|country|default_if_none:"-" }}</td>
 		<td>{% if order.statuses %}{{ order.statuses.0.on|datetime }}{% else %}-{% endif %}</td>
 		<td>{{ order.status }}</td>
-		<td><a href="{% url "all-orders-delete" order_id=order.id %}" class="btn btn-sm btn-danger" data-toggle="confirmation" data-title="Delete this order?">delete</a></td>
+		<td><a href="{% url "all-orders-delete" order_id=order.id %}" class="btn btn-sm btn-danger" data-toggle="confirmation" data-title="{% blocktrans %}Delete this order?{% endblocktrans %}">{% blocktrans %}delete{% endblocktrans %}</a></td>
 	</tr>
 	{% endfor %}
 	</tbody>
 </table>
 {% include "_paginator.html" with items_page=orders_page filter_name="only" filter_value=order_filter %}
 {% else %}
-<p class="info">No orders.</p>
+<p class="info">{% blocktrans %}No orders.{% endblocktrans %}</p>
 {% endif %}
 
 {% endblock %}

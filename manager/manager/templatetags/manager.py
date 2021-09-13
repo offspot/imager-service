@@ -31,6 +31,13 @@ def human_number(value, decimals=0):
 register.filter("human_number", human_number)
 
 
+def raw_number(value):
+    return str(value)
+
+
+register.filter("raw_number", raw_number)
+
+
 def parsed_sname(package):
     return get_parsed_package(package)["sname"]
 

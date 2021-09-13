@@ -1,16 +1,20 @@
+{% load i18n %}
 {% load manager %}
 <table class="table table-striped">
-	<tr><th>Config</th><td>{{ orderdata.config.name }}</td>
-					   <td colspan="2"><button class="btn btn-sm btn-secondary toggle">Toggle config display</button><br />
-					   <span class="pretty-config hidden"><code><pre>{{ orderdata.pretty_config }}</pre></code></span></td></tr>
-	<tr><th>SD-card</th><td><strong>{{ orderdata.sd_card.name }}</strong></td><td colspan="2">{{ orderdata.sd_card.size }}GB</td></tr>
-	<tr><th>Quantity</th><td>{{ orderdata.quantity }}</td><td colspan="2">{{ orderdata.units }}U</td></tr>
-	<tr><th>Channel</th><td>{{ orderdata.channel }}</td><th>Warehouse</th><td>{{ orderdata.warehouse.slug }}</td></tr>
-	<tr><th>Client</th><td>{{ orderdata.client.name }}</td><td colspan="2"><a href="mailto:{{ orderdata.client.email }}">{{ orderdata.client.email }}</a></td></tr>
-	<tr><th>Recipient</th><td>{{ orderdata.recipient.name }}</td><td><a href="mailto:{{ orderdata.recipient.email }}">{{ orderdata.recipient.email }}</a></td><td><a href="tel:{{ orderdata.recipient.phone }}">{{ orderdata.recipient.phone }}</a></td></tr>
-	<tr><th>Recipient Address</th><td colspan="2">{{ orderdata.recipient.address|linebreaksbr }}</td><td>{{ orderdata.recipient.country|country }}</td></tr>
+	<tr>
+		<th>{% blocktrans %}Config{% endblocktrans %}</th>
+		<td>{{ orderdata.config.name }}</td>
+     	<td colspan="2"><button class="btn btn-sm btn-secondary toggle">{% blocktrans %}Toggle config display{% endblocktrans %}</button><br />
+					    <span class="pretty-config hidden"><code><pre>{{ orderdata.pretty_config }}</pre></code></span></td>
+	</tr>
+	<tr><th>{% blocktrans %}SD-card{% endblocktrans %}</th><td><strong>{{ orderdata.sd_card.name }}</strong></td><td colspan="2">{{ orderdata.sd_card.size }}GB</td></tr>
+	<tr><th>{% blocktrans %}Quantity{% endblocktrans %}</th><td>{{ orderdata.quantity }}</td><td colspan="2">{{ orderdata.units }}U</td></tr>
+	<tr><th>{% blocktrans %}Channel{% endblocktrans %}</th><td>{{ orderdata.channel }}</td><th>{% blocktrans %}Warehouse{% endblocktrans %}</th><td>{{ orderdata.warehouse.slug }}</td></tr>
+	<tr><th>{% blocktrans %}Client{% endblocktrans %}</th><td>{{ orderdata.client.name }}</td><td colspan="2"><a href="mailto:{{ orderdata.client.email }}">{{ orderdata.client.email }}</a></td></tr>
+	<tr><th>{% blocktrans %}Recipient{% endblocktrans %}</th><td>{{ orderdata.recipient.name }}</td><td><a href="mailto:{{ orderdata.recipient.email }}">{{ orderdata.recipient.email }}</a></td><td><a href="tel:{{ orderdata.recipient.phone }}">{{ orderdata.recipient.phone }}</a></td></tr>
+	<tr><th>{% blocktrans %}Recipient Address{% endblocktrans %}</th><td colspan="2">{{ orderdata.recipient.address|linebreaksbr }}</td><td>{{ orderdata.recipient.country|country }}</td></tr>
 	{% if orderdata.statuses|length %}
-	<tr><th rowspan="{{ orderdata.statuses|length|plus_one }}">Scheduler Statuses</th></tr>
+	<tr><th rowspan="{{ orderdata.statuses|length|plus_one }}">{% blocktrans %}Scheduler Statuses{% endblocktrans %}</th></tr>
 		{% for status in orderdata.statuses|clean_statuses %}
 		<tr><td>{% if forloop.first %}<strong>{{ status.status }}</strong>{% else %}{{ status.status }}{% endif %}</td>
 			<td>{{ status.on }}</td>
@@ -18,9 +22,9 @@
 		</tr>
 		{% endfor %}
 	{% endif %}
-	<tr><th>Image Creation Task</th><td colspan="3">{{ orderdata.tasks.create|id }}</td></tr>
+	<tr><th>{% blocktrans %}Image Creation Task{% endblocktrans %}</th><td colspan="3">{{ orderdata.tasks.create|id }}</td></tr>
 	{% if orderdata.tasks.create.statuses|length %}
-	<tr><th rowspan="{{ orderdata.tasks.create.statuses|length|plus_one }}">Creation Status</th></tr>
+	<tr><th rowspan="{{ orderdata.tasks.create.statuses|length|plus_one }}">{% blocktrans %}Creation Status{% endblocktrans %}</th></tr>
 		{% for status in orderdata.tasks.create.statuses|clean_statuses %}
 		<tr>
 			<td>{% if forloop.first %}<strong>{{ status.status }}</strong>{% else %}{{ status.status }}{% endif %}</td>
@@ -29,15 +33,15 @@
 		</tr>
 		{% endfor %}
 	{% endif %}
-	<tr><th>Creation Logs</th>
+	<tr><th>{% blocktrans %}Creation Logs{% endblocktrans %}</th>
 		<td><a target="_blank" href="{% url "order_log" step="create" order_id=orderdata|id kind="worker" fmt="txt" %}">worker.txt</a></td>
 		<td><a target="_blank" href="{% url "order_log" step="create" order_id=orderdata|id kind="installer" fmt="html" %}">installer.html</a></td>
 		<td><a target="_blank" href="{% url "order_log" step="create" order_id=orderdata|id kind="uploader" fmt="txt" %}">uploader.txt</a></td>
 	</tr>
 
-	<tr><th>Image Download Task</th><td colspan="3">{{ orderdata.tasks.download|id }}</td></tr>
+	<tr><th>{% blocktrans %}Image Download Task{% endblocktrans %}</th><td colspan="3">{{ orderdata.tasks.download|id }}</td></tr>
 	{% if orderdata.tasks.download.statuses|length %}
-	<tr><th rowspan="{{ orderdata.tasks.download.statuses|length|plus_one }}">Download Status</th></tr>
+	<tr><th rowspan="{{ orderdata.tasks.download.statuses|length|plus_one }}">{% blocktrans %}Download Status{% endblocktrans %}</th></tr>
 		{% for status in orderdata.tasks.download.statuses|clean_statuses %}
 		<tr>
 			<td>{% if forloop.first %}<strong>{{ status.status }}</strong>{% else %}{{ status.status }}{% endif %}</td>
@@ -46,15 +50,15 @@
 		</tr>
 		{% endfor %}
 	{% endif %}
-	<tr><th>Image Download Log</th>
+	<tr><th>{% blocktrans %}Image Download Log{% endblocktrans %}</th>
 		<td><a target="_blank" href="{% url "order_log" step="download" order_id=orderdata|id kind="worker" fmt="txt" %}">worker.txt</a></td>
 		<td colspan="2"><a target="_blank" href="{% url "order_log" step="download" order_id=orderdata|id kind="downloader" fmt="html" %}">downloader.html</a></td>
 	</tr>
 
 	{% for task in orderdata.tasks.write %}
-	<tr><th>Image Writing Task #{{ forloop.counter }}</th><td colspan="3">{{ task|id }}</td></tr>
+	<tr><th>{% blocktrans with counter=forloop.counter%}Image Writing Task #{{ counter }}{% endblocktrans %}</th><td colspan="3">{{ task|id }}</td></tr>
 	{% if task.statuses|length %}
-	<tr><th rowspan="{{ task.statuses|length|plus_one }}">Writing Status</th></tr>
+	<tr><th rowspan="{{ task.statuses|length|plus_one }}">{% blocktrans %}Writing Status{% endblocktrans %}</th></tr>
 	{% for status in task.statuses|clean_statuses %}
 		<tr>
 		<td>{% if forloop.first %}<strong>{{ status.status }}</strong>{% else %}{{ status.status }}{% endif %}</td>
@@ -62,14 +66,14 @@
 		<td>{{ status.payload|default_if_none:""|urlize }}</td>
 		</tr>
 	{% endfor %}
-	
+
 	{% endif %}
-	<tr><th>Writing Log</th>
+	<tr><th>{% blocktrans %}Writing Log{% endblocktrans %}</th>
 		<td><a target="_blank" href="{% url "order_log" step="write" order_id=orderdata|id kind="worker" index=forloop.counter fmt="txt"%}">worker-{{ forloop.counter }}.txt</a></td>
 		<td><a target="_blank" href="{% url "order_log" step="write" order_id=orderdata|id kind="wipe" index=forloop.counter fmt="html"%}">wipe-{{ forloop.counter }}.html</a></td>
 		<td><a target="_blank" href="{% url "order_log" step="write" order_id=orderdata|id kind="writer" index=forloop.counter fmt="html"%}">writer-{{ forloop.counter }}.html</a></td>
 	</tr>
 	{% endfor %}
 
-	<tr><th>Shipment</th><td colspan="3">{{ orderdata.shipment|default:"n/a" }}</td></tr>
+	<tr><th>{% blocktrans %}Shipment{% endblocktrans %}</th><td colspan="3">{{ orderdata.shipment|default:"n/a" }}</td></tr>
 </table>

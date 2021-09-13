@@ -1,8 +1,9 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load manager %}
 
 {% block content %}
-<h3>Create New Address</h3>
+<h3>{% blocktrans %}Create New Address{% endblocktrans %}</h3>
 <form method="POST" class="form-check form-check-inline">
 	{% csrf_token %}
 	<div class="form-row visual-group">
@@ -12,7 +13,7 @@
 		<div class="form-group col-md-2">{% include "_input_field.html" with field=form.phone %}</div>
 		<div class="form-group col-md-6">{% include "_input_field.html" with field=form.address textarea=1 %}</div>
 		<div class="form-group col-md-3">{% include "_input_field.html" with field=form.country use_raw=1 %}</div>
-		<div class="form-group col-md-3"><label>-</label><button class="btn btn-primary form-check-input form-control">{% if address %}Update Address{% else %}Create Address{% endif %}</button></div>
+		<div class="form-group col-md-3"><label>-</label><button class="btn btn-primary form-check-input form-control">{% if address %}{% blocktrans %}Update Address{% endblocktrans %}{% else %}{% blocktrans %}Create Address{% endblocktrans %}{% endif %}</button></div>
 	</div>
 </form>
 {% endblock %}

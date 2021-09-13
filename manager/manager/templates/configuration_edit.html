@@ -1,18 +1,19 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load static %}
 {% load manager %}
 
 {% block content %}
 
-	{% if form.errors or form.non_field_errors %}<div class="alert alert-danger">Your config has errors and can not be saved. Please fix them and retry.{% if form.non_field_errors %}<br />{{ form.non_field_errors }}{% endif %}</div>{% endif %}
+	{% if form.errors or form.non_field_errors %}<div class="alert alert-danger">{% blocktrans %}Your config has errors and can not be saved. Please fix them and retry.{% endblocktrans %}{% if form.non_field_errors %}<br />{{ form.non_field_errors }}{% endif %}</div>{% endif %}
 
 	<ul class="nav nav-tabs" id="configMenuTabHolder" role="tablist">
-		<li class="nav-item"><a class="nav-link active" id="general-tab" data-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="true">General</a></li>
-		<li class="nav-item"><a class="nav-link" id="branding-tab" data-toggle="tab" href="#branding" role="tab" aria-controls="branding" aria-selected="false">Branding</a></li>
-		<li class="nav-item"><a class="nav-link" id="contents-tab" data-toggle="tab" href="#contents" role="tab" aria-controls="contents" aria-selected="false">Content</a></li>
+		<li class="nav-item"><a class="nav-link active" id="general-tab" data-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="true">{% blocktrans %}General{% endblocktrans %}</a></li>
+		<li class="nav-item"><a class="nav-link" id="branding-tab" data-toggle="tab" href="#branding" role="tab" aria-controls="branding" aria-selected="false">{% blocktrans %}Branding{% endblocktrans %}</a></li>
+		<li class="nav-item"><a class="nav-link" id="contents-tab" data-toggle="tab" href="#contents" role="tab" aria-controls="contents" aria-selected="false">{% blocktrans %}Content{% endblocktrans %}</a></li>
 		<li class="nav-item"><a class="nav-link disabled">
-			<span id="img_size_holder" class="info" data-container="body" data-toggle="popover" data-trigger="hover" data-content="Size of Selected Contents"><i class="fas fa-hdd"></i> <span id="image_req_size">?</span></span> – 
-			<span id="sd_size_holder" class="warning" data-container="body" data-toggle="popover" data-trigger="hover" data-content="Minimum SD-card Size required for Selected Contents"><i class="fa fa-save"></i> <span id="sd_size">?</span></span>
+			<span id="img_size_holder" class="info" data-container="body" data-toggle="popover" data-trigger="hover" data-content="{% blocktrans %}Size of Selected Contents{% endblocktrans %}"><i class="fas fa-hdd"></i> <span id="image_req_size">?</span></span> – 
+			<span id="sd_size_holder" class="warning" data-container="body" data-toggle="popover" data-trigger="hover" data-content="{% blocktrans %}Minimum SD-card Size required for Selected Contents{% endblocktrans %}"><i class="fa fa-save"></i> <span id="sd_size">?</span></span>
 		</a></li>
 	</ul>
 
@@ -25,21 +26,23 @@
 
 		<div class="form-row visual-group">
 		<div class="col-md-9"></div>
-		<div class="col-md-3"><button type="submit" class="btn btn-primary btn-sm form-control" style="margin-bottom: .5em;">Update Configuration</button></div>
+		<div class="col-md-3"><button type="submit" class="btn btn-primary btn-sm form-control" style="margin-bottom: .5em;">{% blocktrans %}Update Configuration{% endblocktrans %}</button></div>
 		</div>
 
 	<div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
-		<h3>Plug</h3>
+		<h3>{% blocktrans %}Hotspot{% endblocktrans %}</h3>
 		<div class="form-row visual-group">
 			<div class="form-group col-md-6">
-				{% include "_input_field.html" with field=form.project_name placeholder="My Hotspot" %}
+				{% blocktrans asvar hotspot_placeholder %}My Hotspot{% endblocktrans %}
+				{% include "_input_field.html" with field=form.project_name placeholder=hotspot_placeholder %}
 			</div>
 			<div class="form-group col-md-6">
-				{% include "_input_field.html" with field=form.name placeholder="My Project Config" %}
+				{% blocktrans asvar config_placeholder %}My Project Config{% endblocktrans %}
+				{% include "_input_field.html" with field=form.name placeholder=config_placeholder %}
 			</div>
 		</div>
 
-		<h3>Region</h3>
+		<h3>{% blocktrans %}Region{% endblocktrans %}</h3>
 		<div class="form-row visual-group">
 			<div class="form-group col-md-6">
 			  {% include "_label_for.html" with field=form.language %}
@@ -53,10 +56,11 @@
 			</div>
 		</div>
 
-		<h3>Security</h3>
+		<h3>{% blocktrans %}Security{% endblocktrans %}</h3>
 		<div class="form-row visual-group">
 			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.wifi_password placeholder="Open WiFi" %}
+				{% blocktrans asvar wifi_placeholder %}Open WiFi{% endblocktrans %}
+				{% include "_input_field.html" with field=form.wifi_password placeholder=wifi_placeholder %}
 			</div>
 			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.admin_account %}
@@ -68,8 +72,8 @@
 	</div>
 
 	<div class="tab-pane fade" id="branding" role="tabpanel" aria-labelledby="branding-tab">
-		<h3>Branding</h3>
-		<p>This section allows you to replace some visual elements with your own branding.</p>
+		<h3>{% blocktrans %}Branding{% endblocktrans %}</h3>
+		<p>{% blocktrans %}This section allows you to replace some visual elements with your own branding.{% endblocktrans %}</p>
 		<div class="form-row visual-group">
 			<div class="form-group col-md-12">
 				{% include "_input_field.html" with field=form.branding_logo type=file use_raw=1 %}
@@ -77,8 +81,8 @@
 			</div>
 		</div>
 		<hr />
-		<h4>Advanced Branding</h4>
-		<p>Change <em>favicon</em> and <em>CSS</em> only of you know what you are doing.</p>
+		<h4>{% blocktrans %}Advanced Branding{% endblocktrans %}</h4>
+		<p>{% blocktrans %}Change <em>favicon</em> and <em>CSS</em> only of you know what you are doing.{% endblocktrans %}</p>
 		<div class="form-row visual-group">
 			<div class="form-group col-md-6">
 				{% include "_input_field.html" with field=form.branding_favicon type=file use_raw=1 %}
@@ -92,13 +96,13 @@
 	</div>
 
   	<div class="tab-pane fade" id="contents" role="tabpanel" aria-labelledby="contents-tab">
-  		{% if form.content_zims.errors %}<div class="alert alert-danger">Your selection has errors: {{ form.content_zims.errors }}</div>{% endif %}
+  		{% if form.content_zims.errors %}<div class="alert alert-danger">{% blocktrans with errors=form.content_zims.errors %}Your selection has errors: {{ errors }}{% endblocktrans %}</div>{% endif %}
   		<input type="hidden" id="{{ form.content_zims.id_for_label }}" class="form-control" 
   			   value="{{ form.content_zims.value|default_if_none:'' }}"
   			   name="{{ form.content_zims.html_name }}"/>
 
 
-  		<h3>Interactive Tools</h3>
+  		<h3>{% blocktrans %}Interactive Tools{% endblocktrans %}</h3>
 		<div class="form-row visual-group">
 			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_edupi type="checkbox" size="10 MiB" %}
@@ -144,20 +148,23 @@
 			</div>
 		</div>
 
-		<h3>Static Content Packages</h3>
+		<h3>{% blocktrans %}Static Content Packages{% endblocktrans %}</h3>
 		<div class="form-row visual-group">
 			<div class="col-md-6">
 				<input type="hidden" id="catalog_order" value="" />
-				<h4 class="alert alert-info">Available ZIMs 
+				<h4 class="alert alert-info">{% blocktrans %}Available ZIMs{% endblocktrans %} 
 			  	<select name="lang_filter" id="lang_filter" class="form-control" style="display: inline; width: auto; height: auto; padding: 0; float: right;">
-				  	<option value="">Select a language to filter</option>
+				  	<option value="">{% blocktrans %}Select a language to filter{% endblocktrans %}</option>
 				  	{% for lang_code, lang_name in packages_langs.items %}
 				  	<option value="{{ lang_code }}">{{ lang_name }}</option>
 				  	{% endfor %}
 			  	</select></h4>
 			  	<div class="table-cont">
 					<table id="packages_list" class="table table-bordered table-striped table-sm2">
-					  	<thead><tr><th class="ordering" data-ordering="name">Name <i class="fa fa-sort-alpha-down"></i></th><th class="ordering" data-ordering="size">Size <i class="fa fa-sort-numeric-up"></i></th></tr></thead>
+					  	<thead><tr>
+					  		<th class="ordering" data-ordering="name">{% blocktrans %}Name{% endblocktrans %} <i class="fa fa-sort-alpha-down"></i></th>
+					  		<th class="ordering" data-ordering="size">{% blocktrans %}Size{% endblocktrans %} <i class="fa fa-sort-numeric-up"></i></th>
+					  	</tr></thead>
 					  	<tbody></tbody>
 					</table>
 				</div>
@@ -166,9 +173,9 @@
 			<div class="col-md-1"></div>
 
 			<div class="col-md-5">
-				<h4 class="alert alert-success">Selected ZIMs</h4>
+				<h4 class="alert alert-success">{% blocktrans %}Selected ZIMs{% endblocktrans %}</h4>
 				<table id="selected_packages_list" class="table table-bordered table-striped">
-			  	<thead class=""><tr><th>Name</th><th>Size</th></tr></thead>
+			  	<thead class=""><tr><th>{% blocktrans %}Name{% endblocktrans %}</th><th>{% blocktrans %}Size{% endblocktrans %}</th></tr></thead>
 			  	<tbody>
 			  		{% for package in form.content_zims.value|as_packages %}
 			  		<tr id="selected-row-{{ package.skey }}"><td><a href="#" class="remove-package" data-package-id="{{ package.key }}"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ package.langid }}" class="fas fa-minus-circle primary"></i></a> <strong>{{ package|parsed_sname }}</strong>{% if package.tags %} {% for tag in package.tags %}<span class="badge badge-pill badge-secondary package-tag">{{ tag }}</span>{% endfor %}{% endif %}<p><em>{{ package.description }}</em></p></td><td>{{ package.size|human_size }}</td>
@@ -393,6 +400,8 @@
 	}
 
 	function refreshSize() {
+		let free_space_template = "{% blocktrans %}__media_size__ <small>(__free_size__ free)</small>{% endblocktrans %}";
+		console.log(free_space_template);
 		let config = {
 			edupi: $('#' + edupi_id).is(':checked'),
 			edupi_resources: $('#' + edupi_resources_id).val(),
@@ -426,7 +435,7 @@
 					$('button[type=submit]').addClass("btn-danger");
 				} else {
 					$('#sd_size_holder')[0].className = "success";
-					$('#sd_size').html(data.media_size + " <small>(" + data.hfree + " free)</small>");
+					$('#sd_size').html(free_space_template.replace("__media_size__", data.media_size).replace("__free_size__", data.hfree));
 					$('button[type=submit]').removeClass("btn-danger");
 				}
 

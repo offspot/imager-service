@@ -9,6 +9,7 @@ import logging
 import collections
 from pathlib import Path
 
+import babel.languages
 import pytz
 import pycountry
 import jsonfield
@@ -19,6 +20,10 @@ from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.utils.translation import (
+    gettext as _,
+    gettext_lazy as _lz,
+)
 
 from manager.scheduler import (
     create_order,
@@ -80,7 +85,7 @@ def retrieve_branding_file(field):
 def validate_project_name(value):
     if not is_valid_project_name(value):
         raise ValidationError(
-            "%(value)s is not a valid project name (A-Z,a-z,0-9,-, )",
+            _("%(value)s is not a valid project name (A-Z,a-z,0-9,-, )"),
             params={"value": value},
         )
 
@@ -88,7 +93,7 @@ def validate_project_name(value):
 def validate_language(value):
     if not is_valid_language(value):
         raise ValidationError(
-            "%(value)s is not a valid language code",
+            _("%(value)s is not a valid language code"),
             params={"value": value},
         )
 
@@ -96,7 +101,7 @@ def validate_language(value):
 def validate_timezone(value):
     if not is_valid_timezone(value):
         raise ValidationError(
-            "%(value)s is not a valid timezone",
+            _("%(value)s is not a valid timezone"),
             params={"value": value},
         )
 
@@ -104,7 +109,7 @@ def validate_timezone(value):
 def validate_wifi_pwd(value):
     if not is_valid_wifi_pwd(value):
         raise ValidationError(
-            "%(value)s is not a valid WiFi password (8-31 chars, A-Z,a-z,0-9,-,_)",
+            _("%(value)s is not a valid WiFi password (8-31 chars, A-Z,a-z,0-9,-,_)"),
             params={"value": value},
         )
 
@@ -112,7 +117,7 @@ def validate_wifi_pwd(value):
 def validate_admin_login(value):
     if not is_valid_admin_login(value):
         raise ValidationError(
-            "%(value)s is not a valid WiFi password (31 chars max, A-Z,a-z,0-9,-,_)",
+            _("%(value)s is not a valid WiFi password (31 chars max, A-Z,a-z,0-9,-,_)"),
             params={"value": value},
         )
 
@@ -120,7 +125,7 @@ def validate_admin_login(value):
 def validate_admin_pwd(value):
     if not is_valid_admin_pwd(value):
         raise ValidationError(
-            "%(value)s is not a valid WiFi password (31 chars max, A-Z,a-z,0-9,-,_)",
+            _("%(value)s is not a valid WiFi password (31 chars max, A-Z,a-z,0-9,-,_)"),
             params={"value": value},
         )
 
@@ -129,34 +134,53 @@ class Configuration(models.Model):
     class Meta:
         get_latest_by = "-id"
         ordering = ["-id"]
+        verbose_name = _lz("configuration")
+        verbose_name_plural = _lz("configurations")
 
     KALITE_LANGUAGES = ["en", "fr", "es"]
     WIKIFUNDI_LANGUAGES = ["en", "fr"]
 
     organization = models.ForeignKey(
-        "Organization", on_delete=models.CASCADE, related_name="configurations"
+        "Organization",
+        on_delete=models.CASCADE,
+        related_name="configurations",
+        verbose_name=_lz("configurations"),
     )
-    updated_on = models.DateTimeField(auto_now=True)
+    updated_on = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_lz("updated on"),
+    )
     updated_by = models.ForeignKey(
-        "Profile", on_delete=models.CASCADE, related_name="configurations"
+        "Profile",
+        on_delete=models.CASCADE,
+        related_name="configurations",
+        verbose_name=_lz("configurations"),
     )
-    size = models.BigIntegerField(blank=True)
+    size = models.BigIntegerField(
+        blank=True,
+        verbose_name=_lz("Size"),
+    )
 
     name = models.CharField(
-        max_length=100, help_text="Used <strong>only within the Cardshop</strong>"
+        verbose_name=_lz("Same"),
+        max_length=100,
+        help_text=_lz("Used <strong>only within the Cardshop</strong>"),
     )
     project_name = models.CharField(
         max_length=64,
         default="kiwix",
-        verbose_name="Hospot name",
-        help_text="Network name; the landing page will also be at http://name.hotspot",
+        verbose_name=_lz("Hospot name"),
+        help_text=_lz(
+            "Network name; the landing page will also be at http://name.hotspot"
+        ),
         validators=[validate_project_name],
     )
     language = models.CharField(
         max_length=3,
         choices=hotspot_languages,
         default="en",
-        help_text="Hotspot interface language",
+        verbose_name=_lz("Language"),
+        help_text=_lz("Hotspot interface language"),
         validators=[validate_language],
     )
     timezone = models.CharField(
@@ -164,38 +188,45 @@ class Configuration(models.Model):
         choices=[("UTC", "UTC"), ("Europe/Paris", "Europe/Paris")]
         + [(tz, tz) for tz in pytz.common_timezones],
         default="Europe/Paris",
-        help_text="Where the plug would be deployed",
+        verbose_name=_lz("Timezone"),
+        help_text=_lz("Where the Hotspot would be deployed"),
         validators=[validate_timezone],
     )
 
     wifi_password = models.CharField(
         max_length=31,
         default=None,
-        verbose_name="WiFi Password",
-        help_text="Leave empty for Open WiFi (recommended)"
-        "<br />Do <strong>not</strong> use special characters. 8 chars min.",
+        verbose_name=_lz("WiFi Password"),
+        help_text=_lz(
+            "Leave empty for Open WiFi (recommended)"
+            "<br />Do <strong>not</strong> use special characters. 8 chars min."
+        ),
         null=True,
         blank=True,
         validators=[validate_wifi_pwd],
     )
     admin_account = models.CharField(
-        max_length=31, default="admin", validators=[validate_admin_login]
+        max_length=31,
+        default="admin",
+        validators=[validate_admin_login],
+        verbose_name=_lz("Admin account"),
     )
     admin_password = models.CharField(
         max_length=31,
         default="admin-password",
-        help_text="To manage Ideascube, KA-Lite, Aflatoun, EduPi and Wikifundi",
+        verbose_name=_lz("Admin password"),
+        help_text=_lz("To manage KA-Lite, Aflatoun, EduPi and Wikifundi"),
         validators=[validate_admin_pwd],
     )
 
     branding_logo = models.FileField(
-        blank=True, null=True, upload_to=get_branding_path, verbose_name="Logo"
+        blank=True, null=True, upload_to=get_branding_path, verbose_name=_lz("Logo")
     )
     branding_favicon = models.FileField(
-        blank=True, null=True, upload_to=get_branding_path, verbose_name="Favicon"
+        blank=True, null=True, upload_to=get_branding_path, verbose_name=_lz("Favicon")
     )
     branding_css = models.FileField(
-        blank=True, null=True, upload_to=get_branding_path, verbose_name="CSS File"
+        blank=True, null=True, upload_to=get_branding_path, verbose_name=_lz("CSS File")
     )
 
     content_zims = jsonfield.JSONField(
@@ -206,58 +237,60 @@ class Configuration(models.Model):
     )
     content_kalite_fr = models.BooleanField(
         default=False,
-        verbose_name="Khan Academy FR",
-        help_text="Learning Platform (French)",
+        verbose_name=_lz("Khan Academy FR"),
+        help_text=_lz("Learning Platform (French)"),
     )
     content_kalite_en = models.BooleanField(
         default=False,
-        verbose_name="Khan Academy EN",
-        help_text="Learning Platform (English)",
+        verbose_name=_lz("Khan Academy EN"),
+        help_text=_lz("Learning Platform (English)"),
     )
     content_kalite_es = models.BooleanField(
         default=False,
-        verbose_name="Khan Academy ES",
-        help_text="Learning Platform (Spanish)",
+        verbose_name=_lz("Khan Academy ES"),
+        help_text=_lz("Learning Platform (Spanish)"),
     )
     content_wikifundi_fr = models.BooleanField(
         default=False,
-        verbose_name="WikiFundi FR",
-        help_text="Wikipedia-like Editing Platform (French)",
+        verbose_name=_lz("WikiFundi FR"),
+        help_text=_lz("Wikipedia-like Editing Platform (French)"),
     )
     content_wikifundi_en = models.BooleanField(
         default=False,
-        verbose_name="WikiFundi EN",
-        help_text="Wikipedia-like Editing Platform (English)",
+        verbose_name=_lz("WikiFundi EN"),
+        help_text=_lz("Wikipedia-like Editing Platform (English)"),
     )
     content_aflatoun = models.BooleanField(
-        default=False, verbose_name="Aflatoun", help_text="Education Platform for kids"
+        default=False,
+        verbose_name=_lz("Aflatoun"),
+        help_text=_lz("Education Platform for kids"),
     )
     content_edupi = models.BooleanField(
         default=False,
-        verbose_name="EduPi",
-        help_text="Share arbitrary files with all users",
+        verbose_name=_lz("EduPi"),
+        help_text=_lz("Share arbitrary files with all users"),
     )
     content_edupi_resources = models.CharField(
         max_length=500,
         blank=True,
         null=True,
-        verbose_name="EduPi Resources",
-        help_text="ZIP folder archive of documents to initialize EduPi with",
+        verbose_name=_lz("EduPi Resources"),
+        help_text=_lz("ZIP folder archive of documents to initialize EduPi with"),
     )
     content_nomad = models.BooleanField(
         default=False,
-        verbose_name="Nomad android app",
-        help_text="Révisions du CP au CM2",
+        verbose_name=_lz("Nomad android app"),
+        help_text=_lz("Révisions du CP au CM2"),
     )
     content_mathews = models.BooleanField(
         default=False,
-        verbose_name="Math Mathews android",
-        help_text="Un jeu pour réviser les maths",
+        verbose_name=_lz("Math Mathews android"),
+        help_text=_lz("Un jeu pour réviser les maths"),
     )
     content_africatik = models.BooleanField(
         default=False,
-        verbose_name="Africatik apps",
-        help_text="Applications éducatives pour l'Afrique",
+        verbose_name=_lz("Africatik apps"),
+        help_text=_lz("Applications éducatives pour l'Afrique"),
     )
 
     @classmethod
@@ -515,23 +548,40 @@ class Configuration(models.Model):
 class Organization(models.Model):
     class Meta:
         ordering = ["slug"]
+        verbose_name = _lz("organization")
+        verbose_name_plural = _lz("organizations")
 
-    slug = models.SlugField(primary_key=True)
-    name = models.CharField(max_length=100)
+    slug = models.SlugField(primary_key=True, verbose_name=_lz("Slug"))
+    name = models.CharField(max_length=100, verbose_name=_lz("Name"))
+    language = models.CharField(
+        max_length=2,
+        verbose_name=_lz("Language"),
+        choices=settings.LANGUAGES,
+        blank=True,
+        null=True,
+    )
     channel = models.CharField(
-        max_length=50, choices=get_channel_choices(), default="kiwix"
+        max_length=50,
+        choices=get_channel_choices(),
+        default="kiwix",
+        verbose_name=_lz("Channel"),
     )
     warehouse = models.CharField(
-        max_length=50, choices=get_warehouse_choices(), default="kiwix"
+        max_length=50,
+        choices=get_warehouse_choices(),
+        default="kiwix",
+        verbose_name=_lz("Warehouse"),
     )
     public_warehouse = models.CharField(
         max_length=50,
         choices=get_warehouse_choices(),
         default="download",
-        verbose_name="Pub WH",
+        verbose_name=_("Pub WH"),
     )
-    email = models.EmailField()
-    units = models.IntegerField(null=True, blank=True, default=0)
+    email = models.EmailField(verbose_name=_lz("Email"))
+    units = models.IntegerField(
+        null=True, blank=True, default=0, verbose_name=_lz("Units")
+    )
 
     @property
     def is_limited(self):
@@ -567,11 +617,28 @@ class Organization(models.Model):
 class Profile(models.Model):
     class Meta:
         ordering = ["organization", "user__username"]
+        verbose_name = _lz("profile")
+        verbose_name_plural = _lz("profiles")
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    can_order_physical = models.BooleanField(default=False)
-    expire_on = models.DateTimeField(blank=True, null=True)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, verbose_name=_lz("User")
+    )
+    language = models.CharField(
+        max_length=2,
+        verbose_name=_lz("Language"),
+        choices=settings.LANGUAGES,
+        blank=True,
+        null=True,
+    )
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, verbose_name=_lz("Organization")
+    )
+    can_order_physical = models.BooleanField(
+        default=False, verbose_name=_lz("Can order physical?")
+    )
+    expire_on = models.DateTimeField(
+        blank=True, null=True, verbose_name=_lz("Expire on")
+    )
 
     @property
     def is_limited(self):
@@ -640,7 +707,7 @@ class Profile(models.Model):
         can_order_physical,
     ):
         if cls.exists(username) or cls.taken(email):
-            raise ValueError("Profile parameters non unique")
+            raise ValueError(_("Profile parameters non unique"))
 
         user = User.objects.create_user(
             username=username,
@@ -670,6 +737,20 @@ class Profile(models.Model):
     def name(self):
         return self.user.get_full_name()
 
+    def get_language(self, request_lang=None):
+        if self.language:
+            return self.language
+
+        if self.organization.language:
+            return self.organization.language
+
+        if request_lang:
+            request_lang = request_lang.split("-")[0]
+            if request_lang in [code for code, name in settings.LANGUAGES]:
+                return request_lang
+
+        return settings.LANGUAGE_CODE
+
     def __str__(self):
         return "{user} ({org})".format(user=self.name, org=str(self.organization))
 
@@ -677,30 +758,48 @@ class Profile(models.Model):
 class Address(models.Model):
     class Meta:
         ordering = ("-id",)
+        verbose_name = _lz("address")
+        verbose_name_plural = _lz("addresss")
 
     COUNTRIES = collections.OrderedDict(
         sorted([(c.alpha_2, c.name) for c in pycountry.countries], key=lambda x: x[1])
     )
 
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, verbose_name=_lz("Organization")
+    )
     created_by = models.ForeignKey(
-        "Profile", on_delete=models.CASCADE, related_name="created_addresses"
+        "Profile",
+        on_delete=models.CASCADE,
+        related_name="created_addresses",
+        verbose_name=_lz("Created addrresses"),
     )
     name = models.CharField(
         max_length=100,
-        verbose_name="Address Name",
-        help_text="Used only within the Cardshop",
+        verbose_name=_lz("Address Name"),
+        help_text=_lz("Used only within the Cardshop"),
     )
-    recipient = models.CharField(max_length=100, verbose_name="Recipient Name")
-    email = models.EmailField(max_length=255)
+    recipient = models.CharField(max_length=100, verbose_name=_lz("Recipient Name"))
+    email = models.EmailField(max_length=255, verbose_name=_lz("Email"))
     phone = models.CharField(
-        null=True, blank=True, max_length=30, help_text="In international “+” format"
+        null=True,
+        blank=True,
+        max_length=30,
+        help_text=_("In international “+” format"),
+        verbose_name=_lz("Phone"),
     )
     address = models.TextField(
-        null=True, blank=True, help_text="Complete address without name and country"
+        null=True,
+        blank=True,
+        help_text=_lz("Complete address without name and country"),
+        verbose_name=_lz("Address"),
     )
     country = models.CharField(
-        max_length=50, null=True, blank=True, choices=COUNTRIES.items()
+        max_length=50,
+        null=True,
+        blank=True,
+        choices=COUNTRIES.items(),
+        verbose_name=_lz("Country"),
     )
 
     @classmethod
@@ -736,6 +835,17 @@ class Address(models.Model):
     @property
     def verbose_country(self):
         return self.country_name_for(self.country)
+
+    @property
+    def language(self):
+        langs = babel.languages.get_official_languages(
+            self.country.upper() if self.country else None
+        )
+        avail_langs = [code for code, name in settings.LANGUAGES]
+        for lang in langs:
+            if lang in avail_langs:
+                return lang
+        return settings.LANGUAGE_CODE
 
     @property
     def human_phone(self):
@@ -777,13 +887,21 @@ class Media(models.Model):
     class Meta:
         unique_together = (("kind", "size"),)
         ordering = ["size"]
+        verbose_name = _lz("media")
+        verbose_name_plural = _lz("medias")
 
-    name = models.CharField(max_length=50)
-    kind = models.CharField(max_length=50, choices=KINDS.items())
-    size = models.BigIntegerField(help_text="In GB")
-    actual_size = models.BigIntegerField(help_text="In bytes (auto calc)", blank=True)
+    name = models.CharField(max_length=50, verbose_name=_lz("Name"))
+    kind = models.CharField(
+        max_length=50, choices=KINDS.items(), verbose_name=_lz("Kind")
+    )
+    size = models.BigIntegerField(help_text=_lz("In GB"), verbose_name=_lz("Size"))
+    actual_size = models.BigIntegerField(
+        help_text=_lz("In bytes (auto calc)"),
+        blank=True,
+        verbose_name=_lz("Actual size"),
+    )
     units_coef = models.FloatField(
-        verbose_name="Units", help_text="How much units per GB"
+        verbose_name=_lz("Units"), help_text=_lz("How much units per GB")
     )
 
     def save(self, *args, **kwargs):
@@ -924,43 +1042,84 @@ class Order(models.Model):
 
     class Meta:
         ordering = ["-created_on"]
+        verbose_name = _lz("order")
+        verbose_name_plural = _lz("orders")
 
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    created_on = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, verbose_name=_lz("Organization")
+    )
+    created_on = models.DateTimeField(auto_now_add=True, verbose_name=_lz("Created on"))
+    created_by = models.ForeignKey(
+        Profile, on_delete=models.SET_NULL, null=True, verbose_name=_lz("Created by")
+    )
 
-    scheduler_id = models.CharField(max_length=50, unique=True, blank=True)
+    scheduler_id = models.CharField(
+        max_length=50, unique=True, blank=True, verbose_name=_lz("Scheduler ID")
+    )
     scheduler_data = jsonfield.JSONField(
         load_kwargs={"object_pairs_hook": collections.OrderedDict},
         null=True,
         blank=True,
+        verbose_name=_lz("Scheduler Data"),
     )
-    scheduler_data_on = models.DateTimeField(null=True, blank=True)
+    scheduler_data_on = models.DateTimeField(
+        null=True, blank=True, verbose_name=_lz("Scheduler Data On")
+    )
     status = models.CharField(
-        max_length=50, choices=STATUSES.items(), default=IN_PROGRESS
+        max_length=50,
+        choices=STATUSES.items(),
+        default=IN_PROGRESS,
+        verbose_name=_lz("Status"),
     )
 
     # copy of request data for archive purpose
-    channel = models.CharField(max_length=50)
-    client_name = models.CharField(max_length=100)
-    client_email = models.EmailField()
-    client_limited = models.BooleanField(default=True)
-    config = jsonfield.JSONField(
-        load_kwargs={"object_pairs_hook": collections.OrderedDict}
+    channel = models.CharField(max_length=50, verbose_name=_lz("Channel"))
+    client_name = models.CharField(max_length=100, verbose_name=_lz("Client name"))
+    client_email = models.EmailField(verbose_name=_lz("Client Email"))
+    client_limited = models.BooleanField(
+        default=True, verbose_name=_lz("Client is limited")
     )
-    media_name = models.CharField(max_length=50)
-    media_type = models.CharField(max_length=50)
-    media_duration = models.IntegerField(blank=True, null=True)
-    media_size = models.BigIntegerField()
-    quantity = models.IntegerField()
-    units = models.IntegerField()
-    recipient_name = models.CharField(max_length=100)
-    recipient_email = models.EmailField()
-    recipient_phone = models.CharField(max_length=50, blank=True, null=True)
-    recipient_address = models.TextField()
-    recipient_country_code = models.CharField(max_length=3)
-    warehouse_upload_uri = models.CharField(max_length=255)
-    warehouse_download_uri = models.CharField(max_length=255)
+    client_language = models.CharField(
+        max_length=2,
+        verbose_name=_lz("Client language"),
+        choices=settings.LANGUAGES,
+        default=settings.LANGUAGE_CODE,
+    )
+    config = jsonfield.JSONField(
+        load_kwargs={"object_pairs_hook": collections.OrderedDict},
+        verbose_name=_lz("Config"),
+    )
+    media_name = models.CharField(max_length=50, verbose_name=_lz("Media name"))
+    media_type = models.CharField(max_length=50, verbose_name=_lz("Media type"))
+    media_duration = models.IntegerField(
+        blank=True, null=True, verbose_name=_lz("Media duration")
+    )
+    media_size = models.BigIntegerField(verbose_name=_lz("Media size"))
+    quantity = models.IntegerField(verbose_name=_lz("Quantity"))
+    units = models.IntegerField(verbose_name=_lz("Units"))
+    recipient_name = models.CharField(
+        max_length=100, verbose_name=_lz("Recipient name")
+    )
+    recipient_email = models.EmailField(verbose_name=_lz("Recipient Email"))
+    recipient_language = models.CharField(
+        max_length=2,
+        verbose_name=_lz("Recipient language"),
+        choices=settings.LANGUAGES,
+        default=settings.LANGUAGE_CODE,
+    )
+    recipient_phone = models.CharField(
+        max_length=50, blank=True, null=True, verbose_name=_lz("Recipient phone")
+    )
+    recipient_address = models.TextField(verbose_name=_lz("Recipient Address"))
+    recipient_country_code = models.CharField(
+        max_length=3, verbose_name=_lz("Recipient Country Code")
+    )
+    warehouse_upload_uri = models.CharField(
+        max_length=255, verbose_name=_lz("Warehouse Upload URI")
+    )
+    warehouse_download_uri = models.CharField(
+        max_length=255, verbose_name=_lz("Warehouse Download URI")
+    )
 
     @classmethod
     def fetch_and_get(cls, order_id):
@@ -1019,11 +1178,12 @@ class Order(models.Model):
                 and order.units > order.created_by.organization.units
             ):
                 raise ValueError(
-                    "Order requires {r}U but {org} has only {a}".format(
-                        r=order.units,
-                        org=order.created_by.organization,
-                        a=order.created_by.organization.units,
-                    )
+                    _("Order requires %(req_u)dU but %(org)s has only %(avail_u)d")
+                    % {
+                        "req_u": order.units,
+                        "org": order.created_by.organization,
+                        "avail_u": order.created_by.organization.units,
+                    }
                 )
             if order.created_by.is_limited:
                 # remove units from org
@@ -1044,9 +1204,13 @@ class Order(models.Model):
         return order
 
     @classmethod
-    def create_from(cls, client, config, media, quantity, address=None):
+    def create_from(
+        cls, client, config, media, quantity, address=None, request_lang=None
+    ):
         if not address and media.kind != Media.VIRTUAL:
-            raise ValueError("Non-virtual order requires an address")
+            raise ValueError(_("Non-virtual order requires an address"))
+        country_code = (address.country if address is not None else None) or ""
+        client_language = client.get_language(request_lang)
         warehouse = client.organization.get_warehouse_details(
             use_public=media.kind == Media.VIRTUAL
         )
@@ -1056,6 +1220,7 @@ class Order(models.Model):
             channel=client.organization.channel,
             client_name=client.name,
             client_email=client.email,
+            client_language=client_language,
             client_limited=client.is_limited,
             config=config.json,
             media_name=media.name,
@@ -1066,10 +1231,10 @@ class Order(models.Model):
             units=media.units * quantity,
             recipient_name=address.recipient if address else client.name,
             recipient_email=address.email if address else client.email,
+            recipient_language=address.language if address else client_language,
             recipient_phone=address.phone if address else "",
             recipient_address=address.address if address else "",
-            recipient_country_code=(address.country if address is not None else None)
-            or "",
+            recipient_country_code=country_code,
             warehouse_upload_uri=warehouse["upload_uri"],
             warehouse_download_uri=warehouse["download_uri"],
         )
@@ -1087,7 +1252,7 @@ class Order(models.Model):
     def recreate(self):
         order = Order.fetch_and_get(self.id)
         if not order.data.can_recreate:
-            raise ValueError("Unable to recreate order (cancel first?).")
+            raise ValueError(_("Unable to recreate order (cancel first?)."))
 
         order.id = None
         order.scheduler_id = None
@@ -1142,10 +1307,12 @@ class Order(models.Model):
                 "name": self.client_name,
                 "email": self.client_email,
                 "limited": self.client_limited,
+                "language": self.client_language,
             },
             "recipient": {
                 "name": self.recipient_name,
                 "email": self.recipient_email,
+                "language": self.recipient_language,
                 "phone": self.recipient_phone,
                 "address": self.recipient_address,
                 "country": self.recipient_country_code,
@@ -1159,7 +1326,7 @@ class Order(models.Model):
         }
 
     def cancel(self):
-        """ manually cancel an order """
+        """manually cancel an order"""
         canceled, resp = cancel_order(self.scheduler_id)
         if canceled:
             self.status = self.CANCELED

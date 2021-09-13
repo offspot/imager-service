@@ -12,6 +12,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, JsonResponse
 from django.core.exceptions import PermissionDenied
+from django.utils.translation import gettext as _
 
 from manager.models import Configuration
 from manager.pibox.packages import PACKAGES_LANGS
@@ -95,9 +96,9 @@ def configuration_list(request):
         if form.is_valid():
             try:
                 js_config = handle_uploaded_json(request.FILES["file"])
-            except Exception as exp:
+            except Exception:
                 messages.error(
-                    request, "Your file is not a valid JSON. Can't import it."
+                    request, _("Your file is not a valid JSON. Can't import it.")
                 )
             else:
                 try:
@@ -107,9 +108,11 @@ def configuration_list(request):
                 except Exception as exp:
                     messages.error(
                         request,
-                        "An error occured while trying to import your config file. Please retry or contact support. (ref: {exp})".format(
-                            exp=exp
-                        ),
+                        _(
+                            "An error occured while trying to import your config file. "
+                            "Please retry or contact support. (ref: %(err)s)"
+                        )
+                        % {"err": exp},
                     )
                 else:
                     return redirect("configuration_edit", config.id)
@@ -130,7 +133,7 @@ def configuration_edit(request, config_id=None):
     if config_id:
         config = Configuration.get_or_none(config_id)
         if config is None:
-            raise Http404("Configuration not found")
+            raise Http404(_("Configuration not found"))
 
         if config.organization != request.user.profile.organization:
             raise PermissionDenied()
@@ -151,12 +154,15 @@ def configuration_edit(request, config_id=None):
             except Exception as exp:
                 messages.error(
                     request,
-                    "Failed to save your configuration (although it looks good). Try again and contact support if it happens again (ref: {exp}".format(
-                        exp=exp
-                    ),
+                    _(
+                        "Failed to save your configuration (although it looks good). "
+                        "Try again and contact support "
+                        "if it happens again (ref: $(err)s)"
+                    )
+                    % {"err": exp},
                 )
             else:
-                messages.success(request, "Configuration Updated successfuly !")
+                messages.success(request, _("Configuration Updated successfuly !"))
                 return redirect("configuration_edit", config.id)
         else:
             pass
@@ -173,7 +179,7 @@ def configuration_export(request, config_id=None):
 
     config = Configuration.get_or_none(config_id)
     if config is None:
-        raise Http404("Configuration not found")
+        raise Http404(_("Configuration not found"))
 
     if config.organization != request.user.profile.organization:
         raise PermissionDenied()
@@ -200,7 +206,9 @@ def configuration_delete(request, config_id=None):
     try:
         config.delete()
         messages.success(
-            request, "Successfuly deleted Configuration <em>{}</em>".format(config)
+            request,
+            _("Successfuly deleted Configuration <em>%(config)s</em>")
+            % {"config": config},
         )
     except Exception as exp:
         logger.error(
@@ -208,9 +216,8 @@ def configuration_delete(request, config_id=None):
         )
         messages.error(
             request,
-            "Unable to delete Configuration <em>{config}</em>: -- ref {exp}".format(
-                config=config, exp=exp
-            ),
+            _("Unable to delete Configuration <em>%(config)s</em>: -- ref %(err)s")
+            % {"config": config, "err": exp},
         )
 
     return redirect("configuration_list")
@@ -221,7 +228,7 @@ def configuration_duplicate(request, config_id=None):
 
     config = Configuration.get_or_none(config_id)
     if config is None:
-        raise Http404("Configuration not found")
+        raise Http404(_("Configuration not found"))
 
     if config.organization != request.user.profile.organization:
         raise PermissionDenied()
@@ -230,9 +237,11 @@ def configuration_duplicate(request, config_id=None):
         nconfig = config.duplicate(by=request.user.profile)
         messages.success(
             request,
-            "Successfuly duplicated Configuration <em>{}</em> into <em>{}</em>".format(
-                config, nconfig
-            ),
+            _(
+                "Successfuly duplicated Configuration <em>%(config)s</em> "
+                "into <em>%(new_config)s</em>"
+            )
+            % {"config": config, "new_config": nconfig},
         )
     except Exception as exp:
         logger.error(
@@ -242,9 +251,8 @@ def configuration_duplicate(request, config_id=None):
         )
         messages.error(
             request,
-            "Unable to duplicate Configuration <em>{config}</em>: -- ref {exp}".format(
-                config=config, exp=exp
-            ),
+            _("Unable to duplicate Configuration <em>%(config)s</em>: -- ref %(err)s")
+            % {"config": config, "err": exp},
         )
 
     return redirect("configuration_list")
