@@ -334,9 +334,7 @@ def channel_disable(request, channel_id):
 def warehouse_enable(request, warehouse_id):
     success, warehouse_id = enable_warehouse(warehouse_id)
     if not success:
-        logger.error("Unable to enable warehouse: %(warehouse_id)s") % {
-            "warehouse_id": warehouse_id
-        }
+        logger.error("Unable to enable warehouse: {}".format(warehouse_id))
         messages.error(
             request,
             _("Unable to enable warehouse: -- ref: %(warehouse_id)s")

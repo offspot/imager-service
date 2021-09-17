@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cardshop\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-17 09:38+0000\n"
-"PO-Revision-Date: 2021-09-17 09:39+0000\n"
+"POT-Creation-Date: 2021-09-17 10:13+0000\n"
+"PO-Revision-Date: 2021-09-17 10:13+0000\n"
 "Last-Translator: reg <rgaudin@gmail.com>\n"
 "Language-Team: French <reg@kiwix.org>\n"
 "Language: fr\n"
@@ -498,7 +498,7 @@ msgstr "Anglais"
 
 #: manager/settings.py:227
 msgid "French"
-msgstr "français"
+msgstr "Français"
 
 #: manager/templates/_paginator.html:6
 msgid "&laquo; first"
@@ -1739,57 +1739,57 @@ msgstr "Impossible de désactiver le channel : - ref : %(channel_id)s"
 msgid "Successfuly disabled channel: %(channel_id)s"
 msgstr "Channel désactivé avec succès : %(channel_id)s"
 
-#: manager/views/scheduler.py:342
+#: manager/views/scheduler.py:340
 #, python-format
 msgid "Unable to enable warehouse: -- ref: %(warehouse_id)s"
 msgstr "Impossible d’activer le warehouse : - ref : %(warehouse_id)s"
 
-#: manager/views/scheduler.py:348
+#: manager/views/scheduler.py:346
 #, python-format
 msgid "Successfuly enabled warehouse: %(warehouse_id)s"
 msgstr "Warehouse activé avec succès : %(warehouse_id)s"
 
-#: manager/views/scheduler.py:362
+#: manager/views/scheduler.py:360
 #, python-format
 msgid "Unable to disable warehouse: -- ref: %(warehouse_id)s"
 msgstr "Impossible de désactiver le warehouse : - ref : %(warehouse_id)s"
 
-#: manager/views/scheduler.py:368
+#: manager/views/scheduler.py:366
 #, python-format
 msgid "Successfuly disabled warehouse: %(warehouse_id)s"
 msgstr "Warehouse désactivé : %(warehouse_id)s"
 
-#: manager/views/scheduler.py:382
+#: manager/views/scheduler.py:380
 #, python-format
 msgid "Unable to enable user: -- ref: %(user_id)s"
 msgstr "Impossible d’activer l’utilisateur : - ref : %(user_id)s"
 
-#: manager/views/scheduler.py:386
+#: manager/views/scheduler.py:384
 #, python-format
 msgid "Successfuly enabled user: %(user_id)s"
 msgstr "Utilisateur activé avec succès : %(user_id)s"
 
-#: manager/views/scheduler.py:399
+#: manager/views/scheduler.py:397
 #, python-format
 msgid "Unable to disable user: -- ref: %(user_id)s"
 msgstr "Impossible de désactiver l’utilisateur : - ref : %(user_id)s"
 
-#: manager/views/scheduler.py:403
+#: manager/views/scheduler.py:401
 #, python-format
 msgid "Successfuly disabled user: %(user_id)s"
 msgstr "Utilisateur désactivé avec succès : %(user_id)s"
 
-#: manager/views/scheduler.py:415
+#: manager/views/scheduler.py:413
 #, python-format
 msgid "Re-authenticated against the scheduler: <code>%(token)s</code>"
 msgstr "Ré-authentifié sur le Scheduler : <code>%(token)s</code>"
 
-#: manager/views/scheduler.py:430
+#: manager/views/scheduler.py:428
 #, python-format
 msgid "Unable to delete image: -- ref: %(slug)s"
 msgstr "Impossible de supprimer l’image : - ref : %(slug)s"
 
-#: manager/views/scheduler.py:434
+#: manager/views/scheduler.py:432
 #, python-format
 msgid "Successfuly deleted image: %(slug)s"
 msgstr "Image supprimée avec succès : %(slug)s"
