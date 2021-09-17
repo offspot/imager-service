@@ -2,11 +2,11 @@
 {% from "macros.html" import tagged_message %}
 
 {% block message %}
-{% call tagged_message("success") %}Your order has been accepted!{% endcall %}
-<p>Dear {{ order.recipient.name }},<br />
-{% if order.sd_card.type == "physical" %}<p>Your order of <strong>{{ order.quantity }} x {{ order.sd_card.name }}</strong> with the <strong>{{ order.config.name }}</strong> configuration on it has been accepted by the system.</p>
-<p>You will be notified when it is shipped to your address.</p>.
-{% else %}<p>Your <strong>{{ order.sd_card.size }}GB</strong> download order with the <strong>{{ order.config.name }}</strong> configuration on it has been accepted by the system. Work duration depends on current server load, but your image should be ready within 24 hours at most.</p>
-<p>You will be notified when it is ready for download.</p>
+{% call tagged_message("success") %}{{ _("Your order has been accepted!") }}{% endcall %}
+<p>{{ _("Dear %(recipient_name)s,")|format(recipient_name=order.recipient.name) }},<br />
+{% if order.sd_card.type == "physical" %}<p>{{ _("Your order of <strong>%(quantity)s x %(sd_name)s</strong> with the <strong>%(config_name)s</strong> configuration on it has been accepted by the system.")|format(quantity=order.quantity, sd_name=order.sd_card.name, config_name=order.config.name)|safe }}</p>
+<p>{{ _("You will be notified when it is shipped to your address.") }}</p>.
+{% else %}<p>{{ _("Your <strong>%(sd_size)sGB</strong> download order with the <strong>%(config_name)s</strong> configuration on it has been accepted by the system. Work duration depends on current server load, but your image should be ready within 24 hours at most.")|format(sd_size=order.sd_card.size, config_name=order.config.name)|safe }}</p>
+<p>{{ _("You will be notified when it is ready for download.") }}</p>
 {% endif %}
 {% endblock %}

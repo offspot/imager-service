@@ -1,1 +1,1 @@
-[Kiwix Hotspot Cardshop] {% block subject %}Update !{% endblock %}
+{{ _("[Kiwix Hotspot Cardshop]") }} {% block subject %}{{ _("Update !") }}{% endblock %}

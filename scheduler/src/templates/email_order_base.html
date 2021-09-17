@@ -1,47 +1,47 @@
 {% extends "email_base.html" %}
 {% block content %}
-<h2>Order #{{ order.min_id }}</h2>
+<h2>{{ _("Order #%(order_id)s")|format(order_id=order.min_id) }}</h2>
 {% block message %}{% endblock %}
 <table border="0" cellpadding="0" cellspacing="5">
 	<tr>
-		<th style="text-align: left;">Order ID</th>
+		<th style="text-align: left;">{{ _("Order ID") }}</th>
 		<td><a href="{{ order|pub_url }}">{{ order.id }}</a></td>
 	</tr>
 	<tr>
-		<th style="text-align: left;">Configuration</th>
+		<th style="text-align: left;">{{ _("Configuration") }}</th>
 		<td>{{ order.config.name }}</td>
 	</tr>
 	<tr>
-		<th style="text-align: left;">Size</th>
-		<td>{{ order.sd_card.size }}GB</td>
+		<th style="text-align: left;">{{ _("Size") }}</th>
+		<td>{{ _("%(sdcard_size)sGB")|format(sdcard_size=order.sd_card.size) }}</td>
 	</tr>
 	{% if order.sd_card.type == "physical" %}
 	<tr>
-		<th style="text-align: left;">Quantity</th>
+		<th style="text-align: left;">{{ _("Quantity") }}</th>
 		<td>{{ order.quantity }}</td>
 	</tr>
 	{% endif %}
 	{% if order.client.limited %}
 	<tr>
-		<th style="text-align: left;">Units</th>
+		<th style="text-align: left;">{{ _("Units") }}</th>
 		<td>{{ order.units }}</td>
 	</tr>
 	{% endif %}
 	<tr>
-		<th style="text-align: left;">Destination</th>
+		<th style="text-align: left;">{{ _("Destination") }}</th>
 		<td>{{ order.recipient.name }}{% if order.recipient.phone %}, {{ order.recipient.phone }}{% endif %}<br />
 		{{ order.recipient.address|default("-", true)|linebreaksbr}} – {{ order.recipient.country|country|default("-", true) }}.<br />
 		<a href="mailto:{{ order.recipient.email }}">{{ order.recipient.email }}</a></td>
 	</tr>
 	{% if order.client.email != order.recipient.email %}
 	<tr>
-		<th style="text-align: left;">Cardshop Contact</th>
+		<th style="text-align: left;">{{ _("Cardshop Contact") }}</th>
 		<td>{{ order.client.name }}, <a href="mailto:{{ order.client.email }}">{{ order.client.email }}</a>.</td>
 	</tr>
 	{% endif %}
 	<tr>
-		<th style="text-align: left;">Status</th>
-		<td><code>{{ order.statuses[-1].status }}</code>, {{ order.statuses[-1].on.strftime('%c') }}</td>
+		<th style="text-align: left;">{{ _("Status") }}</th>
+		<td>{{ _("<code>%(status)s</code>, %(status_on)s")|format(status=order.statuses[-1].status, status_on=order.statuses[-1].on.strftime('%c'))|safe }}</td>
 	</tr>
 </table>
 {% endblock %}

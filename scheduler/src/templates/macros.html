@@ -4,19 +4,19 @@
 
 {% macro button_insert(order, task) -%}<p style="text-align: center;">
 	<a href="{{ task|insert_card_url }}" style="text-decoration: none;">
-		<span style="color: #fff; background-color: #007bff; border-color: #007bff; font-weight: 400; text-align: center; border: 1px solid transparent; padding: .55rem .75rem; font-size: 1.2rem; line-height: 1.5; border-radius: .25rem; cursor: pointer; font-family: sans-serif; text-decoration: none; white-space: nowrap; vertical-align: middle; display: inline-block;">Confirm <strong>{{ order.sd_card.name }}</strong> SD-card inserted into <strong>{{ task.slot }}</strong></span>
+		<span style="color: #fff; background-color: #007bff; border-color: #007bff; font-weight: 400; text-align: center; border: 1px solid transparent; padding: .55rem .75rem; font-size: 1.2rem; line-height: 1.5; border-radius: .25rem; cursor: pointer; font-family: sans-serif; text-decoration: none; white-space: nowrap; vertical-align: middle; display: inline-block;">{{ _("Confirm <strong>%(sdcard_name)s</strong> SD-card inserted into <strong>%(slot)s</strong>")|format(sdcard_name=order.sd_card.name, slot=task.slot)|safe }}</span>
 	</a>
 </p>{%- endmacro %}
 
 {% macro button_shipment(order) -%}<p style="text-align: center;">
 	<a href="{{ order|add_shipment_url }}" style="text-decoration: none;">
-		<span style="color: #fff; background-color: #007bff; border-color: #007bff; font-weight: 400; text-align: center; border: 1px solid transparent; padding: .55rem .75rem; font-size: 1.2rem; line-height: 1.5; border-radius: .25rem; cursor: pointer; font-family: sans-serif; text-decoration: none; white-space: nowrap; vertical-align: middle; display: inline-block;">Add Shipping Details</span>
+		<span style="color: #fff; background-color: #007bff; border-color: #007bff; font-weight: 400; text-align: center; border: 1px solid transparent; padding: .55rem .75rem; font-size: 1.2rem; line-height: 1.5; border-radius: .25rem; cursor: pointer; font-family: sans-serif; text-decoration: none; white-space: nowrap; vertical-align: middle; display: inline-block;">{{ _("Add Shipping Details") }}</span>
 	</a>
 </p>{%- endmacro %}
 
 {% macro button_download(order) -%}<p style="text-align: center;">
 	<a href="{{ order|public_download_url }}" style="text-decoration: none;">
-		<img src="https://cardshop.hotspot.kiwix.org/static/img/http-download-btn_137x40@2x.png" alt="Download {{ order.config.name }} ({{ order.sd_card.size }}GB)" style="height:4em;"/>
+		<img src="https://cardshop.hotspot.kiwix.org/static/img/http-download-btn_137x40@2x.png" alt="{{ _('Download %(config_name)s (%(sdcard_size)sGB)')|format(config_name=order.config.name, sdcard_size=order.sd_card.size) }}" style="height:4em;"/>
 	</a>
     {% if order|public_download_url_has_torrent %}
     <a href="{{ order|public_download_torrent_url }}" style="text-decoration: none;">

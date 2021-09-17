@@ -49,5 +49,11 @@ errors.register_handlers(flask)
 if __name__ == "__main__":
     Initializer.start()
 
+    from emailing import send_order_created_email
+
+    # send_order_created_email("5f50deb598c8bf00212e3561") # en
+    send_order_created_email("5f4f893598c8bf0023f75f9b")
+    # send_order_created_email("5f50deb598c8bf00212e3561") # en
+
     is_debug = os.getenv("DEBUG", False)
     flask.run(host="0.0.0.0", debug=is_debug, port=80, threaded=True)

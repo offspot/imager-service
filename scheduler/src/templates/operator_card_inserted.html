@@ -2,5 +2,5 @@
 {% from "macros.html" import tagged_message %}
 
 {% block message %}
-{% call tagged_message("info") %}SD-card inserted. Writing in progress.{% endcall %}
+{% call tagged_message("info") %}{{ _("SD-card inserted. Writing in progress.") }}{% endcall %}
 {% endblock %}
