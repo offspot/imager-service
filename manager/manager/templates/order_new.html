@@ -1,15 +1,18 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load manager %}
 
 {% block content %}
-<h2>Place an order</h2>
-<p class="info">You'll need to provide a <a href="{% url 'configuration_list' %}">Configuration</a> and an <a href="{% url 'address_list' %}">Address</a> for that. Are you ready?</p>
+<h2>{% blocktrans %}Place an order{% endblocktrans %}</h2>
+{% url 'configuration_list' as configuration_list_url %}
+{% url 'address_list' as addess_list_url %}
+<p class="info">{% blocktrans %}You'll need to provide a <a href="{{ configuration_list_url }}">Configuration</a> and an <a href="{{ address_list_url }}">Address</a> for that. Are you ready?{% endblocktrans %}</p>
 <form method="POST" class="">
 	{% csrf_token %}
 	<div class="row">
 	  	<div class="col-sm-8">
 			<div class="card">
-				<h5 class="card-header">New Order</h5>
+				<h5 class="card-header">{% blocktrans %}New Order{% endblocktrans %}</h5>
 				<div class="card-body">
 					<p class="card-text">
 					{% include "_input_field.html" with field=form.kind use_raw=1 %}
@@ -24,16 +27,16 @@
 
 	  	<div class="col-sm-4">
 			<div class="card">
-			  <h5 class="card-header">Summary</h5>
+			  <h5 class="card-header">{% blocktrans %}Summary{% endblocktrans %}</h5>
 			  <div class="card-body">
 			  	<p class="card-text">
-			  		<strong class="media-name">n/a</strong><br />
-			  		<em class="config-name">n/a</em><br />
-			  		<span class="quantity-label">Quantity</span>: <em class="media-quantity">?</em><br />
-			  		To: <em class="recipient"></em>
+			  		<strong class="media-name">{% blocktrans %}n/a{% endblocktrans %}</strong><br />
+			  		<em class="config-name">{% blocktrans %}n/a{% endblocktrans %}</em><br />
+			  		<span class="quantity-label">{% blocktrans %}Quantity{% endblocktrans %}</span>: <em class="media-quantity">{% blocktrans %}?{% endblocktrans %}</em><br />
+			  		{% blocktrans %}To: {% endblocktrans %}<em class="recipient"></em>
 			  	</p>
-			  	<p class="card-text {% if not user.profile.limited %}hidden{% endif%}">Cost: <strong class="cost">n/a</strong> (balance: <span class="balance"></span>)</p>
-			  	<p><button type="submit" class="btn btn-primary" {% if not can_order %}disabled="disabled"{% endif %}>Order now</button></p>
+			  	<p class="card-text {% if not user.profile.limited %}hidden{% endif%}">{% blocktrans %}Cost: <strong class="cost">n/a</strong> (balance: <span class="balance"></span>){% endblocktrans %}</p>
+			  	<p><button type="submit" class="btn btn-primary" {% if not can_order %}disabled="disabled"{% endif %}>{% blocktrans %}Order now{% endblocktrans %}</button></p>
 			  </div>
 			</div>
 			</div>
@@ -55,7 +58,7 @@
 			{% for config in configurations %}"{{ config.id }}": {"name": "{{ config.name }}"},{% endfor %}
 		},
 		media: {
-			{% for media in medias %}"{{ media.id }}": {"units": {{ media.units }}, "name": "{{ media.name }}", "kind": "{{ media.kind }}"},{% endfor %}
+			{% for media in medias %}"{{ media.id }}": {"units": {{ media.units|raw_number }}, "name": "{{ media.name }}", "kind": "{{ media.kind }}"},{% endfor %}
 		},
 		config_media: {
 			{% for config in configurations %}"{{ config.id }}": [{% for media in config.compatible_medias %}"{{ media.id }}", {% endfor %}],{% endfor %}

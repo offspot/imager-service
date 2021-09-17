@@ -1,19 +1,21 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load manager %}
 
 {% block content %}
-<h3>Order <code>{{ order.min_id }}</code></h3>
+<h3>{% blocktrans with order_min_id=order.min_id %}Order <code>{{ order_min_id }}</code>{% endblocktrans %}</h3>
 
 <table class="table table-striped">
-<tr><th>Scheduler ID</th><td colspan="2">{{ order.scheduler_id }}</td><td class="text-right">{% if order.active %}<a  data-toggle="confirmation" data-title="Are you sure you want to cancel this Order?" href="{% url "order_cancel" order_min_id=order.min_id %}" class="btn-sm btn btn-danger">Cancel Order</a>{% endif %}</td></tr>
-<tr><th>Created By</th><td>{{ order.created_by }}</td><td colspan="2">{{ order.created_on }}</td></tr>
-<tr><th>General Status</th><td colspan="3"><strong>{{ order.verbose_status }}</strong></td></tr>
+<tr>
+	<th>{% blocktrans %}Scheduler ID{% endblocktrans %}</th><td colspan="2">{{ order.scheduler_id }}</td><td class="text-right">{% if order.active %}<a  data-toggle="confirmation" data-title="Are you sure you want to cancel this Order?" href="{% url "order_cancel" order_min_id=order.min_id %}" class="btn-sm btn btn-danger">{% blocktrans %}Cancel Order{% endblocktrans %}</a>{% endif %}</td></tr>
+<tr><th>{% blocktrans %}Created By{% endblocktrans %}</th><td>{{ order.created_by }}</td><td colspan="2">{{ order.created_on }}</td></tr>
+<tr><th>{% blocktrans %}General Status{% endblocktrans %}</th><td colspan="3"><strong>{{ order.verbose_status }}</strong></td></tr>
 </table>
 
 {% if not order.retrieved %}
-<p class="alert alert-warning">Unable to retrieve {{ order }} from scheduler. Displaying archive version ({{ order.scheduler_data_on|default:"creation" }}).</p>
+<p class="alert alert-warning">{% blocktrans with status=order.scheduler_data_on|default:"creation" %}Unable to retrieve {{ order }} from scheduler. Displaying archive version ({{ status }}).{% endblocktrans %}</p>
 {% else %}
-<p class="alert alert-info">Scheduler data retrieved on ({{ order.scheduler_data_on }}).</p>
+<p class="alert alert-info">{% blocktrans with data_date=order.scheduler_data_on %}Scheduler data retrieved on ({{ data_date }}).{% endblocktrans %}</p>
 {% endif %}
 
 {% include "order_detail.html" with orderdata=order.data %}

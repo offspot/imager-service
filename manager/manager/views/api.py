@@ -8,7 +8,6 @@ import collections
 
 from django.db.models import Max
 from django.conf import settings
-from django.utils import timezone
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
@@ -60,7 +59,7 @@ def packages_for_language(request, lang_code):
 def required_size_for_config(request):
     try:
         payload = request.body
-        if type(payload) is bytes:
+        if isinstance(payload, bytes):
             payload = payload.decode("UTF-8")
         data = json.loads(payload)
     except Exception:
@@ -100,7 +99,7 @@ def media_choices_for_configuration(request, config_id):
     config = Configuration.get_or_none(config_id)
     if config is not None and config.organization == request.user.profile.organization:
         medias = [m for m in all_medias if m.bytes >= config.size]
-    if not len(medias):
+    if not medias:
         medias = all_medias.filter(size=all_medias.aggregate(Max("size"))["size__max"])
     return JsonResponse(Media.choices_for(medias), safe=False)
 
@@ -124,7 +123,7 @@ def create_user_account(request):
         payload = request.body
         if not payload:
             raise ValueError("Missing payload")
-        if type(payload) is bytes:
+        if isinstance(payload, bytes):
             payload = payload.decode("UTF-8")
         data = json.loads(payload)
     except Exception as exc:

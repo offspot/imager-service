@@ -1,12 +1,21 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load manager %}
 
 {% block content %}
-<h3>Organizations</h3>
-<p class="info">Organizations holds the configurations, orders and units.</p>
+<h3>{% blocktrans %}Organizations{% endblocktrans %}</h3>
+<p class="info">{% blocktrans %}Organizations holds the configurations, orders and units.{% endblocktrans %}</p>
 {% if organizations %}
 <table class="table table-striped">
-	<thead><tr><th>Slug</th><th>Name</th><th>Channel</th><th>WH</th><th>Pub WH</th><th>Email</th><th>Units</th></tr></thead>
+	<thead><tr>
+		<th>{% blocktrans %}Slug{% endblocktrans %}</th>
+		<th>{% blocktrans %}Name{% endblocktrans %}</th>
+		<th>{% blocktrans %}Channel{% endblocktrans %}</th>
+		<th>{% blocktrans %}WH{% endblocktrans %}</th>
+		<th>{% blocktrans %}Pub WH{% endblocktrans %}</th>
+		<th>{% blocktrans %}Email{% endblocktrans %}</th>
+		<th>{% blocktrans %}Units{% endblocktrans %}</th>
+	</tr></thead>
 	<tbody>
 	{% for organization in organizations %}
 	<tr><th><a href="{% url "admin:manager_organization_change" organization.slug %}"><code>{{ organization.slug }}</code></a></th>
@@ -19,14 +28,15 @@
 			<input type="hidden" name="form" value="units_form">
 			<input type="hidden" name="units_form-organization" value="{{ organization.slug }}">
 			<input type="number" name="units_form-units" value="{{ organization.units }}" min="0" max="256000" step="8" class="form-control form-control-inline" /> 
-			<button type="submit" class="btn btn-sm btn-secondary">Update Units</button></form>
+			<button type="submit" class="btn btn-sm btn-secondary">{% blocktrans %}Update Units{% endblocktrans %}</button></form>
 		</td>
 	</tr>
 	{% endfor %}
 	</tbody>
 </table>
 {% else %}
-{% include "error.html" with level="warning" message="hum, there's no Organization. That's weird." %}
+{% blocktrans asvar no_org_msg %}hum, there's no Organization. That's weird.{% endblocktrans %}
+{% include "error.html" with level="warning" message=no_org_msg %}
 {% endif %}
 <form method="POST" class="form-check form-check-inline">
 	{% csrf_token %}
@@ -39,14 +49,22 @@
 		<div class="form-group col-md-1">{% include "_label_for.html" with field=org_form.public_warehouse %}{{ org_form.public_warehouse|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=org_form.email %}{{ org_form.email|as_widget }}</div>
 		<div class="form-group col-md-1">{% include "_label_for.html" with field=org_form.units %}{{ org_form.units|as_widget }}</div>
-		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Create Organization</button></div>
+		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">{% blocktrans %}Create Organization{% endblocktrans %}</button></div>
 	</div>
 </form>
 
-<h3>Manager Users</h3>
+<h3>{% blocktrans %}Manager Users{% endblocktrans %}</h3>
 {% if profiles %}
 <table class="table table-striped">
-	<thead><tr><th>Username</th><th>Organization</th><th>Email</th><th>Name</th><th>Expiry</th><th>Active</th><th>Delete</th></tr></thead>
+	<thead><tr>
+		<th>{% blocktrans %}Username{% endblocktrans %}</th>
+		<th>{% blocktrans %}Organization{% endblocktrans %}</th>
+		<th>{% blocktrans %}Email{% endblocktrans %}</th>
+		<th>{% blocktrans %}Name{% endblocktrans %}</th>
+		<th>{% blocktrans %}Expiry{% endblocktrans %}</th>
+		<th>{% blocktrans %}Active{% endblocktrans %}</th>
+		<th>{% blocktrans %}Delete{% endblocktrans %}</th>
+	</tr></thead>
 	<tbody>
 	{% for profile in profiles %}
 	<tr><th><a href="{% url "admin:auth_user_change" profile.user.id %}"><code>{{ profile.user.username }}</code></a>{% if profile.can_order_physical %} <i class="fas fa-sd-card"></i>{% endif %}{% if profile.user.is_staff %} (admin){% endif %}</th>
@@ -54,14 +72,15 @@
 		<td><a href="mailto:{{ profile.user.email }}">{{ profile.user.email }}</a></td>
 		<td>{{ profile.name }}</td>
 		<td>{{ profile.expire_on|default_if_none:"-" }}</td>
-		<td><a class="btn btn-sm btn-warning" href="{% url "admin_toggle_account" profile.username %}">{{ profile.user.is_active|yesno }}: {% if profile.user.is_active %}disable{% else %}enable{% endif %}</a></td>
-		<td><a data-toggle="confirmation" data-title="Delete {{ profile }} ?" class="btn btn-sm btn-danger" href="{% url "admin_delete_account" profile.username %}">delete</a></td>
+		<td><a class="btn btn-sm btn-warning" href="{% url "admin_toggle_account" profile.username %}">{{ profile.user.is_active|yesno }}: {% if profile.user.is_active %}{% blocktrans %}disable{% endblocktrans %}{% else %}{% blocktrans %}enable{% endblocktrans %}{% endif %}</a></td>
+		<td><a data-toggle="confirmation" data-title="Delete {{ profile }} ?" class="btn btn-sm btn-danger" href="{% url "admin_delete_account" profile.username %}">{% blocktrans %}delete{% endblocktrans %}</a></td>
 	</tr>
 	{% endfor %}
 	</tbody>
 </table>
 {% else %}
-{% include "error.html" with level="warning" message="hum, there's no User. That's weird." %}
+{% blocktrans asvar no_user_msg %}hum, there's no User. That's weird.{% endblocktrans %}
+{% include "error.html" with level="warning" message=no_user_msg %}
 {% endif %}
 <form method="POST" class="form-check form-check-inline">
 	{% csrf_token %}
@@ -74,14 +93,19 @@
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=profile_form.password %}{{ profile_form.password|as_widget }}</div>
 		<div class="form-group col-md-1">{% include "_label_for.html" with field=profile_form.is_admin %}{{ profile_form.is_admin|as_widget }}</div>
 		<div class="form-group col-md-1">{% include "_label_for.html" with field=profile_form.can_sd %}{{ profile_form.can_sd|as_widget }}</div>
-		<div class="form-group col-md-1"><label>-</label><button class="btn btn-primary form-check-input form-control">Create</button></div>
+		<div class="form-group col-md-1"><label>-</label><button class="btn btn-primary form-check-input form-control">{% blocktrans %}Create{% endblocktrans %}</button></div>
 	</div>
 </form>
 
-<h3>Media Sizes</h3>
+<h3>{% blocktrans %}Media Sizes{% endblocktrans %}</h3>
 {% if medias %}
 <table class="table table-striped">
-	<thead><tr><th>Name</th><th>Kind</th><th>Size</th><th>Units Coef</th></tr></thead>
+	<thead><tr>
+		<th>{% blocktrans %}Name{% endblocktrans %}</th>
+		<th>{% blocktrans %}Kind{% endblocktrans %}</th>
+		<th>{% blocktrans %}Size{% endblocktrans %}</th>
+		<th>{% blocktrans %}Units Coef{% endblocktrans %}</th>
+	</tr></thead>
 	<tbody>
 	{% for media in medias %}
 	<tr><th><a href="{% url "admin:manager_media_change" media.id %}">{{ media.name }}</a></th>
@@ -93,7 +117,8 @@
 	</tbody>
 </table>
 {% else %}
-{% include "error.html" with level="warning" message="hum, there's no Media. That's weird." %}
+{% blocktrans asvar no_media_msg %}hum, there's no Media. That's weird.{% endblocktrans %}
+{% include "error.html" with level="warning" message=no_media_msg %}
 {% endif %}
 <form method="POST" class="form-check form-check-inline">
 	{% csrf_token %}
@@ -103,7 +128,7 @@
 		<div class="form-group col-md-3">{% include "_label_for.html" with field=media_form.kind %}{{ media_form.kind|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=media_form.size %}{{ media_form.size|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=media_form.units_coef %}{{ media_form.units_coef|as_widget }}</div>
-		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">Add Media</button></div>
+		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">{% blocktrans %}Add Media{% endblocktrans %}</button></div>
 	</div>
 </form>
 {% endblock %}

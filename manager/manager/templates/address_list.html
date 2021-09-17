@@ -1,19 +1,28 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load manager %}
 
 {% block content %}
-<h2>{{ user.profile.organization }}'s Addresses</h2>
-<p class="info">Addresses are where orders can be sent to.<br />
-Those must be properly filled (postal address and e-mail) whether you intend to use them for physical or virtual (download) orders.</p>
+<h2>{% blocktrans with org=user.profile.organization %}{{ org }}'s Addresses{% endblocktrans %}</h2>
+<p class="info">{% blocktrans %}Addresses are where orders can be sent to.<br />
+Those must be properly filled (postal address and e-mail) whether you intend to use them for physical or virtual (download) orders.{% endblocktrans %}</p>
 
 <p><div class="btn-group" role="group" aria-label="Filter">
-	<a class="btn btn-sm {% if not address_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}"  href="?">Created by me</a>
-	<a class="btn btn-sm {% if address_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?all=yes">All</a>
-</div><a href="{% url 'address_new' %}" class="btn btn-sm btn-primary float-right">Create New</a></p>
+	<a class="btn btn-sm {% if not address_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}"  href="?">{% blocktrans %}Created by me{% endblocktrans %}</a>
+	<a class="btn btn-sm {% if address_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?all=yes">{% blocktrans %}All{% endblocktrans %}</a>
+</div><a href="{% url 'address_new' %}" class="btn btn-sm btn-primary float-right">{% blocktrans %}Create New{% endblocktrans %}</a></p>
 
 {% if addresses %}
 <table class="table table-striped">
-	<thead><tr><th>Name</th><th>Recipient</th><th>Address</th><th>Country</th><th>Created By</th><th>Edit</th><th>Delete</th></tr></thead>
+	<thead><tr>
+		<th>{% blocktrans %}Name{% endblocktrans %}</th>
+		<th>{% blocktrans %}Recipient{% endblocktrans %}</th>
+		<th>{% blocktrans %}Address{% endblocktrans %}</th>
+		<th>{% blocktrans %}Country{% endblocktrans %}</th>
+		<th>{% blocktrans %}Created By{% endblocktrans %}</th>
+		<th>{% blocktrans %}Edit{% endblocktrans %}</th>
+		<th>{% blocktrans %}Delete{% endblocktrans %}</th>
+	</tr></thead>
 	<tbody>
 	{% for address in addresses %}
 	<tr><th>{{ address.name }}</th>
@@ -21,15 +30,15 @@ Those must be properly filled (postal address and e-mail) whether you intend to 
 		<td>{{ address.address|linebreaks }}</td>
 		<td>{{ address.verbose_country|default_if_none:"-" }}</td>
 		<td>{{ address.created_by.name }}</td>
-		<td><a href="{% url 'address_edit' address.id %}" class="btn btn-sm btn-secondary">Edit</a></td>
-		<td><a href="{% url 'address_delete' address.id %}" class="btn btn-sm btn-warning" data-toggle="confirmation" data-title="Delete this address?">Delete</a></td>
+		<td><a href="{% url 'address_edit' address.id %}" class="btn btn-sm btn-secondary">{% blocktrans %}Edit{% endblocktrans %}</a></td>
+		<td><a href="{% url 'address_delete' address.id %}" class="btn btn-sm btn-warning" data-toggle="confirmation" data-title="{% blocktrans %}Delete this address?{% endblocktrans %}">{% blocktrans %}Delete{% endblocktrans %}</a></td>
 	</tr>
 	{% endfor %}
 	</tbody>
 </table>
 {% include "_paginator.html" with items_page=addresses_page filter_name="all" filter_value=address_filter|yesno %}
 {% else %}
-<p class="info">There's none. Add one?.</p>
+<p class="info">{% blocktrans %}There's none. Add one?{% endblocktrans %}</p>
 {% endif %}
 {% endblock %}
 

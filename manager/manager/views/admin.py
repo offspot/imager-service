@@ -8,6 +8,7 @@ from django import forms
 from django.http import Http404
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.utils.translation import gettext as _, gettext_lazy as _lz
 
 from manager.decorators import staff_required
 from manager.models import Organization, Profile, Media
@@ -31,7 +32,7 @@ class OrganizationForm(forms.ModelForm):
 
     @staticmethod
     def success_message(result):
-        return "Successfuly created Organization <em>{org}</em>".format(org=result)
+        return _("Successfuly created Organization <em>%(org)s</em>") % {"org": result}
 
 
 def get_orgs():
@@ -44,11 +45,11 @@ class UpdateUnitsForm(forms.Form):
 
     @staticmethod
     def success_message(result):
-        return "Successfuly updated units for <em>{org}</em>".format(org=result)
+        return _("Successfuly updated units for <em>%(org)s</em>") % {"org": result}
 
     def clean_organization(self):
         if Organization.get_or_none(self.cleaned_data.get("organization")) is None:
-            raise forms.ValidationError("Not a valid Organization", code="invalid")
+            raise forms.ValidationError(_("Not a valid Organization"), code="invalid")
         return self.cleaned_data.get("organization")
 
     def save(self):
@@ -67,31 +68,33 @@ class ProfileForm(forms.Form):
     email = forms.EmailField()
     username = forms.CharField(max_length=100)
     password = forms.CharField(max_length=100)
-    is_admin = forms.BooleanField(initial=False, label="admin?", required=False)
-    can_sd = forms.BooleanField(initial=False, label="SD?", required=False)
+    is_admin = forms.BooleanField(initial=False, label=_lz("admin?"), required=False)
+    can_sd = forms.BooleanField(initial=False, label=_lz("SD?"), required=False)
 
     @staticmethod
     def success_message(result):
-        return "Successfuly created Manager User <em>{user}</em>".format(user=result)
+        return _("Successfuly created Manager User <em>%(user)s</em>") % {
+            "user": result
+        }
 
     def clean_username(self):
         if Profile.exists(username=self.cleaned_data.get("username")):
-            raise forms.ValidationError("Username is already taken.", code="invalid")
+            raise forms.ValidationError(_("Username is already taken."), code="invalid")
         return self.cleaned_data.get("username")
 
     def clean_email(self):
         if Profile.taken(email=self.cleaned_data.get("email")):
-            raise forms.ValidationError("Email is already in use.", code="invalid")
+            raise forms.ValidationError(_("Email is already in use."), code="invalid")
         return self.cleaned_data.get("email")
 
     def clean_organization(self):
         if Organization.get_or_none(self.cleaned_data.get("organization")) is None:
-            raise forms.ValidationError("Not a valid Organization", code="invalid")
+            raise forms.ValidationError(_("Not a valid Organization"), code="invalid")
         return self.cleaned_data.get("organization")
 
     def save(self):
         if not self.is_valid():
-            raise ValueError("{cls} is not valid".format(cls=type(self)))
+            raise ValueError(_("%(class)s is not valid") % {"class": type(self)})
 
         organization = Organization.get_or_none(self.cleaned_data.get("organization"))
         return Profile.create(
@@ -113,7 +116,7 @@ class MediaForm(forms.ModelForm):
 
     @staticmethod
     def success_message(result):
-        return "Successfuly created Media <em>{media}</em>".format(media=result)
+        return _("Successfuly created Media <em>%(media)s</em>") % {"media": result}
 
 
 @staff_required
@@ -146,7 +149,7 @@ def dashboard(request):
                 res = context[form_key].save()
             except Exception as exp:
                 logger.error(exp)
-                messages.error(request, "Error while saving… {exp}".format(exp=exp))
+                messages.error(request, _("Error while saving… %(err)s") % {"err": exp})
             else:
                 messages.success(request, context[form_key].success_message(res))
                 return redirect("admin")
@@ -161,7 +164,7 @@ def toggle_account(request, username):
 
     profile = Profile.get_or_none(username)
     if profile is None:
-        raise Http404("Profile not found")
+        raise Http404(_("Profile not found"))
 
     profile.user.is_active = not profile.user.is_active
     status = "enabled" if profile.user.is_active else "disabled"
@@ -171,16 +174,14 @@ def toggle_account(request, username):
         logger.error(exp)
         messages.error(
             request,
-            "User Account for {user} could not be {status}. (ref: {exp})".format(
-                user=profile, status=status, exp=exp
-            ),
+            _("User Account for %(user)s could not be %(status)s. (ref: %(err)s)")
+            % {"user": profile, "status": status, "err": exp},
         )
     else:
         messages.success(
             request,
-            "User Account for {user} has been successfuly {status}.".format(
-                user=profile, status=status
-            ),
+            _("User Account for %(user)s has been successfuly %(status)s.")
+            % {"user": profile, "status": status},
         )
 
     return redirect("admin")
@@ -191,7 +192,7 @@ def delete_account(request, username):
 
     profile = Profile.get_or_none(username)
     if profile is None:
-        raise Http404("Profile not found")
+        raise Http404(_("Profile not found"))
 
     user_repr = str(profile)
 
@@ -201,12 +202,14 @@ def delete_account(request, username):
         logger.error(exp)
         messages.error(
             request,
-            f"Error while deleting {user_repr}. Please contact support (ref: {exp})",
+            _("Error while deleting %(user)s. Please contact support (ref: %(err)s)")
+            % {"user": user_repr, "err": exp},
         )
     else:
         messages.success(
             request,
-            f"User Account for {user_repr} has been successfuly deleted.",
+            _("User Account for %(user)s has been successfuly deleted.")
+            % {"user": user_repr},
         )
 
     return redirect("admin")

@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.core import validators
+from django.utils.translation import gettext as _, gettext_lazy as _lz
 
 from manager.decorators import staff_required
 from manager.scheduler import (
@@ -60,16 +61,18 @@ class ChannelForm(SchedulerForm):
 
     @staticmethod
     def success_message(result):
-        return "Successfuly created channel <em>{channel}</em>".format(channel=result)
+        return _("Successfuly created channel <em>%(channel)s</em>") % {
+            "channel": result
+        }
 
     def clean_slug(self):
         if not re.match(r"^[a-zA-Z0-9_.+-]+$", self.cleaned_data.get("slug")):
-            raise forms.ValidationError("Prohibited Characters", code="invalid")
+            raise forms.ValidationError(_("Prohibited Characters"), code="invalid")
         return self.cleaned_data.get("slug")
 
     def save(self):
         if not self.is_valid():
-            raise ValueError("{cls} is not valid".format(cls=type(self)))
+            raise ValueError(_("%(class)s is not valid") % {"class": type(self)})
 
         success, channel_id = add_channel(
             slug=self.cleaned_data.get("slug"),
@@ -109,18 +112,18 @@ class WarehouseForm(SchedulerForm):
 
     @staticmethod
     def success_message(result):
-        return "Successfuly created warehouse <em>{warehouse}</em>".format(
-            warehouse=result
-        )
+        return _("Successfuly created warehouse <em>%(warehouse)s</em>") % {
+            "warehouse": result
+        }
 
     def clean_slug(self):
         if not re.match(r"^[a-zA-Z0-9_.+-]+$", self.cleaned_data.get("slug")):
-            raise forms.ValidationError("Prohibited Characters", code="invalid")
+            raise forms.ValidationError(_("Prohibited Characters"), code="invalid")
         return self.cleaned_data.get("slug")
 
     def save(self):
         if not self.is_valid():
-            raise ValueError("{cls} is not valid".format(cls=type(self)))
+            raise ValueError(_("%(class)s is not valid") % {"class": type(self)})
 
         success, warehouse_id = add_warehouse(
             slug=self.cleaned_data.get("slug"),
@@ -142,11 +145,11 @@ class UserForm(SchedulerForm):
 
     @staticmethod
     def success_message(result):
-        return "Successfuly created User <em>{user}</em>".format(user=result)
+        return _("Successfuly created User <em>%(user)s</em>") % {"user": result}
 
     def clean_username(self):
         if not re.match(r"^[a-zA-Z0-9_.+-]+$", self.cleaned_data.get("username")):
-            raise forms.ValidationError("Prohibited Characters", code="invalid")
+            raise forms.ValidationError(_("Prohibited Characters"), code="invalid")
         return self.cleaned_data.get("username")
 
     def clean_email(self):
@@ -154,12 +157,12 @@ class UserForm(SchedulerForm):
             r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
             self.cleaned_data.get("email"),
         ):
-            raise forms.ValidationError("Invalid format", code="invalid")
+            raise forms.ValidationError(_("Invalid format"), code="invalid")
         return self.cleaned_data.get("email")
 
     def save(self):
         if not self.is_valid():
-            raise ValueError("{cls} is not valid".format(cls=type(self)))
+            raise ValueError(_("%(class)s is not valid") % {"class": type(self)})
 
         success, user_id = add_user(
             username=self.cleaned_data.get("username"),
@@ -193,22 +196,22 @@ class ImageForm(SchedulerForm):
 
     @staticmethod
     def success_message(result):
-        return f"Successfuly created Auto Image <em>{result}</em>"
+        return _("Successfuly created Auto Image <em>%(img)s</em>") % {"img": result}
 
     def clean_slug(self):
         if not re.match(r"^[a-zA-Z0-9_.+-]+$", self.cleaned_data.get("slug")):
-            raise forms.ValidationError("Prohibited Characters", code="invalid")
+            raise forms.ValidationError(_("Prohibited Characters"), code="invalid")
         return self.cleaned_data.get("slug")
 
     def clean_config(self):
         config = Configuration.get_or_none(self.cleaned_data.get("config"))
         if config is None or config.organization != self._client.organization:
-            raise forms.ValidationError("Not your configuration", code="invalid")
+            raise forms.ValidationError(_("Not your configuration"), code="invalid")
         return config
 
     def save(self):
         if not self.is_valid():
-            raise ValueError("{cls} is not valid".format(cls=type(self)))
+            raise ValueError(_("%(class)s is not valid") % {"class": type(self)})
 
         success, autoimage_slug = add_autoimage(
             slug=self.cleaned_data.get("slug"),
@@ -217,7 +220,7 @@ class ImageForm(SchedulerForm):
             periodicity="monthly",
             warehouse=self.cleaned_data.get("warehouse"),
             channel=self.cleaned_data.get("channel"),
-            private=self.cleaned_data.get("private")
+            private=self.cleaned_data.get("private"),
         )
         if not success:
             raise SchedulerAPIError(autoimage_slug)
@@ -231,11 +234,12 @@ def dashboard(request):
     if not success:
         messages.error(
             request,
-            "Unable to connect (HTTP {code}) to API at <code>{url}</code>{msg}".format(
-                url=settings.CARDSHOP_API_URL,
-                code=code,
-                msg=" -- " + msg if msg else "",
-            ),
+            _("Unable to connect (HTTP %(code)s) to API at <code>%(url)s</code>%(msg)s")
+            % {
+                "url": settings.CARDSHOP_API_URL,
+                "code": code,
+                "msg": " -- " + msg if msg else "",
+            },
         )
         return redirect("admin")
 
@@ -270,7 +274,7 @@ def dashboard(request):
                 res = context[form_key].save()
             except Exception as exp:
                 logger.error(exp)
-                messages.error(request, "Error while saving… {exp}".format(exp=exp))
+                messages.error(request, _("Error while saving… %(err)s") % {"err": exp})
             else:
                 messages.success(request, context[form_key].success_message(res))
                 return redirect("scheduler")
@@ -279,9 +283,8 @@ def dashboard(request):
         messages.set_level(request, messages.DEBUG)
         messages.debug(
             request,
-            "Connected to Scheduler API at <code>{url}</code>".format(
-                url=settings.CARDSHOP_API_URL
-            ),
+            _("Connected to Scheduler API at <code>%(url)s</code>")
+            % {"url": settings.CARDSHOP_API_URL},
         )
 
     return render(request, "scheduler.html", context)
@@ -293,10 +296,16 @@ def channel_enable(request, channel_id):
     if not success:
         logger.error("Unable to enable channel: {}".format(channel_id))
         messages.error(
-            request, "Unable to enable Channel: -- ref: {}".format(channel_id)
+            request,
+            _("Unable to enable Channel: -- ref: %(channel_id)s")
+            % {"channel_id": channel_id},
         )
     else:
-        messages.success(request, "Successfuly enabled channel: {}".format(channel_id))
+        messages.success(
+            request,
+            _("Successfuly enabled channel: %(channel_id)s")
+            % {"channel_id": channel_id},
+        )
 
     return redirect("scheduler")
 
@@ -307,10 +316,16 @@ def channel_disable(request, channel_id):
     if not success:
         logger.error("Unable to disable channel: {}".format(channel_id))
         messages.error(
-            request, "Unable to disable Channel: -- ref: {}".format(channel_id)
+            request,
+            _("Unable to disable Channel: -- ref: %(channel_id)s")
+            % {"channel_id": channel_id},
         )
     else:
-        messages.success(request, "Successfuly disabled channel: {}".format(channel_id))
+        messages.success(
+            request,
+            _("Successfuly disabled channel: %(channel_id)s")
+            % {"channel_id": channel_id},
+        )
 
     return redirect("scheduler")
 
@@ -321,11 +336,15 @@ def warehouse_enable(request, warehouse_id):
     if not success:
         logger.error("Unable to enable warehouse: {}".format(warehouse_id))
         messages.error(
-            request, "Unable to enable Channel: -- ref: {}".format(warehouse_id)
+            request,
+            _("Unable to enable warehouse: -- ref: %(warehouse_id)s")
+            % {"warehouse_id": warehouse_id},
         )
     else:
         messages.success(
-            request, "Successfuly enabled warehouse: {}".format(warehouse_id)
+            request,
+            _("Successfuly enabled warehouse: %(warehouse_id)s")
+            % {"warehouse_id": warehouse_id},
         )
 
     return redirect("scheduler")
@@ -337,11 +356,15 @@ def warehouse_disable(request, warehouse_id):
     if not success:
         logger.error("Unable to disable warehouse: {}".format(warehouse_id))
         messages.error(
-            request, "Unable to disable Channel: -- ref: {}".format(warehouse_id)
+            request,
+            _("Unable to disable warehouse: -- ref: %(warehouse_id)s")
+            % {"warehouse_id": warehouse_id},
         )
     else:
         messages.success(
-            request, "Successfuly disabled warehouse: {}".format(warehouse_id)
+            request,
+            _("Successfuly disabled warehouse: %(warehouse_id)s")
+            % {"warehouse_id": warehouse_id},
         )
 
     return redirect("scheduler")
@@ -352,9 +375,14 @@ def user_enable(request, user_id):
     success, user_id = enable_user(user_id)
     if not success:
         logger.error("Unable to enable user: {}".format(user_id))
-        messages.error(request, "Unable to enable user: -- ref: {}".format(user_id))
+        messages.error(
+            request,
+            _("Unable to enable user: -- ref: %(user_id)s") % {"user_id": user_id},
+        )
     else:
-        messages.success(request, "Successfuly enabled user: {}".format(user_id))
+        messages.success(
+            request, _("Successfuly enabled user: %(user_id)s") % {"user_id": user_id}
+        )
 
     return redirect("scheduler")
 
@@ -364,9 +392,14 @@ def user_disable(request, user_id):
     success, user_id = disable_user(user_id)
     if not success:
         logger.error("Unable to disable user: {}".format(user_id))
-        messages.error(request, "Unable to disable user: -- ref: {}".format(user_id))
+        messages.error(
+            request,
+            _("Unable to disable user: -- ref: %(user_id)s") % {"user_id": user_id},
+        )
     else:
-        messages.success(request, "Successfuly disabled user: {}".format(user_id))
+        messages.success(
+            request, _("Successfuly disabled user: %(user_id)s") % {"user_id": user_id}
+        )
 
     return redirect("scheduler")
 
@@ -377,9 +410,8 @@ def refresh_token(request):
     logger.info("Re-authenticated against the scheduler: `{}`".format(ACCESS_TOKEN))
     messages.info(
         request,
-        "Re-authenticated against the scheduler: <code>{}</code>".format(
-            ACCESS_TOKEN[:20]
-        ),
+        _("Re-authenticated against the scheduler: <code>%(token)s</code>")
+        % {"token": ACCESS_TOKEN[:20]},
     )
     return redirect("scheduler")
 
@@ -391,8 +423,13 @@ def image_delete(request, image_slug):
     success, _ = delete_autoimage(image_slug)
     if not success:
         logger.error(f"Unable to delete image: {image_slug}")
-        messages.error(request, f"Unable to delete image: -- ref: {image_slug}")
+        messages.error(
+            request,
+            _("Unable to delete image: -- ref: %(slug)s") % {"slug": image_slug},
+        )
     else:
-        messages.success(request, f"Successfuly deleted image: {image_slug}")
+        messages.success(
+            request, _("Successfuly deleted image: %(slug)s") % {"slug": image_slug}
+        )
 
     return redirect("scheduler")
