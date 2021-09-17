@@ -28,6 +28,7 @@ RUN pip install -r /app/requirements.txt
 
 COPY manage.py /app/manage.py
 COPY manager /app/manager
+COPY locale /app/locale
 COPY contents.json /app/contents.json
 COPY uwsgi-manager.ini /etc/uwsgi/manager.ini
 COPY nginx.conf /app/manager
