@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Cardshop\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-09-17 10:13+0000\n"
-"PO-Revision-Date: 2021-09-17 10:13+0000\n"
+"PO-Revision-Date: 2021-09-18 22:18+0200\n"
 "Last-Translator: reg <rgaudin@gmail.com>\n"
 "Language-Team: French <reg@kiwix.org>\n"
 "Language: fr\n"
@@ -50,7 +50,7 @@ msgstr ""
 
 #: manager/models.py:137
 msgid "configuration"
-msgstr "onfiguration"
+msgstr "configuration"
 
 #: manager/models.py:138 manager/models.py:147 manager/models.py:157
 msgid "configurations"
@@ -73,7 +73,7 @@ msgstr "Idem"
 
 #: manager/models.py:167
 msgid "Used <strong>only within the Cardshop</strong>"
-msgstr "Utilisé <strong>uniquement dans Cardshop</strong>"
+msgstr "Utilisé <strong>uniquement dans le Cardshop</strong>"
 
 #: manager/models.py:172
 msgid "Hospot name"
@@ -81,7 +81,8 @@ msgstr "Nom du Hotspot"
 
 #: manager/models.py:174
 msgid "Network name; the landing page will also be at http://name.hotspot"
-msgstr "Nom de réseau; la page d’accueil sera également à http://name.hotspot"
+msgstr ""
+"Nom du réseau; la page d’accueil se trouvera aussi sous http://nom.hotspot"
 
 #: manager/models.py:182 manager/models.py:558 manager/models.py:628
 msgid "Language"
@@ -97,7 +98,7 @@ msgstr "Fuseau horaire"
 
 #: manager/models.py:192
 msgid "Where the Hotspot would be deployed"
-msgstr "Où le Hotspot serait déployé"
+msgstr "Où le Hotspot sera déployé"
 
 #: manager/models.py:199
 msgid "WiFi Password"
@@ -289,7 +290,7 @@ msgstr "Organisation"
 
 #: manager/models.py:637
 msgid "Can order physical?"
-msgstr "Peut commander carte physique ?"
+msgstr "Peut commander une carte physique ?"
 
 #: manager/models.py:640
 msgid "Expire on"
@@ -358,7 +359,7 @@ msgstr "Type"
 
 #: manager/models.py:897
 msgid "In GB"
-msgstr "En GB"
+msgstr "En Go"
 
 #: manager/models.py:899
 msgid "In bytes (auto calc)"
@@ -554,7 +555,7 @@ msgid ""
 "to use them for physical or virtual (download) orders."
 msgstr ""
 "Les adresses sont celles où les commandes peuvent être envoyées.<br />\n"
-"Celles-ci doivent être correctement renseignés (adresse postale et e-mail) "
+"Celles-ci doivent être correctement renseignées (adresse postale et e-mail) "
 "que vous ayez l’intention de les utiliser pour des commandes physiques ou "
 "virtuelles (téléchargement)."
 
@@ -569,7 +570,7 @@ msgstr "Toutes"
 
 #: manager/templates/address_list.html:13
 msgid "Create New"
-msgstr "Créer un nouveau"
+msgstr "Nouvelle adresse"
 
 #: manager/templates/address_list.html:19
 #: manager/templates/order_detail.html:14 manager/views/ui.py:117
@@ -579,7 +580,7 @@ msgstr "Destinataire"
 #: manager/templates/address_list.html:22 manager/templates/order.html:11
 #: manager/templates/order_list.html:21
 msgid "Created By"
-msgstr "Créé par"
+msgstr "Créée par"
 
 #: manager/templates/address_list.html:23
 #: manager/templates/address_list.html:33
@@ -601,7 +602,7 @@ msgstr "Supprimer cette adresse ?"
 
 #: manager/templates/address_list.html:41
 msgid "There's none. Add one?"
-msgstr "Il n’y en a pas. En ajouter un ?"
+msgstr "Il n’y en a pas. En ajouter?"
 
 #: manager/templates/admin.html:6
 msgid "Organizations"
@@ -839,7 +840,7 @@ msgid ""
 "branding."
 msgstr ""
 "Cette section vous permet de remplacer certains éléments visuels par votre "
-"propre image de marque."
+"propre  imagerie."
 
 #: manager/templates/configuration_edit.html:84
 msgid "Advanced Branding"
@@ -863,7 +864,7 @@ msgstr "Outils interactifs"
 
 #: manager/templates/configuration_edit.html:151
 msgid "Static Content Packages"
-msgstr "Paquets de contenu statique"
+msgstr "Contenus statiques"
 
 #: manager/templates/configuration_edit.html:155
 msgid "Available ZIMs"
@@ -945,7 +946,7 @@ msgid ""
 "hum, there's no existing configuration. Why don't you <a href="
 "\"%(configuration_add_url)s\">create one</a>?"
 msgstr ""
-"hum, il n’y a pas de configuratio. Pourquoi ne pas <a href="
+"hum, il n’y a pas de configuration. Pourquoi ne pas <a href="
 "\"%(configuration_add_url)s\">en créer une</a> ?"
 
 #: manager/templates/delete_account.html:6
@@ -988,7 +989,7 @@ msgid ""
 "We'll keep a trace of your orders in an anonymized form, for accounting and "
 "statistics purpose."
 msgstr ""
-"Nous garderons une trace de vos commandes sous une forme anonymisée, à des "
+"Nous garderons une trace de vos commandes sous une forme anonymisée à des "
 "fins comptables et statistiques."
 
 #: manager/templates/delete_account.html:16
@@ -1005,8 +1006,8 @@ msgid ""
 "This is an online shop where you can prepare, order and download custom "
 "images to run on your RaspberryPi."
 msgstr ""
-"Une boutique en ligne où vous pouvez préparer, commander et télécharger des "
-"images personnalisées à exécuter sur votre RaspberryPi."
+"Un tableau de bord en ligne où vous pouvez préparer, commander et "
+"télécharger des images personnalisées pour votre Raspberry Pi."
 
 #: manager/templates/home.html:16
 msgid "Placing such an order requires the following from you:"
@@ -1070,7 +1071,7 @@ msgid ""
 "page. To proceed, please login with an account that has access."
 msgstr ""
 "<strong>Accès refusé :</strong> Votre compte n’a pas accès à cette page. "
-"Pour continuer, veuillez vous connecter avec un compte qui a accès."
+"Pour continuer, veuillez vous connecter avec un compte valide."
 
 #: manager/templates/login.html:46
 msgid "Your username and password didn't match. Please try again."
@@ -1087,7 +1088,7 @@ msgstr "Connexion"
 #, python-format
 msgid "Forgot password? <a href=\"%(reset_password_url)s\">Password reset</a>."
 msgstr ""
-"Mot de passe oublié? <a href=\"%(reset_password_url)s\">Réinitialiser le mot "
+"Mot de passe oublié? <a href=\"%(reset_password_url)s\">Réinitialisez le mot "
 "de passe</a>."
 
 #: manager/templates/order.html:6
@@ -1385,11 +1386,11 @@ msgstr "Expéditeur"
 
 #: manager/templates/scheduler.html:62
 msgid "Could not retrieve channels list…"
-msgstr "Impossible de récupérer la liste des charnels…"
+msgstr "Impossible de récupérer la liste des channels…"
 
 #: manager/templates/scheduler.html:65
 msgid "hum, there's no existing channel…"
-msgstr "hum, il n’y a pas de Channel existante…"
+msgstr "hum, il n’y a pas de channel existant…"
 
 #: manager/templates/scheduler.html:78
 msgid "Add"
@@ -1902,7 +1903,7 @@ msgstr "Pas de compte pour l’ e-mail"
 
 #: manager/views/ui.py:286
 msgid "Cardshop Password Reset"
-msgstr "Réinitialisation du mot de passe Cardshop"
+msgstr "Réinitialisation du mot de passe"
 
 #: manager/views/ui.py:299
 #, python-format
