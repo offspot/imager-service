@@ -297,6 +297,7 @@ def get_creatorload_status(access_token):
             timeout=HTTP_TIMEOUT,
         )
         load = resp.json()
+        print(load)  # debug 2021-09-18
         if load.get("pending_tasks") == 0:
             return True
         if not load.get("estimated_completion"):
