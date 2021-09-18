@@ -136,7 +136,7 @@ def calculate_load(user: dict):
     estimated_completion = (
         now + datetime.timedelta(seconds=remaining_minutes * 60)
         if remaining_minutes
-        else None
+        else now
     )
 
     return jsonify(
@@ -146,7 +146,5 @@ def calculate_load(user: dict):
             "cumulative_duration": cumulative_duration,
             "remaining_minutes": remaining_minutes,
             "estimated_completion": estimated_completion.isoformat()
-            if estimated_completion
-            else None,
         }
     )
