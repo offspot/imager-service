@@ -17,6 +17,7 @@ loop = asyncio.get_event_loop()
 app = Flask(__name__)
 
 HTTP_TIMEOUT = 10  # seconds
+CREATOR_HTTP_TIMEOUT = HTTP_TIMEOUT * 2.5  # seconds
 WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 2.5  # seconds
 
 
@@ -294,7 +295,7 @@ def get_creatorload_status(access_token):
                 "token": access_token,
                 "Content-type": "application/json",
             },
-            timeout=HTTP_TIMEOUT,
+            timeout=CREATOR_HTTP_TIMEOUT,
         )
         load = resp.json()
         print(load)  # debug 2021-09-18
