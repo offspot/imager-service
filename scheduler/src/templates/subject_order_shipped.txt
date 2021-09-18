@@ -1,1 +1,1 @@
-{% extends "subject_base.txt" %}{% block subject %}Order #{{ order.min_id }} shipped!{% endblock %}
+{% extends "subject_base.txt" %}{% block subject %}{{ _("Order #%(order_id)s shipped!")|format(order_id=order.min_id) }}{% endblock %}

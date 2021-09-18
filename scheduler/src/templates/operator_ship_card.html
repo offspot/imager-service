@@ -2,6 +2,6 @@
 {% from "macros.html" import tagged_message, button_shipment %}
 
 {% block message %}
-{% call tagged_message("warning") %}Please ship {{ order.quantity }} x {{ order.sd_card.name }} to {{ order.recipient.name }}{% endcall %}
+{% call tagged_message("warning") %}{{ _("Please ship %(quantity)s x %(sdcard_name)s to %(recipient_name)s", quantity=order.quantity, sdcard_name=order.sd_card.name, recipient_name=order.recipient.name) }}{% endcall %}
 {{ button_shipment(order) }}
 {% endblock %}

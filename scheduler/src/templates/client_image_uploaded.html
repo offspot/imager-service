@@ -2,8 +2,8 @@
 {% from "macros.html" import tagged_message %}
 
 {% block message %}
-{% call tagged_message("info") %}Image Created and Uploaded Successfuly{% endcall %}
-<p>Hi {{ order.client.name }} !<br />
-Just letting you know that <code>CreationTask #{{ order.tasks.create|id }}</code> completed successfuly.</p>
-<p>You'll receive another email when it is successfuly written on an SD-card.</p>
+{% call tagged_message("info") %}{{ _("Image Created and Uploaded Successfuly") }}{% endcall %}
+<p>{{ _("Hi %(client_name)s !")|format(client_name=order.client.name) }}<br />
+{{ _("Just letting you know that <code>CreationTask #%(task_id)s</code> completed successfuly.")|format(task_id=order.tasks.create|id)|safe</p>
+<p>{{ _("You'll receive another email when it is successfuly written on an SD-card.") }}</p>
 {% endblock %}

@@ -1,1 +1,1 @@
-{% extends "subject_base.txt" %}{% block subject %}Order #{{ order.min_id }}: insertion successful{% endblock %}
+{% extends "subject_base.txt" %}{% block subject %}{{ _("Order #%(order_id)s: insertion successful")|format(order_id=order.min_id) }}{% endblock %}

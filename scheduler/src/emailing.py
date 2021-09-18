@@ -4,8 +4,11 @@
 
 import os
 import logging
+import pathlib
 from typing import Optional, Sequence
+from contextlib import contextmanager
 
+from babel.support import Translations
 import pdfkit
 import yagmail
 import requests
@@ -29,9 +32,13 @@ from utils.templates import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+locale_dir = pathlib.Path(__file__).parent.joinpath("locale")
 jinja_env = Environment(
     loader=FileSystemLoader("templates"),
     autoescape=select_autoescape(["html", "xml", "txt"]),
+    extensions=["jinja2.ext.i18n", "jinja2.ext.autoescape", "jinja2.ext.with_"],
 )
 jinja_env.filters["id"] = get_id
 jinja_env.filters["yesno"] = yesno
@@ -59,6 +66,15 @@ CLIENT_EMAIL_STATUSES = [
 ]
 
 RECIPIENT_EMAIL_STATUSES = [Orders.shipped]
+
+
+@contextmanager
+def localized_for(lang, *args, **kwargs):
+    translations = Translations.load(locale_dir, [lang])
+    try:
+        yield jinja_env.install_gettext_translations(translations)
+    finally:
+        jinja_env.uninstall_gettext_translations(translations)
 
 
 def get_sender():
@@ -125,7 +141,9 @@ def send_email_via_api(
         files=[
             ("attachment", (os.path.basename(fpath), open(fpath, "rb").read()))
             for fpath in attachments
-        ] if attachments else [],
+        ]
+        if attachments
+        else [],
     )
     resp.raise_for_status()
     return resp.json().get("id")
@@ -150,7 +168,7 @@ def send_email(
     if copy_support and os.getenv("SUPPORT_EMAIL"):
         bcc.append(os.getenv("SUPPORT_EMAIL"))
 
-    logger.info("sending --{}-- to --{}--/--{}".format(subject, to, attachments))
+    logger.info(f"sending --{subject}-- to --{to}--/--{attachments}")
     func = (
         send_email_via_api
         if os.getenv("MAILGUN_API_KEY", False)
@@ -202,14 +220,20 @@ def get_email_for(order_id, kind, formatted=True):
 
     order = Orders.get_with_tasks(order_id, {"logs": 0})
     if kind == "client":
-        return _fmt(order["client"]["name"], order["client"]["email"])
+        return (
+            _fmt(order["client"]["name"], order["client"]["email"]),
+            order["client"]["language"],
+        )
 
     if kind == "recipient":
-        return _fmt(order["recipient"]["name"], order["recipient"]["email"])
+        return (
+            _fmt(order["recipient"]["name"], order["recipient"]["email"]),
+            order["recipient"]["language"],
+        )
 
     if kind == "operator":
         worker = Users().by_username(order["tasks"]["download"]["worker"])
-        return worker["email"]
+        return worker["email"], "en"
     return []
 
 
@@ -223,18 +247,23 @@ def send_order_email_for(
     attachments: Optional[Sequence] = None,
     extra: Optional[dict] = None,
 ):
-    context = get_full_context(str(order_id), extra=extra)
-
-    subject = jinja_env.get_template("{}.txt".format(subject_tmpl)).render(**context)
-    content = jinja_env.get_template("{}.html".format(content_tmpl)).render(**context)
+    to, lang = get_email_for(order_id, kind=to)
+    with localized_for(lang):
+        context = get_full_context(str(order_id), extra=extra)
+        subject = jinja_env.get_template("{}.txt".format(subject_tmpl)).render(
+            **context
+        )
+        content = jinja_env.get_template("{}.html".format(content_tmpl)).render(
+            **context
+        )
     cc = ([cc] if isinstance(cc, str) else cc) or []
     bcc = ([bcc] if isinstance(bcc, str) else bcc) or []
     send_email(
-        to=get_email_for(order_id, kind=to),
+        to=to,
         subject=subject,
         contents=content,
-        cc=[get_email_for(order_id, kind=item) for item in cc],
-        bcc=[get_email_for(order_id, kind=item) for item in bcc],
+        cc=[get_email_for(order_id, kind=item)[0] for item in cc],
+        bcc=[get_email_for(order_id, kind=item)[0] for item in bcc],
         attachments=attachments or {},
     )
 

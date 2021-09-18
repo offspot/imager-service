@@ -2,6 +2,6 @@
 {% from "macros.html" import tagged_message, button_insert %}
 
 {% block message %}
-{% call tagged_message("warning") %}Please insert <strong>{{ order.sd_card.name }}</strong> onto slot <strong>{{ task.slot }}</strong>{% endcall %}
+{% call tagged_message("warning") %}{{ _("Please insert <strong>%(sdcard_name)s</strong> onto slot <strong>%(slot)s</strong>", sdcard_name=order.sd_card.name, slot=task.slot)|safe }}{% endcall %}
 {{ button_insert(order, task) }}
 {% endblock %}

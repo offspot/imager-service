@@ -2,8 +2,8 @@
 {% from "macros.html" import tagged_message %}
 
 {% block message %}
-{% call tagged_message("success") %}Image Successfuly Written on slot <strong>{{ task.slot }}</strong>!{% endcall %}
-<p>Hi !<br />
-Just letting you know that <code>WriterTask #{{ task|id }}</code> completed successfuly.</p>
-<p>You can now <strong>remove SD-Card from slot <code>{{ task.slot }}</code></strong>.</p>
+{% call tagged_message("success") %}{{ _("Image Successfuly Written on slot <strong>%(slot)s</strong>!")|format(slot=task.slot)|safe }}{% endcall %}
+<p>{{ _("Hi !") }}<br />
+{{ _("Just letting you know that <code>WriterTask #%(task_id)s</code> completed successfuly.")|format(task_id=task|id)|safe }}</p>
+<p>{{ _("You can now <strong>remove SD-Card from slot <code>%(slot)s</code></strong>.")|format(task.slot)|safe }}</p>
 {% endblock %}

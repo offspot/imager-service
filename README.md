@@ -11,6 +11,26 @@ SD-cards).
 [![CodeFactor](https://www.codefactor.io/repository/github/offspot/cardshop/badge)](https://www.codefactor.io/repository/github/offspot/cardshop)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
+## i18n
+
+As manager and scheduler uses different stacks, while bot depending on the same tools
+uses different management scripts
+
+### manager
+
+```sh
+./manage.py makemessages -l fr
+django-admin compilemessages
+```
+
+### scheduler
+
+```sh
+pybabel -v extract -F src/babel.config -k _lz -k _ -k _l -o ./src/locale/messages.pot ./src
+pybabel update -i src/locale/messages.pot -d src/locale
+pybabel compile -d src/locale/
+```
+
 ## Warehouse
 
 `warehouse`: A container on a machine with plenty of space (must be

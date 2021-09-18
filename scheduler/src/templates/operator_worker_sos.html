@@ -2,8 +2,8 @@
 {% from "macros.html" import tagged_message %}
 
 {% block content %}
-{% call tagged_message("error") %}Worker for slot <strong>{{ ack.slot }}</strong> can't start.{% endcall %}
-<p>On {{ ack.on.strftime('%c') }}, your (<code>{{ ack.username }}/{{ ack.worker_type }}</code>) worker for slot <code>{{ ack.slot }}</code> sent an SOS meaning it could not start with the following payload:</p>
+{% call tagged_message("error") %}{{ _("Worker for slot <strong>%(slot)s</strong> can't start.")|format(slot=ack.slot)|safe }}{% endcall %}
+<p>{{ _("On %(ack_on)s, your (<code>%(username)s/%(worker_type)s</code>) worker for slot <code>%(slot)s</code> sent an SOS meaning it could not start with the following payload:")|format(ack_on=ack.on.strftime('%c'), username=ack.username, worker_type=ack.worker_type, slot=ack.slot)|safe }}</p>
 <p><code>{{ ack.payload }}</code></p>
-<p>Please make sure the devices are in order and check status on the Cardshop.</p>
+<p>{{ _("Please make sure the devices are in order and check status on the Cardshop.") }}</p>
 {% endblock %}

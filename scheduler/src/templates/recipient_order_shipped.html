@@ -2,10 +2,10 @@
 {% from "macros.html" import tagged_message %}
 
 {% block message %}
-{% call tagged_message("success") %}Your order has shipped!{% endcall %}
-<p>Dear {{ order.recipient.name }},<br />
-Your order of <strong>{{ order.quantity }} x {{ order.sd_card.name }}</strong> with the <strong>{{ order.config.name }}</strong> configuration on it has been shipped.</p>
-<p>You should expect to receive your order within 10 days, depending on your address.</p>
-<p>Please, contact <em>{{ order.client.name }}</em> should you have any question… and to confirm reception!</p>
-<p>Shipment tracking information: <code>{{ order.recipient.shipment|default("none") }}</code></p>
+{% call tagged_message("success") %}{{ _("Your order has shipped!") }}{% endcall %}
+<p>{{ _("Dear %(recipient_name)s,")|format(recipient_name=order.recipient.name) }}<br />
+{{ _("Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> with the <strong>%(config_name)s</strong> configuration on it has been shipped.")|format(quantity=order.quantity, sdcard_name=order.sd_card.name, config_name=order.config.name)|safe }}</p>
+<p>{{ _("You should expect to receive your order within 10 days, depending on your address.") }}</p>
+<p>{{ _("Please, contact <em>%(client_name)s</em> should you have any question… and to confirm reception!")|format(client_name=order.client.name)|safe }}</p>
+<p>{{ _("Shipment tracking information: <code>%(tracking)s</code>")|format(tracking=order.recipient.shipment|default("none"))|safe }}</p>
 {% endblock %}

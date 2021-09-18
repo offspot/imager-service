@@ -2,10 +2,10 @@
 {% from "macros.html" import tagged_message %}
 
 {% block message %}
-{% call tagged_message("error") %}Order Writing Failed !{% endcall %}
-<p>Dear {{ order.tasks.write.worker }} operator,<br />
+{% set contact_link %}<a href="{{ order.client.email }}">{{ order.client.email }}</a>{% endset %}
+{% call tagged_message("error") %}{{ _("Order Writing Failed !") }}{% endcall %}
+<p>{{ _("Dear %(worker)s operator,")|format(worker=order.tasks.write.worker) }}<br />
 
-<p><code>WriterTask #{{ order.tasks.write|id }}</code> failed with status <code>{{ order.tasks.write.status }}</code>.</p>
-
-<p>Please investigate and contact this order's contact <em>{{ order.client.name }}</em> at <a href="{{ order.client.email }}">{{ order.client.email }}</a>.</p>
+<p>{{ _("<code>WriterTask #%(task_id)s</code> failed with status <code>%(status)s</code>.")|format(task_id=order.tasks.write|id, status=order.tasks.write.status)|safe }}</p>
+<p>{{ _("Please investigate and contact this order's contact <em>%(client_name)s</em> at %(contact_link)s.")|format(contact_link=contact_link, client_name=order.client.name)|safe }}</p>
 {% endblock %}
