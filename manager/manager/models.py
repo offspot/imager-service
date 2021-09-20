@@ -785,7 +785,7 @@ class Address(models.Model):
         null=True,
         blank=True,
         max_length=30,
-        help_text=_("In international “+” format"),
+        help_text=_lz("In international “+” format"),
         verbose_name=_lz("Phone"),
     )
     address = models.TextField(
