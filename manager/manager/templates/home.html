@@ -15,7 +15,7 @@
 {% url 'delete_account' as delete_account_url %}
 <p>{% blocktrans %}Placing such an order requires the following from you:{% endblocktrans %}</p>
 <ul>
-	<li>{% blocktrans %}A <a href="{{ configuration_list }}">configuration</a>: this is where you select the content that will be available on your hotspot, as well as a few options options (WiFi name, logo, etc.);{% endblocktrans %}</li>
+	<li>{% blocktrans %}A <a href="{{ config_list_url }}">configuration</a>: this is where you select the content that will be available on your hotspot, as well as a few options options (WiFi name, logo, etc.);{% endblocktrans %}</li>
 	<li>{% blocktrans %}A <a href="{{ address_list_url }}">recipient address</a> to send the download link to. This can be you, or anyone else;{% endblocktrans %}</li>
 	<li>{% blocktrans %}An <a href="{{ order_list_url }}">Order</a> to confirm the configuration you want, and to which address you want it sent to.{% endblocktrans %}</li>
 </ul>
