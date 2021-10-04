@@ -797,10 +797,12 @@ class AutoImages(BaseCollection):
                 "name": image["contact_email"],
                 "email": image["contact_email"],
                 "limited": False,
+                "language": "en",
             },
             "recipient": {
                 "name": image["contact_email"],
                 "email": image["contact_email"],
+                "language": "en",
                 "phone": "",
                 "address": "",
                 "country": "",
