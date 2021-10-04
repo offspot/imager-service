@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def free_space():
-    """ clean up cache folder """
+    """clean up cache folder"""
     logger.info("clean-up cache folder to free space")
     clean_cache_output = subprocess.run(
         args=[
@@ -32,6 +32,7 @@ def free_space():
             "--build",
             str(Setting.working_dir),
             "reset",
+            "--keep-master",
         ],
         universal_newlines=True,
         capture_output=True,
