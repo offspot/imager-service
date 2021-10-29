@@ -4,8 +4,8 @@
 {% block message %}
 {% call tagged_message("error") %}{{ _("Your order has failed!") }}{% endcall %}
 <p>{{ _("Dear %(recipient_name)s,")|format(recipient_name=order.recipient.name) }}<br />
-<p>{% if order.sd_card.type == "physical" %}{{ _("Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> card")|format(quantity=order.quantity, sdcard_name=order.sd_card.name)|safe }}
-{% else %}{{ _("Your <strong>%(sdcard_size)sGB</strong> download order{% endif %} with the <strong>%(config_name)s</strong> configuration has failed to complete.")|format(sdcard_size=order.sd_card.size, config_name=order.config.name)|safe }}</p>
+{% if order.sd_card.type == "physical" %}<p>{{ _("Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> card")|format(quantity=order.quantity, sdcard_name=order.sd_card.name)|safe }}</p>
+{% else %}<p>{{ _("Your <strong>%(sdcard_size)sGB</strong> download order with the <strong>%(config_name)s</strong> configuration has failed to complete.")|format(sdcard_size=order.sd_card.size, config_name=order.config.name)|safe }}</p>{% endif %}
 <p>{{ _("Someone will get in touch with you shortly to work out a fix.") }}</p>
 <p>{{ _("Please accept our sincere apologies.") }}</p>
 {% endblock %}
