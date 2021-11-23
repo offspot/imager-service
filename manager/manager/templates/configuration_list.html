@@ -39,7 +39,7 @@
 	{% endfor %}
 	</tbody>
 </table>
-{% include "_paginator.html" with items_page=configurations_page filter_name="all" filter_value=config_filter|yesno %}
+{% include "_paginator.html" with items_page=configurations_page filter_name="all" filter_value=config_filter|yesnoraw %}
 {% else %}
 <p class="info">{% blocktrans %}hum, there's no existing configuration. Why don't you <a href="{{ configuration_add_url }}">create one</a>?{% endblocktrans %}</p>
 {% endif %}

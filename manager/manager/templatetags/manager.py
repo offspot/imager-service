@@ -146,3 +146,11 @@ def short_id(anid):
 
 
 register.filter("short_id", short_id)
+
+
+def yesno(value):
+    """ yes or no string from bool value """
+    return "yes" if bool(value) else "no"
+
+
+register.filter("yesnoraw", yesno)

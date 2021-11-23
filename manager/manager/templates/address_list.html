@@ -36,7 +36,7 @@ Those must be properly filled (postal address and e-mail) whether you intend to 
 	{% endfor %}
 	</tbody>
 </table>
-{% include "_paginator.html" with items_page=addresses_page filter_name="all" filter_value=address_filter|yesno %}
+{% include "_paginator.html" with items_page=addresses_page filter_name="all" filter_value=address_filter|yesnoraw %}
 {% else %}
 <p class="info">{% blocktrans %}There's none. Add one?{% endblocktrans %}</p>
 {% endif %}
