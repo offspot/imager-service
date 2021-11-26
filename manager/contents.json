@@ -1,19 +1,19 @@
 {
     "raspbian_image": {
-        "url": "http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-07-12/2019-07-10-raspbian-buster-lite.zip",
-        "name": "2019-07-10-raspbian-buster-lite.zip",
-        "kernel_version": "4.19.57",
-        "checksum": "5a0747b2bfb8c8664192831b7dc5b22847718a1cb77639a1f3db3683b242dc96",
-        "archive_size": 366646269,
-        "expanded_size": 1862270976
+        "url": "https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-03-25/2021-03-04-raspios-buster-armhf-lite.zip",
+        "name": "2021-03-04-raspios-buster-armhf-lite.zip",
+        "kernel_version": "5.10.17",
+        "checksum": "ea92412af99ec145438ddec3c955aa65e72ef88d84f3307cea474da005669d39",
+        "archive_size": 463405209,
+        "expanded_size": 1866465280
     },
     "hotspot_master_image": {
-        "url": "{mirror}/hotspots/base/hotspot-master_2019-08-24.img.zip",
-        "name": "hotspot-master_2019-08-24.img.zip",
+        "url": "{mirror}/release/kiwix-hotspot/master/kiwix-hotspot_master_2021-11-24.img.zip",
+        "name": "kiwix-hotspot_master_2021-11-24.img.zip",
         "root_partition_size": 7000000000,
-        "checksum": "105c6a49193177dca7d12d148b1f86e5607dcc4457a5bf9e2062e06dfff58203",
-        "archive_size": 2141277652,
-        "expanded_size": 7760000000
+        "checksum": "7f2901c5308989c4b9d535c48d3f69d14f26248121e5efa0de1645e471f01c13",
+        "archive_size": 2198009491,
+        "expanded_size": 8589934592
     },
     "aflatoun_content": {
         "url": "{mirror}/other/aflatoun/content.tar.gz",
@@ -42,20 +42,28 @@
         "expanded_size": 2097152
     },
     "wikifundi_langpack_fr": {
-        "url": "{mirror}/other/wikifundi/2.0/mediawiki_data_fr_2018-10.tar.bz2",
-        "name": "mediawiki_data_fr_2018-10.tar.bz2",
+        "url": "{mirror}/other/wikifundi/3.0/mediawiki_data_fr_2021-11.tar.bz2",
+        "name": "mediawiki_data_fr_2021-11.tar.bz2",
         "folder_name": "data",
-        "checksum": "14d98cf0f58f26d1959a88f9268d39fe71ca91e9dd275329ef53feadb91f3211",
-        "archive_size": 2271107663,
-        "expanded_size": 2977103872
+        "checksum": "6bf94ec70f6a5e4503ce08d3cb456d4f688d4387dec836d19f32856b78e09023",
+        "archive_size": 4118012908,
+        "expanded_size": 10071138304
+    },
+    "wikifundi_langpack_es": {
+        "url": "{mirror}/other/wikifundi/2.0/mediawiki_data_es_2021-11.tar.bz2",
+        "name": "mediawiki_data_es_2021-11.tar.bz2",
+        "folder_name": "data",
+        "checksum": "1e5119e3f5a2cd39e34c1ea3f62409a9010e6db9ceb73a808434898932235ff4",
+        "archive_size": 4735719538,
+        "expanded_size": 12299411456
     },
     "wikifundi_langpack_en": {
-        "url": "{mirror}/other/wikifundi/2.0/mediawiki_data_en_2018-10.tar.bz2",
-        "name": "mediawiki_data_en_2018-10.tar.bz2",
+        "url": "{mirror}/other/wikifundi/2.0/mediawiki_data_en_2021-11.tar.bz2",
+        "name": "mediawiki_data_en_2021-11.tar.bz2",
         "folder_name": "data",
-        "checksum": "884d77cf333fbc744b8c9178641c48648ed4f0dbe22221f7b18b40741c9ef0f7",
-        "archive_size": 2260922431,
-        "expanded_size": 3247472640
+        "checksum": "02f285987e94ecf495affeeaec118ccd49a1eae0cd238a1ae9914693ff3a1bec",
+        "archive_size": 4427045002,
+        "expanded_size": 11633336320
     },
     "kalite_langpack_fr": {
         "url": "{mirror}/other/kalite/langpack_fr_0.17.zip",
@@ -108,13 +116,13 @@
         "archive_size": 22402590720,
         "expanded_size": 26901218918
     },
-    "nomad_apk": {
-        "url": "{mirror}/other/nomad/nomadeducation-ecoles_2.7.0.apk",
-        "name": "ecoles_numeriques.apk",
+    "nomad_zip": {
+        "url": "{mirror}/other/nomad/nomadeducation_2021-11.zip",
+        "name": "nomadeducation_2021-11.zip",
         "folder_name": null,
-        "checksum": "2d6c51458ebcddbd4d7f0b28d68203ef0af734940b562fcc4c28910e9e2a8f1d",
-        "archive_size": 51473201,
-        "expanded_size": 51473201
+        "checksum": "385a87e86ad11d913504c512b950ea85a77de872b0b3434cc632c101b77bb5ac",
+        "archive_size": 120999731,
+        "expanded_size": 120999731
     },
     "mathews_apk": {
         "url": "{mirror}/other/mathews/mathmathews_1.6.apk",
@@ -125,11 +133,11 @@
         "expanded_size": 35420045
     },
     "africatik_all": {
-        "url": "{mirror}/other/africatik/africatik-1.0.zip",
-        "name": "africatik-1.0.zip",
-        "folder_name": "africatik",
-        "checksum": "4a34f8ef7c06f30e43e2081396bef1c85e2b58747fac7933a197c820fb5662b1",
-        "archive_size": 2743580745,
-        "expanded_size": 2743697408
+        "url": "{mirror}/other/africatik/africatik-1.0.2.zip",
+        "name": "africatik-1.0.2.zip",
+        "folder_name": null,
+        "checksum": "003e9af9181db847d599d1e1ba71585b6717fe2f3c95a508b53cdfc6e8006f09",
+        "archive_size": 2765216942,
+        "expanded_size": 2765216942
     }
 }

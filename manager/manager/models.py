@@ -279,8 +279,8 @@ class Configuration(models.Model):
     )
     content_nomad = models.BooleanField(
         default=False,
-        verbose_name=_lz("Nomad android app"),
-        help_text=_lz("Révisions du CP au CM2"),
+        verbose_name=_lz("Nomad android apps"),
+        help_text=_lz("Révisions du CP à la 3è"),
     )
     content_mathews = models.BooleanField(
         default=False,

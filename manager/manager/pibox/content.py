@@ -198,7 +198,7 @@ def get_edupi_contents(enable=False, resources_path=None):
 
 def get_nomad_contents(enable=False):
     """ nomad: only contains one APK """
-    return [get_content("nomad_apk")]
+    return [get_content("nomad_zip")]
 
 
 def get_mathews_contents(enable=False):
