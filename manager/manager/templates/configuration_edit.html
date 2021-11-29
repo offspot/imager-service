@@ -421,10 +421,8 @@
 			if ($('#' + eval('kalite_' + lang + '_id')).is(':checked')) {
 				config.kalite.push(lang);
 			}
-			if (lang != "es") {
-				if ($('#' + eval('wikifundi_' + lang + '_id')).is(':checked')) {
-					config.wikifundi.push(lang);
-				}
+			if ($('#' + eval('wikifundi_' + lang + '_id')).is(':checked')) {
+				config.wikifundi.push(lang);
 			}
 		});
 		console.log(config);
