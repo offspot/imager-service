@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cardshop\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-20 10:44+0000\n"
-"PO-Revision-Date: 2021-09-18 22:18+0200\n"
+"POT-Creation-Date: 2021-11-29 10:23+0000\n"
+"PO-Revision-Date: 2021-11-29 10:24+0000\n"
 "Last-Translator: reg <rgaudin@gmail.com>\n"
 "Language-Team: French <reg@kiwix.org>\n"
 "Language: fr\n"
@@ -60,9 +60,9 @@ msgstr "configurations"
 msgid "updated on"
 msgstr "mis à jour le"
 
-#: manager/models.py:161 manager/models.py:897 manager/templates/admin.html:106
-#: manager/templates/configuration_edit.html:166
-#: manager/templates/configuration_edit.html:178
+#: manager/models.py:161 manager/models.py:903 manager/templates/admin.html:106
+#: manager/templates/configuration_edit.html:169
+#: manager/templates/configuration_edit.html:181
 #: manager/templates/configuration_list.html:21
 msgid "Size"
 msgstr "Taille"
@@ -84,7 +84,7 @@ msgid "Network name; the landing page will also be at http://name.hotspot"
 msgstr ""
 "Nom du réseau; la page d’accueil se trouvera aussi sous http://nom.hotspot"
 
-#: manager/models.py:182 manager/models.py:558 manager/models.py:628
+#: manager/models.py:182 manager/models.py:564 manager/models.py:634
 msgid "Language"
 msgstr "Langue"
 
@@ -177,319 +177,327 @@ msgid "Wikipedia-like Editing Platform (English)"
 msgstr "Plateforme d’édition de type Wikipédia (anglais)"
 
 #: manager/models.py:265
+msgid "WikiFundi ES"
+msgstr "WikiFundi ES"
+
+#: manager/models.py:266
+msgid "Wikipedia-like Editing Platform (Spanish)"
+msgstr "Plateforme d’édition de type Wikipédia (espagnol)"
+
+#: manager/models.py:270
 msgid "Aflatoun"
 msgstr "Aflatoun"
 
-#: manager/models.py:266
+#: manager/models.py:271
 msgid "Education Platform for kids"
 msgstr "Plateforme éducative pour les enfants"
 
-#: manager/models.py:270
+#: manager/models.py:275
 msgid "EduPi"
 msgstr "EduPi"
 
-#: manager/models.py:271
+#: manager/models.py:276
 msgid "Share arbitrary files with all users"
 msgstr "Partager des fichiers avec tous les utilisateurs"
 
-#: manager/models.py:277
+#: manager/models.py:282
 msgid "EduPi Resources"
 msgstr "Ressources EduPi"
 
-#: manager/models.py:278
+#: manager/models.py:283
 msgid "ZIP folder archive of documents to initialize EduPi with"
 msgstr "Dossier ZIP de documents avec lesquels initialiser EduPi"
 
-#: manager/models.py:282
-msgid "Nomad android app"
-msgstr "Application android Nomad"
-
-#: manager/models.py:283
-msgid "Révisions du CP au CM2"
-msgstr "Révisions du CP au CM2"
-
 #: manager/models.py:287
+msgid "Nomad android apps"
+msgstr "Applications android Nomad"
+
+#: manager/models.py:288
+msgid "Révisions du CP à la 3è"
+msgstr "Révisions du CP à la 3è"
+
+#: manager/models.py:292
 msgid "Math Mathews android"
 msgstr "Math Mathews android"
 
-#: manager/models.py:288
+#: manager/models.py:293
 msgid "Un jeu pour réviser les maths"
 msgstr "Un jeu pour réviser les maths"
 
-#: manager/models.py:292
+#: manager/models.py:297
 msgid "Africatik apps"
 msgstr "Applications Africatik"
 
-#: manager/models.py:293
+#: manager/models.py:298
 msgid "Applications éducatives pour l'Afrique"
 msgstr "Applications éducatives pour l’Afrique"
 
-#: manager/models.py:551
+#: manager/models.py:557
 msgid "organization"
 msgstr "organisation"
 
-#: manager/models.py:552
+#: manager/models.py:558
 msgid "organizations"
 msgstr "organisations"
 
-#: manager/models.py:554 manager/templates/admin.html:11
+#: manager/models.py:560 manager/templates/admin.html:11
 #: manager/templates/scheduler.html:44 manager/templates/scheduler.html:88
 msgid "Slug"
 msgstr "Slug"
 
-#: manager/models.py:555 manager/models.py:893
+#: manager/models.py:561 manager/models.py:899
 #: manager/templates/address_list.html:18 manager/templates/admin.html:12
 #: manager/templates/admin.html:63 manager/templates/admin.html:104
-#: manager/templates/configuration_edit.html:165
-#: manager/templates/configuration_edit.html:178
+#: manager/templates/configuration_edit.html:168
+#: manager/templates/configuration_edit.html:181
 #: manager/templates/configuration_list.html:20
 #: manager/templates/order_list.html:19 manager/templates/scheduler.html:45
 msgid "Name"
 msgstr "Nom"
 
-#: manager/models.py:567 manager/models.py:1076 manager/templates/admin.html:13
+#: manager/models.py:573 manager/models.py:1082 manager/templates/admin.html:13
 #: manager/templates/order_detail.html:12 manager/templates/scheduler.html:129
 msgid "Channel"
 msgstr "Channel"
 
-#: manager/models.py:573 manager/templates/order_detail.html:12
+#: manager/models.py:579 manager/templates/order_detail.html:12
 msgid "Warehouse"
 msgstr "Warehouse"
 
-#: manager/models.py:579 manager/templates/admin.html:15
+#: manager/models.py:585 manager/templates/admin.html:15
 msgid "Pub WH"
 msgstr "Pub WH"
 
-#: manager/models.py:581 manager/models.py:783 manager/templates/admin.html:16
+#: manager/models.py:587 manager/models.py:789 manager/templates/admin.html:16
 #: manager/templates/admin.html:62 manager/templates/scheduler.html:130
 #: manager/templates/scheduler.html:168
 msgid "Email"
 msgstr "E-mail"
 
-#: manager/models.py:583 manager/models.py:904 manager/models.py:1099
+#: manager/models.py:589 manager/models.py:910 manager/models.py:1105
 #: manager/templates/admin.html:17
 msgid "Units"
 msgstr "Unités"
 
-#: manager/models.py:620
+#: manager/models.py:626
 msgid "profile"
 msgstr "profil"
 
-#: manager/models.py:621
+#: manager/models.py:627
 msgid "profiles"
 msgstr "profils"
 
-#: manager/models.py:624
+#: manager/models.py:630
 msgid "User"
 msgstr "Utilisateur"
 
-#: manager/models.py:634 manager/models.py:769 manager/models.py:1049
+#: manager/models.py:640 manager/models.py:775 manager/models.py:1055
 #: manager/templates/admin.html:61
 msgid "Organization"
 msgstr "Organisation"
 
-#: manager/models.py:637
+#: manager/models.py:643
 msgid "Can order physical?"
 msgstr "Peut commander une carte physique ?"
 
-#: manager/models.py:640
+#: manager/models.py:646
 msgid "Expire on"
 msgstr "Expire le"
 
-#: manager/models.py:710
+#: manager/models.py:716
 msgid "Profile parameters non unique"
 msgstr "Paramètres de profil non uniques"
 
-#: manager/models.py:761
+#: manager/models.py:767
 msgid "address"
 msgstr "adresse"
 
-#: manager/models.py:762
+#: manager/models.py:768
 msgid "addresss"
 msgstr "adresses"
 
-#: manager/models.py:775
+#: manager/models.py:781
 msgid "Created addrresses"
 msgstr "Adresses créées"
 
-#: manager/models.py:779
+#: manager/models.py:785
 msgid "Address Name"
 msgstr "Nom de l’adresse"
 
-#: manager/models.py:780
+#: manager/models.py:786
 msgid "Used only within the Cardshop"
 msgstr "Utilisé uniquement dans le Cardshop"
 
-#: manager/models.py:782
+#: manager/models.py:788
 msgid "Recipient Name"
 msgstr "Nom du destinataire"
 
-#: manager/models.py:788
+#: manager/models.py:794
 msgid "In international “+” format"
 msgstr "Au format international « + »"
 
-#: manager/models.py:789
+#: manager/models.py:795
 msgid "Phone"
 msgstr "Téléphone"
 
-#: manager/models.py:794
+#: manager/models.py:800
 msgid "Complete address without name and country"
 msgstr "Adresse complète sans nom ni pays"
 
-#: manager/models.py:795 manager/templates/address_list.html:20
+#: manager/models.py:801 manager/templates/address_list.html:20
 msgid "Address"
 msgstr "Adresse"
 
-#: manager/models.py:802 manager/templates/address_list.html:21
+#: manager/models.py:808 manager/templates/address_list.html:21
 #: manager/templates/all_orders.html:13 manager/templates/order_list.html:20
 msgid "Country"
 msgstr "Pays"
 
-#: manager/models.py:890
+#: manager/models.py:896
 msgid "media"
 msgstr "support"
 
-#: manager/models.py:891
+#: manager/models.py:897
 msgid "medias"
 msgstr "supports"
 
-#: manager/models.py:895 manager/templates/admin.html:105
+#: manager/models.py:901 manager/templates/admin.html:105
 msgid "Kind"
 msgstr "Type"
 
-#: manager/models.py:897
+#: manager/models.py:903
 msgid "In GB"
 msgstr "En Go"
 
-#: manager/models.py:899
+#: manager/models.py:905
 msgid "In bytes (auto calc)"
 msgstr "En octets (calcul auto)"
 
-#: manager/models.py:901
+#: manager/models.py:907
 msgid "Actual size"
 msgstr "Taille réelle"
 
-#: manager/models.py:904
+#: manager/models.py:910
 msgid "How much units per GB"
 msgstr "Combien d’unités par Go"
 
-#: manager/models.py:1045
+#: manager/models.py:1051
 msgid "order"
 msgstr "commande"
 
-#: manager/models.py:1046
+#: manager/models.py:1052
 msgid "orders"
 msgstr "commandes"
 
-#: manager/models.py:1051
+#: manager/models.py:1057
 msgid "Created on"
 msgstr "Créé le"
 
-#: manager/models.py:1053
+#: manager/models.py:1059
 msgid "Created by"
 msgstr "Créé par"
 
-#: manager/models.py:1057 manager/templates/order.html:10
+#: manager/models.py:1063 manager/templates/order.html:10
 msgid "Scheduler ID"
 msgstr "Scheduler ID"
 
-#: manager/models.py:1063
+#: manager/models.py:1069
 msgid "Scheduler Data"
 msgstr "Scheduler Data"
 
-#: manager/models.py:1066
+#: manager/models.py:1072
 msgid "Scheduler Data On"
 msgstr "Scheduler Data le"
 
-#: manager/models.py:1072 manager/templates/all_orders.html:15
+#: manager/models.py:1078 manager/templates/all_orders.html:15
 #: manager/templates/order_list.html:23 manager/templates/scheduler.html:16
 #: manager/templates/scheduler.html:169
 msgid "Status"
 msgstr "Statut"
 
-#: manager/models.py:1077
+#: manager/models.py:1083
 msgid "Client name"
 msgstr "Nom du client"
 
-#: manager/models.py:1078
+#: manager/models.py:1084
 msgid "Client Email"
 msgstr "Courriel du client"
 
-#: manager/models.py:1080
+#: manager/models.py:1086
 msgid "Client is limited"
 msgstr "Le client est limité"
 
-#: manager/models.py:1084
+#: manager/models.py:1090
 msgid "Client language"
 msgstr "Langue du client"
 
-#: manager/models.py:1090 manager/templates/order_detail.html:5
+#: manager/models.py:1096 manager/templates/order_detail.html:5
 msgid "Config"
 msgstr "Config"
 
-#: manager/models.py:1092
+#: manager/models.py:1098
 msgid "Media name"
 msgstr "Nom du média"
 
-#: manager/models.py:1093
+#: manager/models.py:1099
 msgid "Media type"
 msgstr "Type de support"
 
-#: manager/models.py:1095
+#: manager/models.py:1101
 msgid "Media duration"
 msgstr "Expiration du support"
 
-#: manager/models.py:1097
+#: manager/models.py:1103
 msgid "Media size"
 msgstr "Taille du support"
 
-#: manager/models.py:1098 manager/templates/order_detail.html:11
+#: manager/models.py:1104 manager/templates/order_detail.html:11
 #: manager/templates/order_new.html:35
 msgid "Quantity"
 msgstr "Quantité"
 
-#: manager/models.py:1101
+#: manager/models.py:1107
 msgid "Recipient name"
 msgstr "Nom du destinataire"
 
-#: manager/models.py:1103
+#: manager/models.py:1109
 msgid "Recipient Email"
 msgstr "E-mail du destinataire"
 
-#: manager/models.py:1106
+#: manager/models.py:1112
 msgid "Recipient language"
 msgstr "Langue du destinataire"
 
-#: manager/models.py:1111
+#: manager/models.py:1117
 msgid "Recipient phone"
 msgstr "Téléphone du destinataire"
 
-#: manager/models.py:1113 manager/templates/order_detail.html:15
+#: manager/models.py:1119 manager/templates/order_detail.html:15
 msgid "Recipient Address"
 msgstr "Adresse du destinataire"
 
-#: manager/models.py:1115
+#: manager/models.py:1121
 msgid "Recipient Country Code"
 msgstr "Code du pays destinataire"
 
-#: manager/models.py:1118
+#: manager/models.py:1124
 msgid "Warehouse Upload URI"
 msgstr "Warehouse Upload URI"
 
-#: manager/models.py:1121
+#: manager/models.py:1127
 msgid "Warehouse Download URI"
 msgstr "Warehouse Download URI"
 
-#: manager/models.py:1181
+#: manager/models.py:1187
 #, python-format
 msgid "Order requires %(req_u)dU but %(org)s has only %(avail_u)d"
 msgstr "La commande nécessite %(req_u)dU mais %(org)s n’en a que %(avail_u)d"
 
-#: manager/models.py:1211
+#: manager/models.py:1217
 msgid "Non-virtual order requires an address"
 msgstr "Les commande non virtuelles nécessitent une adresse"
 
-#: manager/models.py:1255
+#: manager/models.py:1261
 msgid "Unable to recreate order (cancel first?)."
 msgstr "Impossible de recréer la commande (l’annuler d’abord ?)."
 
@@ -862,23 +870,23 @@ msgstr "Votre sélection comporte des erreurs : %(errors)s"
 msgid "Interactive Tools"
 msgstr "Outils interactifs"
 
-#: manager/templates/configuration_edit.html:151
+#: manager/templates/configuration_edit.html:154
 msgid "Static Content Packages"
 msgstr "Contenus statiques"
 
-#: manager/templates/configuration_edit.html:155
+#: manager/templates/configuration_edit.html:158
 msgid "Available ZIMs"
 msgstr "ZIM disponibles"
 
-#: manager/templates/configuration_edit.html:157
+#: manager/templates/configuration_edit.html:160
 msgid "Select a language to filter"
 msgstr "Sélectionnez une langue pour filtrer"
 
-#: manager/templates/configuration_edit.html:176
+#: manager/templates/configuration_edit.html:179
 msgid "Selected ZIMs"
 msgstr "ZIM sélectionnés"
 
-#: manager/templates/configuration_edit.html:403
+#: manager/templates/configuration_edit.html:407
 msgid "__media_size__ <small>(__free_size__ free)</small>"
 msgstr "__media_size__ <small>(__free_size__ dispo)</small>"
 
@@ -1016,13 +1024,13 @@ msgstr "Pour passer une commande, vous devez :"
 #: manager/templates/home.html:18
 #, python-format
 msgid ""
-"A <a href=\"%(configuration_list)s\">configuration</a>: this is where you "
+"A <a href=\"%(config_list_url)s\">configuration</a>: this is where you "
 "select the content that will be available on your hotspot, as well as a few "
 "options options (WiFi name, logo, etc.);"
 msgstr ""
-"Une <a href=\"%(configuration_list)s\">configuration</a> : c’est ici que "
-"vous sélectionnez le contenu qui sera disponible sur votre hotspot, ainsi "
-"que quelques paramètres (nom du WiFi, logo, etc.) ;"
+"Une <a href=\"%(config_list_url)s\">configuration</a> : c’est ici que vous "
+"sélectionnez le contenu qui sera disponible sur votre hotspot, ainsi que "
+"quelques paramètres (nom du WiFi, logo, etc.) ;"
 
 #: manager/templates/home.html:19
 #, python-format
@@ -1630,11 +1638,11 @@ msgid "Log %(step)s/%(kind)s.txt does not exists for Order #%(id)s"
 msgstr ""
 "Le journal %(step)s/%(kind)s.txt n’existe pas pour la commande n°%(id)s"
 
-#: manager/views/config.py:101
+#: manager/views/config.py:102
 msgid "Your file is not a valid JSON. Can't import it."
 msgstr "Votre fichier n’est pas un JSON valide. Impossible de l’importer."
 
-#: manager/views/config.py:112
+#: manager/views/config.py:113
 #, python-format
 msgid ""
 "An error occured while trying to import your config file. Please retry or "
@@ -1644,12 +1652,12 @@ msgstr ""
 "fichier de configuration. Veuillez réessayer ou contacter l’assistance. "
 "(réf : %(err)s)"
 
-#: manager/views/config.py:136 manager/views/config.py:182
-#: manager/views/config.py:231
+#: manager/views/config.py:137 manager/views/config.py:183
+#: manager/views/config.py:232
 msgid "Configuration not found"
 msgstr "Configuration introuvable"
 
-#: manager/views/config.py:158
+#: manager/views/config.py:159
 msgid ""
 "Failed to save your configuration (although it looks good). Try again and "
 "contact support if it happens again (ref: $(err)s)"
@@ -1657,22 +1665,22 @@ msgstr ""
 "Échec de l’enregistrement de votre configuration (même elle semble bonne). "
 "Réessayez et contactez l’assistance si cela se reproduit (réf : $(err)s)"
 
-#: manager/views/config.py:165
+#: manager/views/config.py:166
 msgid "Configuration Updated successfuly !"
 msgstr "Configuration mise à jour avec succès !"
 
-#: manager/views/config.py:210
+#: manager/views/config.py:211
 #, python-format
 msgid "Successfuly deleted Configuration <em>%(config)s</em>"
 msgstr "Configuration supprimée avec succès <em>%(config)s</em>"
 
-#: manager/views/config.py:219
+#: manager/views/config.py:220
 #, python-format
 msgid "Unable to delete Configuration <em>%(config)s</em>: -- ref %(err)s"
 msgstr ""
 "Impossible de supprimer la configuration <em>%(config)s</em> : — ref %(err)s"
 
-#: manager/views/config.py:241
+#: manager/views/config.py:242
 #, python-format
 msgid ""
 "Successfuly duplicated Configuration <em>%(config)s</em> into <em>"
@@ -1681,7 +1689,7 @@ msgstr ""
 "Configuration <em>%(config)s</em> répliquée avec succès dans <em>"
 "%(new_config)s</em>"
 
-#: manager/views/config.py:254
+#: manager/views/config.py:255
 #, python-format
 msgid "Unable to duplicate Configuration <em>%(config)s</em>: -- ref %(err)s"
 msgstr ""
