@@ -138,7 +138,7 @@ class Configuration(models.Model):
         verbose_name_plural = _lz("configurations")
 
     KALITE_LANGUAGES = ["en", "fr", "es"]
-    WIKIFUNDI_LANGUAGES = ["en", "fr"]
+    WIKIFUNDI_LANGUAGES = ["en", "fr", "es"]
 
     organization = models.ForeignKey(
         "Organization",
@@ -260,6 +260,11 @@ class Configuration(models.Model):
         verbose_name=_lz("WikiFundi EN"),
         help_text=_lz("Wikipedia-like Editing Platform (English)"),
     )
+    content_wikifundi_es = models.BooleanField(
+        default=False,
+        verbose_name=_lz("WikiFundi ES"),
+        help_text=_lz("Wikipedia-like Editing Platform (Spanish)"),
+    )
     content_aflatoun = models.BooleanField(
         default=False,
         verbose_name=_lz("Aflatoun"),
@@ -366,6 +371,7 @@ class Configuration(models.Model):
             "content_kalite_es": "es" in kalite_langs,
             "content_wikifundi_fr": "fr" in wikifundi_langs,
             "content_wikifundi_en": "en" in wikifundi_langs,
+            "content_wikifundi_es": "es" in wikifundi_langs,
             "content_aflatoun": bool(get_nested_key(config, ["content", "aflatoun"])),
             "content_edupi": bool(get_nested_key(config, ["content", "edupi"])),
             "content_edupi_resources": get_if_str(
@@ -471,7 +477,7 @@ class Configuration(models.Model):
     def wikifundi_languages(self):
         return [
             lang
-            for lang in self.KALITE_LANGUAGES
+            for lang in self.WIKIFUNDI_LANGUAGES
             if getattr(self, "content_wikifundi_{}".format(lang), False)
         ]
 

@@ -141,10 +141,13 @@
 
 		<div class="form-row visual-group">
 			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_wikifundi_fr type="checkbox" size="2.92 GiB" %}
+				{% include "_input_field.html" with field=form.content_wikifundi_fr type="checkbox" size="9.38 GiB" %}
 			</div>
 			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_wikifundi_en type="checkbox" size="3.2 GiB" %}
+				{% include "_input_field.html" with field=form.content_wikifundi_en type="checkbox" size="10.83 GiB" %}
+			</div>
+			<div class="form-group col-md-4">
+				{% include "_input_field.html" with field=form.content_wikifundi_es type="checkbox" size="11.45 GiB" %}
 			</div>
 		</div>
 
@@ -204,6 +207,7 @@
 	var kalite_es_id = "{{ form.content_kalite_es.id_for_label }}";
 	var wikifundi_fr_id = "{{ form.content_wikifundi_fr.id_for_label }}";
 	var wikifundi_en_id = "{{ form.content_wikifundi_en.id_for_label }}";
+	var wikifundi_es_id = "{{ form.content_wikifundi_es.id_for_label }}";
 	var zim_field_id = "{{ form.content_zims.id_for_label }}";
 	var zim_field = $("#" + zim_field_id);
 	var packages = [{% for package in form.content_zims.value|as_packages %}"{{ package.langid }}",{% endfor %}];
