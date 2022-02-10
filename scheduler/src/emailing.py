@@ -67,6 +67,8 @@ CLIENT_EMAIL_STATUSES = [
 
 RECIPIENT_EMAIL_STATUSES = [Orders.shipped]
 
+FAILED_ORDER_EMAIL = os.getenv("FAILED_ORDER_EMAIL")
+
 
 @contextmanager
 def localized_for(lang, *args, **kwargs):
@@ -215,8 +217,11 @@ def get_email_for(order_id, kind, formatted=True):
     def _fmt(name, email):
         return "{name} <{email}>".format(name=name, email=email)
 
-    if kind not in ("client", "recipient", "operator"):
+    if kind not in ("client", "recipient", "operator", "error-manager"):
         return []
+
+    if kind == "error-manager" and FAILED_ORDER_EMAIL:
+        return _fmt("Cardshop Error Manager", FAILED_ORDER_EMAIL)
 
     order = Orders.get_with_tasks(order_id, {"logs": 0})
     if kind == "client":
@@ -283,6 +288,7 @@ def send_order_failed_email(order_id):
         "recipient_order_failed",
         "recipient",
         "client",
+        "error-manager",
     )
 
     # operator: download/write failed, please check conn and SD and contact client
