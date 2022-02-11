@@ -221,7 +221,7 @@ def get_email_for(order_id, kind, formatted=True):
         return []
 
     if kind == "error-manager" and FAILED_ORDER_EMAIL:
-        return _fmt("Cardshop Error Manager", FAILED_ORDER_EMAIL)
+        return _fmt("Cardshop Error Manager", FAILED_ORDER_EMAIL), "en"
 
     order = Orders.get_with_tasks(order_id, {"logs": 0})
     if kind == "client":
