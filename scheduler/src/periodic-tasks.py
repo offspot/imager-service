@@ -151,17 +151,17 @@ def run_periodic_tasks():
         order = Orders().get_with_tasks(task["order"])
 
         # timeout task
-        task.update_status(task_id=task_id, status=Tasks.timedout)
+        Tasks.update_status(task_id=task_id, status=Tasks.timedout)
 
         # if write, cancel peers
         if ls["status"] in (Tasks.wiping_sdcard, Tasks.writing):
             for peer in order["tasks"]["write"]:
                 if peer["_id"] == task_id:
                     continue
-                task.update_status(task_id=peer["_id"], status=Tasks.canceled)
+                Tasks.update_status(task_id=peer["_id"], status=Tasks.canceled)
 
         # cascade
-        task.cascade_status(task_id=task_id, status=task.timedout)
+        Tasks.cascade_status(task_id=task_id, status=Tasks.timedout)
 
         # notify
         send_order_failed_email(order["_id"])  # TODO: forward to task/order mgmt
