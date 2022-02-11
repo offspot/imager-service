@@ -138,7 +138,7 @@ def run_periodic_tasks():
     #     send_order_failed_email(order["_id"])  # TODO: forward to task/order mgmt
 
     logger.info("timing out expired orders")
-    for task in Tasks.all_inprogress():
+    for task_cls, task in Tasks.all_inprogress():
         task_id = task["_id"]
         ls = task["statuses"][-1]
 
@@ -151,17 +151,17 @@ def run_periodic_tasks():
         order = Orders().get_with_tasks(task["order"])
 
         # timeout task
-        Tasks.update_status(task_id=task_id, status=Tasks.timedout)
+        task_cls.update_status(task_id=task_id, status=Tasks.timedout)
 
         # if write, cancel peers
         if ls["status"] in (Tasks.wiping_sdcard, Tasks.writing):
             for peer in order["tasks"]["write"]:
                 if peer["_id"] == task_id:
                     continue
-                Tasks.update_status(task_id=peer["_id"], status=Tasks.canceled)
+                task_cls.update_status(task_id=peer["_id"], status=Tasks.canceled)
 
         # cascade
-        Tasks.cascade_status(task_id=task_id, status=Tasks.timedout)
+        task_cls.cascade_status(task_id=task_id, task_status=task_cls.timedout)
 
         # notify
         send_order_failed_email(order["_id"])  # TODO: forward to task/order mgmt

@@ -656,7 +656,7 @@ class Tasks(BaseCollection):
             xtasks = tcls().find(
                 {"status": {"$in": cls.IN_PROGRESS_STATUSES}}, {"_id": 1}
             )
-            tasks += [tcls().get(t["_id"]) for t in xtasks]
+            tasks += [(tcls, tcls.get(t["_id"])) for t in xtasks]
         return tasks
 
     @classmethod
