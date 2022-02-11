@@ -31,7 +31,7 @@ def get_next_month():
     )
 
 
-def is_expired(status, since, size=0):
+def is_expired(status, since, size="0"):
     now = datetime.datetime.now()
     min_bps = int(humanfriendly.parse_size("4MiB") / 8)
 
