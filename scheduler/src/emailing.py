@@ -218,7 +218,7 @@ def get_email_for(order_id, kind, formatted=True):
         return "{name} <{email}>".format(name=name, email=email)
 
     if kind not in ("client", "recipient", "operator", "error-manager"):
-        return []
+        return None, "en"
 
     if kind == "error-manager" and FAILED_ORDER_EMAIL:
         return _fmt("Cardshop Error Manager", FAILED_ORDER_EMAIL), "en"
@@ -239,7 +239,7 @@ def get_email_for(order_id, kind, formatted=True):
     if kind == "operator":
         worker = Users().by_username(order["tasks"]["download"]["worker"])
         return worker["email"], "en"
-    return []
+    return None, "en"
 
 
 def send_order_email_for(
@@ -261,6 +261,7 @@ def send_order_email_for(
         content = jinja_env.get_template("{}.html".format(content_tmpl)).render(
             **context
         )
+
     cc = ([cc] if isinstance(cc, str) else cc) or []
     bcc = ([bcc] if isinstance(bcc, str) else bcc) or []
     send_email(
