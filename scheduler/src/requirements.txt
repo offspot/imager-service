@@ -11,7 +11,7 @@ langcodes==1.4.1
 humanfriendly==4.17
 git+git://github.com/ojii/pymaging.git#egg=pymaging
 git+git://github.com/ojii/pymaging-png.git#egg=pymaging-png
-git+git://github.com/lincolnloop/python-qrcode.git#egg=qrcode
+qrcode==7.3.1
 torf>=3.1.1,<4.0
 stripe>=2.29.3,<2.30
 Flask-Cors>=3.0.9,<3.1
