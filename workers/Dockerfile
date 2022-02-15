@@ -10,12 +10,13 @@ RUN apt-get update -y && \
 RUN pip3 install -U pip
 
 # https://github.com/q3aql/aria2-static-builds/releases
-RUN curl -LO https://github.com/q3aql/aria2-static-builds/releases/download/v1.35.0/aria2-1.35.0-linux-gnu-64bit-build1.tar.bz2
-RUN tar xf aria2-1.35.0-linux-gnu-64bit-build1.tar.bz2 && mv aria2-1.35.0-linux-gnu-64bit-build1/aria2c /usr/bin/aria2c
-RUN rm -rf aria2-1.35.0-linux-gnu-64bit-build1 aria2-1.35.0-linux-gnu-64bit-build1.tar.bz2
+RUN curl -LO https://github.com/q3aql/aria2-static-builds/releases/download/v1.36.0/aria2-1.36.0-linux-gnu-64bit-build1.tar.bz2
+RUN tar xf aria2-1.36.0-linux-gnu-64bit-build1.tar.bz2 && mv aria2-1.36.0-linux-gnu-64bit-build1/aria2c /usr/bin/aria2c
+RUN rm -rf aria2-1.36.0-linux-gnu-64bit-build1 aria2-1.36.0-linux-gnu-64bit-build1.tar.bz2
 
 # kiwix-hotspot
-RUN curl -LO http://mirror.download.kiwix.org/release/kiwix-hotspot/v2.4.10/kiwix-hotspot-linux.tar.gz
+# RUN curl -L -o kiwix-hotspot-linux.tar.gz http://mirror.download.kiwix.org/release/kiwix-hotspot/v2.4.10/kiwix-hotspot-linux.tar.gz
+RUN curl -L -o kiwix-hotspot-linux.tar.gz http://tmp.kiwix.org/ci/kiwix-hotspot-linux-drive.tar.gz
 RUN tar xf kiwix-hotspot-linux.tar.gz && mv kiwix-hotspot /usr/bin/kiwix-hotspot
 RUN rm -f kiwix-hotspot-linux.tar.gz
 
