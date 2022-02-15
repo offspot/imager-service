@@ -1,6 +1,7 @@
 import os
 import datetime
 
+import humanfriendly
 from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.database import Database as BaseDatabase
@@ -662,6 +663,14 @@ class Tasks(BaseCollection):
     @classmethod
     def cancel(cls, task_id):
         cls.update_status(task_id, cls.canceled)
+
+    @classmethod
+    def get_size(cls, task_id):
+        task = cls.get(task_id)
+        if cls == CreatorTasks:
+            return humanfriendly.parse_size(task["config"]["size"])
+        if cls in (DownloaderTasks, WriterTasks):
+            return task["image_size"]
 
 
 class CreatorTasks(Tasks):

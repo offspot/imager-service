@@ -31,7 +31,7 @@ def get_next_month():
     )
 
 
-def is_expired(status, since, size="0"):
+def is_expired(status, since, size=0):
     now = datetime.datetime.now()
     min_bps = int(humanfriendly.parse_size("4MiB") / 8)
 
@@ -42,7 +42,6 @@ def is_expired(status, since, size="0"):
         return since < now - datetime.timedelta(minutes=30)
 
     if status in (Tasks.uploading, Tasks.downloading, Tasks.writing):
-        size = humanfriendly.parse_size(size)
         return since < now - datetime.timedelta(seconds=int(size / min_bps))
 
 
@@ -142,7 +141,7 @@ def run_periodic_tasks():
         task_id = task["_id"]
         ls = task["statuses"][-1]
 
-        if not is_expired(ls["status"], ls["on"]):
+        if not is_expired(ls["status"], ls["on"], task_cls.get_size(task_id)):
             logger.info("skipping non-expired task #{}".format(task_id))
             continue
 
