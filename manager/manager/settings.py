@@ -209,8 +209,6 @@ MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY", "")
 # used for sending reset password links in emails
 CARDSHOP_PUBLIC_URL = os.getenv("CARDSHOP_PUBLIC_URL",
                                 "https://cardshop.hotspot.kiwix.org")
-# content download mirror
-MIRROR = "http://mirror.download.kiwix.org"
 CONTENTS_FILE = os.path.join(BASE_DIR, "contents.json")
 
 CACHES = {

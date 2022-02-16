@@ -41,5 +41,3 @@ if not len(YAML_CATALOGS):
     cache_set("YAML_CATALOGS", YAML_CATALOGS)
 
 hotspot_languages = [("en", "English"), ("fr", "Fran\xe7ais")]
-
-MIRROR = "http://mirror.download.kiwix.org"

@@ -8,15 +8,12 @@ import itertools
 import requests
 
 from django.conf import settings
-from manager.pibox.data import YAML_CATALOGS, MIRROR
+from manager.pibox.data import YAML_CATALOGS
 from manager.pibox.util import get_checksum, ONE_GiB, ONE_MB, get_hardware_margin
 
 # prepare CONTENTS from JSON file
 with open(settings.CONTENTS_FILE, "r") as fp:
     CONTENTS = json.load(fp)
-    for key, dl_data in CONTENTS.items():
-        if "url" in dl_data.keys():
-            CONTENTS[key]["url"] = CONTENTS[key]["url"].format(mirror=MIRROR)
 
 
 def get_content(key):
