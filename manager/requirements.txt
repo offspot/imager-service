@@ -13,3 +13,5 @@ ansi2html==1.5.2
 mysqlclient>=2.0.1,<2.1
 werkzeug>=1.0.1
 Babel==2.9.1
+# jinja2 dependency (https://github.com/pallets/markupsafe/issues/284)
+MarkupSafe==2.0.1
