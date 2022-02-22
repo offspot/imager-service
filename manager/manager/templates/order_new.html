@@ -63,7 +63,7 @@
 		config_media: {
 			{% for config in configurations %}"{{ config.id }}": [{% for media in config.compatible_medias %}"{{ media.id }}", {% endfor %}],{% endfor %}
 		},
-		balance: {{ user.profile.organization.units }},
+		balance: {{ user.profile.organization.units|default_if_none:0 }},
 		limited: {{ user.profile.is_limited|lower }},
 	};
 
