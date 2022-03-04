@@ -133,7 +133,9 @@ def create_manager_account(email, expire_on):
             "password": "<your-existing-password>",
             "existing": True,
         }
-    if resp.status_code not in (200, 201):
+    # HTTP 200 is not expected and would only occur while manager is in maintenance mode
+    # but then it is an error; there is no JSON response.
+    if resp.status_code != 201:
         return False, {"status": resp.status_code}
     return True, resp.json()
 
