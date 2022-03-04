@@ -81,7 +81,7 @@ def send_paid_order_email(
     expire_on=None,
     recurring=False,
 ):
-    """ Sends email receipt to customer. Calls `prepare_order`. """
+    """Sends email receipt to customer. Calls `prepare_order`."""
     context = {
         "email": email,
         "name": name,
@@ -110,14 +110,14 @@ def send_paid_order_email(
 
 
 def get_links_for(product):
-    """ (http, torrent, magnet) URLs for a product-ID """
+    """(http, torrent, magnet) URLs for a product-ID"""
     # currently, product-ids matches the auto-images slugs
     image = AutoImages.get(product)
     return image["http_url"], image["torrent_url"], image["magnet_url"]
 
 
 def create_manager_account(email, expire_on):
-    """ create a user account on manager for email and expire datetime using API """
+    """create a user account on manager for email and expire datetime using API"""
     resp = requests.post(
         f"{MANAGER_API_URL}/accounts/create",
         headers={"Token": MANAGER_ACCOUNTS_API_TOKEN},
@@ -141,7 +141,9 @@ def create_manager_account(email, expire_on):
 def handle_credentials_creation(session, customer):
     # return if already handled and recorded
     session_record = StripeSession.get_or_create(
-        customer.id, session.id, session.metadata["product"]
+        customer_id=customer.id,
+        session_id=session.id,
+        product=session.metadata["product"],
     )
     if session_record.get("username"):
         return session_record
@@ -167,7 +169,7 @@ def handle_credentials_creation(session, customer):
             break
 
     StripeSession.update(
-        session_record["_id"],
+        record_id=session_record["_id"],
         username=credentials.get("username"),
         password=credentials.get("password"),
         existing_account=credentials.get("existing", False),
@@ -197,9 +199,9 @@ def handle_image_order(session, customer):
         torrent_url=torrent_url,
     )
     StripeSession.get_or_create(
-        customer.id,
-        session.id,
-        session.metadata["product"],
+        customer_id=customer.id,
+        session_id=session.id,
+        product=session.metadata["product"],
         receipt_sent=True,
         email_id=email_id,
         http_url=http_url,
@@ -209,7 +211,7 @@ def handle_image_order(session, customer):
 def handle_access_order(session, customer):
     now = datetime.datetime.now()
     product_dc = session.metadata["product"].split("-")[-1]
-    record = handle_credentials_creation(session, customer)
+    record = handle_credentials_creation(session=session, customer=customer)
 
     # send email receipt
     email_id = send_paid_order_email(
@@ -228,7 +230,7 @@ def handle_access_order(session, customer):
         expire_on=record.get("expiry"),
         recurring=record.get("recurring"),
     )
-    StripeSession.update(record["_id"], receipt_sent=True, email_id=email_id)
+    StripeSession.update(record_id=record["_id"], receipt_sent=True, email_id=email_id)
 
 
 PRODUCTS = {
@@ -267,29 +269,33 @@ PRODUCTS = {
 
 
 def update_cutomer(customer, session):
-    """ update Customer object on Stripe with name if we have it in session """
+    """update Customer object on Stripe with name if we have it in session"""
     if not customer.name and session.metadata.get("name"):
         stripe.Customer.modify(customer.id, name=session.metadata.get("name"))
         customer.name = session.metadata.get("name")
 
     db_customer = StripeCustomer.get_or_none(customer.email)
     if not db_customer:
-        StripeCustomer.create(customer.email, customer.id)
+        StripeCustomer.create(email=customer.email, customer_id=customer.id)
 
     if not StripeSession.get_or_none(session.id):
-        StripeSession.create(session.id, customer.id, session.metadata.get("product"))
+        StripeSession.create(
+            session_id=session.id,
+            customer_id=customer.id,
+            product=session.metadata.get("product"),
+        )
 
 
 @blueprint.route("/", methods=["GET"])
 def home():
-    """ rediret to configured SHOP URL """
+    """rediret to configured SHOP URL"""
     return flask.redirect(SHOP_PUBLIC_URL)
 
 
 @blueprint.route("/widget/", methods=["GET"])
 @blueprint.route("/widget/<string:lang>", methods=["GET"])
 def widget(lang="en"):
-    """ iframe-able shop UI to select product and be redirected to Stripe """
+    """iframe-able shop UI to select product and be redirected to Stripe"""
     if lang not in ["en", "de", "es", "fr"]:
         return flask.Response("Invalid lang"), 404
 
@@ -304,7 +310,7 @@ def widget(lang="en"):
 
 @blueprint.route("/create-session", methods=["POST"])
 def create_checkout_session():
-    """ create a Stripe session for an order and return its id as json """
+    """create a Stripe session for an order and return its id as json"""
     name = request.form.get("name")
     email = request.form.get("email")
     product = request.form.get("product")
@@ -334,7 +340,7 @@ def create_checkout_session():
 
 @blueprint.route("/webhook/checkout_succeeded", methods=["POST"])
 def on_checkout_suceeded():
-    """ webhook inited on payment completed """
+    """webhook inited on payment completed"""
     event = None
     payload = request.data
     try:
@@ -349,14 +355,14 @@ def on_checkout_suceeded():
         customer = stripe.customer.Customer.retrieve(session["customer"])
 
         try:
-            update_cutomer(customer, session)
+            update_cutomer(customer=customer, session=session)
         except Exception as exc:
             logger.error("Unable to update customer")
             logger.exception(exc)
 
         try:
             handler = PRODUCTS.get(session["metadata"]["product"])[2]
-            handler(session, customer)
+            handler(session=session, customer=customer)
         except Exception as exc:
             logger.critical("Unable to process handler")
             logger.exception(exc)
@@ -368,7 +374,7 @@ def on_checkout_suceeded():
 
 @blueprint.route("/success", methods=["GET"])
 def success():
-    """ confirmation webpage on payment successful """
+    """confirmation webpage on payment successful"""
     session_id = request.args.get("session_id")
     if not session_id:
         return flask.Response("No Session ID", 404)
@@ -382,7 +388,7 @@ def success():
         return flask.Response("Invalid Session ID", 400)
 
     try:
-        update_cutomer(customer, session)
+        update_cutomer(customer=customer, session=session)
     except Exception as exc:
         logger.error("Unable to update customer")
         logger.exception(exc)
@@ -399,7 +405,7 @@ def success():
         context.update({"http_url": http_url, "torrent_url": torrent_url})
     elif product.startswith("access"):
         kind = "access"
-        record = handle_credentials_creation(session, customer)
+        record = handle_credentials_creation(session=session, customer=customer)
 
         if not record or not record.get("username"):
             record = {}

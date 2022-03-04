@@ -233,8 +233,11 @@ class Orders(BaseCollection):
                     "required": True,
                 },
                 "limited": {"type": "boolean", "required": False},
-                "language": {"type": "string", "regex": "^[a-zA-Z]{2}$",
-                             "required": False},
+                "language": {
+                    "type": "string",
+                    "regex": "^[a-zA-Z]{2}$",
+                    "required": False,
+                },
             },
         },
         "recipient": {
@@ -251,8 +254,11 @@ class Orders(BaseCollection):
                 "address": {"type": "string", "required": True},
                 "country": {"type": "string", "required": True},
                 "shipment": {"type": "string", "required": False, "nullable": True},
-                "language": {"type": "string", "regex": "^[a-zA-Z]{2}$",
-                             "required": False},
+                "language": {
+                    "type": "string",
+                    "regex": "^[a-zA-Z]{2}$",
+                    "required": False,
+                },
             },
         },
         "warehouse": {"type": "dict", "required": False},
@@ -898,12 +904,15 @@ class StripeSession(BaseCollection):
     def get_or_create(cls, customer_id, session_id, product, **extra):
         record = cls.get_or_none(session_id)
         if record and extra:
-            cls.update(record["_id"], **extra)
+            cls.update(record_id=record["_id"], **extra)
         elif record:
             return record
-        cls.create(customer_id, session_id, product, **extra)
+        else:
+            cls.create(
+                customer_id=customer_id, session_id=session_id, product=product, **extra
+            )
         return cls.get_or_none(session_id)
 
     @classmethod
-    def update(cls, session_id, **update):
-        cls().update_one({"_id": session_id}, {"$set": update})
+    def update(cls, record_id, **update):
+        cls().update_one({"_id": record_id}, {"$set": update})
