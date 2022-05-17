@@ -7,13 +7,13 @@ import collections
 
 import langcodes
 
-from manager.pibox.data import YAML_CATALOGS
+from manager.pibox.data import get_yaml_catalogs
 from manager.pibox.util import human_readable_size
 
 
 def get_packages_flat():
     packages = []
-    for catalog in YAML_CATALOGS:
+    for catalog in get_yaml_catalogs():
         packages += catalog["all"].values()
     return packages
 

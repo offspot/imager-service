@@ -24,20 +24,24 @@ CATALOGS = [
     }
 ]
 
-YAML_CATALOGS = cache_get("YAML_CATALOGS", [])
-if not len(YAML_CATALOGS):
-    logger.info("Downloading catalogs online")
-    try:
-        for catalog in CATALOGS:
-            YAML_CATALOGS.append(
-                yaml.load(
-                    requests.get(catalog.get("url")).content.decode("utf-8"),
-                    Loader=Loader,
+
+def get_yaml_catalogs():
+    yaml_catalogs = cache_get("YAML_CATALOGS", [])
+    if not yaml_catalogs:
+        logger.info("Downloading catalogs online")
+        try:
+            for catalog in CATALOGS:
+                yaml_catalogs.append(
+                    yaml.load(
+                        requests.get(catalog.get("url")).content.decode("utf-8"),
+                        Loader=Loader,
+                    )
                 )
-            )
-    except Exception as exc:
-        logger.error(f"Unable to load ideascube catalog: {exc}")
-        raise exc
-    cache_set("YAML_CATALOGS", YAML_CATALOGS)
+        except Exception as exc:
+            logger.error(f"Unable to load ideascube catalog: {exc}")
+            raise exc
+        cache_set("YAML_CATALOGS", yaml_catalogs)
+    return yaml_catalogs
+
 
 hotspot_languages = [("en", "English"), ("fr", "Fran\xe7ais")]

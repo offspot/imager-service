@@ -8,7 +8,7 @@ import itertools
 import requests
 
 from django.conf import settings
-from manager.pibox.data import YAML_CATALOGS
+from manager.pibox.data import get_yaml_catalogs
 from manager.pibox.util import get_checksum, ONE_GiB, ONE_MB, get_hardware_margin
 
 # prepare CONTENTS from JSON file
@@ -232,7 +232,7 @@ def get_aflatoun_contents(languages=[]):
 
 def get_package_content(package_id):
     """ content-like dict for packages (zim file or static site) """
-    for catalog in YAML_CATALOGS:
+    for catalog in get_yaml_catalogs():
         try:
             package = catalog["all"][package_id]
             package.update({"ext": "zip" if package["type"] != "zim" else "zim"})
