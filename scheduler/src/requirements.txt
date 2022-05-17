@@ -9,8 +9,8 @@ pycountry==18.5.26
 pdfkit==0.6.1
 langcodes==1.4.1
 humanfriendly==4.17
-git+git://github.com/ojii/pymaging.git#egg=pymaging
-git+git://github.com/ojii/pymaging-png.git#egg=pymaging-png
+https://github.com/ojii/pymaging/archive/refs/heads/master.zip#egg=pymaging
+https://github.com/ojii/pymaging-png/archive/refs/heads/master.zip#egg=pymaging-png
 qrcode==7.3.1
 torf>=3.1.1,<4.0
 stripe>=2.29.3,<2.30
