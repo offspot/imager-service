@@ -4,5 +4,5 @@ netifaces==0.10.7
 colorama==0.4.1
 Unidecode==1.0.23
 tabulate==0.8.2
-ipython==7.2.0
+ipython==7.16.3
 humanfriendly==4.17
