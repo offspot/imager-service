@@ -306,7 +306,7 @@ def get_creatorload_status(access_token):
         completes_on = datetime.datetime.fromisoformat(
             load["estimated_completion"].replace("Z", "")
         )
-        return (completes_on - datetime.datetime.now()).total_seconds() <= 86400
+        return (completes_on - datetime.datetime.now()).total_seconds() <= 172800
     except Exception as exc:
         print(f"Unable to get creators load: {exc}")
         return False
