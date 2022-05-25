@@ -6,33 +6,42 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manager', '0009_auto_20201109_1043'),
+        ("manager", "0009_auto_20201109_1043"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='client_limited',
+            model_name="order",
+            name="client_limited",
             field=models.BooleanField(default=True),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='channel',
-            field=models.CharField(choices=[('kiwix', 'Kiwix')], default='kiwix', max_length=50),
+            model_name="organization",
+            name="channel",
+            field=models.CharField(
+                choices=[("kiwix", "Kiwix")], default="kiwix", max_length=50
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='public_warehouse',
-            field=models.CharField(choices=[('kiwix', 'download')], default='download', max_length=50, verbose_name='Pub WH'),
+            model_name="organization",
+            name="public_warehouse",
+            field=models.CharField(
+                choices=[("kiwix", "download")],
+                default="download",
+                max_length=50,
+                verbose_name="Pub WH",
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='units',
+            model_name="organization",
+            name="units",
             field=models.IntegerField(blank=True, default=0, null=True),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='warehouse',
-            field=models.CharField(choices=[('kiwix', 'download')], default='kiwix', max_length=50),
+            model_name="organization",
+            name="warehouse",
+            field=models.CharField(
+                choices=[("kiwix", "download")], default="kiwix", max_length=50
+            ),
         ),
     ]

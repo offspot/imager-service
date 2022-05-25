@@ -6,38 +6,65 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manager', '0012_auto_20201111_1158'),
+        ("manager", "0012_auto_20201111_1158"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='configuration',
-            name='content_africatik',
-            field=models.BooleanField(default=False, help_text="Applications éducatives pour l'Afrique", verbose_name='Africatik apps'),
+            model_name="configuration",
+            name="content_africatik",
+            field=models.BooleanField(
+                default=False,
+                help_text="Applications éducatives pour l'Afrique",
+                verbose_name="Africatik apps",
+            ),
         ),
         migrations.AlterField(
-            model_name='configuration',
-            name='project_name',
-            field=models.CharField(default='kiwix', help_text='Network name; the landing page will also be at http://name.hotspot', max_length=100, verbose_name='Hospot name'),
+            model_name="configuration",
+            name="project_name",
+            field=models.CharField(
+                default="kiwix",
+                help_text="Network name; the landing page will also be at http://name.hotspot",
+                max_length=100,
+                verbose_name="Hospot name",
+            ),
         ),
         migrations.AlterField(
-            model_name='configuration',
-            name='wifi_password',
-            field=models.CharField(blank=True, default=None, help_text='Leave empty for Open WiFi (recommended)<br />Do <strong>not</strong> use special characters. 8 chars min.', max_length=100, null=True, verbose_name='WiFi Password'),
+            model_name="configuration",
+            name="wifi_password",
+            field=models.CharField(
+                blank=True,
+                default=None,
+                help_text="Leave empty for Open WiFi (recommended)<br />Do <strong>not</strong> use special characters. 8 chars min.",
+                max_length=100,
+                null=True,
+                verbose_name="WiFi Password",
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='channel',
-            field=models.CharField(choices=[('kiwix', 'Kiwix (Public)')], default='kiwix', max_length=50),
+            model_name="organization",
+            name="channel",
+            field=models.CharField(
+                choices=[("kiwix", "Kiwix (Public)")], default="kiwix", max_length=50
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='public_warehouse',
-            field=models.CharField(choices=[('download', 'download'), ('kiwix', 'kiwix')], default='download', max_length=50, verbose_name='Pub WH'),
+            model_name="organization",
+            name="public_warehouse",
+            field=models.CharField(
+                choices=[("download", "download"), ("kiwix", "kiwix")],
+                default="download",
+                max_length=50,
+                verbose_name="Pub WH",
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='warehouse',
-            field=models.CharField(choices=[('download', 'download'), ('kiwix', 'kiwix')], default='kiwix', max_length=50),
+            model_name="organization",
+            name="warehouse",
+            field=models.CharField(
+                choices=[("download", "download"), ("kiwix", "kiwix")],
+                default="kiwix",
+                max_length=50,
+            ),
         ),
     ]

@@ -6,6 +6,7 @@ import ipaddress
 import subprocess
 
 import yaml
+
 try:
     from yaml import CSafeLoader as Loader, CSafeDumper as Dumper
 except ImportError:
@@ -22,13 +23,13 @@ NETPLAN_NS = {"nameservers": {"addresses": NAME_SERVERS}}
 
 
 def read_netplan():
-    """ read netplan config file (yaml) """
+    """read netplan config file (yaml)"""
     with open(str(NETPLAN_CONF), "r") as fd:
         return yaml.load(fd.read(), Loader=Loader)
 
 
 def save_netplan(config, apply_conf=True):
-    """ save netplan config file (yaml) """
+    """save netplan config file (yaml)"""
     with open(str(NETPLAN_CONF), "w") as fd:
         yaml.dump(config, fd, Dumper=Dumper)
     if apply_conf:
@@ -37,19 +38,19 @@ def save_netplan(config, apply_conf=True):
 
 
 def update_netplan(data, apply_conf=True):
-    """ update values into netplan config file """
+    """update values into netplan config file"""
     config = read_netplan()
     config.update(data)
     save_netplan(config, apply_conf=apply_conf)
 
 
 def reset_netplan():
-    """ replace netplan config with blank one """
+    """replace netplan config with blank one"""
     return save_netplan(BLANK_CONF, apply_conf=True)
 
 
 def get_iface_config(iface):
-    """ simple address/netmask/gateway access to real netplan conf for an iface """
+    """simple address/netmask/gateway access to real netplan conf for an iface"""
     conf = read_netplan()["network"]["ethernets"].get(iface, {})
     addresses = conf.get("addresses", [])
     address = addresses[0] if addresses else None
@@ -69,7 +70,7 @@ def get_iface_config(iface):
 
 
 def get_interfaces(skip_loopback=True):
-    """ list of available network interfaces """
+    """list of available network interfaces"""
     all_ifaces = netifaces.interfaces()
     if skip_loopback:
         return filter(
@@ -79,7 +80,7 @@ def get_interfaces(skip_loopback=True):
 
 
 def is_internet_connected():
-    """ boolean whether kiwix website is avail via HTTP (hence internet OK) """
+    """boolean whether kiwix website is avail via HTTP (hence internet OK)"""
     try:
         requests.head("http://kiwix.org")
         return True

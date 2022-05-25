@@ -24,7 +24,7 @@ logger = getLogger(__name__)
 
 
 def read_conf():
-    """ read cardshop config file (json) """
+    """read cardshop config file (json)"""
     try:
         with open(str(CONFIG_PATH), "r") as fd:
             return json.load(fd)
@@ -34,7 +34,7 @@ def read_conf():
 
 
 def save_conf(config):
-    """ save cardshop config to file (json) """
+    """save cardshop config to file (json)"""
     try:
         with open(str(CONFIG_PATH), "w") as fd:
             json.dump(config, fd, indent=4)
@@ -45,7 +45,7 @@ def save_conf(config):
 
 
 def update_conf(data):
-    """ update values into cardshop config file """
+    """update values into cardshop config file"""
     config = read_conf()
     config.update(data)
     return save_conf(config)

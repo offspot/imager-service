@@ -118,9 +118,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-LOCALE_PATHS = [
-    f"{BASE_DIR}/locale"
-]
+LOCALE_PATHS = [f"{BASE_DIR}/locale"]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
@@ -156,15 +154,13 @@ if os.getenv("DATABASE", ""):
     dsn = urllib.parse.urlparse(os.getenv("DATABASE"))
     if dsn.scheme in ("mariadb", "mysql"):
         database = {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': dsn.path[1:] if dsn.path else None,
-            'USER': dsn.username,
-            'PASSWORD': dsn.password or '',
-            'HOST': dsn.hostname,
-            'PORT': str(dsn.port or 3306),
-            'OPTIONS': {
-                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-            }
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": dsn.path[1:] if dsn.path else None,
+            "USER": dsn.username,
+            "PASSWORD": dsn.password or "",
+            "HOST": dsn.hostname,
+            "PORT": str(dsn.port or 3306),
+            "OPTIONS": {"init_command": "SET sql_mode='STRICT_TRANS_TABLES'"},
         }
     elif dsn.scheme.startswith("sqlite"):
         database = {
@@ -198,17 +194,17 @@ CARDSHOP_API_URL_EXTERNAL = os.getenv(
     "CARDSHOP_API_URL_EXTERNAL", "https://api.cardshop.hotspot.kiwix.org"
 )
 # Token for API allowing creation of user accounts
-ACCOUNTS_API_TOKEN = os.getenv(
-    "ACCOUNTS_API_TOKEN", "dev"
-)
+ACCOUNTS_API_TOKEN = os.getenv("ACCOUNTS_API_TOKEN", "dev")
 # email-sending related (mailgun API)
 MAIL_FROM = os.getenv("MAIL_FROM", "cardshop@kiwix.org")
-MAILGUN_API_URL = os.getenv("MAILGUN_API_URL",
-                            "https://api.mailgun.net/v3/cardshop.hotspot.kiwix.org")
+MAILGUN_API_URL = os.getenv(
+    "MAILGUN_API_URL", "https://api.mailgun.net/v3/cardshop.hotspot.kiwix.org"
+)
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY", "")
 # used for sending reset password links in emails
-CARDSHOP_PUBLIC_URL = os.getenv("CARDSHOP_PUBLIC_URL",
-                                "https://cardshop.hotspot.kiwix.org")
+CARDSHOP_PUBLIC_URL = os.getenv(
+    "CARDSHOP_PUBLIC_URL", "https://cardshop.hotspot.kiwix.org"
+)
 CONTENTS_FILE = os.path.join(BASE_DIR, "contents.json")
 
 CACHES = {
@@ -221,6 +217,6 @@ CACHES = {
 }
 
 LANGUAGES = [
-  ('en', _lz('English')),
-  ('fr', _lz('French')),
+    ("en", _lz("English")),
+    ("fr", _lz("French")),
 ]

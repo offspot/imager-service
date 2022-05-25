@@ -2,14 +2,11 @@ import pymongo
 from bson import ObjectId
 from flask import Blueprint, request, jsonify, Response, redirect as flask_redirect
 from jsonschema import validate, ValidationError
+
 # from werkzeug.exceptions import NotFound
 
 from utils.mongo import AutoImages, Users
-from . import (
-    authenticate,
-    errors,
-    ensure_user_matches_role
-)
+from . import authenticate, errors, ensure_user_matches_role
 
 
 blueprint = Blueprint("autoimage", __name__, url_prefix="/auto-images")
@@ -116,7 +113,7 @@ def json_document(autoimage_slug: ObjectId, user: dict):
 
 @blueprint.route("/<string:autoimage_slug>/redirect/<string:method>", methods=["GET"])
 def redirect(autoimage_slug: ObjectId, method: str):
-    """ only for public images (user not forwarded) """
+    """only for public images (user not forwarded)"""
 
     if method not in ["http", "torrent", "magnet"]:
         raise errors.NotFound()

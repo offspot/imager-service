@@ -25,7 +25,7 @@ class CreatorWorker(BaseWorker):
     job_cls = CreateTask
 
     def check_kiwix_hotspot(self):
-        """ check latest version of kiwix-hotspot and download if different """
+        """check latest version of kiwix-hotspot and download if different"""
 
         # guess latest version
         req = requests.get(

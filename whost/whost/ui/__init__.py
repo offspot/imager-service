@@ -12,7 +12,7 @@ CANCEL_LIST = [CANCEL]
 
 
 def handle_cancel(value):
-    """ print and exit if value i cancel """
+    """print and exit if value i cancel"""
     if value == CANCEL:
         display_success("Canceling ; exiting.")
         sys.exit(1)
@@ -47,12 +47,12 @@ def display_menu(label, choices=None, menu=None, launch=True, with_cancel=False)
 
 
 def display_success(*message):
-    """ standardized way of displaying a success message """
+    """standardized way of displaying a success message"""
     cli.info_2(*message)
 
 
 def display_error(*message):
-    """ standardized way of displaying an error message """
+    """standardized way of displaying an error message"""
     cli.info(cli.red, *message)
 
 
@@ -62,13 +62,13 @@ def pause(*message):
 
 
 def restart_line():
-    """ reset a single printed line (useful for loader) """
+    """reset a single printed line (useful for loader)"""
     sys.stdout.write("\r")
     sys.stdout.flush()
 
 
 def get_valid_string(label, validator, default=None):
-    """ shortcut to request a string validated via a callback """
+    """shortcut to request a string validated via a callback"""
     value, error = None, None
     while value is None:
         if error:
@@ -78,7 +78,7 @@ def get_valid_string(label, validator, default=None):
 
 
 def nonempty_validator(value):
-    """ validator ensuring value is not empty """
+    """validator ensuring value is not empty"""
     if not value:
         return None, "Empty value not allowed"
     return (value, None)

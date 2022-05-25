@@ -50,7 +50,7 @@ def status(path=""):
 
 
 async def collect_statuses():
-    """ gather all status checks in a single dict """
+    """gather all status checks in a single dict"""
     scheduler_token = get_scheduler_token()
     scheduler_workers_list = get_scheduler_workers_list(scheduler_token)
     loop = asyncio.get_event_loop()
@@ -153,7 +153,7 @@ def get_scheduler_token():
 
 
 def get_scheduler_workers_list(access_token):
-    """ Retrieve workers list from scheduler API to test scheduler and workers """
+    """Retrieve workers list from scheduler API to test scheduler and workers"""
 
     # fetch our urls
     url = os.getenv("STATUS_CARDSHOP_API_URL", "")
@@ -174,7 +174,7 @@ def get_scheduler_workers_list(access_token):
 
 
 def get_scheduler_status(workers_list):
-    """ Verify that we can connect to and retrieve data from scheduler API """
+    """Verify that we can connect to and retrieve data from scheduler API"""
     if not workers_list:
         return False
     try:
@@ -232,7 +232,7 @@ def get_manager_status():
 
 
 def get_database_status():
-    """ connect to mongo and verify that number of `users` col records is positive """
+    """connect to mongo and verify that number of `users` col records is positive"""
     timeout = 1000
     try:
         client = pymongo.MongoClient(
@@ -250,7 +250,7 @@ def get_database_status():
 
 
 def get_images_status():
-    """ Verify that a standard image is available through its standard name """
+    """Verify that a standard image is available through its standard name"""
     url = os.getenv("STATUS_CARDSHOP_API_URL", "")
     try:
         return (
@@ -313,7 +313,7 @@ def get_creatorload_status(access_token):
 
 
 def timed_run():
-    """ DEBUG: run and print the checks once with timeit """
+    """DEBUG: run and print the checks once with timeit"""
     import timeit
 
     print(

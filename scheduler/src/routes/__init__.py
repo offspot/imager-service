@@ -27,6 +27,7 @@ def authenticate(allow_noauth=False):
                 raise errors.Unauthorized("token invalid")
 
         return wrapper
+
     return decorate
 
 

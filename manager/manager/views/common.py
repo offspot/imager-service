@@ -6,7 +6,7 @@ from manager.scheduler import query_api, GET, fix_id
 
 
 class APIQuerySet(object):
-    """ QuerySet-like object for an API request's results """
+    """QuerySet-like object for an API request's results"""
 
     def __init__(self, query, method=GET, params={}):
         self.method = method

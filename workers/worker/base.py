@@ -39,14 +39,14 @@ class BaseWorker:
         Setting.read_from_env()
 
     def start(self, run_loop=True):
-        """ starts the worker (initialization) """
+        """starts the worker (initialization)"""
         logger.info("Welcome to Cardshop {} worker:".format(self.worker_type))
         self.read_setting()
         if run_loop:
             self.run_loop()
 
     def stop(self):
-        """ stops worker completely """
+        """stops worker completely"""
         logger.info("received stop request ; shutting down (please wait).")
         # cancelling job and marking as failed
         if self.busy and self.job is not None and self.job.is_alive():
@@ -105,7 +105,7 @@ class BaseWorker:
         logger.info("sending ACK to scheduler. working on #{}".format(self.task["_id"]))
 
     def read_worker_log(self):
-        """ returns worker log for seld.task """
+        """returns worker log for seld.task"""
         if self.log_handler is None or self.log_stream is None:
             return None
         logger.removeHandler(self.log_handler)

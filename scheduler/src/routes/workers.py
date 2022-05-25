@@ -79,7 +79,7 @@ def calculate_load(user: dict):
     now = datetime.datetime.now()
 
     def is_connected(worker):
-        """ whether a worker is considered connected (ping 15mn ago) """
+        """whether a worker is considered connected (ping 15mn ago)"""
         try:
             return (now - worker["on"]).total_seconds() <= 900  # 15mn
         except Exception:
@@ -87,7 +87,7 @@ def calculate_load(user: dict):
             return False
 
     def get_remaining_minutes(task):
-        """ estimated remaining duration of task based on units and when/if started """
+        """estimated remaining duration of task based on units and when/if started"""
         # physical card units are 10 times download ones but creator impact is identical
         units = task["units"] / 10 if task["units"] > 512 else task["units"]
 
@@ -145,6 +145,6 @@ def calculate_load(user: dict):
             "pending_tasks": nb_pending_taks,
             "cumulative_duration": cumulative_duration,
             "remaining_minutes": remaining_minutes,
-            "estimated_completion": estimated_completion.isoformat()
+            "estimated_completion": estimated_completion.isoformat(),
         }
     )

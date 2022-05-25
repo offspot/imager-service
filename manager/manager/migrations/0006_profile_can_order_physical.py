@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manager', '0005_auto_20201016_1452'),
+        ("manager", "0005_auto_20201016_1452"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='can_order_physical',
-            field=models.BooleanField(default=False, help_text='Can SD?'),
+            model_name="profile",
+            name="can_order_physical",
+            field=models.BooleanField(default=False, help_text="Can SD?"),
         ),
     ]

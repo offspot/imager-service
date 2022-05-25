@@ -11,7 +11,7 @@ logger = getLogger(__name__)
 
 
 def is_authenticated():
-    """ boolean if in-config credentials could authenticate """
+    """boolean if in-config credentials could authenticate"""
     config = read_conf()
     try:
         req = requests.post(
@@ -31,7 +31,7 @@ def is_authenticated():
 
 
 def configure_credentials():
-    """ get username/password/api_url from user and save to config file """
+    """get username/password/api_url from user and save to config file"""
     cli.info_2("Credentials")
     config = read_conf()
 

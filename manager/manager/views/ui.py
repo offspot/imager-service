@@ -203,7 +203,7 @@ class OrderForm(forms.Form):
             media=self.cleaned_data.get("media"),
             quantity=self.cleaned_data.get("quantity"),
             address=self.cleaned_data.get("address"),
-            request_lang=self.request_lang
+            request_lang=self.request_lang,
         ).min_id
 
     @classmethod

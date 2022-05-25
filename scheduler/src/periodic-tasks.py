@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_next_month():
-    """ get next month's 1st day at 08:00 """
+    """get next month's 1st day at 08:00"""
     start_of_month = datetime.date(*datetime.date.today().timetuple()[:2], 1)
     return datetime.datetime(
         *(start_of_month + datetime.timedelta(days=31)).timetuple()[:2], 1, 8, 0

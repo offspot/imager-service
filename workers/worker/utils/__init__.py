@@ -12,14 +12,14 @@ import hashlib
 
 import requests
 
-ONE_KiB = 2 ** 10
-ONE_MiB = 2 ** 20
+ONE_KiB = 2**10
+ONE_MiB = 2**20
 FAILURE_RETRIES = 6
 logger = logging.getLogger(__name__)
 
 
 def get_checksum(fpath, func=hashlib.md5):
-    """" hashname, diget for a file """
+    """ " hashname, diget for a file"""
     h = func()
     with open(fpath, "rb") as f:
         for chunk in iter(lambda: f.read(ONE_MiB * 8), b""):
@@ -111,7 +111,7 @@ def stream(url, write_to=None, callback=None, block_size=1024):
 
 
 def download_file(url, fpath):
-    """ downloads expected URL+sum to file while showing progress """
+    """downloads expected URL+sum to file while showing progress"""
     hook = ReportHook().reporthook
     try:
         size, path = stream(url, fpath, callback=hook)

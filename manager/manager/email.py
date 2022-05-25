@@ -39,7 +39,9 @@ def send_mailgun_email(
         files=[
             ("attachment", (os.path.basename(fpath), open(fpath, "rb").read()))
             for fpath in attachments
-        ] if attachments else [],
+        ]
+        if attachments
+        else [],
     )
     resp.raise_for_status()
     return resp.json().get("id")

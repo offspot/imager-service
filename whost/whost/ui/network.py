@@ -22,7 +22,7 @@ from whost.network import (
 
 
 def ipadress_validator(value):
-    """ IPv4 address validator """
+    """IPv4 address validator"""
     try:
         ipaddress.ip_address(value).compressed
     except ValueError:
@@ -31,7 +31,7 @@ def ipadress_validator(value):
 
 
 def reset_network_config():
-    """ restore initial blank /etc/network/configure """
+    """restore initial blank /etc/network/configure"""
 
     if reset_netplan():
         display_success("Network configuration has been reset via netplan.")

@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manager', '0008_auto_20201109_1040'),
+        ("manager", "0008_auto_20201109_1040"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='media',
-            name='actual_size',
-            field=models.BigIntegerField(blank=True, help_text='In bytes (auto calc)'),
+            model_name="media",
+            name="actual_size",
+            field=models.BigIntegerField(blank=True, help_text="In bytes (auto calc)"),
         ),
         migrations.AlterField(
-            model_name='media',
-            name='size',
-            field=models.BigIntegerField(help_text='In GB'),
+            model_name="media",
+            name="size",
+            field=models.BigIntegerField(help_text="In GB"),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='media_size',
+            model_name="order",
+            name="media_size",
             field=models.BigIntegerField(),
         ),
     ]

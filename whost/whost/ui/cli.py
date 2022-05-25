@@ -72,7 +72,7 @@ def _setup(**kwargs: ConfigValue) -> None:
 
 
 class Color:
-    """Represent an ANSI escape sequence """
+    """Represent an ANSI escape sequence"""
 
     def __init__(self, code: str):
         self.code = code
@@ -115,7 +115,7 @@ darkyellow = yellow
 
 # Other nice-to-have characters:
 class UnicodeSequence:
-    """ Represent a sequence containing a color followed by a Unicode symbol """
+    """Represent a sequence containing a color followed by a Unicode symbol"""
 
     def __init__(self, color: Color, as_unicode: str, as_ascii: str):
         if os.name == "nt":
@@ -261,20 +261,20 @@ def message(
 
 
 def fatal(*tokens: Token, **kwargs: Any) -> None:
-    """ Print an error message and call ``sys.exit`` """
+    """Print an error message and call ``sys.exit``"""
     error(*tokens, **kwargs)
     sys.exit(1)
 
 
 def error(*tokens: Token, **kwargs: Any) -> None:
-    """ Print an error message """
+    """Print an error message"""
     tokens = [bold, red, "Error:"] + list(tokens)  # type: ignore
     kwargs["fileobj"] = sys.stderr
     message(*tokens, **kwargs)
 
 
 def warning(*tokens: Token, **kwargs: Any) -> None:
-    """ Print a warning message """
+    """Print a warning message"""
     tokens = [brown, "Warning:"] + list(tokens)  # type: ignore
     kwargs["fileobj"] = sys.stderr
     message(*tokens, **kwargs)
@@ -295,7 +295,7 @@ def info(*tokens: Token, **kwargs: Any) -> None:
 
 
 def info_section(*tokens: Token, **kwargs: Any) -> None:
-    """ Print an underlined section name """
+    """Print an underlined section name"""
     # We need to know the length of the section:
     process_tokens_kwargs = kwargs.copy()
     process_tokens_kwargs["color"] = False
@@ -305,17 +305,17 @@ def info_section(*tokens: Token, **kwargs: Any) -> None:
 
 
 def info_1(*tokens: Token, **kwargs: Any) -> None:
-    """ Print an important informative message """
+    """Print an important informative message"""
     info(bold, blue, "::", reset, *tokens, **kwargs)
 
 
 def info_2(*tokens: Token, **kwargs: Any) -> None:
-    """ Print an not so important informative message """
+    """Print an not so important informative message"""
     info(bold, blue, "=>", reset, *tokens, **kwargs)
 
 
 def info_3(*tokens: Token, **kwargs: Any) -> None:
-    """ Print an even less important informative message """
+    """Print an even less important informative message"""
     info(bold, blue, "*", reset, *tokens, **kwargs)
 
 
@@ -578,11 +578,11 @@ class Timer:
         self.stop()
 
     def start(self) -> None:
-        """ Start the timer """
+        """Start the timer"""
         self.start_time = datetime.datetime.now()
 
     def stop(self) -> None:
-        """ Stop the timer and emit a nice log """
+        """Stop the timer and emit a nice log"""
         end_time = datetime.datetime.now()
         elapsed_time = end_time - self.start_time
         elapsed_seconds = elapsed_time.seconds

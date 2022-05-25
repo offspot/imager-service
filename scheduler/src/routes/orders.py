@@ -124,7 +124,7 @@ def anonymize(user: dict):
 @only_for_roles(roles=Users.MANAGER_ROLE)
 @bson_object_id(["order_id"])
 def document(order_id: ObjectId, user: dict):
-    """ fetch indiviual order info or cancel it """
+    """fetch indiviual order info or cancel it"""
     if request.method == "GET":
         with_logs = request.args.get("with_logs", default=False, type=string_to_bool)
         order = Orders.get_with_tasks(order_id, with_logs=with_logs)

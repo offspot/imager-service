@@ -32,7 +32,7 @@ DEVICES_PREFIX = Path("/sys/devices")
 
 
 def get_writer(slot, device_id):
-    """ shortcut to retrieve device, slot and name when reading config """
+    """shortcut to retrieve device, slot and name when reading config"""
     device = get_block_name(device_id)
     if device is None:
         return None
@@ -45,7 +45,7 @@ def get_writer(slot, device_id):
 
 
 def get_writers():
-    """ list of get_writer() for all writers in conf """
+    """list of get_writer() for all writers in conf"""
     config = read_conf()
     writers = []
     for slot, w in config.get("writers", {}).items():
@@ -60,7 +60,7 @@ def reset_writers():
 
 
 def get_block_devices_list():
-    """ ["sdb", "sdc", ..] returning all block devices """
+    """["sdb", "sdc", ..] returning all block devices"""
     return [
         fname
         for fname in os.listdir(BLOCK_PREFIX)
@@ -73,7 +73,7 @@ def get_removable_usb_blocks():
 
 
 def find_device():
-    """ return block_name (sdX) of the first found removable block dev with geometry """
+    """return block_name (sdX) of the first found removable block dev with geometry"""
     try:
         return next(
             filter(
@@ -100,7 +100,7 @@ def _block_path(block_name):
 
 
 def get_device_id(block_name):
-    """ USB id to this block device (2:0:0:1) """
+    """USB id to this block device (2:0:0:1)"""
     parts = _block_path(block_name).resolve().parts
     device_id = parts[-3]
     if device_id == "class":
@@ -109,7 +109,7 @@ def get_device_id(block_name):
 
 
 def get_block_name(device_id):
-    """ current block device name for this hardware ID """
+    """current block device name for this hardware ID"""
     try:
         block_path = Path(
             subprocess.run(
@@ -150,7 +150,7 @@ def get_block_name(device_id):
 
 
 def get_display_name(block_name):
-    """ string from info in block/device/<name>|<vendor>|<model> """
+    """string from info in block/device/<name>|<vendor>|<model>"""
     parts = []
     for prop in ("vendor", "model", "name"):
         pp = _block_path(block_name).joinpath("device", prop)

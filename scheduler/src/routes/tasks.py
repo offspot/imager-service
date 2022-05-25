@@ -66,7 +66,7 @@ def typed_collection(task_type: str, user: dict):
 @only_for_roles(roles=Users.WORKER_ROLES)
 @bson_object_id(["task_id"])
 def document(task_id: ObjectId, task_type: str, user: dict):
-    """ fetch indiviual yask info or cancel it """
+    """fetch indiviual yask info or cancel it"""
     if request.method == "GET":
         task = tasks_cls_for(task_type).get(task_id)
         if task is None:

@@ -10,7 +10,7 @@ import subprocess
 from utils.setting import Setting
 from utils.scheduler import update_task_status
 
-ONE_KiB = 2 ** 10
+ONE_KiB = 2**10
 
 
 class BaseTask(threading.Thread):

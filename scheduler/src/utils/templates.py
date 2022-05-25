@@ -23,12 +23,12 @@ re_newlines = re.compile(r"\r\n|\r")  # Used in normalize_newlines
 
 
 def get_id(an_object):
-    """ return the _id prop of the mongo object/dict """
+    """return the _id prop of the mongo object/dict"""
     return an_object["_id"]
 
 
 def get_pub_url(order):
-    """ full URL if order detail on public website """
+    """full URL if order detail on public website"""
     return "{pub_url}/orders/f/{id}".format(
         pub_url=os.getenv("PUBLIC_URL"), id=order["_id"]
     )
@@ -52,7 +52,7 @@ def get_public_download_url(order):
         parts = list(urllib.parse.urlsplit(url.geturl()))
         parts[0] = parts[0].replace("+torrent", "")
         url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
-    return urllib.parse.urljoin(url.geturl(), order['fname'])
+    return urllib.parse.urljoin(url.geturl(), order["fname"])
 
 
 def get_public_download_torrent_url(order):
@@ -91,12 +91,12 @@ def get_public_download_magnet_url(order):
 
 
 def yesno(value):
-    """ yes or no string from bool value """
+    """yes or no string from bool value"""
     return "yes" if bool(value) else "no"
 
 
 def language_name(language_code):
-    """ languane name of language_code """
+    """languane name of language_code"""
     return langcodes.Language.get(language_code).language_name()
 
 
@@ -113,13 +113,13 @@ def normalize_newlines(text):
 
 
 def linebreaksbr(value, autoescape=True):
-    """ convert all newlines to <br /> tags """
+    """convert all newlines to <br /> tags"""
     value = normalize_newlines(value)
     return Markup(value.replace("\n", "<br />"))
 
 
 def b64qrcode(text):
-    """ encodes the text in PNG QRCode then return its base64 repr """
+    """encodes the text in PNG QRCode then return its base64 repr"""
     img = qrcode.make(text, image_factory=PymagingImage)
     with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as qfile:
         img.save(qfile)
@@ -128,7 +128,7 @@ def b64qrcode(text):
 
 
 def amount_str(amount):
-    """ string version of amount from int:1000 ($10) to 10.00 """
+    """string version of amount from int:1000 ($10) to 10.00"""
     ps = str(amount / 100).split(".")
     au = ps[0].zfill(2)
     ac = ps[1].ljust(2, "0") if len(ps[1]) < 2 else ps[1]

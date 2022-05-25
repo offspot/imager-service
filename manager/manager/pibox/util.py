@@ -17,9 +17,9 @@ import humanfriendly
 from manager.pibox import data
 
 
-ONE_MB = 10 ** 6
-ONE_MiB = 2 ** 20
-ONE_GiB = 2 ** 30
+ONE_MB = 10**6
+ONE_MiB = 2**20
+ONE_GiB = 2**30
 ONE_GB = int(1e9)
 EXFAT_FORBIDDEN_CHARS = ["/", "\\", ":", "*", "?", '"', "<", ">", "|"]
 
@@ -61,20 +61,20 @@ def get_temp_folder(in_path):
 
 
 def relpathto(dest, root=None):
-    """ relative path to an absolute one """
+    """relative path to an absolute one"""
     if dest is None:
         return None
     return str(Path(dest).relative_to(root))
 
 
 def b64encode(fpath):
-    """ base64 string of a binary file """
+    """base64 string of a binary file"""
     with open(fpath, "rb") as fp:
         return base64.b64encode(fp.read()).decode("utf-8")
 
 
 def b64decode(fname, data, to):
-    """ write back a binary file from its fname and base64 string """
+    """write back a binary file from its fname and base64 string"""
     fpath = os.path.join(to, fname)
     with open(fpath, "wb") as fp:
         fp.write(base64.b64decode(data))
@@ -82,7 +82,7 @@ def b64decode(fname, data, to):
 
 
 def exfat_fnames_filter(fname):
-    """ whether supplied fname is valid exfat fname or not """
+    """whether supplied fname is valid exfat fname or not"""
     # TODO: check for chars U+0000 to U+001F
     return sum([1 for x in EXFAT_FORBIDDEN_CHARS if x in fname]) == 0
 
@@ -163,26 +163,26 @@ def check_user_inputs(
 
 
 def as_power_of_2(size):
-    """ round to the next nearest power of 2 """
+    """round to the next nearest power of 2"""
     return 2 ** math.ceil(math.log(size, 2))
 
 
 def get_hardware_margin(size: int):
-    """ number of bytes we must keep free as the HW might not support it """
+    """number of bytes we must keep free as the HW might not support it"""
     return size * 0.03 if size / ONE_GB <= 16 else 0.04
 
 
 def get_hardware_adjusted_image_size(size: int):
-    """ number of bytes we can safely write on an SD card of such size
+    """number of bytes we can safely write on an SD card of such size
 
-        to accomodate difference between marketed size and available space """
+    to accomodate difference between marketed size and available space"""
     return int(size - get_hardware_margin(size))
 
 
 def get_qemu_adjusted_image_size(size):
-    """ number of bytes to resize image file to to accomodate Qemu
+    """number of bytes to resize image file to to accomodate Qemu
 
-        which expects it to be a power of 2 (integer) """
+    which expects it to be a power of 2 (integer)"""
 
     # if size is not a rounded GiB multiple, round it to next power of 2
     return size if size % ONE_GiB == 0 else as_power_of_2(size)

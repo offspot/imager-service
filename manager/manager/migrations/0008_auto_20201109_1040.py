@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('manager', '0007_auto_20201102_1040'),
+        ("manager", "0007_auto_20201102_1040"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='configuration',
-            name='size',
+            model_name="configuration",
+            name="size",
             field=models.BigIntegerField(blank=True),
         ),
     ]
