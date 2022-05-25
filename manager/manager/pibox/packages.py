@@ -18,9 +18,6 @@ def get_packages_flat():
     return packages
 
 
-ALL_PACKAGES = get_packages_flat()
-
-
 def get_parsed_package(package):
     name = package.get("name")
     name_tag_regexp = r"(.+)\[(.+)\]$"
@@ -45,7 +42,7 @@ def get_parsed_package(package):
 
 def get_packages_by_lang():
     packages = {}
-    for package in ALL_PACKAGES:
+    for package in get_packages_flat():
         plang = langcodes.Language.get(package.get("language")).language
         pid = package.get("langid")
         if not plang or not pid:
@@ -57,7 +54,11 @@ def get_packages_by_lang():
 
 
 def get_packages_id():
-    return [package.get("langid") for package in ALL_PACKAGES if package.get("langid")]
+    return [
+        package.get("langid")
+        for package in get_packages_flat()
+        if package.get("langid")
+    ]
 
 
 def get_packages_langs():
@@ -68,7 +69,7 @@ def get_packages_langs():
                     langcodes.Language.get(lang).language,
                     langcodes.Language.get(lang).language_name(),
                 )
-                for lang in PACKAGES_BY_LANG
+                for lang in get_packages_by_lang()
                 if lang
             ],
             key=lambda x: x[1],
@@ -77,12 +78,8 @@ def get_packages_langs():
 
 
 def get_package(pid):
-    """ retrieve package from its ID """
-    for package in ALL_PACKAGES:
+    """retrieve package from its ID"""
+    for package in get_packages_flat():
         if package.get("langid") == pid:
             return package
     return None
-
-
-PACKAGES_BY_LANG = get_packages_by_lang()
-PACKAGES_LANGS = get_packages_langs()

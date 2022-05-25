@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
 from manager.models import Media, Configuration, Organization, Profile
-from manager.pibox.packages import PACKAGES_BY_LANG
+from manager.pibox.packages import get_packages_by_lang
 from manager.pibox.util import human_readable_size, ONE_GB
 from manager.pibox.content import get_collection, get_required_image_size
 
@@ -45,7 +45,10 @@ def packages_for_language(request, lang_code):
 
     ordered = collections.OrderedDict(
         sorted(
-            [(k, _filter(v)) for k, v in PACKAGES_BY_LANG.get(lang_code, {}).items()],
+            [
+                (k, _filter(v))
+                for k, v in get_packages_by_lang().get(lang_code, {}).items()
+            ],
             key=lambda x: x[1][order[0]],
             reverse=order[1],
         )

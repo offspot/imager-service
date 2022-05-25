@@ -15,7 +15,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext as _
 
 from manager.models import Configuration
-from manager.pibox.packages import PACKAGES_LANGS
+from manager.pibox.packages import get_packages_langs
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +143,7 @@ def configuration_edit(request, config_id=None):
         config = Configuration(organization=request.user.profile.organization)
 
     # list of languages availables in all catalogs
-    context["packages_langs"] = PACKAGES_LANGS
+    context["packages_langs"] = get_packages_langs()
 
     if request.method == "POST":
         form = ConfigurationForm(request.POST, request.FILES, instance=config)
