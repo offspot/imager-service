@@ -171,6 +171,7 @@ def configuration_edit(request, config_id=None):
         form = ConfigurationForm(instance=config)
 
     context["form"] = form
+    context["missing_zims"] = config.retrieve_missing_zims()
 
     return render(request, "configuration_edit.html", context)
 

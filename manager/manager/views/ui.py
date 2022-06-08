@@ -113,7 +113,14 @@ class OrderForm(forms.Form):
         label=_lz("Order Type"),
         help_text=_lz("Either download link sent via email or micro-SD card shipment"),
     )
-    config = forms.ChoiceField(choices=[], label=_lz("Configuration"))
+    config = forms.ChoiceField(
+        choices=[],
+        label=_lz("Configuration"),
+        help_text=_lz(
+            "Missing your configuration? "
+            "Go check your configurations list for any warning."
+        ),
+    )
     address = forms.ChoiceField(choices=[], label=_lz("Recipient"))
     media = forms.ChoiceField(
         choices=[],

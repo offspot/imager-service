@@ -27,7 +27,7 @@
 		<th>{% blocktrans %}Delete{% endblocktrans %}</th></tr></thead>
 	<tbody>
 	{% for configuration in configurations %}
-	<tr><th><a href="{% url 'configuration_edit' configuration.id %}">{{ configuration }}</a></th>
+	<tr><th><a href="{% url 'configuration_edit' configuration.id %}">{{ configuration }}</a>{% if configuration.retrieve_missing_zims %} <span title="{% blocktrans %}At least one ZIM is not available anymore{% endblocktrans %}">⚠️</span>{% endif %}</th>
 		<td>{{ configuration.size|human_size }}</td>
 		<td>{{ configuration.min_media }}</td>
 		<td>{{ configuration.updated_by.name }}</td>

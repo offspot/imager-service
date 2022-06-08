@@ -416,8 +416,18 @@ class Configuration(models.Model):
         return False
 
     def save(self, *args, **kwargs):
+        # remove packages not in catalog
+        self.content_zims = [
+            package for package in self.content_zims if package in get_packages_id()
+        ]
         self.size_value_changed()
         super().save(*args, **kwargs)
+
+    def retrieve_missing_zims(self):
+        """checks packages list over catalog for changes"""
+        return [
+            package for package in self.content_zims if package not in get_packages_id()
+        ]
 
     @classmethod
     def get_choices(cls, organization):
@@ -429,6 +439,7 @@ class Configuration(models.Model):
                 ),
             )
             for item in cls.objects.filter(organization=organization)
+            if not item.retrieve_missing_zims()
         ]
 
     @classmethod
