@@ -68,21 +68,21 @@ msgid "Size"
 msgstr "Taille"
 
 #: manager/models.py:165
-msgid "Same"
-msgstr "Idem"
+msgid "Configuration name"
+msgstr "Nom de la configuration"
 
 #: manager/models.py:167
 msgid "Used <strong>only within the Cardshop</strong>"
 msgstr "Utilisé <strong>uniquement dans le Cardshop</strong>"
 
 #: manager/models.py:172
-msgid "Hospot name"
-msgstr "Nom du Hotspot"
+msgid "Network name"
+msgstr "Nom du réseau"
 
 #: manager/models.py:174
-msgid "Network name; the landing page will also be at http://name.hotspot"
+msgid "The landing page will also be at http://name.hotspot"
 msgstr ""
-"Nom du réseau; la page d’accueil se trouvera aussi sous http://nom.hotspot"
+"La page d’accueil se trouvera aussi sous http://nom.hotspot"
 
 #: manager/models.py:182 manager/models.py:575 manager/models.py:645
 msgid "Language"
