@@ -1,5 +1,3 @@
-<p align="center"><img src="/logo/logotype-horizontal.png"></p>
-
 # Kiwix Hotspot Cardshop
 
 [Kiwix Hotspot](https://www.kiwix.org/en/downloads/kiwix-hotspot/)
