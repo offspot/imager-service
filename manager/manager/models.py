@@ -292,14 +292,16 @@ class Configuration(models.Model):
         verbose_name=_lz("Africatik Écoles"),
         help_text=_lz(
             "Applications éducatives adaptées au contexte culturel africain "
-            "(version Écoles numériques)"),
+            "(version Écoles numériques)"
+        ),
     )
     content_africatikmd = models.BooleanField(
         default=False,
         verbose_name=_lz("Africatik Maisons digitales"),
         help_text=_lz(
             "Applications éducatives adaptées au contexte culturel africain "
-            "(version Maisons digitales)"),
+            "(version Maisons digitales)"
+        ),
     )
 
     @classmethod
@@ -384,7 +386,8 @@ class Configuration(models.Model):
             "content_mathews": bool(get_nested_key(config, ["content", "mathews"])),
             "content_africatik": bool(get_nested_key(config, ["content", "africatik"])),
             "content_africatikmd": bool(
-                get_nested_key(config, ["content", "africatikmd"])),
+                get_nested_key(config, ["content", "africatikmd"])
+            ),
         }
 
         try:
@@ -423,7 +426,9 @@ class Configuration(models.Model):
     def save(self, *args, **kwargs):
         # remove packages not in catalog
         self.content_zims = [
-            package for package in self.content_zims if package in get_packages_id()
+            package_id
+            for package_id in self.content_zims
+            if package_id in get_packages_id()
         ]
         self.size_value_changed()
         super().save(*args, **kwargs)
@@ -431,7 +436,9 @@ class Configuration(models.Model):
     def retrieve_missing_zims(self):
         """checks packages list over catalog for changes"""
         return [
-            package for package in self.content_zims if package not in get_packages_id()
+            package_id
+            for package_id in self.content_zims
+            if package_id not in get_packages_id()
         ]
 
     @classmethod

@@ -12,7 +12,7 @@ from django import template
 
 from manager.models import Address, Order
 from manager.pibox.util import human_readable_size
-from manager.pibox.packages import get_parsed_package, get_package
+from manager.pibox.packages import get_package
 
 register = template.Library()
 
@@ -36,13 +36,6 @@ def raw_number(value):
 
 
 register.filter("raw_number", raw_number)
-
-
-def parsed_sname(package):
-    return get_parsed_package(package)["sname"]
-
-
-register.filter("parsed_sname", parsed_sname)
 
 
 def decodeb64(value):
@@ -154,3 +147,10 @@ def yesno(value):
 
 
 register.filter("yesnoraw", yesno)
+
+
+def to_html_id(package_id):
+    return package_id.replace(":", "___").replace(".", "__")
+
+
+register.filter("html_id", to_html_id)
