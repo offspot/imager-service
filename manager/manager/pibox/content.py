@@ -81,7 +81,6 @@ def get_collection(
     packages=[],
     kalite_languages=[],
     wikifundi_languages=[],
-    aflatoun_languages=[],
 ):
     """ builds complete list of callbacks and options for selected contents
 
@@ -179,16 +178,6 @@ def get_collection(
             )
         )
 
-    if len(aflatoun_languages):
-        collection.append(
-            (
-                "Aflatoun",
-                get_aflatoun_contents,
-                run_aflatoun_actions,
-                {"languages": aflatoun_languages},
-            )
-        )
-
     return collection
 
 
@@ -236,13 +225,6 @@ def get_wikifundi_contents(languages=[]):
     """ wikifundi: large language pack for each lang """
     return [
         get_content("wikifundi_langpack_{lang}".format(lang=lang)) for lang in languages
-    ]
-
-
-def get_aflatoun_contents(languages=[]):
-    """ aflatoun: single large tarball with content + mini lang packs """
-    return [get_content("aflatoun_content")] + [
-        get_content("aflatoun_langpack_{lang}".format(lang=lang)) for lang in languages
     ]
 
 
@@ -303,10 +285,6 @@ def run_kalite_actions(cache_folder, mount_point, logger, languages=[]):
 
 
 def run_wikifundi_actions(cache_folder, mount_point, logger, languages=[]):
-    return
-
-
-def run_aflatoun_actions(cache_folder, mount_point, logger, languages=[]):
     return
 
 

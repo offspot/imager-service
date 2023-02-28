@@ -49,7 +49,6 @@ class ConfigurationForm(forms.ModelForm):
             "content_wikifundi_fr",
             "content_wikifundi_en",
             "content_wikifundi_es",
-            "content_aflatoun",
             "content_edupi",
             "content_edupi_resources",
             "content_nomad",

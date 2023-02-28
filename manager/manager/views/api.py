@@ -79,7 +79,6 @@ def required_size_for_config(request):
         packages=data.get("packages", []),
         kalite_languages=data.get("kalite", []),
         wikifundi_languages=data.get("wikifundi", []),
-        aflatoun_languages=["fr", "en"] if data.get("aflatoun", False) else [],
     )
     required_image_size = get_required_image_size(collection)
     media = Media.get_min_for(required_image_size)

@@ -122,7 +122,6 @@
 				{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
 			</div>
 			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_aflatoun type="checkbox" size="3.67GiB" %}
 			</div>
 		</div>
 
@@ -223,7 +222,6 @@
 	var mathews_id = "{{ form.content_mathews.id_for_label }}";
 	var africatik_id = "{{ form.content_africatik.id_for_label }}";
 	var africatikmd_id = "{{ form.content_africatikmd.id_for_label }}";
-	var aflatoun_id = "{{ form.content_aflatoun.id_for_label }}";
 	var kalite_fr_id = "{{ form.content_kalite_fr.id_for_label }}";
 	var kalite_en_id = "{{ form.content_kalite_en.id_for_label }}";
 	var kalite_es_id = "{{ form.content_kalite_es.id_for_label }}";
@@ -435,7 +433,6 @@
 			mathews: $('#' + mathews_id).is(':checked'),
 			africatik: $('#' + africatik_id).is(':checked'),
 			africatikmd: $('#' + africatikmd_id).is(':checked'),
-			aflatoun: $('#' + aflatoun_id).is(':checked'),
 			kalite: [],
 			wikifundi: [],
 			packages: packages,

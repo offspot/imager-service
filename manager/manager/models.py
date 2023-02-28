@@ -215,7 +215,7 @@ class Configuration(models.Model):
         max_length=31,
         default="admin-password",
         verbose_name=_lz("Admin password"),
-        help_text=_lz("To manage KA-Lite, Aflatoun, EduPi and Wikifundi"),
+        help_text=_lz("To manage KA-Lite, EduPi and Wikifundi"),
         validators=[validate_admin_pwd],
     )
 
@@ -264,11 +264,6 @@ class Configuration(models.Model):
         default=False,
         verbose_name=_lz("WikiFundi ES"),
         help_text=_lz("Wikipedia-like Editing Platform (Spanish)"),
-    )
-    content_aflatoun = models.BooleanField(
-        default=False,
-        verbose_name=_lz("Aflatoun"),
-        help_text=_lz("Education Platform for kids"),
     )
     content_edupi = models.BooleanField(
         default=False,
@@ -381,7 +376,6 @@ class Configuration(models.Model):
             "content_wikifundi_fr": "fr" in wikifundi_langs,
             "content_wikifundi_en": "en" in wikifundi_langs,
             "content_wikifundi_es": "es" in wikifundi_langs,
-            "content_aflatoun": bool(get_nested_key(config, ["content", "aflatoun"])),
             "content_edupi": bool(get_nested_key(config, ["content", "edupi"])),
             "content_edupi_resources": get_if_str(
                 get_nested_key(config, ["content", "edupi_resources"])
@@ -521,7 +515,6 @@ class Configuration(models.Model):
             packages=self.content_zims or [],
             kalite_languages=self.kalite_languages,
             wikifundi_languages=self.wikifundi_languages,
-            aflatoun_languages=["fr", "en"] if self.content_aflatoun else [],
         )
 
     def to_dict(self):
@@ -551,7 +544,6 @@ class Configuration(models.Model):
                             ("zims", self.content_zims),
                             ("kalite", self.kalite_languages),
                             ("wikifundi", self.wikifundi_languages),
-                            ("aflatoun", self.content_aflatoun),
                             ("edupi", self.content_edupi),
                             ("edupi_resources", self.content_edupi_resources),
                             ("nomad", self.content_nomad),

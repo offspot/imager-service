@@ -98,7 +98,6 @@
 							</td></tr>
 							<tr><th>Khan Academy</th><td>{%for lang in order.config.content.kalite %}- {{ lang|language }}<br />{% else %}no{% endfor %}</td></tr>
 							<tr><th>WikiFundi</th><td>{%for lang in order.config.content.wikifundi %}- {{ lang|language }}<br />{% else %}no{% endfor %}</td></tr>
-							<tr><th>Aflatoun</th><td>{{ order.config.content.aflatoun|yesno }}</td></tr>
 							<tr><th>EduPi</th><td>{{ order.config.content.edupi|yesno }}{% if order.config.content.edupi_resources %} (with resources){% endif %}</td></tr>
 							<tr><th>ZIM Packages</th><td>{% for zim in order.config.content.zims %}- <code>{{ zim }}</code><br />{% else %}no{% endfor %}</td></tr>
 							</table>
