@@ -55,6 +55,7 @@ class ConfigurationForm(forms.ModelForm):
             "content_nomad",
             "content_mathews",
             "content_africatik",
+            "content_africatikmd",
         ]
 
 

@@ -294,8 +294,17 @@ class Configuration(models.Model):
     )
     content_africatik = models.BooleanField(
         default=False,
-        verbose_name=_lz("Africatik apps"),
-        help_text=_lz("Applications éducatives pour l'Afrique"),
+        verbose_name=_lz("Africatik Écoles"),
+        help_text=_lz(
+            "Applications éducatives adaptées au contexte culturel africain "
+            "(version Écoles numériques)"),
+    )
+    content_africatikmd = models.BooleanField(
+        default=False,
+        verbose_name=_lz("Africatik Maisons digitales"),
+        help_text=_lz(
+            "Applications éducatives adaptées au contexte culturel africain "
+            "(version Maisons digitales)"),
     )
 
     @classmethod
@@ -380,6 +389,8 @@ class Configuration(models.Model):
             "content_nomad": bool(get_nested_key(config, ["content", "nomad"])),
             "content_mathews": bool(get_nested_key(config, ["content", "mathews"])),
             "content_africatik": bool(get_nested_key(config, ["content", "africatik"])),
+            "content_africatikmd": bool(
+                get_nested_key(config, ["content", "africatikmd"])),
         }
 
         try:
@@ -506,6 +517,7 @@ class Configuration(models.Model):
             nomad=self.content_nomad,
             mathews=self.content_mathews,
             africatik=self.content_africatik,
+            africatikmd=self.content_africatikmd,
             packages=self.content_zims or [],
             kalite_languages=self.kalite_languages,
             wikifundi_languages=self.wikifundi_languages,
@@ -545,6 +557,7 @@ class Configuration(models.Model):
                             ("nomad", self.content_nomad),
                             ("mathews", self.content_mathews),
                             ("africatik", self.content_africatik),
+                            ("africatikmd", self.content_africatikmd),
                         ]
                     ),
                 ),

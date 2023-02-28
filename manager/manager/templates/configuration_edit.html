@@ -134,7 +134,17 @@
 				{% include "_input_field.html" with field=form.content_mathews type="checkbox" size="50 MiB" %}
 			</div>
 			<div class="form-group col-md-4">
+			</div>
+		</div>
+
+		<div class="form-row visual-group">
+			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_africatik type="checkbox" size="12.94 GiB" %}
+			</div>
+			<div class="form-group col-md-4">
+				{% include "_input_field.html" with field=form.content_africatikmd type="checkbox" size="4.09 GiB" %}
+			</div>
+			<div class="form-group col-md-4">
 			</div>
 		</div>
 
@@ -212,6 +222,7 @@
 	var nomad_id = "{{ form.content_nomad.id_for_label }}";
 	var mathews_id = "{{ form.content_mathews.id_for_label }}";
 	var africatik_id = "{{ form.content_africatik.id_for_label }}";
+	var africatikmd_id = "{{ form.content_africatikmd.id_for_label }}";
 	var aflatoun_id = "{{ form.content_aflatoun.id_for_label }}";
 	var kalite_fr_id = "{{ form.content_kalite_fr.id_for_label }}";
 	var kalite_en_id = "{{ form.content_kalite_en.id_for_label }}";
@@ -423,6 +434,7 @@
 			nomad: $('#' + nomad_id).is(':checked'),
 			mathews: $('#' + mathews_id).is(':checked'),
 			africatik: $('#' + africatik_id).is(':checked'),
+			africatikmd: $('#' + africatikmd_id).is(':checked'),
 			aflatoun: $('#' + aflatoun_id).is(':checked'),
 			kalite: [],
 			wikifundi: [],
