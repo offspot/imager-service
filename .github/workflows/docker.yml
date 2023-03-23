@@ -8,11 +8,11 @@ on:
 jobs:
   scheduler:
     name: Deploy scheduler Image
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.4.0
       - name: Publish Docker Image
-        uses: openzim/docker-publish-action@v5
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/cardshop-scheduler
           on-master: latest
@@ -25,11 +25,11 @@ jobs:
 
   manager:
     name: Deploy manager Image
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.4.0
       - name: Publish Docker Image
-        uses: openzim/docker-publish-action@v5
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/cardshop-manager
           on-master: latest
@@ -42,11 +42,11 @@ jobs:
 
   worker:
     name: Deploy worker Image
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.4.0
       - name: Publish Docker Image
-        uses: openzim/docker-publish-action@v5
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/cardshop-worker
           on-master: latest
