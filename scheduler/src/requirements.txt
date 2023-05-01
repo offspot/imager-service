@@ -1,4 +1,4 @@
-flask==1.0.2
+flask==2.3.2
 pymongo==3.7.1
 jsonschema==2.6.0
 PyJWT==1.6.4
