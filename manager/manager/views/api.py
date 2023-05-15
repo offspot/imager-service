@@ -17,31 +17,17 @@ from manager.models import Media, Configuration, Organization, Profile
 from manager.pibox.packages import get_packages_by_lang
 from manager.pibox.util import human_readable_size, ONE_GB
 from manager.pibox.content import get_collection, get_required_image_size
+from manager.templatetags.manager import human_size
 
 
 def packages_for_language(request, lang_code):
     if request.GET.get("order") == "size":
         order = ("size", True)
     else:
-        order = ("sname", False)
+        order = ("title", False)
 
     def _filter(package):
-        return {
-            k: v
-            for k, v in package.items()
-            if k
-            in (
-                "sname",
-                "hsize",
-                "tags",
-                "version",
-                "type",
-                "description",
-                "size",
-                "skey",
-                "key",
-            )
-        }
+        return {**package, "hsize": human_size(package["size"])}
 
     ordered = collections.OrderedDict(
         sorted(

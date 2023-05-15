@@ -8,7 +8,7 @@ import itertools
 import requests
 
 from django.conf import settings
-from manager.pibox.data import get_yaml_catalogs
+from manager.pibox.packages import get_package
 from manager.pibox.util import get_checksum, ONE_GiB, ONE_MB, get_hardware_margin
 
 # prepare CONTENTS from JSON file
@@ -230,32 +230,23 @@ def get_wikifundi_contents(languages=[]):
 
 def get_package_content(package_id):
     """ content-like dict for packages (zim file or static site) """
-    for catalog in get_yaml_catalogs():
-        try:
-            package = catalog["all"][package_id]
-            package.update({"ext": "zip" if package["type"] != "zim" else "zim"})
-            package.update({"langid": package.get("langid") or package_id})
-            return {
-                "url": package["url"],
-                "name": "{langid}.{ext}".format(**package),
-                "checksum": package["sha256sum"],
-                "archive_size": package["size"],
-                # add a 10% margin for non-zim (zip file mostly)
-                "expanded_size": package["size"] * 1.1
-                if package["type"] != "zim"
-                else package["size"],
-            }
-        except KeyError:
-            continue
+    package = get_package(package_id)
+    package.update({"ext": "zip" if package.get("type") != "zim" else "zim"})
+    return {
+        "url": package["url"],
+        "name": package_id,
+        "checksum": None,
+        "archive_size": package["size"],
+        # add a 10% margin for non-zim (zip file mostly)
+        "expanded_size": package["size"] * 1.1
+        if package.get("type") != "zim"
+        else package["size"],
+    }
 
 
 def get_packages_contents(packages=[]):
     """ ideacube: ZIM file or ZIP file for each package """
-    return [
-        get_package_content(package)
-        for package in packages
-        if get_package_content(package) is not None
-    ]
+    return [get_package_content(package) for package in packages]
 
 
 def run_edupi_actions(

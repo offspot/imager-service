@@ -32,7 +32,7 @@ from manager.models import (
     Profile,
     PasswordResetCode,
 )
-from manager.email import send_mailgun_email
+from manager.emailing import send_mailgun_email
 from manager.scheduler import add_order_shipment, anonymize_orders, SchedulerAPIError
 
 logger = logging.getLogger(__name__)

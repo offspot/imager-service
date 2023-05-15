@@ -2,63 +2,27 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import re
 import collections
 
 import langcodes
 
-from manager.pibox.data import get_yaml_catalogs
-from manager.pibox.util import human_readable_size
-
-
-def get_packages_flat():
-    packages = []
-    for catalog in get_yaml_catalogs():
-        packages += catalog["all"].values()
-    return packages
-
-
-def get_parsed_package(package):
-    name = package.get("name")
-    name_tag_regexp = r"(.+)\[(.+)\]$"
-    if re.match(name_tag_regexp, name):
-        name, tags_str = re.match(name_tag_regexp, name).groups()
-        name = name.strip()
-        tags = [t.strip() for t in tags_str.split(",")]
-    else:
-        tags = []
-    key = "_".join(package.get("langid").rsplit(".", 1))
-    package.update(
-        {
-            "hsize": human_readable_size(package.get("size", 0)).replace(" ", " "),
-            "tags": tags,
-            "sname": name,
-            "skey": key.replace(".", "__"),
-            "key": key,
-        }
-    )
-    return package
+from manager.pibox.data import get_catalog
 
 
 def get_packages_by_lang():
     packages = {}
-    for package in get_packages_flat():
-        plang = langcodes.Language.get(package.get("language")).language
-        pid = package.get("langid")
-        if not plang or not pid:
+    for package in get_catalog().values():
+        plang = langcodes.Language.get(package["language"]).language
+        if not plang:
             continue
         if plang not in packages.keys():
             packages[plang] = {}
-        packages[plang].update({pid: get_parsed_package(package)})
+        packages[plang][package["id"]] = package
     return packages
 
 
 def get_packages_id():
-    return [
-        package.get("langid")
-        for package in get_packages_flat()
-        if package.get("langid")
-    ]
+    return list(get_catalog().keys())
 
 
 def get_packages_langs():
@@ -79,7 +43,4 @@ def get_packages_langs():
 
 def get_package(pid):
     """retrieve package from its ID"""
-    for package in get_packages_flat():
-        if package.get("langid") == pid:
-            return package
-    return None
+    return get_catalog().get(pid)
