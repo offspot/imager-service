@@ -44,10 +44,12 @@ def get_catalog():
             version = datetime.datetime.fromisoformat(
                 re.sub(r"[A-Z]$", "", entry["updated"])
             ).strftime("%Y-%m-%d")
+            flavour = entry.get("flavour") or ""
+            publisher = entry.get("publisher", {}).get("name") or ""
             ident = to_human_id(
                 name=entry["name"],
-                publisher=entry.get("publisher", {}).get("name"),
-                flavour=entry["flavour"],
+                publisher=publisher,
+                flavour=flavour,
             )
             books[ident] = {
                 "id": ident,
@@ -56,7 +58,7 @@ def get_catalog():
                 "description": entry["summary"],
                 "language": entry["language"] or "eng",
                 "tags": entry["tags"].split(";"),
-                "flavour": entry["flavour"],
+                "flavour": flavour,
                 "size": int(links["application/x-zim"]["@length"]),
                 "url": re.sub(r".meta4$", "", links["application/x-zim"]["@href"]),
                 "illustration": links["image/png;width=48;height=48;scale=1"]["@href"],
