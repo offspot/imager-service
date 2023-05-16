@@ -81,5 +81,5 @@ def get_package(pid):
     """retrieve package from its ID"""
     for package in get_packages_flat():
         if package.get("langid") == pid:
-            return package
+            return get_parsed_package(package)
     return None

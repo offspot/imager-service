@@ -201,7 +201,7 @@
 			  	<thead class=""><tr><th>{% blocktrans %}Name{% endblocktrans %}</th><th>{% blocktrans %}Size{% endblocktrans %}</th></tr></thead>
 			  	<tbody>
 			  		{% for package in form.content_zims.value|as_packages %}
-			  		<tr id="selected-row-{{ package.skey }}"><td><a href="#" class="remove-package" data-package-id="{{ package.langid }}"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ package.langid }}" class="fas fa-minus-circle primary"></i></a> <strong>{{ package|parsed_sname }}</strong>{% if package.tags %} {% for tag in package.tags %}<span class="badge badge-pill badge-secondary package-tag">{{ tag }}</span>{% endfor %}{% endif %}<p><em>{{ package.description }}</em></p></td><td>{{ package.size|human_size }}</td>
+			  		<tr id="selected-row-{{ package.skey }}"><td><a href="#" class="remove-package" data-package-id="{{ package.key }}"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ package.langid }}" class="fas fa-minus-circle primary"></i></a> <strong>{{ package|parsed_sname }}</strong>{% if package.tags %} {% for tag in package.tags %}<span class="badge badge-pill badge-secondary package-tag">{{ tag }}</span>{% endfor %}{% endif %}<p><em>{{ package.description }}</em></p></td><td>{{ package.size|human_size }}</td>
 			  		</tr>
 			  		{% endfor %}
 			  	</tbody>
@@ -325,7 +325,6 @@
 
 	function registerRemovePackage() {
 		$('.remove-package').on('click', function (e) {
-			e.preventDefault();
 			e.preventDefault();
 
 			let safe_id = getSafeId($(this).data('package-id'));
