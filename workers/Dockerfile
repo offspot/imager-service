@@ -1,4 +1,4 @@
-FROM rgaudin/python-ubuntu:3.8-18.04
+FROM python:3.8-slim-bullseye
 LABEL org.opencontainers.image.source https://github.com/offspot/cardshop
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
