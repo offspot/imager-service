@@ -220,3 +220,6 @@ LANGUAGES = [
     ("en", _lz("English")),
     ("fr", _lz("French")),
 ]
+
+BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL", "1.0.1")
+BASE_IMAGE_ROOTFS_SIZE = int(os.getenv("BASE_IMAGE_ROOTFS_SIZE", "2449473536"))

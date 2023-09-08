@@ -3,6 +3,12 @@
 {% load manager %}
 
 {% block content %}
+<h3>Base Image</h3>
+<ul>
+	<li>Version: <code>{{ base_image.url }}</code></li>
+	<li><code>{{ base_image.rootfs_size }}</code> ({{ base_image.rootfs_size|human_size }})</li>
+</ul>
+
 <h3>{% blocktrans %}Organizations{% endblocktrans %}</h3>
 <p class="info">{% blocktrans %}Organizations holds the configurations, orders and units.{% endblocktrans %}</p>
 {% if organizations %}

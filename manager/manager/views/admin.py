@@ -9,6 +9,7 @@ from django.http import Http404
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.utils.translation import gettext as _, gettext_lazy as _lz
+from django.conf import settings
 
 from manager.decorators import staff_required
 from manager.models import Organization, Profile, Media
@@ -125,6 +126,10 @@ def dashboard(request):
         "organizations": Organization.objects.all(),
         "profiles": Profile.objects.all(),
         "medias": Media.objects.all(),
+        "base_image": {
+            "url": settings.BASE_IMAGE_URL,
+            "rootfs_size": settings.BASE_IMAGE_ROOTFS_SIZE,
+        },
     }
 
     forms_map = {
@@ -139,7 +144,6 @@ def dashboard(request):
         context[key] = value(prefix=key)
 
     if request.method == "POST" and request.POST.get("form") in forms_map.keys():
-
         # which form is being saved?
         form_key = request.POST.get("form")
         context[form_key] = forms_map.get(form_key)(request.POST, prefix=form_key)
@@ -161,7 +165,6 @@ def dashboard(request):
 
 @staff_required
 def toggle_account(request, username):
-
     profile = Profile.get_or_none(username)
     if profile is None:
         raise Http404(_("Profile not found"))
@@ -189,7 +192,6 @@ def toggle_account(request, username):
 
 @staff_required
 def delete_account(request, username):
-
     profile = Profile.get_or_none(username)
     if profile is None:
         raise Http404(_("Profile not found"))
