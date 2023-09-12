@@ -77,7 +77,6 @@ def required_size_for_config(request):
         africatik=data.get("africatik", False),
         africatikmd=data.get("africatikmd", False),
         packages=data.get("packages", []),
-        kalite_languages=data.get("kalite", []),
         wikifundi_languages=data.get("wikifundi", []),
     )
     required_image_size = get_required_image_size(collection)

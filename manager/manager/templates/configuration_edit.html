@@ -149,18 +149,6 @@
 
 		<div class="form-row visual-group">
 			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_kalite_fr type="checkbox" size="11.35 GiB" %}
-			</div>
-			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_kalite_en type="checkbox" size="47.68 GiB" %}
-			</div>
-			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_kalite_es type="checkbox" size="22.11 GiB" %}
-			</div>
-		</div>
-
-		<div class="form-row visual-group">
-			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_wikifundi_fr type="checkbox" size="4.43 GiB" %}
 			</div>
 			<div class="form-group col-md-4">
@@ -222,9 +210,6 @@
 	var mathews_id = "{{ form.content_mathews.id_for_label }}";
 	var africatik_id = "{{ form.content_africatik.id_for_label }}";
 	var africatikmd_id = "{{ form.content_africatikmd.id_for_label }}";
-	var kalite_fr_id = "{{ form.content_kalite_fr.id_for_label }}";
-	var kalite_en_id = "{{ form.content_kalite_en.id_for_label }}";
-	var kalite_es_id = "{{ form.content_kalite_es.id_for_label }}";
 	var wikifundi_fr_id = "{{ form.content_wikifundi_fr.id_for_label }}";
 	var wikifundi_en_id = "{{ form.content_wikifundi_en.id_for_label }}";
 	var wikifundi_es_id = "{{ form.content_wikifundi_es.id_for_label }}";
@@ -432,14 +417,10 @@
 			mathews: $('#' + mathews_id).is(':checked'),
 			africatik: $('#' + africatik_id).is(':checked'),
 			africatikmd: $('#' + africatikmd_id).is(':checked'),
-			kalite: [],
 			wikifundi: [],
 			packages: packages,
 		};
 		$.each(["fr", "en", "es"], function (i, lang) {
-			if ($('#' + eval('kalite_' + lang + '_id')).is(':checked')) {
-				config.kalite.push(lang);
-			}
 			if ($('#' + eval('wikifundi_' + lang + '_id')).is(':checked')) {
 				config.wikifundi.push(lang);
 			}
