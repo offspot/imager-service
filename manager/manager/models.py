@@ -309,10 +309,6 @@ class Configuration(models.Model):
         packages_list = get_list_if_values_match(
             get_nested_key(config, ["content", "zims"]), get_packages_id()
         )
-        # list of requested langs for kalite
-        kalite_langs = get_list_if_values_match(
-            get_nested_key(config, ["content", "kalite"]), cls.KALITE_LANGUAGES
-        )
         # list of requested langs for wikifundi
         wikifundi_langs = get_list_if_values_match(
             get_nested_key(config, ["content", "wikifundi"]), cls.WIKIFUNDI_LANGUAGES
@@ -370,9 +366,6 @@ class Configuration(models.Model):
             else None,
             "branding_css": save_branding_file(css) if css is not None else None,
             "content_zims": packages_list,
-            "content_kalite_fr": "fr" in kalite_langs,
-            "content_kalite_en": "en" in kalite_langs,
-            "content_kalite_es": "es" in kalite_langs,
             "content_wikifundi_fr": "fr" in wikifundi_langs,
             "content_wikifundi_en": "en" in wikifundi_langs,
             "content_wikifundi_es": "es" in wikifundi_langs,
@@ -513,7 +506,6 @@ class Configuration(models.Model):
             africatik=self.content_africatik,
             africatikmd=self.content_africatikmd,
             packages=self.content_zims or [],
-            kalite_languages=self.kalite_languages,
             wikifundi_languages=self.wikifundi_languages,
         )
 
@@ -542,7 +534,6 @@ class Configuration(models.Model):
                     collections.OrderedDict(
                         [
                             ("zims", self.content_zims),
-                            ("kalite", self.kalite_languages),
                             ("wikifundi", self.wikifundi_languages),
                             ("edupi", self.content_edupi),
                             ("edupi_resources", self.content_edupi_resources),

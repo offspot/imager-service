@@ -79,7 +79,6 @@ def get_collection(
     africatik=False,
     africatikmd=False,
     packages=[],
-    kalite_languages=[],
     wikifundi_languages=[],
 ):
     """ builds complete list of callbacks and options for selected contents
@@ -158,16 +157,6 @@ def get_collection(
             )
         )
 
-    if len(kalite_languages):
-        collection.append(
-            (
-                "KA-Lite",
-                get_kalite_contents,
-                run_kalite_actions,
-                {"languages": kalite_languages},
-            )
-        )
-
     if len(wikifundi_languages):
         collection.append(
             (
@@ -211,14 +200,6 @@ def get_africatik_contents(enable=False):
 def get_africatikmd_contents(enable=False):
     """ africatik maisons digitales: a ZIP to extract """
     return [get_content("africatik_md")]
-
-
-def get_kalite_contents(languages=[]):
-    """ kalite: medium lang packs and huge tarball of videos for each lang """
-
-    return [
-        get_content("kalite_langpack_{lang}".format(lang=lang)) for lang in languages
-    ] + [get_content("kalite_videos_{lang}".format(lang=lang)) for lang in languages]
 
 
 def get_wikifundi_contents(languages=[]):
@@ -277,10 +258,6 @@ def run_africatik_actions(cache_folder, mount_point, logger, enable=False):
 
 
 def run_africatikmd_actions(cache_folder, mount_point, logger, enable=False):
-    return
-
-
-def run_kalite_actions(cache_folder, mount_point, logger, languages=[]):
     return
 
 
