@@ -235,21 +235,6 @@ class Configuration(models.Model):
         load_kwargs={"object_pairs_hook": collections.OrderedDict},
         default="",
     )
-    content_kalite_fr = models.BooleanField(
-        default=False,
-        verbose_name=_lz("Khan Academy FR"),
-        help_text=_lz("Learning Platform (French)"),
-    )
-    content_kalite_en = models.BooleanField(
-        default=False,
-        verbose_name=_lz("Khan Academy EN"),
-        help_text=_lz("Learning Platform (English)"),
-    )
-    content_kalite_es = models.BooleanField(
-        default=False,
-        verbose_name=_lz("Khan Academy ES"),
-        help_text=_lz("Learning Platform (Spanish)"),
-    )
     content_wikifundi_fr = models.BooleanField(
         default=False,
         verbose_name=_lz("WikiFundi FR"),
@@ -473,14 +458,6 @@ class Configuration(models.Model):
     @property
     def min_units(self):
         return self.min_media.units
-
-    @property
-    def kalite_languages(self):
-        return [
-            lang
-            for lang in self.KALITE_LANGUAGES
-            if getattr(self, "content_kalite_{}".format(lang), False)
-        ]
 
     @property
     def wikifundi_languages(self):
