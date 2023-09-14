@@ -209,10 +209,10 @@ CONTENTS_FILE = os.path.join(BASE_DIR, "contents.json")
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": os.path.join(DATA_DIR, "cache"),
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "main",
         "TIMEOUT": int(os.getenv("CACHE_TIMEOUT", "3600")),
-        "OPTIONS": {"MAX_ENTRIES": 1000},
+        "OPTIONS": {"MAX_ENTRIES": 10},
     }
 }
 
