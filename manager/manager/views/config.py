@@ -24,7 +24,12 @@ NB_CONFIGURATIONS_PER_PAGE = 10
 
 class JSONUploadForm(forms.Form):
     file = forms.FileField(
-        widget=forms.FileInput(attrs={"class": "form-control form-check-input btn-sm"})
+        widget=forms.FileInput(
+            attrs={
+                "class": "form-control form-check-input btn-sm",
+                "accept": "application/json,text/plain,text/json",
+            }
+        )
     )
 
 
@@ -53,6 +58,11 @@ class ConfigurationForm(forms.ModelForm):
             "content_africatik",
             "content_africatikmd",
         ]
+        widgets = {
+            "branding_css": forms.ClearableFileInput(
+                attrs={"accept": "text/css,text/plain"}
+            ),
+        }
 
 
 def handle_uploaded_json(fd):
@@ -68,7 +78,6 @@ def handle_uploaded_json(fd):
 
 @login_required
 def configuration_list(request):
-
     page = request.GET.get("page")
     config_filter = bool(request.GET.get("all", False) == "yes")
     filtered_configurations = Configuration.objects.filter(
@@ -175,7 +184,6 @@ def configuration_edit(request, config_id=None):
 
 @login_required
 def configuration_export(request, config_id=None):
-
     config = Configuration.get_or_none(config_id)
     if config is None:
         raise Http404(_("Configuration not found"))
@@ -194,7 +202,6 @@ def configuration_export(request, config_id=None):
 
 @login_required
 def configuration_delete(request, config_id=None):
-
     config = Configuration.get_or_none(config_id)
     if config is None:
         raise Http404("Configuration not found")
@@ -224,7 +231,6 @@ def configuration_delete(request, config_id=None):
 
 @login_required
 def configuration_duplicate(request, config_id=None):
-
     config = Configuration.get_or_none(config_id)
     if config is None:
         raise Http404(_("Configuration not found"))
