@@ -1,4 +1,4 @@
-FROM rgaudin/uwsgi-nginx:python3.8
+FROM ghcr.io/rgaudin/uwsgi-nginx:python3.9
 LABEL org.opencontainers.image.source https://github.com/offspot/cardshop
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime

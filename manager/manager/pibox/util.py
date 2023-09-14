@@ -11,7 +11,6 @@ import hashlib
 import tempfile
 from pathlib import Path
 
-import pytz
 import humanfriendly
 
 from manager.pibox import data
@@ -105,36 +104,8 @@ def ensure_zip_exfat_compatible(fpath):
     return len(bad_fnames) == 0, bad_fnames
 
 
-def is_valid_project_name(project_name):
-    return (
-        len(project_name) >= 1
-        and len(project_name) <= 64
-        and set(project_name)
-        <= set(
-            string.ascii_uppercase + string.ascii_lowercase + string.digits + "-" + " "
-        )
-    )
-
-
 def is_valid_language(language):
     return language in dict(data.hotspot_languages).keys()
-
-
-def is_valid_timezone(timezone):
-    return timezone in pytz.common_timezones
-
-
-def is_valid_wifi_pwd(wifi_pwd):
-    return (
-        len(wifi_pwd) >= 8
-        and len(wifi_pwd) <= 31
-        and set(wifi_pwd)
-        <= set(
-            string.ascii_uppercase + string.ascii_lowercase + string.digits + "-" + "_"
-        )
-        if wifi_pwd is not None
-        else True
-    )
 
 
 def is_valid_admin_login(admin_login):
@@ -146,19 +117,6 @@ def is_valid_admin_login(admin_login):
 def is_valid_admin_pwd(admin_pwd):
     return len(admin_pwd) <= 31 and set(admin_pwd) <= set(
         string.ascii_uppercase + string.ascii_lowercase + string.digits + "-" + "_"
-    )
-
-
-def check_user_inputs(
-    project_name, language, timezone, admin_login, admin_pwd, wifi_pwd=None
-):
-    return (
-        is_valid_project_name(project_name),
-        is_valid_language(language),
-        is_valid_timezone(timezone),
-        is_valid_wifi_pwd(wifi_pwd),
-        is_valid_admin_login(admin_login),
-        is_valid_admin_pwd(admin_pwd),
     )
 
 

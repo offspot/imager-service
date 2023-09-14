@@ -3,18 +3,21 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import re
+import io
 import json
 import uuid
 import logging
 import collections
+import zoneinfo
 from pathlib import Path
 
 import babel.languages
-import pytz
 import pycountry
 import jsonfield
 import phonenumbers
 import dateutil.parser
+import PIL
+from django import forms
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -23,6 +26,13 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import (
     gettext as _,
     gettext_lazy as _lz,
+)
+from offspot_runtime.checks import (
+    is_valid_timezone,
+    is_valid_ssid,
+    is_valid_hostname,
+    is_valid_wpa2_passphrase,
+    is_valid_domain,
 )
 
 from manager.scheduler import (
@@ -42,10 +52,7 @@ from manager.pibox.util import (
     b64decode,
     human_readable_size,
     get_hardware_adjusted_image_size,
-    is_valid_project_name,
     is_valid_language,
-    is_valid_timezone,
-    is_valid_wifi_pwd,
     is_valid_admin_login,
     is_valid_admin_pwd,
 )
@@ -60,6 +67,11 @@ from manager.pibox.config import (
 from manager.pibox.content import get_collection, get_required_image_size
 
 logger = logging.getLogger(__name__)
+
+
+def get_timezones_choices():
+    for tz in sorted([(tz, tz) for tz in zoneinfo.available_timezones()]):
+        yield tz
 
 
 def get_branding_path(instance, filename):
@@ -83,10 +95,16 @@ def retrieve_branding_file(field):
 
 
 def validate_project_name(value):
-    if not is_valid_project_name(value):
+    # must be a valid SSID and a valid hostname
+    test1 = is_valid_ssid(value)
+    test2 = is_valid_hostname(value)
+    test3 = is_valid_domain(value)
+    if not test1 or not test2 or not test3:
+        reason = test1.help_text or test2.help_text or test3.help_text
         raise ValidationError(
-            _("%(value)s is not a valid project name (A-Z,a-z,0-9,-, )"),
-            params={"value": value},
+            _("%(value)s is not a valid Hotspot name (%(reason)s)"),
+            code="invalid_name",
+            params={"value": value, "reason": reason},
         )
 
 
@@ -94,6 +112,7 @@ def validate_language(value):
     if not is_valid_language(value):
         raise ValidationError(
             _("%(value)s is not a valid language code"),
+            code="invalid_language",
             params={"value": value},
         )
 
@@ -102,14 +121,16 @@ def validate_timezone(value):
     if not is_valid_timezone(value):
         raise ValidationError(
             _("%(value)s is not a valid timezone"),
+            code="invalid_timezone",
             params={"value": value},
         )
 
 
 def validate_wifi_pwd(value):
-    if not is_valid_wifi_pwd(value):
+    if not is_valid_wpa2_passphrase(value):
         raise ValidationError(
-            _("%(value)s is not a valid WiFi password (8-31 chars, A-Z,a-z,0-9,-,_)"),
+            _("%(value)s is not a valid WiFi password (8-63 chars basic latin chars)"),
+            code="invalid_wpa2",
             params={"value": value},
         )
 
@@ -117,7 +138,8 @@ def validate_wifi_pwd(value):
 def validate_admin_login(value):
     if not is_valid_admin_login(value):
         raise ValidationError(
-            _("%(value)s is not a valid WiFi password (31 chars max, A-Z,a-z,0-9,-,_)"),
+            _("%(value)s is not a valid Admin login (31 chars max, A-Z,a-z,0-9,-,_)"),
+            code="invalid_admin_username",
             params={"value": value},
         )
 
@@ -125,9 +147,47 @@ def validate_admin_login(value):
 def validate_admin_pwd(value):
     if not is_valid_admin_pwd(value):
         raise ValidationError(
-            _("%(value)s is not a valid WiFi password (31 chars max, A-Z,a-z,0-9,-,_)"),
+            _(
+                "%(value)s is not a valid Admin password "
+                + "(31 chars max, A-Z,a-z,0-9,-,_)"
+            ),
+            code="invalid_admin_password",
             params={"value": value},
         )
+
+
+class ConvertedImageFileField(models.ImageField):
+    def __init__(self, *args, **kwargs):
+        self.max_upload_size = kwargs.pop("max_upload_size", 1048576)
+
+        super().__init__(*args, **kwargs)
+
+    def validate(self, value, model_instance):
+        super().validate(value, model_instance)
+
+        if value.size > self.max_upload_size:
+            raise ValidationError(
+                _("File size is too large: %(value)s. Keep it under %(max)s"),
+                code="too_big",
+                params={
+                    "value": human_readable_size(value.size),
+                    "max": human_readable_size(self.max_upload_size),
+                },
+            )
+        src = io.BytesIO()
+        for chunk in value.chunks():
+            src.write(chunk)
+        dst = io.BytesIO()
+        try:
+            with PIL.Image.open(src) as image:
+                image.save(dst, "PNG")
+        except Exception as exc:
+            logger.warning(f"cant convert {value.path} to PNG: {exc}")
+            raise ValidationError(
+                _("File cannot be converted to PNG"), code="convert_failed"
+            )
+        else:
+            value.save(name=str(Path(value.name).with_suffix(".png")), content=dst)
 
 
 class Configuration(models.Model):
@@ -162,12 +222,12 @@ class Configuration(models.Model):
     )
 
     name = models.CharField(
-        verbose_name=_lz("Same"),
+        verbose_name=_lz("Config Name"),
         max_length=100,
         help_text=_lz("Used <strong>only within the Cardshop</strong>"),
     )
     project_name = models.CharField(
-        max_length=64,
+        max_length=32,
         default="kiwix",
         verbose_name=_lz("Hospot name"),
         help_text=_lz(
@@ -185,8 +245,7 @@ class Configuration(models.Model):
     )
     timezone = models.CharField(
         max_length=75,
-        choices=[("UTC", "UTC"), ("Europe/Paris", "Europe/Paris")]
-        + [(tz, tz) for tz in pytz.common_timezones],
+        choices=get_timezones_choices(),
         default="Europe/Paris",
         verbose_name=_lz("Timezone"),
         help_text=_lz("Where the Hotspot would be deployed"),
@@ -194,12 +253,12 @@ class Configuration(models.Model):
     )
 
     wifi_password = models.CharField(
-        max_length=31,
+        max_length=63,
         default=None,
         verbose_name=_lz("WiFi Password"),
         help_text=_lz(
             "Leave empty for Open WiFi (recommended)"
-            "<br />Do <strong>not</strong> use special characters. 8 chars min."
+            + "<br />Latin and special characters. 8 chars min."
         ),
         null=True,
         blank=True,
@@ -209,24 +268,32 @@ class Configuration(models.Model):
         max_length=31,
         default="admin",
         validators=[validate_admin_login],
-        verbose_name=_lz("Admin account"),
+        verbose_name=_lz("To manage Clock and EduPi"),
     )
     admin_password = models.CharField(
         max_length=31,
         default="admin-password",
         verbose_name=_lz("Admin password"),
-        help_text=_lz("To manage KA-Lite, EduPi and Wikifundi"),
-        validators=[validate_admin_pwd],
+        help_text=_lz("To manage Clock, EduPi and Wikifundi"),
     )
 
-    branding_logo = models.FileField(
-        blank=True, null=True, upload_to=get_branding_path, verbose_name=_lz("Logo")
+    branding_logo = ConvertedImageFileField(
+        blank=True,
+        null=True,
+        upload_to=get_branding_path,
+        verbose_name=_lz("Logo (1MB max Image)"),
     )
-    branding_favicon = models.FileField(
-        blank=True, null=True, upload_to=get_branding_path, verbose_name=_lz("Favicon")
+    branding_favicon = models.ImageField(
+        blank=True,
+        null=True,
+        upload_to=get_branding_path,
+        verbose_name=_lz("Favicon (1MB max Image)"),
     )
     branding_css = models.FileField(
-        blank=True, null=True, upload_to=get_branding_path, verbose_name=_lz("CSS File")
+        blank=True,
+        null=True,
+        upload_to=get_branding_path,
+        verbose_name=_lz("CSS File"),
     )
 
     content_zims = jsonfield.JSONField(
@@ -277,19 +344,20 @@ class Configuration(models.Model):
         verbose_name=_lz("Africatik Écoles"),
         help_text=_lz(
             "Applications éducatives adaptées au contexte culturel africain "
-            "(version Écoles numériques)"),
+            "(version Écoles numériques)"
+        ),
     )
     content_africatikmd = models.BooleanField(
         default=False,
         verbose_name=_lz("Africatik Maisons digitales"),
         help_text=_lz(
             "Applications éducatives adaptées au contexte culturel africain "
-            "(version Maisons digitales)"),
+            "(version Maisons digitales)"
+        ),
     )
 
     @classmethod
     def create_from(cls, config, author):
-
         # only packages IDs which are in the catalogs
         packages_list = get_list_if_values_match(
             get_nested_key(config, ["content", "zims"]), get_packages_id()
@@ -362,7 +430,8 @@ class Configuration(models.Model):
             "content_mathews": bool(get_nested_key(config, ["content", "mathews"])),
             "content_africatik": bool(get_nested_key(config, ["content", "africatik"])),
             "content_africatikmd": bool(
-                get_nested_key(config, ["content", "africatikmd"])),
+                get_nested_key(config, ["content", "africatikmd"])
+            ),
         }
 
         try:
@@ -868,7 +937,6 @@ class Address(models.Model):
 
 
 class Media(models.Model):
-
     PHYSICAL = "physical"
     VIRTUAL = "virtual"
     KINDS = {PHYSICAL: "Physical", VIRTUAL: "Virtual"}
@@ -1339,7 +1407,6 @@ class Order(models.Model):
 
 
 class PasswordResetCode(models.Model):
-
     code = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile = models.ForeignKey(
         "Profile", on_delete=models.CASCADE, related_name="passwordresets"
