@@ -275,6 +275,7 @@ class Configuration(models.Model):
         default="admin-password",
         verbose_name=_lz("Admin password"),
         help_text=_lz("To manage Clock, EduPi and Wikifundi"),
+        validators=[validate_admin_pwd],
     )
 
     branding_logo = ConvertedImageFileField(
