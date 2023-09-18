@@ -1215,7 +1215,7 @@ class Order(models.Model):
     def get_or_none(cls, min_id):
         try:
             local_id = re.match(r"^L([0-9]+)R", min_id).groups()[0]
-        except KeyError:
+        except (KeyError, AttributeError):
             return None
         except cls.DoesNotExist:
             return None
