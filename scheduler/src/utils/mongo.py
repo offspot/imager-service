@@ -301,7 +301,10 @@ class Orders(BaseCollection):
 
     @classmethod
     def get_with_tasks(cls, order_id, with_logs=False):
-        order = cls().get(order_id, with_logs=with_logs)
+        try:
+            order = cls().get(order_id, with_logs=with_logs)
+        except ValueError:
+            order = None
         if order is None:
             return order
         order["tasks"].update(cls().get_tasks(order_id, with_logs=with_logs))
