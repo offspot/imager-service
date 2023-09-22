@@ -224,7 +224,7 @@ class Configuration(models.Model):
     name = models.CharField(
         verbose_name=_lz("Config Name"),
         max_length=100,
-        help_text=_lz("Used <strong>only within the Cardshop</strong>"),
+        help_text=_lz("Used <strong>only within the Imager</strong>"),
     )
     project_name = models.CharField(
         max_length=32,
@@ -837,7 +837,7 @@ class Address(models.Model):
     name = models.CharField(
         max_length=100,
         verbose_name=_lz("Address Name"),
-        help_text=_lz("Used only within the Cardshop"),
+        help_text=_lz("Used only within the Imager"),
     )
     recipient = models.CharField(max_length=100, verbose_name=_lz("Recipient Name"))
     email = models.EmailField(max_length=255, verbose_name=_lz("Email"))

@@ -290,7 +290,7 @@ def password_reset(request):
                 )
                 send_mailgun_email(
                     to=prc.profile.email,
-                    subject=_("Cardshop Password Reset"),
+                    subject=_("Imager Password Reset"),
                     contents=loader.render_to_string(
                         "password_reset_email.html",
                         {
