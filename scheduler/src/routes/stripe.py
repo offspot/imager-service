@@ -34,23 +34,23 @@ MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
 LANG_STRINGS = {
     "en": {
         "product_wikipedia": "Wikipedia Hotspot English",
-        "product_access_1m": "One month Cardshop Access",
-        "product_access_1y": "Annual Cardshop Access",
+        "product_access_1m": "One month Imager Access",
+        "product_access_1y": "Annual Imager Access",
     },
     "de": {
         "product_wikipedia": "Wikipedia Hotspot auf Deutsch",
-        "product_access_1m": "One month Cardshop Access",
-        "product_access_1y": "Annual Cardshop Access",
+        "product_access_1m": "One month Imager Access",
+        "product_access_1y": "Annual Imager Access",
     },
     "es": {
         "product_wikipedia": "Wikipedia Hotspot en español",
-        "product_access_1m": "One month Cardshop Access",
-        "product_access_1y": "Annual Cardshop Access",
+        "product_access_1m": "One month Imager Access",
+        "product_access_1y": "Annual Imager Access",
     },
     "fr": {
         "product_wikipedia": "Wikipedia Hotspot Français",
-        "product_access_1m": "Accès Cardshop 1 mois",
-        "product_access_1y": "Accès Cardshop annuel",
+        "product_access_1m": "Accès Imager 1 mois",
+        "product_access_1y": "Accès Imager annuel",
     },
 }
 
@@ -223,7 +223,7 @@ def handle_access_order(session, customer):
         timestamp=now,
         product=session.metadata["product"],
         product_name=LANG_STRINGS["en"].get(
-            f"product_access_{product_dc}", "Cardshop Access"
+            f"product_access_{product_dc}", "Imager Access"
         ),
         price=session.amount_total,
         username=record.get("username", "Unavailable – please contact us"),

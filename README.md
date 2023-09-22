@@ -1,7 +1,7 @@
-# Kiwix Hotspot Cardshop
+# Kiwix Imager Service
 
 [Kiwix Hotspot](https://www.kiwix.org/en/downloads/kiwix-hotspot/)
-Cardshop is a solution for semi-automation of SD-cards creation using
+Imager is a solution for semi-automation of SD-cards creation using
 a central scheduler, creator workers (to create image files),
 downloader workers and writer workers (to write images onto real
 SD-cards).

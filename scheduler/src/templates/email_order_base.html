@@ -35,7 +35,7 @@
 	</tr>
 	{% if order.client.email != order.recipient.email %}
 	<tr>
-		<th style="text-align: left;">{{ _("Cardshop Contact") }}</th>
+		<th style="text-align: left;">{{ _("Imager Contact") }}</th>
 		<td>{{ order.client.name }}, <a href="mailto:{{ order.client.email }}">{{ order.client.email }}</a>.</td>
 	</tr>
 	{% endif %}

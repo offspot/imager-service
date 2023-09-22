@@ -40,7 +40,7 @@ class BaseWorker:
 
     def start(self, run_loop=True):
         """starts the worker (initialization)"""
-        logger.info("Welcome to Cardshop {} worker:".format(self.worker_type))
+        logger.info("Welcome to Imager {} worker:".format(self.worker_type))
         self.read_setting()
         if run_loop:
             self.run_loop()

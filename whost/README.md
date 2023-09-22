@@ -1,6 +1,6 @@
-# Cardshop Writer Host
+# Imager Writer Host
 
-Cardshop use writer hosts to download, write and ship SD-cards to recipient.
+Imager use writer hosts to download, write and ship SD-cards to recipient.
 A WriterHost is an always-running, always-connected computer connected to one or more USB SD-card readers (physical device).
 
 Writer Hosts authenticate with the cardshop to fetch tasks. The WriterHost operator is contacted (email) when an SD-card must be inserted, retrieved and shipped.
@@ -55,7 +55,7 @@ Just a regular, fresh Ubuntu-server install. Bellow are the __defaults used for 
 The writer is configured through a command-line tool that is launched automatically when logging-in as `root` (not via `su`).
 
 ``` sh
-Hotsport Cardshop writer-host configurator
+Imager writer-host configurator
 -------------------------------------------
 
 :: Internet Connectivity: CONNECTED

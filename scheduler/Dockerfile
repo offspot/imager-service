@@ -53,7 +53,7 @@ ENV SMTP_SKIP_LOGIN 0
 # mailgun-related (used if defined)
 # ENV MAILGUN_API_KEY
 ENV MAILGUN_API_URL https://api.mailgun.net/v3/cardshop.hotspot.kiwix.org
-ENV MAIL_FROM Hotspot Cardshop <hotspot@kiwix.org>
+ENV MAIL_FROM Kiwix Imager <contact+imager@kiwix.org>
 # sends an email to this address on startup
 #ENV TEST_EMAIL
 ENV SUPPORT_EMAIL stephane@kiwix.org

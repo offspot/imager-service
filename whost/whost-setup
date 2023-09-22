@@ -31,7 +31,7 @@ die() {
 # blank the screen
 reset
 
-blue "=== Cardshop WriterHost setup ==="
+blue "=== Imager WriterHost setup ==="
 
 if [[ $(/usr/bin/id -u) -ne 0 ]]; then
     red "Must be ran as root. exiting."

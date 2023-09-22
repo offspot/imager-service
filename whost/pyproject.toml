@@ -4,7 +4,7 @@ version = "0.2"
 readme = "README.md"
 repository = "https://github.com/offspot/cardshop"
 homepage = "https://www.kiwix.org/kiwix-hotspot/"
-description = "Cardshop Writer Host Tools"
+description = "Imager Writer Host Tools"
 authors = ["renaud gaudin <reg@kiwix.org>"]
 include = ["whost-config", "whost-configurator", "whost-restart-all", "whost-setup", "whost-start-all", "whost-start-worker", "whost-stop-all", "whost-update", "cardshop-host.config.original"]
 
