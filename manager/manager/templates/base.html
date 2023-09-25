@@ -31,9 +31,9 @@
 			background-color: white;
 			z-index: 1;
 		}
-		header .logo-sq { height: 2rem; }
+		header .logo-sq { height: 4rem; }
 		.container {
-			margin-top: 6em;
+			margin-top: 8em;
 		}
 		#configMenuTabHolder {
 		 	/*position: fixed;*/
@@ -78,7 +78,7 @@
 <body>
 	<header>
 	<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-      <h5 class="my-0 mr-md-auto font-weight-normal"><img class="logo-sq" src="{% static 'img/favicon-256x256.png' %}" />{% blocktrans %}Kiwix Imager{% endblocktrans %}</h5>
+      <h5 class="my-0 mr-md-auto font-weight-normal"><img class="logo-sq" src="{% static 'img/logotype-horizontal.svg' %}" alt="{% blocktrans %}Kiwix Imager{% endblocktrans %}" /></h5>
       <nav class="my-2 my-md-0 mr-md-3">
       	<a class="p-2 text-dark" href="{% url 'home' %}">{% blocktrans %}Home{% endblocktrans %}</a>
       	<a class="p-2 text-dark" href="{% url 'configuration_list' %}">{% blocktrans %}Configurations{% endblocktrans %}</a>
