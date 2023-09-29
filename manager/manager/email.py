@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import os
-from typing import Optional, Sequence
 import logging
+import os
+from collections.abc import Sequence
 
 import requests
 from django.conf import settings
@@ -17,19 +16,19 @@ def send_mailgun_email(
     to,
     subject,
     contents,
-    cc: Optional[Sequence] = None,
-    bcc: Optional[Sequence] = None,
-    headers: Optional[dict] = None,
-    attachments: Optional[Sequence] = None,
+    cc: Sequence | None = None,
+    bcc: Sequence | None = None,
+    headers: dict | None = None,  # noqa: ARG001
+    attachments: Sequence | None = None,
 ):
     values = [
         ("from", settings.MAIL_FROM),
         ("subject", subject),
         ("html", contents),
     ]
-    values += [("to", to if isinstance(to, (list, tuple)) else [to])]
-    values += [("cc", cc if isinstance(cc, (list, tuple)) else [cc])]
-    values += [("bcc", bcc if isinstance(bcc, (list, tuple)) else [bcc])]
+    values += [("to", to if isinstance(to, list | tuple) else [to])]
+    values += [("cc", cc if isinstance(cc, list | tuple) else [cc])]
+    values += [("bcc", bcc if isinstance(bcc, list | tuple) else [bcc])]
     data = MultiDict(values)
 
     resp = requests.post(
@@ -42,6 +41,7 @@ def send_mailgun_email(
         ]
         if attachments
         else [],
+        timeout=6,
     )
     resp.raise_for_status()
     return resp.json().get("id")

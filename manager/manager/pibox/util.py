@@ -1,20 +1,18 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import os
-import math
-import string
 import base64
-import zipfile
 import hashlib
+import math
+import os
+import string
 import tempfile
+import zipfile
 from pathlib import Path
 
 import humanfriendly
 
 from manager.pibox import data
-
 
 ONE_MB = 10**6
 ONE_MiB = 2**20
@@ -24,7 +22,7 @@ EXFAT_FORBIDDEN_CHARS = ["/", "\\", ":", "*", "?", '"', "<", ">", "|"]
 
 
 def human_readable_size(size, binary=True):
-    if isinstance(size, (int, float)):
+    if isinstance(size, int | float):
         num_bytes = size
     else:
         try:
@@ -36,7 +34,7 @@ def human_readable_size(size, binary=True):
         num_bytes = abs(num_bytes)
     output = humanfriendly.format_size(num_bytes, binary=binary)
     if is_neg:
-        return "- {}".format(output)
+        return f"- {output}"
     return output
 
 

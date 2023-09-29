@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import logging
@@ -40,9 +39,9 @@ def find_correct_package(pid):
 
 
 class Command(BaseCommand):
-    help = "Executes periodic tasks"
+    help = "Executes periodic tasks"  # noqa: A003
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         self.stdout.write("## fixing package names due to changes in flavour...")
 
         self.stdout.write("looping through all configurations...")
@@ -52,14 +51,10 @@ class Command(BaseCommand):
                     npid = find_correct_package(pid)
                     if npid is None:
                         self.stdout.write(
-                            "could not find replacement ID for {} in {}".format(
-                                config.id, pid
-                            )
+                            f"could not find replacement ID for {config.id} in {pid}"
                         )
                     else:
-                        self.stdout.write(
-                            "replacing {} with {} in {}".format(pid, npid, config.id)
-                        )
+                        self.stdout.write(f"replacing {pid} with {npid} in {config.id}")
                         config.content_zims[index] = npid
                         config.save()
 

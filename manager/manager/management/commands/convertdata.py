@@ -72,7 +72,6 @@ fixed_ids = {
     "ukrainian.stackexchange.com_uk_all.en": ("ukrainian.stackexchange.com_uk_all", ""),
     "diy.stackexchange.com_en_all.en": ("diy.stackexchange.com_en_all", ""),
     "wikipedia_en_ray_charles.en": ("wikipedia_en_ray_charles", "maxi"),
-    "german.stackexchange.com_de_all.en": ("german.stackexchange.com_de_all", ""),
     "Science_in_the_bath_science-in-the-bath.en": (
         "scienceinthebath_playlist-PL8NNmkST8IoK6keUR5BsUspBJJBzsOE5U",
         "",
@@ -87,10 +86,6 @@ fixed_ids = {
         "",
     ),
     "italian.stackexchange.com_it_all.en": ("italian.stackexchange.com_it_all", ""),
-    "canadian-prepper_en_surviving-disaster.en": (
-        "canadian_prepper-PLC35FDJiECFT-L4omTNbCWv9AdWPHYDeJ",
-        "",
-    ),
     "aimhi_en_geography.en": ("aimhi_en_-Geography (Website)", ""),
     "aimhi_inspiring-guests.en": ("aimhi_en_-Inspiring Guests", ""),
     "aimhi_hischool-biology.en": ("aimhi_en_-HiSchool Biology", ""),
@@ -109,7 +104,6 @@ fixed_ids = {
     "bouquineux_fr_all.fr": ("bouquineux.com_fr_all", ""),
     "wikistage_fr_all.fr": ("wikistage_mul_all", ""),
     "zimgit-medicine.en": ("zimgit-medicine_en", ""),
-    "wikipedia_en_for-schools.en": ("wikipedia_en_for_schools", "maxi"),
     "wikipedia_tr_chemistry_maxi.tr": ("wikipedia_tr_chemistry", "maxi"),
     "artofproblemsolving_en_all_nopic.en": ("artofproblemsolving_en_all", "_nopic"),
     "wiktionary_en_simple_all_maxi.en": ("wiktionary_en_simple_all", "maxi"),

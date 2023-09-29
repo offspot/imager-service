@@ -1,24 +1,23 @@
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import os
-import json
 import itertools
+import json
+import os
 
 import requests
-
 from django.conf import settings
+
 from manager.pibox.data import get_yaml_catalogs
-from manager.pibox.util import get_checksum, ONE_GiB, ONE_MB, get_hardware_margin
+from manager.pibox.util import ONE_MB, ONE_GiB, get_checksum, get_hardware_margin
 
 # prepare CONTENTS from JSON file
-with open(settings.CONTENTS_FILE, "r") as fp:
+with open(settings.CONTENTS_FILE) as fp:
     CONTENTS = json.load(fp)
 
 
 def get_content(key):
     if key not in CONTENTS:
-        raise KeyError("requested content `{}` is not in CONTENTS".format(key))
+        raise KeyError(f"requested content `{key}` is not in CONTENTS")
     return CONTENTS.get(key)
 
 
@@ -40,15 +39,15 @@ def get_alien_content(path_or_url):
 
 
 def get_local_content(fpath):
-    """ content-like dict for a user-provided local file
+    """content-like dict for a user-provided local file
 
-        WARN: file should be copied into cache manually """
+    WARN: file should be copied into cache manually"""
 
     fname = os.path.basename(fpath)
     fsize = os.path.getsize(fpath)
     assert fsize > 0
     return {
-        "url": "file://{fpath}".format(fpath=fpath),
+        "url": f"file://{fpath}",
         "name": fname,
         "checksum": None,
         "copied_on_destination": False,
@@ -78,28 +77,32 @@ def get_collection(
     mathews=False,
     africatik=False,
     africatikmd=False,
-    packages=[],
-    wikifundi_languages=[],
+    packages=None,
+    wikifundi_languages=None,
 ):
-    """ builds complete list of callbacks and options for selected contents
+    """builds complete list of callbacks and options for selected contents
 
-        returns a list of tuples:
-            (project_name, get_content_callback, run_actions_callback, kwargs)
+    returns a list of tuples:
+        (project_name, get_content_callback, run_actions_callback, kwargs)
 
-        - project_name: a string describing the project (for progress/UI)
+    - project_name: a string describing the project (for progress/UI)
 
-        - kwargs: a dict or arguments to pass to callbacks
+    - kwargs: a dict or arguments to pass to callbacks
 
-        - get_content_callback:
-            expects kwargs
-            returns a list of contents (get_content)
+    - get_content_callback:
+        expects kwargs
+        returns a list of contents (get_content)
 
-        - run_action_callback:
-            expects cache_folder, mount_point, logger and kwargs
-            runs the action for the project (copy content into mount_point)
-            no return value
-        """
+    - run_action_callback:
+        expects cache_folder, mount_point, logger and kwargs
+        runs the action for the project (copy content into mount_point)
+        no return value
+    """
 
+    if wikifundi_languages is None:
+        wikifundi_languages = []
+    if packages is None:
+        packages = []
     collection = []
 
     if edupi:
@@ -171,46 +174,46 @@ def get_collection(
 
 
 def get_all_contents_for(collection):
-    """ flat list of contents for the collection """
+    """flat list of contents for the collection"""
     return itertools.chain.from_iterable(
         [content_dl_cb(**cb_kwargs) for _, content_dl_cb, _, cb_kwargs in collection]
     )
 
 
 def get_edupi_contents(enable=False, resources_path=None):
-    """ edupi: has no large downloads. might have user-specified one """
+    """edupi: has no large downloads. might have user-specified one"""
     return [get_alien_content(resources_path)] if resources_path else []
 
 
 def get_nomad_contents(enable=False):
-    """ nomad: only contains one APK """
+    """nomad: only contains one APK"""
     return [get_content("nomad_zip")]
 
 
 def get_mathews_contents(enable=False):
-    """ mathews: only contains one APK """
+    """mathews: only contains one APK"""
     return [get_content("mathews_apk")]
 
 
 def get_africatik_contents(enable=False):
-    """ africatik ecoles numeriques: a ZIP to extract """
+    """africatik ecoles numeriques: a ZIP to extract"""
     return [get_content("africatik_all")]
 
 
 def get_africatikmd_contents(enable=False):
-    """ africatik maisons digitales: a ZIP to extract """
+    """africatik maisons digitales: a ZIP to extract"""
     return [get_content("africatik_md")]
 
 
-def get_wikifundi_contents(languages=[]):
-    """ wikifundi: large language pack for each lang """
-    return [
-        get_content("wikifundi_langpack_{lang}".format(lang=lang)) for lang in languages
-    ]
+def get_wikifundi_contents(languages=None):
+    """wikifundi: large language pack for each lang"""
+    if languages is None:
+        languages = []
+    return [get_content(f"wikifundi_langpack_{lang}") for lang in languages]
 
 
 def get_package_content(package_id):
-    """ content-like dict for packages (zim file or static site) """
+    """content-like dict for packages (zim file or static site)"""
     for catalog in get_yaml_catalogs():
         try:
             package = catalog["all"][package_id]
@@ -230,8 +233,10 @@ def get_package_content(package_id):
             continue
 
 
-def get_packages_contents(packages=[]):
-    """ ideacube: ZIM file or ZIP file for each package """
+def get_packages_contents(packages=None):
+    """ideacube: ZIM file or ZIP file for each package"""
+    if packages is None:
+        packages = []
     return [
         get_package_content(package)
         for package in packages
@@ -261,16 +266,18 @@ def run_africatikmd_actions(cache_folder, mount_point, logger, enable=False):
     return
 
 
-def run_wikifundi_actions(cache_folder, mount_point, logger, languages=[]):
-    return
+def run_wikifundi_actions(cache_folder, mount_point, logger, languages=None):
+    if languages is None:
+        languages = []
 
 
-def run_packages_actions(cache_folder, mount_point, logger, packages=[]):
-    return
+def run_packages_actions(cache_folder, mount_point, logger, packages=None):
+    if packages is None:
+        packages = []
 
 
 def content_is_cached(content, cache_folder, check_sum=False):
-    """ whether a content is already present in cache """
+    """whether a content is already present in cache"""
     content_fpath = os.path.join(cache_folder, content.get("name"))
     if not os.path.exists(content_fpath) or os.path.getsize(
         content_fpath
@@ -284,12 +291,12 @@ def content_is_cached(content, cache_folder, check_sum=False):
 
 
 def get_collection_download_size(collection):
-    """ data usage to download all of the collection """
+    """data usage to download all of the collection"""
     return sum([item.get("archive_size") for item in get_all_contents_for(collection)])
 
 
 def get_collection_download_size_using_cache(collection, cache_folder):
-    """ data usage to download missing elements of the collection """
+    """data usage to download missing elements of the collection"""
     return sum(
         [
             item.get("archive_size")
@@ -300,7 +307,7 @@ def get_collection_download_size_using_cache(collection, cache_folder):
 
 
 def get_expanded_size(collection, add_margin=True):
-    """ sum of extracted sizes of all collection with 10%|2GB margin """
+    """sum of extracted sizes of all collection with 10%|2GB margin"""
     total_size = sum(
         [
             item.get("expanded_size") * 2
@@ -320,7 +327,7 @@ def get_required_image_size(collection):
         [
             get_content("hotspot_master_image").get("root_partition_size"),
             get_expanded_size(collection),
-            ONE_MB * 256  # make sure we have some free space
+            ONE_MB * 256,  # make sure we have some free space
         ]
     )
 
@@ -328,7 +335,7 @@ def get_required_image_size(collection):
 
 
 def get_required_building_space(collection, cache_folder, image_size=None):
-    """ total required space to host downlaods and image """
+    """total required space to host downlaods and image"""
 
     # the master image
     # we neglect the master's expanded size as it is going to be moved

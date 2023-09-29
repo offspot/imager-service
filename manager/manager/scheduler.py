@@ -1,14 +1,13 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
+import datetime
+import http
 import json
 import logging
-import datetime
-
-from django.conf import settings
 
 import requests
+from django.conf import settings
 
 GET = "GET"
 POST = "POST"
@@ -46,13 +45,15 @@ def get_token(username, password):
             "password": password,
             "Content-type": "application/json",
         },
+        timeout=10,
     )
     req.raise_for_status()
     return req.json().get("access_token"), req.json().get("refresh_token")
 
 
-def authenticate(force=False):
-    global ACCESS_TOKEN, REFRESH_TOKEN, ACCESS_TOKEN_EXPIRY, REFRESH_TOKEN_EXPIRY
+def authenticate(*, force=False):
+    global ACCESS_TOKEN, REFRESH_TOKEN, ACCESS_TOKEN_EXPIRY  # noqa: PLW0603
+    global REFRESH_TOKEN_EXPIRY  # noqa: PLW0603
 
     if (
         not force
@@ -62,11 +63,11 @@ def authenticate(force=False):
     ):
         return
 
-    logger.debug("authenticate() with force={}".format(force))
+    logger.debug(f"authenticate() with force={force}")
 
     try:
         access_token, refresh_token = get_token(username=USERNAME, password=PASSWORD)
-    except Exception as exp:
+    except Exception:
         ACCESS_TOKEN = REFRESH_TOKEN = ACCESS_TOKEN_EXPIRY = None
     else:
         ACCESS_TOKEN, REFRESH_TOKEN = access_token, refresh_token
@@ -93,7 +94,7 @@ def query_api(method, path, payload=None, params=None):
             url=get_url(path), headers=get_token_headers(), json=payload, params=params
         )
     except Exception as exp:
-        return (False, "ConnectionError", "ConnectionErrorL -- {}".format(exp))
+        return (False, "ConnectionError", f"ConnectionErrorL -- {exp}")
 
     try:
         resp = req.json() if req.text else {}
@@ -101,21 +102,21 @@ def query_api(method, path, payload=None, params=None):
         return (
             False,
             req.status_code,
-            "ResponseError (not JSON): -- {}".format(req.text),
+            f"ResponseError (not JSON): -- {req.text}",
         )
     except Exception as exp:
         return (
             False,
             req.status_code,
-            "ResponseError -- {} -- {}".format(str(exp), req.text),
+            f"ResponseError -- {exp!s} -- {req.text}",
         )
 
-    if req.status_code in (200, 201):
+    if req.status_code in (http.HTTPStatus.OK, http.HTTPStatus.CREATED):
         return True, req.status_code, resp
 
     # Unauthorised error: attempt to re-auth as scheduler might have restarted?
-    if req.status_code == 401:
-        authenticate(True)
+    if req.status_code == http.HTTPStatus.UNAUTHORIZED:
+        authenticate(force=True)
 
     return (False, req.status_code, resp["error"] if "error" in resp else str(resp))
 
@@ -147,12 +148,14 @@ def get_users_list():
 
 @auth_required
 def get_user_detail(user_id):
-    success, code, response = query_api(GET, "/users/{}".format(user_id))
+    success, code, response = query_api(GET, f"/users/{user_id}")
     return success, response
 
 
 @auth_required
-def add_user(username, email, password, role, channel, is_admin=False):
+def add_user(
+    username, email, password, role, channel, *, is_admin=False  # noqa: ARG001
+):
     payload = {
         "username": username,
         "email": email,
@@ -172,18 +175,17 @@ def add_user(username, email, password, role, channel, is_admin=False):
 def change_user_password(user_id, old_password, new_password):
     payload = {"old": old_password, "new": new_password}
     success, code, response = query_api(
-        PATCH, "/users/{}/password".format(user_id), payload=payload
+        PATCH, f"/users/{user_id}/password", payload=payload
     )
     if success:
         return True, None
-    print("HTTP", code)
     return False, response
 
 
 @auth_required
 def delete_user(user_id):
-    success, code, response = query_api(DELETE, "/users/{}".format(user_id))
-    if success or code == 404:
+    success, code, response = query_api(DELETE, f"/users/{user_id}")
+    if success or code == http.HTTPStatus.NOT_FOUND:
         return True, None
     return False, response
 
@@ -192,9 +194,7 @@ def delete_user(user_id):
 def change_user_status(user_id, active):
     payload = {"active": active}
 
-    success, code, response = query_api(
-        PATCH, "/users/{}".format(user_id), payload=payload
-    )
+    success, code, response = query_api(PATCH, f"/users/{user_id}", payload=payload)
     if not success or "_id" not in response:
         return False, response
     return True, response.get("_id")
@@ -230,7 +230,7 @@ def get_autoimages_list():
 
 @auth_required
 def add_channel(
-    slug, name, sender_name, sender_email, sender_address, active=True, private=False
+    slug, name, sender_name, sender_email, sender_address, *, active=True, private=False
 ):
     payload = {
         "slug": slug,
@@ -253,7 +253,7 @@ def change_channel_status(channel_id, active):
     payload = {"active": active}
 
     success, code, response = query_api(
-        PATCH, "/channels/{}".format(channel_id), payload=payload
+        PATCH, f"/channels/{channel_id}", payload=payload
     )
     if not success or "_id" not in response:
         return False, response
@@ -278,12 +278,12 @@ def get_warehouses_list():
 
 @auth_required
 def get_warehouse_from(warehouse_slug):
-    success, code, response = query_api(GET, "/warehouses/{}".format(warehouse_slug))
+    success, code, response = query_api(GET, f"/warehouses/{warehouse_slug}")
     return success, response
 
 
 @auth_required
-def add_warehouse(slug, upload_uri, download_uri, active=True):
+def add_warehouse(slug, upload_uri, download_uri, *, active=True):
     payload = {
         "slug": slug,
         "upload_uri": upload_uri,
@@ -302,7 +302,7 @@ def change_warehouse_status(warehouse_id, active):
     payload = {"active": active}
 
     success, code, response = query_api(
-        PATCH, "/warehouses/{}".format(warehouse_id), payload=payload
+        PATCH, f"/warehouses/{warehouse_id}", payload=payload
     )
     if not success or "_id" not in response:
         return False, response
@@ -335,16 +335,16 @@ def create_order(payload):
 
 @auth_required
 def delete_order(order_id):
-    success, code, response = query_api(DELETE, "/orders/{}".format(order_id))
+    success, code, response = query_api(DELETE, f"/orders/{order_id}")
     if not success or "_id" not in response:
         return False, response
     return True, response.get("_id")
 
 
 @auth_required
-def get_order(order_id, with_logs=False):
+def get_order(order_id, *, with_logs=False):
     success, code, response = query_api(
-        GET, "/orders/{id}".format(id=order_id), params={"with_logs": with_logs}
+        GET, f"/orders/{order_id}", params={"with_logs": with_logs}
     )
     return success, response
 
@@ -352,15 +352,13 @@ def get_order(order_id, with_logs=False):
 @auth_required
 def add_order_shipment(order_id, shipment_details):
     payload = {"shipment_details": shipment_details}
-    success, code, response = query_api(
-        PATCH, "/orders/{id}".format(id=order_id), payload=payload
-    )
+    success, code, response = query_api(PATCH, f"/orders/{order_id}", payload=payload)
     return success, response
 
 
 @auth_required
 def cancel_order(order_id):
-    success, code, response = query_api(PATCH, "/orders/{}/cancel".format(order_id))
+    success, code, response = query_api(PATCH, f"/orders/{order_id}/cancel")
     if not success or "_id" not in response:
         return False, response
     return True, response.get("_id")
@@ -378,12 +376,12 @@ def anonymize_orders(order_ids):
 
 @auth_required
 def get_task(task_id):
-    success, code, response = query_api(GET, "/tasks/{id}".format(id=task_id))
+    success, code, response = query_api(GET, f"/tasks/{task_id}")
     return success, response
 
 
 def get_channel_choices():
-    from manager.scheduler import get_channels_list, as_items_or_none
+    from manager.scheduler import as_items_or_none, get_channels_list
 
     channels = as_items_or_none(*get_channels_list())
     if channels is None:
@@ -402,7 +400,7 @@ def get_channel_choices():
 
 
 def get_warehouse_choices():
-    from manager.scheduler import get_warehouses_list, as_items_or_none
+    from manager.scheduler import as_items_or_none, get_warehouses_list
 
     warehouses = as_items_or_none(*get_warehouses_list())
     if warehouses is None:
@@ -443,6 +441,6 @@ def add_autoimage(
 @auth_required
 def delete_autoimage(autoimage_slug):
     success, code, response = query_api(DELETE, f"/auto-images/{autoimage_slug}")
-    if success or code == 404:
+    if success or code == http.HTTPStatus.NOT_FOUND:
         return True, None
     return False, response

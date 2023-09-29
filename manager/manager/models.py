@@ -1,81 +1,80 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import re
+import collections
 import io
 import json
-import uuid
 import logging
-import collections
+import re
+import uuid
 import zoneinfo
 from pathlib import Path
 
 import babel.languages
-import pycountry
+import dateutil.parser
 import jsonfield
 import phonenumbers
-import dateutil.parser
 import PIL
-from django import forms
-from django.db import models
+import pycountry
 from django.conf import settings
-from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils import timezone
 from django.utils.translation import (
     gettext as _,
+)
+from django.utils.translation import (
     gettext_lazy as _lz,
 )
 from offspot_runtime.checks import (
-    is_valid_timezone,
-    is_valid_ssid,
-    is_valid_hostname,
-    is_valid_wpa2_passphrase,
     is_valid_domain,
+    is_valid_hostname,
+    is_valid_ssid,
+    is_valid_timezone,
+    is_valid_wpa2_passphrase,
 )
 
-from manager.scheduler import (
-    create_order,
-    SchedulerAPIError,
-    get_order,
-    get_warehouse_from,
-    get_channel_choices,
-    get_warehouse_choices,
-    cancel_order,
-)
-from manager.pibox.packages import get_packages_id
-from manager.pibox.data import hotspot_languages
-from manager.pibox.util import (
-    ONE_GB,
-    b64encode,
-    b64decode,
-    human_readable_size,
-    get_hardware_adjusted_image_size,
-    is_valid_language,
-    is_valid_admin_login,
-    is_valid_admin_pwd,
-)
 from manager.pibox.config import (
-    get_uuid,
+    extract_branding,
     get_if_str,
     get_if_str_in,
-    get_nested_key,
-    extract_branding,
     get_list_if_values_match,
+    get_nested_key,
+    get_uuid,
 )
 from manager.pibox.content import get_collection, get_required_image_size
+from manager.pibox.data import hotspot_languages
+from manager.pibox.packages import get_packages_id
+from manager.pibox.util import (
+    ONE_GB,
+    b64decode,
+    b64encode,
+    get_hardware_adjusted_image_size,
+    human_readable_size,
+    is_valid_admin_login,
+    is_valid_admin_pwd,
+    is_valid_language,
+)
+from manager.scheduler import (
+    SchedulerAPIError,
+    cancel_order,
+    create_order,
+    get_channel_choices,
+    get_order,
+    get_warehouse_choices,
+    get_warehouse_from,
+)
 
 logger = logging.getLogger(__name__)
 
 
 def get_timezones_choices():
-    for tz in sorted([(tz, tz) for tz in zoneinfo.available_timezones()]):
-        yield tz
+    yield from sorted([(tz, tz) for tz in zoneinfo.available_timezones()])
 
 
-def get_branding_path(instance, filename):
-    return "{uuid}_{fname}".format(uuid=get_uuid(), fname=filename)
+def get_branding_path(instance, filename):  # noqa: ARG001
+    return f"{get_uuid()}_{filename}"
 
 
 def save_branding_file(branding_file):
@@ -185,7 +184,7 @@ class ConvertedImageFileField(models.ImageField):
             logger.warning(f"cant convert {value.path} to PNG: {exc}")
             raise ValidationError(
                 _("File cannot be converted to PNG"), code="convert_failed"
-            )
+            ) from exc
         else:
             value.save(name=str(Path(value.name).with_suffix(".png")), content=dst)
 
@@ -193,12 +192,12 @@ class ConvertedImageFileField(models.ImageField):
 class Configuration(models.Model):
     class Meta:
         get_latest_by = "-id"
-        ordering = ["-id"]
+        ordering = ("-id",)
         verbose_name = _lz("configuration")
         verbose_name_plural = _lz("configurations")
 
-    KALITE_LANGUAGES = ["en", "fr", "es"]
-    WIKIFUNDI_LANGUAGES = ["en", "fr", "es"]
+    KALITE_LANGUAGES = ["en", "fr", "es"]  # noqa: RUF012
+    WIKIFUNDI_LANGUAGES = ["en", "fr", "es"]  # noqa: RUF012
 
     organization = models.ForeignKey(
         "Organization",
@@ -345,7 +344,7 @@ class Configuration(models.Model):
         verbose_name=_lz("Africatik Écoles"),
         help_text=_lz(
             "Applications éducatives adaptées au contexte culturel africain "
-            "(version Écoles numériques)"
+            + "(version Écoles numériques)"
         ),
     )
     content_africatikmd = models.BooleanField(
@@ -353,7 +352,7 @@ class Configuration(models.Model):
         verbose_name=_lz("Africatik Maisons digitales"),
         help_text=_lz(
             "Applications éducatives adaptées au contexte culturel africain "
-            "(version Maisons digitales)"
+            + "(version Maisons digitales)"
         ),
     )
 
@@ -473,6 +472,12 @@ class Configuration(models.Model):
         self.content_zims = [
             package for package in self.content_zims if package in get_packages_id()
         ]
+        # TODO
+        # self.content_zims = [
+        #     package_id
+        #     for package_id in self.content_zims
+        #     if package_id in get_packages_id()
+        # ]
         self.size_value_changed()
         super().save(*args, **kwargs)
 
@@ -481,6 +486,12 @@ class Configuration(models.Model):
         return [
             package for package in self.content_zims if package not in get_packages_id()
         ]
+        # TODO
+        # return [
+        #     package_id
+        #     for package_id in self.content_zims
+        #     if package_id not in get_packages_id()
+        # ]
 
     @classmethod
     def get_choices(cls, organization):
@@ -534,7 +545,7 @@ class Configuration(models.Model):
         return [
             lang
             for lang in self.WIKIFUNDI_LANGUAGES
-            if getattr(self, "content_wikifundi_{}".format(lang), False)
+            if getattr(self, f"content_wikifundi_{lang}", False)
         ]
 
     def all_languages(self):
@@ -607,7 +618,7 @@ class Configuration(models.Model):
 
 class Organization(models.Model):
     class Meta:
-        ordering = ["slug"]
+        ordering = ("slug",)
         verbose_name = _lz("organization")
         verbose_name_plural = _lz("organizations")
 
@@ -662,7 +673,7 @@ class Organization(models.Model):
             slug="kiwix", name="Kiwix", email="reg@kiwix.org", units=256000
         )
 
-    def get_warehouse_details(self, use_public=False):
+    def get_warehouse_details(self, *, use_public=False):
         success, warehouse = get_warehouse_from(
             self.public_warehouse if use_public else self.warehouse
         )
@@ -676,7 +687,7 @@ class Organization(models.Model):
 
 class Profile(models.Model):
     class Meta:
-        ordering = ["organization", "user__username"]
+        ordering = ("organization", "user__username")
         verbose_name = _lz("profile")
         verbose_name_plural = _lz("profiles")
 
@@ -812,7 +823,7 @@ class Profile(models.Model):
         return settings.LANGUAGE_CODE
 
     def __str__(self):
-        return "{user} ({org})".format(user=self.name, org=str(self.organization))
+        return f"{self.name} ({self.organization!s})"
 
 
 class Address(models.Model):
@@ -821,7 +832,7 @@ class Address(models.Model):
         verbose_name = _lz("address")
         verbose_name_plural = _lz("addresss")
 
-    COUNTRIES = collections.OrderedDict(
+    COUNTRIES = collections.OrderedDict(  # noqa: RUF012
         sorted([(c.alpha_2, c.name) for c in pycountry.countries], key=lambda x: x[1])
     )
 
@@ -940,12 +951,12 @@ class Address(models.Model):
 class Media(models.Model):
     PHYSICAL = "physical"
     VIRTUAL = "virtual"
-    KINDS = {PHYSICAL: "Physical", VIRTUAL: "Virtual"}
+    KINDS = {PHYSICAL: "Physical", VIRTUAL: "Virtual"}  # noqa: RUF012
     EXPIRATION_DELAY = 14
 
     class Meta:
         unique_together = (("kind", "size"),)
-        ordering = ["size"]
+        ordering = ("size",)
         verbose_name = _lz("media")
         verbose_name_plural = _lz("medias")
 
@@ -965,10 +976,10 @@ class Media(models.Model):
 
     def save(self, *args, **kwargs):
         self.actual_size = self.get_bytes()
-        return super(Media, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     @staticmethod
-    def choices_for(items, display_units=True):
+    def choices_for(items, *, display_units=True):
         return [
             (item.id, f"{item.name} ({item.units}U)" if display_units else item.name)
             for item in items
@@ -982,7 +993,7 @@ class Media(models.Model):
             return None
 
     @classmethod
-    def get_choices(cls, kind=None, display_units=True):
+    def get_choices(cls, *, kind=None, display_units=True):
         qs = cls.objects.all()
         if kind is not None:
             qs = qs.filter(kind=kind)
@@ -997,7 +1008,7 @@ class Media(models.Model):
         return self.name
 
     @property
-    def bytes(self):
+    def bytes(self):  # noqa: A003
         return self.actual_size or self.get_bytes()
 
     def get_bytes(self):
@@ -1021,7 +1032,7 @@ class Media(models.Model):
 
 class OrderData(dict):
     @property
-    def id(self):
+    def id(self):  # noqa: A003
         return self.get("_id")
 
     @property
@@ -1091,7 +1102,7 @@ class Order(models.Model):
     FAILED = "failed"
     CANCELED = "canceled"
     COMPLETED = "completed"
-    STATUSES = {
+    STATUSES = {  # noqa: RUF012
         IN_PROGRESS: "In Progress",
         COMPLETED: "Completed",
         FAILED: "Failed",
@@ -1100,7 +1111,7 @@ class Order(models.Model):
     }
 
     class Meta:
-        ordering = ["-created_on"]
+        ordering = ("-created_on",)
         verbose_name = _lz("order")
         verbose_name_plural = _lz("orders")
 
@@ -1230,7 +1241,7 @@ class Order(models.Model):
             return None
 
     @classmethod
-    def _submit_provisionned_order(cls, order, skip_units=False):
+    def _submit_provisionned_order(cls, order, *, skip_units=False):
         if not skip_units:
             if (
                 order.created_by.is_limited
@@ -1303,9 +1314,9 @@ class Order(models.Model):
     @classmethod
     def profile_has_active(cls, client):
         for order in cls.objects.filter(created_by=client, status=cls.IN_PROGRESS):
-            order = cls.fetch_and_get(order.id)
-            if order.status == cls.IN_PROGRESS:
-                return order.min_id
+            order_ = cls.fetch_and_get(order.id)
+            if order_.status == cls.IN_PROGRESS:
+                return order_.min_id
         return False
 
     def recreate(self):
@@ -1334,7 +1345,7 @@ class Order(models.Model):
 
     @property
     def min_id(self):
-        return "L{dj}R{sched}".format(dj=self.id, sched=self.scheduler_id[:4]).upper()
+        return f"L{self.id}R{self.scheduler_id[:4]}".upper()
 
     @property
     def short_id(self):
@@ -1349,7 +1360,7 @@ class Order(models.Model):
         return self.STATUSES.get(self.status)
 
     def __str__(self):
-        return "Order #{id}/{sid}".format(id=self.id, sid=self.scheduler_id)
+        return f"Order #{self.id}/{self.scheduler_id}"
 
     def to_payload(self):
         return {

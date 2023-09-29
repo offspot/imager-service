@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import os
-import uuid
 import logging
+import os
 import tempfile
+import uuid
 
 import magic
 
@@ -33,8 +32,10 @@ def get_if_str_in(data, values, default=None):
     return default
 
 
-def get_list_if_values_match(data, values, default=[]):
+def get_list_if_values_match(data, values, default=None):
     """return only the items from data which are part of values. If not a list []"""
+    if default is None:
+        default = []
     if not isinstance(data, list):
         return default
     return [item for item in data if item in values]

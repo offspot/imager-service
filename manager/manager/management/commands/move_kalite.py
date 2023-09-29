@@ -1,14 +1,11 @@
 import datetime
 import json
 import logging
-import re
-import typing
 
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 
 from manager.models import Configuration
-from manager.pibox.packages import get_packages_id
 
 logger = logging.getLogger(__name__)
 
@@ -20,9 +17,11 @@ KALITE_ZIMS = {
 
 
 class Command(BaseCommand):
-    help = "Convert all YAML-based ZIM packages IDs into OPDS-based human IDs"
+    help = (  # noqa: A003
+        "Convert all YAML-based ZIM packages IDs " "into OPDS-based human IDs"
+    )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         # toggle this once you've run the script successfuly
         # and you're confident you can update the DB
         alter = False

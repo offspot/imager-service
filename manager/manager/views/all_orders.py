@@ -1,23 +1,22 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import logging
 
-from django.http import Http404, HttpResponse
+from ansi2html import Ansi2HTMLConverter
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.http import Http404, HttpResponse
+from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
-from ansi2html import Ansi2HTMLConverter
 
-from manager.models import OrderData, Order
 from manager.decorators import staff_required
+from manager.models import Order, OrderData
 from manager.scheduler import (
-    test_connection,
     delete_order,
     get_order,
+    test_connection,
 )
 from manager.views.common import APIQuerySet
 
@@ -30,8 +29,7 @@ class OrdersQuerySet(APIQuerySet):
 
 
 @staff_required
-def list(request):
-
+def get_list(request):
     success, code, msg = test_connection()
     if not success:
         messages.error(
@@ -40,7 +38,7 @@ def list(request):
             % {
                 "url": settings.CARDSHOP_API_URL,
                 "code": code,
-                "msg": " -- " + msg if msg else "",
+                "msg": f" -- {msg if msg else ''}",
             },
         )
         return redirect("admin")
@@ -70,7 +68,7 @@ def list(request):
 def delete(request, order_id):
     success, res = delete_order(order_id)
     if not success:
-        logger.error("Unable to delete order: {}".format(res))
+        logger.error(f"Unable to delete order: {res}")
         messages.error(
             request,
             _("Unable to delete order %(order_id)s: -- ref: %(err)s")
@@ -141,7 +139,7 @@ def detail(request, order_id):
 
 
 @staff_required
-def order_log(request, order_id, step, kind, index=None, fmt="txt"):
+def order_log(request, order_id, step, kind, index=None, fmt="txt"):  # noqa: ARG001
     if fmt not in ("txt", "html"):
         raise Http404(_("Unhandled format `%(fmt)s`") % {"fmt": fmt})
     else:
@@ -167,18 +165,18 @@ def order_log(request, order_id, step, kind, index=None, fmt="txt"):
             content = order["tasks"][step][index]["logs"][kind]
         else:
             content = order["tasks"][step]["logs"][kind]
-    except Exception as exp:
-        logger.exception(exp)
+    except Exception as exc:
+        logger.exception(exc)
         raise Http404(
             _("Log %(step)s/%(kind)s.txt does not exists for Order #%(id)s")
             % {"step": step, "kind": kind, "id": order_id}
-        )
+        ) from exc
 
     if content and fmt == "html":
         try:
             content = Ansi2HTMLConverter().convert(content)
-        except Exception as exp:
+        except Exception as exc:
             logger.error("Unable to convert content to HTML")
-            logger.exception(exp)
+            logger.exception(exc)
 
     return HttpResponse(content, content_type=mime)

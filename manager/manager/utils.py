@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import logging
@@ -10,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def cache_set(key, data):
-    logger.debug("setting data for `{}`".format(key))
+    logger.debug(f"setting data for `{key}`")
     cache.set(key, data)
 
 

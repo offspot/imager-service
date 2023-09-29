@@ -58,7 +58,7 @@ ENV UWSGI_INI /etc/uwsgi/manager.ini
 COPY entrypoint.sh /manager-entrypoint.sh
 RUN chmod 755 /manager-entrypoint.sh
 WORKDIR /app
-RUN printf "SHELL=/bin/bash\nBASH_ENV=/container.env\nDJANGO_SETTINGS_MODULE=manager.settings\n*/5 * * * * cd /app && /usr/local/bin/python ./manage.py periodic-tasks >> /proc/1/fd/1 2>>/proc/1/fd/2\n" > /etc/cron.d/manager-cron
+RUN printf "SHELL=/bin/bash\nBASH_ENV=/container.env\nDJANGO_SETTINGS_MODULE=manager.settings\n*/5 * * * * cd /app && /usr/local/bin/python ./manage.py periodic_tasks >> /proc/1/fd/1 2>>/proc/1/fd/2\n" > /etc/cron.d/manager-cron
 RUN touch /etc/cron.d/manager-cron
 RUN chmod 0644 /etc/cron.d/manager-cron
 RUN crontab /etc/cron.d/manager-cron

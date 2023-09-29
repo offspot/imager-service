@@ -1,24 +1,23 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import json
 import base64
+import json
 from pathlib import Path
 
-import humanfriendly
 import dateutil.parser
+import humanfriendly
 from django import template
 
 from manager.models import Address, Order
+from manager.pibox.packages import get_package, get_parsed_package
 from manager.pibox.util import human_readable_size
-from manager.pibox.packages import get_parsed_package, get_package
 
 register = template.Library()
 
 
-def human_size(value, binary=True):
-    return human_readable_size(value, binary).replace(" ", " ")
+def human_size(value, binary=True):  # noqa: FBT002
+    return human_readable_size(value, binary).replace(" ", " ")  # noqa: RUF001
 
 
 register.filter("human_size", human_size)
@@ -154,3 +153,10 @@ def yesno(value):
 
 
 register.filter("yesnoraw", yesno)
+
+
+def to_html_id(package_id):
+    return package_id.replace(":", "___").replace(".", "__")
+
+
+register.filter("html_id", to_html_id)

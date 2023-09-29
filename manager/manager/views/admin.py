@@ -1,18 +1,18 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import logging
 
 from django import forms
-from django.http import Http404
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.utils.translation import gettext as _, gettext_lazy as _lz
 from django.conf import settings
+from django.contrib import messages
+from django.http import Http404
+from django.shortcuts import redirect, render
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _lz
 
 from manager.decorators import staff_required
-from manager.models import Organization, Profile, Media
+from manager.models import Media, Organization, Profile
 from manager.views.ui import do_delete_account
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class OrganizationForm(forms.ModelForm):
     class Meta:
         model = Organization
-        fields = [
+        fields = [  # noqa: RUF012
             "slug",
             "name",
             "channel",
@@ -55,7 +55,7 @@ class UpdateUnitsForm(forms.Form):
 
     def save(self):
         if not self.is_valid():
-            raise ValueError("{cls} is not valid".format(cls=type(self)))
+            raise ValueError(f"{type(self)} is not valid")
 
         organization = Organization.get_or_none(self.cleaned_data.get("organization"))
         organization.units = self.cleaned_data.get("units")
@@ -113,7 +113,7 @@ class ProfileForm(forms.Form):
 class MediaForm(forms.ModelForm):
     class Meta:
         model = Media
-        fields = ["name", "kind", "size", "units_coef"]
+        fields = ["name", "kind", "size", "units_coef"]  # noqa: RUF012
 
     @staticmethod
     def success_message(result):

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import json
@@ -7,11 +6,11 @@ import logging
 
 from django import forms
 from django.contrib import messages
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, JsonResponse
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
+from django.http import Http404, JsonResponse
+from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
 
 from manager.models import Configuration
@@ -36,7 +35,7 @@ class JSONUploadForm(forms.Form):
 class ConfigurationForm(forms.ModelForm):
     class Meta:
         model = Configuration
-        fields = [
+        fields = [  # noqa: RUF012
             "name",
             "project_name",
             "language",
@@ -58,7 +57,7 @@ class ConfigurationForm(forms.ModelForm):
             "content_africatik",
             "content_africatikmd",
         ]
-        widgets = {
+        widgets = {  # noqa: RUF012
             "branding_css": forms.ClearableFileInput(
                 attrs={"accept": "text/css,text/plain"}
             ),
@@ -68,7 +67,7 @@ class ConfigurationForm(forms.ModelForm):
 def handle_uploaded_json(fd):
     try:
         payload = fd.read()
-        if type(payload) is bytes:
+        if isinstance(payload, bytes):
             payload = payload.decode("UTF-8")
         return json.loads(payload)
     except Exception:
@@ -217,9 +216,7 @@ def configuration_delete(request, config_id=None):
             % {"config": config},
         )
     except Exception as exp:
-        logger.error(
-            "Unable to delete configuration {id}: {exp}".format(id=config.id, exp=exp)
-        )
+        logger.error(f"Unable to delete configuration {config.id}: {exp}")
         messages.error(
             request,
             _("Unable to delete Configuration <em>%(config)s</em>: -- ref %(err)s")
@@ -249,11 +246,7 @@ def configuration_duplicate(request, config_id=None):
             % {"config": config, "new_config": nconfig},
         )
     except Exception as exp:
-        logger.error(
-            "Unable to duplicate configuration {id}: {exp}".format(
-                id=config.id, exp=exp
-            )
-        )
+        logger.error(f"Unable to duplicate configuration {config.id}: {exp}")
         messages.error(
             request,
             _("Unable to duplicate Configuration <em>%(config)s</em>: -- ref %(err)s")

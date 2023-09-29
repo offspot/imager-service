@@ -1,22 +1,21 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import json
-import datetime
 import collections
+import datetime
+import json
 
-from django.db.models import Max
 from django.conf import settings
-from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.views.decorators.http import require_POST
+from django.db.models import Max
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
-from manager.models import Media, Configuration, Organization, Profile
-from manager.pibox.packages import get_packages_by_lang
-from manager.pibox.util import human_readable_size, ONE_GB
+from manager.models import Configuration, Media, Organization, Profile
 from manager.pibox.content import get_collection, get_required_image_size
+from manager.pibox.packages import get_packages_by_lang
+from manager.pibox.util import ONE_GB, human_readable_size
 
 
 def packages_for_language(request, lang_code):
@@ -24,6 +23,8 @@ def packages_for_language(request, lang_code):
         order = ("size", True)
     else:
         order = ("sname", False)
+        # TODO
+        # order = ("title", False)
 
     def _filter(package):
         return {
@@ -42,6 +43,8 @@ def packages_for_language(request, lang_code):
                 "key",
             )
         }
+        # TODO
+        # return {**package, "hsize": human_size(package["size"])}
 
     ordered = collections.OrderedDict(
         sorted(
@@ -194,7 +197,7 @@ def create_user_account(request):
             try:
                 org.delete()
             except Exception:
-                pass
+                ...
         return JsonResponse({"error": f"Failed to create account: {exc}"}, status=500)
 
     return JsonResponse(
