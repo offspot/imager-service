@@ -2,7 +2,7 @@
 # ruff: noqa
 
 import django.db.models.deletion
-import jsonfield.fields
+# import jsonfield.fields
 from django.conf import settings
 from django.db import migrations, models
 
@@ -996,7 +996,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="order",
             name="config",
-            field=jsonfield.fields.JSONField(verbose_name="Config"),
+            field=models.JSONField(verbose_name="Config"),
         ),
         migrations.AlterField(
             model_name="order",
@@ -1079,7 +1079,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="order",
             name="scheduler_data",
-            field=jsonfield.fields.JSONField(
+            field=models.JSONField(
                 blank=True, null=True, verbose_name="Scheduler Data"
             ),
         ),

@@ -12,7 +12,6 @@ from pathlib import Path
 
 import babel.languages
 import dateutil.parser
-import jsonfield
 import phonenumbers
 import PIL
 import pycountry
@@ -192,7 +191,7 @@ class ConvertedImageFileField(models.ImageField):
 class Configuration(models.Model):
     class Meta:
         get_latest_by = "-id"
-        ordering = ("-id",)
+        ordering = ["-id"]
         verbose_name = _lz("configuration")
         verbose_name_plural = _lz("configurations")
 
@@ -296,11 +295,10 @@ class Configuration(models.Model):
         verbose_name=_lz("CSS File"),
     )
 
-    content_zims = jsonfield.JSONField(
+    content_zims = models.JSONField(
         blank=True,
         null=True,
-        load_kwargs={"object_pairs_hook": collections.OrderedDict},
-        default="",
+        default=dict,
     )
     content_wikifundi_fr = models.BooleanField(
         default=False,
@@ -618,7 +616,7 @@ class Configuration(models.Model):
 
 class Organization(models.Model):
     class Meta:
-        ordering = ("slug",)
+        ordering = ["slug"]
         verbose_name = _lz("organization")
         verbose_name_plural = _lz("organizations")
 
@@ -687,7 +685,7 @@ class Organization(models.Model):
 
 class Profile(models.Model):
     class Meta:
-        ordering = ("organization", "user__username")
+        ordering = ["organization", "user__username"]
         verbose_name = _lz("profile")
         verbose_name_plural = _lz("profiles")
 
@@ -828,7 +826,7 @@ class Profile(models.Model):
 
 class Address(models.Model):
     class Meta:
-        ordering = ("-id",)
+        ordering = ["-id"]
         verbose_name = _lz("address")
         verbose_name_plural = _lz("addresss")
 
@@ -956,7 +954,7 @@ class Media(models.Model):
 
     class Meta:
         unique_together = (("kind", "size"),)
-        ordering = ("size",)
+        ordering = ["size"]
         verbose_name = _lz("media")
         verbose_name_plural = _lz("medias")
 
@@ -1111,7 +1109,7 @@ class Order(models.Model):
     }
 
     class Meta:
-        ordering = ("-created_on",)
+        ordering = ["-created_on"]
         verbose_name = _lz("order")
         verbose_name_plural = _lz("orders")
 
@@ -1126,8 +1124,7 @@ class Order(models.Model):
     scheduler_id = models.CharField(
         max_length=50, unique=True, blank=True, verbose_name=_lz("Scheduler ID")
     )
-    scheduler_data = jsonfield.JSONField(
-        load_kwargs={"object_pairs_hook": collections.OrderedDict},
+    scheduler_data = models.JSONField(
         null=True,
         blank=True,
         verbose_name=_lz("Scheduler Data"),
@@ -1155,8 +1152,7 @@ class Order(models.Model):
         choices=settings.LANGUAGES,
         default=settings.LANGUAGE_CODE,
     )
-    config = jsonfield.JSONField(
-        load_kwargs={"object_pairs_hook": collections.OrderedDict},
+    config = models.JSONField(
         verbose_name=_lz("Config"),
     )
     media_name = models.CharField(max_length=50, verbose_name=_lz("Media name"))

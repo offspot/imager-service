@@ -3,7 +3,7 @@
 
 
 import django.db.models.deletion
-import jsonfield.fields
+# import jsonfield.fields
 from django.conf import settings
 from django.db import migrations, models
 
@@ -913,7 +913,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "content_zims",
-                    jsonfield.fields.JSONField(blank=True, default="", null=True),
+                    models.JSONField(blank=True, default=dict, null=True),
                 ),
                 (
                     "content_kalite_fr",
@@ -1040,7 +1040,7 @@ class Migration(migrations.Migration):
                     "scheduler_id",
                     models.CharField(blank=True, max_length=50, unique=True),
                 ),
-                ("scheduler_data", jsonfield.fields.JSONField(blank=True, null=True)),
+                ("scheduler_data", models.JSONField(blank=True, null=True)),
                 ("scheduler_data_on", models.DateTimeField(blank=True, null=True)),
                 (
                     "status",
@@ -1059,7 +1059,7 @@ class Migration(migrations.Migration):
                 ("channel", models.CharField(max_length=50)),
                 ("client_name", models.CharField(max_length=100)),
                 ("client_email", models.EmailField(max_length=254)),
-                ("config", jsonfield.fields.JSONField()),
+                ("config", models.JSONField()),
                 ("media_name", models.CharField(max_length=50)),
                 ("media_type", models.CharField(max_length=50)),
                 ("media_duration", models.IntegerField(blank=True, null=True)),
