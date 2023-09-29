@@ -3,7 +3,7 @@
 echo "dump environment"
 declare -p | grep -Ev 'BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID' > /container.env
 
-mkdir -p ${DATA_DIR}/media
+mkdir -p ${DATA_DIR}/{media,static}
 
 # always migrate & collect static file
 python3 ./manage.py migrate
@@ -22,13 +22,19 @@ sleep 2
 crontab /etc/cron.d/manager-cron
 
 echo "run parent's entrypoint"
-/entrypoint.sh
 if [ "${MAINTENANCE_MODE}" = "y" ]
 then
     echo "Enabling maintenance mode"
-    printf "server {\n\tlocation / {\n\t\treturn 200 'Cardshop is in maintenance. Please give us a moment.';\n\t\tadd_header Content-Type text/html;\n\t}\n}\n" > /etc/nginx/conf.d/nginx.conf
-else
-    cp /app/manager/nginx.conf /etc/nginx/conf.d/nginx.conf
+	printf "{\n\
+	auto_https off\n\
+}\n\
+\n\
+:80 {\n\
+    root * /app
+	header Content-Type \"text/html;charset=utf-8;\"\n\
+    respond \"Imager is in maintenance mode. Please give us a moment.\" 200
+}\n\
+" > /etc/caddy/Caddyfile
 fi
 echo "starting CMD"
 exec "$@"

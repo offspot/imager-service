@@ -1,37 +1,65 @@
-FROM ghcr.io/rgaudin/uwsgi-nginx:python3.9
+FROM docker.io/library/python:3.11-slim-bookworm
 LABEL org.opencontainers.image.source https://github.com/offspot/cardshop
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone
-RUN apt-get update -y && \
-    apt-get -y --no-install-recommends install cron python3-dev default-libmysqlclient-dev build-essential && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y \
+    && apt-get -y --no-install-recommends install \
+        curl \
+        python3-dev default-libmysqlclient-dev build-essential pkg-config \
+        cron libmagic1 \
+        supervisor \
+    && curl -o /tmp/caddy_2.7.4_linux_amd64.deb -L https://github.com/caddyserver/caddy/releases/download/v2.7.4/caddy_2.7.4_linux_amd64.deb \
+    && dpkg -i /tmp/caddy_2.7.4_linux_amd64.deb \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /lib/systemd/system/supervisor.service \
+    && update-rc.d -f supervisor remove \
+    && rm -f /etc/init.d/supervisor \
+    && pip install -U pip uwsgi==2.0.22
+
+# install main setup: supervisor, which launches uwsgi and caddy
+COPY uwsgi.ini /etc/uwsgi/uwsgi.ini
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY Caddyfile /etc/caddy/Caddyfile
+
+# install code
+COPY pyproject.toml README.md /app/
+COPY manage.py /app/manage.py
+COPY manager /app/manager
+COPY locale /app/locale
+COPY contents.json /app/contents.json
+COPY uwsgi-manager.ini /etc/uwsgi/manager.ini
+RUN pip install /app
+
+# install health-check app code (in its own env)
+COPY status /app/status
+RUN python3 -m venv /app/status-env \
+    && /app/status-env/bin/pip install -r /app/status/requirements.txt
+COPY uwsgi-status.ini /etc/uwsgi/uwsgi-status.ini
+
+# install periodic-tasks cron job
+RUN printf "SHELL=/bin/bash\n\
+BASH_ENV=/container.env\n\
+DJANGO_SETTINGS_MODULE=manager.settings\n\
+*/5 * * * * cd /app && /usr/local/bin/python ./manage.py periodic_tasks >> /proc/1/fd/1 2>>/proc/1/fd/2\n\
+" > /etc/cron.d/manager-cron \
+    && touch /etc/cron.d/manager-cron \
+    && chmod 0644 /etc/cron.d/manager-cron \
+    && crontab /etc/cron.d/manager-cron
+
+# install entrypoint to prepare DB and collect static
+COPY entrypoint.sh /manager-entrypoint.sh
+RUN chmod 755 /manager-entrypoint.sh
+
+WORKDIR /app
+VOLUME /data
 ENV DATA_DIR /data
 ENV CARDSHOP_API_URL https://api.cardshop.hotspot.kiwix.org
 ENV CARDSHOP_API_URL_EXTERNAL https://api.cardshop.hotspot.kiwix.org
 ENV MANAGER_API_TOKEN NOT_SET
 ENV ADMIN_PASSWORD admin
 ENV SUPPORT_EMAIL stephane@kiwix.org
-
-VOLUME /data
-
-# update pip
-RUN pip install -U pip setuptools virtualenv
-
-COPY nginx.conf /etc/nginx/conf.d/
-
-# copy app code
-RUN rm -rf /app
-COPY requirements.txt /app/requirements.txt
-RUN pip install -r /app/requirements.txt
-
-COPY manage.py /app/manage.py
-COPY manager /app/manager
-COPY locale /app/locale
-COPY contents.json /app/contents.json
-COPY uwsgi-manager.ini /etc/uwsgi/manager.ini
-COPY nginx.conf /app/manager
 
 # for status page
 ENV STATUS_S3_URL "http://org-kiwix-hotspot-cardshop-download.s3.us-west-1.wasabisys.com"
@@ -43,30 +71,7 @@ ENV MONGODB_URI "mongodb://mongodb"
 ENV STATUS_SCHEDULER_USERNAME ""
 ENV STATUS_SCHEDULER_PASSWORD ""
 
-COPY status /app/status
-RUN virtualenv -p python3 /app/status-env
-RUN /app/status-env/bin/pip install -r /app/status/requirements.txt
-COPY uwsgi-status.ini /etc/uwsgi/uwsgi-status.ini
-
-# replace line in supervisor to enable emperor mode
-RUN sed -i "s/uwsgi --ini \/etc\/uwsgi\/uwsgi.ini/uwsgi --emperor \/etc\/uwsgi/g" /etc/supervisor/conf.d/supervisord.conf
-# add route in uwsgi to enable status page
-RUN printf "\nsocket-timeout = 300" >> /etc/uwsgi/uwsgi.ini
-RUN printf "\nroute-uri = ^/health-check(/?).*$ uwsgi:/tmp/uwsgi-status.sock,0,0" >> /etc/uwsgi/uwsgi.ini
-
-ENV UWSGI_INI /etc/uwsgi/manager.ini
-COPY entrypoint.sh /manager-entrypoint.sh
-RUN chmod 755 /manager-entrypoint.sh
-WORKDIR /app
-RUN printf "SHELL=/bin/bash\nBASH_ENV=/container.env\nDJANGO_SETTINGS_MODULE=manager.settings\n*/5 * * * * cd /app && /usr/local/bin/python ./manage.py periodic_tasks >> /proc/1/fd/1 2>>/proc/1/fd/2\n" > /etc/cron.d/manager-cron
-RUN touch /etc/cron.d/manager-cron
-RUN chmod 0644 /etc/cron.d/manager-cron
-RUN crontab /etc/cron.d/manager-cron
-
-RUN rm -rf /lib/systemd/system/supervisor.service
-RUN update-rc.d -f supervisor remove
-RUN rm -f /etc/init.d/supervisor
+EXPOSE 80
 
 ENTRYPOINT ["/manager-entrypoint.sh"]
-EXPOSE 80 443
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
