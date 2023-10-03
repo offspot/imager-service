@@ -6,15 +6,17 @@ import datetime
 import logging
 import os
 import re
+import urllib.parse
 from collections.abc import Generator
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import langcodes
 import requests
 import xmltodict
 
 CATALOG_URL = os.getenv("CATALOG_URL", "https://library.kiwix.org")
-UPDATE_EVERY_SECONDS: int = int(os.getenv("UPDATE_EVERY_SECONDS", "7200"))
+UPDATE_EVERY_SECONDS: int = int(os.getenv("UPDATE_EVERY_SECONDS", "3600"))
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +51,23 @@ class Book:
             except NameError:
                 ...
             self.langs_iso639_1.append(value)
+        # fix many incorrect flavours
+        # self.flavour = re.sub(r"^_", "", self.flavour)
+
+    @property
+    def category(self) -> str:
+        try:
+            return next(
+                tag.split(":", 1)[1]
+                for tag in self.tags
+                if tag.startswith("_category:")
+            )
+        except StopIteration:
+            return ""
+
+    @property
+    def filename(self) -> str:
+        return Path(urllib.parse.urlparse(self.url).path).name
 
     @property
     def illustration_url(self) -> str:
@@ -98,6 +117,9 @@ class Catalog:
         # list of book-idents by language (ISO-639-1)
         self._by_langs: dict[str, list[str]]
         self.ensure_fresh()
+
+    def __contains__(self, ident: str) -> bool:
+        return ident in self.get_all_ids()
 
     @property
     def all_books(self) -> Generator[Book, None, None]:
@@ -213,64 +235,3 @@ class Catalog:
 
 
 catalog = Catalog()
-hotspot_languages = [("en", "English"), ("fr", "Fran\xe7ais")]
-
-
-# def get_packages_by_lang():
-#     packages = {}
-#     for package in get_catalog().values():
-#         plang = langcodes.Language.get(package["language"]).language
-#         if not plang:
-#             continue
-#         if plang not in packages.keys():
-#             packages[plang] = {}
-#         packages[plang][package["id"]] = package
-#     return packages
-
-
-# def get_packages_id():
-#     return list(get_catalog().keys())
-
-
-# def get_packages_langs():
-#     return collections.OrderedDict(
-#         sorted(
-#             [
-#                 (
-#                     langcodes.Language.get(lang).language,
-#                     langcodes.Language.get(lang).language_name(),
-#                 )
-#                 for lang in get_packages_by_lang()
-#                 if lang
-#             ],
-#             key=lambda x: x[1],
-#         )
-#     )
-
-
-# def get_package(pid):
-#     """retrieve package from its ID"""
-#     return get_catalog().get(pid)
-
-
-# def get_package_content(package_id):
-#     """content-like dict for packages (zim file or static site)"""
-#     package = get_package(package_id)
-#     package.update({"ext": "zip" if package.get("type") != "zim" else "zim"})
-#     return {
-#         "url": package["url"],
-#         "name": package_id,
-#         "checksum": None,
-#         "archive_size": package["size"],
-#         # add a 10% margin for non-zim (zip file mostly)
-#         "expanded_size": package["size"] * 1.1
-#         if package.get("type") != "zim"
-#         else package["size"],
-#     }
-
-
-# def get_packages_contents(packages=None):
-#     """ideacube: ZIM file or ZIP file for each package"""
-#     if packages is None:
-#         packages = []
-#     return [get_package_content(package) for package in packages]
