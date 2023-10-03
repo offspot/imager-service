@@ -25,6 +25,10 @@ gone_ids = [
     "productivity.stackexchange.com_en_all.en",
     "programmers.stackexchange.com_en_all.en",
     "startups.stackexchange.com_en_all.en",
+    "wikiquote_en_simple_all_nopic.simple",
+    "wikiquote_en_simple_all_maxi.simple",
+    "core_knowledge.en",
+    "feed_the_beast.en",
 ]
 
 # new Name, Flavour data for previous IDs
@@ -147,7 +151,7 @@ fixed_ids = {
     "mdwiki_en_all_maxi.en": ("mdwiki_en_all", "maxi"),
     "wikiversity_de_all_maxi.de": ("wikiversity_de_all", "_maxi"),
     "mdwiki_en_all.en": ("mdwiki_en_all", ""),
-    "wikisource_zh_all_maxi.zh": ("wikisource_zh_all", "_maxi"),
+    "wikisource_zh_all_maxi.zh": ("wikisource_zh_all", "maxi"),
     "explainxkcd_en_all_maxi.en": ("explainxkcd_en_all", "_maxi"),
     "chinese.stackexchange.com_en_all.en": ("chinese.stackexchange.com_zh_all", ""),
     "edutechwiki_en_all_maxi.en": ("edutechwiki_en_all", "_maxi"),
@@ -2612,4 +2616,18 @@ fixed_ids = {
         "khan-academy-videos_tr_playlist-PLcK4c2anPP-tRJXFlswVJdv1gzbGbYZrO",
         "",
     ),
+    "wikihow_zh_maxi.zh": ("wikihow_zh_all", ""),
+    "wikihow_tr_maxi.tr": ("wikihow_tr_all", ""),
+    "wikihow_es_maxi.es": ("wikihow_es_all", ""),
+    "open_street_maps.en": ("openstreetmap-wiki_en_all", "maxi"),
+    "wikipedia_ja_all_maxi.ja": ("wikipedia_ja_all", "maxi"),
+    "wikipedia_ja_all_nopic.ja": ("wikipedia_ja_all", "nopic"),
+    "wikipedia_ja_all_mini.ja": ("wikipedia_ja_all", "mini"),
+    "scratch.en": ("scratch-wiki_fr_all", "_maxi"),
+    "wikisource_de_all_maxi.de": ("wikisource_de_all", "maxi"),
+    "phet_es.es": ("phets_es_all", ""),
+    "phet_es_all.es": ("phets_es_all", ""),
+    "vikidia_es_all_maxi.es": ("vikidia_es_all", "maxi"),
+    "phet_en_all.en": ("phets_en_all", ""),
+    "phet_ab.ab": ("phets_abk", ""),
 }

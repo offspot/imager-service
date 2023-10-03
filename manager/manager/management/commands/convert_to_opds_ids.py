@@ -4,8 +4,8 @@ import sys
 
 from django.core.management.base import BaseCommand
 
+from manager.kiwix_library import catalog, to_human_id
 from manager.models import Configuration
-from manager.pibox.packages import get_packages_id
 
 try:
     from manager.management.commands.convertdata import fixed_ids, gone_ids
@@ -19,7 +19,8 @@ except ImportError:
     sys.exit(1)
 
 logger = logging.getLogger(__name__)
-all_ids = get_packages_id()  # current, on-library IDs
+# all_ids = get_packages_id()  # current, on-library IDs
+all_ids = catalog.get_all_ids()
 
 
 def get_new_id(yaml_id: str) -> str | int:
@@ -30,21 +31,29 @@ def get_new_id(yaml_id: str) -> str | int:
     if yaml_id.startswith("khan-academy-videos_"):
         yaml_id = yaml_id.rsplit(".", 1)[0]
 
+    repl_flavours = {
+        "nodet": "mini",
+        "novid": "maxi",
+        "_mini": "mini",
+        "_maxi": "maxi",
+        "_nopic": "nopic",
+    }
+
     if yaml_id in fixed_ids:
         name, flavour = fixed_ids.get(yaml_id)[0], fixed_ids.get(yaml_id)[1]
     else:
         name, _ = yaml_id.rsplit(".", 1)
         last_part = name.rsplit("_", 1)[-1]
         flavour = ""
-        if last_part in ("nodet", "novid"):
-            flavour = {"nodet": "mini", "novid": "maxi"}.get(last_part, last_part)
+        if last_part in repl_flavours:
+            flavour = repl_flavours.get(last_part, last_part)
         if last_part in ("mini", "nopic", "maxi"):
             flavour = last_part
             name = re.sub(f"_{last_part}$", "", name)
 
     for publisher in ("Kiwix", "openZIM", "WikiProjectMed"):
-        opds_id = f"{publisher}:{name}:{flavour}"
-        if opds_id in all_ids:
+        opds_id = to_human_id(name, publisher, flavour)
+        if opds_id in catalog:
             return opds_id
 
     return 0
@@ -98,6 +107,7 @@ class Command(BaseCommand):
             if alter:
                 config.save()
 
+        self.stdout.write(str(len(cant_find)))
         self.stdout.write("- " + "\n- ".join(list(set(cant_find))))
 
         self.stdout.write(self.style.SUCCESS("    done"))
