@@ -3,6 +3,7 @@
 
 
 import django.db.models.deletion
+
 # import jsonfield.fields
 from django.conf import settings
 from django.db import migrations, models

@@ -537,6 +537,7 @@ class Configuration(models.Model):
     @property
     def builder(self) -> ConfigBuilder:
         from manager.builder import prepare_builder_for
+
         return prepare_builder_for(self)
 
     def to_dict(self):
