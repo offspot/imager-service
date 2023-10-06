@@ -3,6 +3,14 @@
 {% load static %}
 {% load manager %}
 
+{% block css %}
+td img {
+	float: inline-end;
+	width: 48px;
+	height: 48px;
+}
+{% endblock %}
+
 {% block content %}
 
 	{% if form.errors or form.non_field_errors %}<div class="alert alert-danger">{% blocktrans %}Your config has errors and can not be saved. Please fix them and retry.{% endblocktrans %}{% if form.non_field_errors %}<br />{{ form.non_field_errors }}{% endif %}</div>{% endif %}
@@ -14,7 +22,7 @@
 		{% plural %}
 		<p>Your config contains {{ counter }} ZIMs that are not present anymore in the catalog. Those might have been removed but have most likely been renamed.</p>
 		<p>Said ZIMs will be <strong>automatically removed</strong> as soon as you <em>Update the Configuration</em>. Make sure to <strong>add-back renamed versions</strong> if applicable.</p>{% endblocktrans %}
-		<ul>{% for package in missing_zims %}<li><code>{{ package }}</code></li>{% endfor %}</ul>
+		<ul>{% for ident in missing_zims %}<li><code>{{ ident }}</code></li>{% endfor %}</ul>
 	</div>
 	{% endif %}
 
@@ -23,7 +31,7 @@
 		<li class="nav-item"><a class="nav-link" id="branding-tab" data-toggle="tab" href="#branding" role="tab" aria-controls="branding" aria-selected="false">{% blocktrans %}Branding{% endblocktrans %}</a></li>
 		<li class="nav-item"><a class="nav-link" id="contents-tab" data-toggle="tab" href="#contents" role="tab" aria-controls="contents" aria-selected="false">{% blocktrans %}Content{% endblocktrans %}</a></li>
 		<li class="nav-item"><a class="nav-link disabled">
-			<span id="img_size_holder" class="info" data-container="body" data-toggle="popover" data-trigger="hover" data-content="{% blocktrans %}Size of Selected Contents{% endblocktrans %}"><i class="fas fa-hdd"></i> <span id="image_req_size">?</span></span> – 
+			<span id="img_size_holder" class="info" data-container="body" data-toggle="popover" data-trigger="hover" data-content="{% blocktrans %}Size of Selected Contents{% endblocktrans %}"><i class="fas fa-hdd"></i> <span id="image_req_size">?</span></span> –
 			<span id="sd_size_holder" class="warning" data-container="body" data-toggle="popover" data-trigger="hover" data-content="{% blocktrans %}Minimum SD-card Size required for Selected Contents{% endblocktrans %}"><i class="fa fa-save"></i> <span id="sd_size">?</span></span>
 		</a></li>
 	</ul>
@@ -108,7 +116,7 @@
 
   	<div class="tab-pane fade" id="contents" role="tabpanel" aria-labelledby="contents-tab">
   		{% if form.content_zims.errors %}<div class="alert alert-danger">{% blocktrans with errors=form.content_zims.errors %}Your selection has errors: {{ errors }}{% endblocktrans %}</div>{% endif %}
-  		<input type="hidden" id="{{ form.content_zims.id_for_label }}" class="form-control" 
+  		<input type="hidden" id="{{ form.content_zims.id_for_label }}" class="form-control"
   			   value="{{ form.content_zims.value|default_if_none:'' }}"
   			   name="{{ form.content_zims.html_name }}"/>
 
@@ -163,10 +171,10 @@
 		<div class="form-row visual-group">
 			<div class="col-md-6">
 				<input type="hidden" id="catalog_order" value="" />
-				<h4 class="alert alert-info">{% blocktrans %}Available ZIMs{% endblocktrans %} 
+				<h4 class="alert alert-info">{% blocktrans %}Available ZIMs{% endblocktrans %}
 			  	<select name="lang_filter" id="lang_filter" class="form-control" style="display: inline; width: auto; height: auto; padding: 0; float: right;">
 				  	<option value="">{% blocktrans %}Select a language to filter{% endblocktrans %}</option>
-				  	{% for lang_code, lang_name in packages_langs.items %}
+				  	{% for lang_code, lang_name in languages.items %}
 				  	<option value="{{ lang_code }}">{{ lang_name }}</option>
 				  	{% endfor %}
 			  	</select></h4>
@@ -188,8 +196,8 @@
 				<table id="selected_packages_list" class="table table-bordered table-striped">
 			  	<thead class=""><tr><th>{% blocktrans %}Name{% endblocktrans %}</th><th>{% blocktrans %}Size{% endblocktrans %}</th></tr></thead>
 			  	<tbody>
-			  		{% for package in form.content_zims.value|as_packages %}
-			  		<tr id="selected-row-{{ package.skey }}"><td><a href="#" class="remove-package" data-package-id="{{ package.key }}"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ package.langid }}" class="fas fa-minus-circle primary"></i></a> <strong>{{ package|parsed_sname }}</strong>{% if package.tags %} {% for tag in package.tags %}<span class="badge badge-pill badge-secondary package-tag">{{ tag }}</span>{% endfor %}{% endif %}<p><em>{{ package.description }}</em></p></td><td>{{ package.size|human_size }}</td>
+			  		{% for book in form.content_zims.value|books_from_json %}
+			  		<tr id="selected-row-{{ book.ident }}"><td><a href="#" class="remove-package" data-book-ident="{{ book.ident }}"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ book.ident }}" class="fas fa-minus-circle primary"></i></a> <strong>{{ book.title }}</strong>{% if books.tags %} {% for tag in book.tags %}<span class="badge badge-pill badge-secondary package-tag">{{ tag }}</span>{% endfor %}{% endif %}<p><em>{{ book.description }}</em></p></td><td>{{ book.size|human_size }}</td>
 			  		</tr>
 			  		{% endfor %}
 			  	</tbody>
@@ -215,10 +223,42 @@
 	var wikifundi_es_id = "{{ form.content_wikifundi_es.id_for_label }}";
 	var zim_field_id = "{{ form.content_zims.id_for_label }}";
 	var zim_field = $("#" + zim_field_id);
-	var packages = [{% for package in form.content_zims.value|as_packages %}"{{ package.langid }}",{% endfor %}];
+	var book_idents = [{% for book in form.content_zims.value|books_from_json %}"{{ book.ident }}",{% endfor %}];
+	var catalogUrl = '{{ CATALOG_URL }}';
+	var demoUrl = '{{ DEMO_URL }}';
+
+  function humanSize(sizeInBytes) {
+    var i = -1;
+    var units = ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    do {
+      sizeInBytes /= 1024;
+      i++;
+    } while (sizeInBytes > 1024);
+    return Math.max(sizeInBytes, 0.1).toFixed(1) + ' ' + units[i];
+  }
+
+  function getIllusUrl(book) {
+  	return catalogUrl + book.illustration_relpath;
+  }
+
+  function getCategory(book) {
+  	let category = null;
+  	book.tags.forEach( (tag) => {
+  		if (tag.indexOf("_category:") == 0) {
+  			category = tag.split(":", 2)[1];
+  		}
+  	});
+  	return category;
+  }
+
+  function getDemoUrl(book) {
+		let name = book.ident.split(":", 3)[1];
+  	return `${demoUrl}/${name}`;
+  }
+
 
 	function syncPackagesField() {
-		zim_field.val(JSON.stringify(packages));
+		zim_field.val(JSON.stringify(book_idents));
 	}
 
 	function onRefresh() {
@@ -229,17 +269,6 @@
 
 	function registerPopovers() {
 		$('[data-toggle="popover"]').popover();
-	}
-
-	// DOM-safe version of the packageId
-	function getSafeId(packageId) {
-		return packageId.replace(/\./g, "__");
-	}
-
-	// packageId derived from catalog packageId (without language extension)
-	function getHotspotPackageId(packageId) {
-		let parts = packageId.split("_");
-		return parts.slice(0, parts.length -1).join("_") + "." + parts[parts.length - 1];
 	}
 
 	function getOrdering() {
@@ -270,26 +299,19 @@
 		$('.add-package').on('click', function (e) {
 			e.preventDefault();
 
-			let safe_id = getSafeId($(this).data('package-id'));
-			let package_id = getHotspotPackageId($(this).data('package-id'));
-			console.debug("safe_id", safe_id, "package_id", package_id);
+			let ident = $(this).data('book-ident');
 
-			// add package to datalist and refresh size
-			if (packages.indexOf(package_id) == -1) {
-				console.debug("adding " + package_id);
-				packages.push(package_id);
+			// add book to datalist and refresh size
+			if (book_idents.indexOf(ident) == -1) {
+				book_idents.push(ident);
 				refreshSize();
 
 				// add row to table
 				let selected_table = $('#selected_packages_list tbody');
-				let catalog_row = $('tr#catalog-row-' + safe_id);
-				let selected_row = $('<tr id="selected-row-'+ safe_id +'">');
-				console.log("created row");
+				let catalog_row = $(document.getElementById('catalog-row-' + ident));
+				let selected_row = $('<tr id="selected-row-'+ ident +'">');
 				selected_row.html(catalog_row.html());
-				console.log("updated row html");
-				console.log(selected_row.html());
 				selected_table.append(selected_row);
-				console.log("added row to table");
 				// update UI inside row
 				$(selected_row.find('.fa-plus-circle')).attr('class', 'fas fa-minus-circle primary');
 				$(selected_row.find('.add-package')).attr('class', 'remove-package');
@@ -312,18 +334,16 @@
 		$('.remove-package').on('click', function (e) {
 			e.preventDefault();
 
-			let safe_id = getSafeId($(this).data('package-id'));
-			let package_id = getHotspotPackageId($(this).data('package-id'));
+			let ident = $(this).data('book-ident');
 
 			// remove package from datalist and refresh size
-			if (packages.indexOf(package_id) != -1) {
-				console.debug("removing " + package_id);
-				packages.splice(packages.indexOf(package_id), 1);
+			if (book_idents.indexOf(ident) != -1) {
+				book_idents.splice(book_idents.indexOf(ident), 1);
 				refreshSize();
 			}
 
 			// remove row from table
-			removeRow($('#selected-row-'+ safe_id));
+			removeRow($(document.getElementId('selected-row-'+ ident)));
 
 			// refresh form field
 			syncPackagesField();
@@ -338,35 +358,34 @@
 
 	function registerZIMChooser() {
 		$('#lang_filter').on('change', function(e) {
-			// remove popovers to prevent zombies
-			//$('[data-toggle="popover"]').popover('dispose');
-
 			let lang_code = $(this).val() || "none";
-			let packages_list = $('#packages_list tbody');
+			let books_list = $('#packages_list tbody');
 			let order = $("#catalog_order").val();
 			$.getJSON("/api/packages/lang_" + lang_code + "?order=" + order, function () {})
 				.done(function (data) {
-					console.log(data);
-					packages_list.empty();
-					$.each(data.packages, function(package_key, package) {
+					books_list.empty();
+					$.each(data.books, function(index, book) {
 
 						// don't add row to catalog if already selected
-						if (packages.indexOf(package_key) != -1) {
+						if (book_idents.indexOf(book.ident) != -1) {
 							return;
 						}
 
 						// tags to badges
 						let tags = $('<span>');
-						$.each(package.tags, function (ti, tag) {
-							tags.append($('<span class="badge badge-pill badge-secondary package-tag">' + tag + '</span>\n'));
-						});
+						if (getCategory(book)) {
+							tags.append($('<span class="badge badge-pill badge-dark package-tag">' + getCategory(book) + '</span>'));
+						}
+						if (book.flavour) {
+							tags.append($('<span class="badge badge-pill badge-light package-tag">' + book.flavour + '</span>'));
+						}
 
-						let row = $('<tr id="catalog-row-'+ package.skey +'">');
-						let main_td = '<a href="#" class="add-package" data-package-id="'+package.key +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ package_key +'" class="fas fa-plus-circle primary"></i></a> <strong>' + package.sname + '</strong> ' + tags.html() + '<p><em>' + package.description+'</em></p>';
+						let row = $('<tr id="catalog-row-'+ book.ident +'">');
+						let main_td = '<a href="#" class="add-package" data-book-ident="'+ book.ident +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ book.ident +'" class="fas fa-plus-circle primary"></i></a><a title="Voir en ligne" href="' + getDemoUrl(book) + '" target="_blank"><img src="' + getIllusUrl(book) + '" async /></a> <strong>' + book.title + '</strong> <p><em>' + book.description + '</em></p><p>' + tags.html() + '</p>';
 						row.append($('<td>').html(main_td));
-						row.append($('<td>').text(package.hsize));
+						row.append($('<td>').text(humanSize(book.size)));
 
-						packages_list.append(row);
+						books_list.append(row);
 					});
 
 					// register actions
@@ -374,13 +393,12 @@
 
 				})
 				.fail(function (error) {
-					console.log(error);
+					console.error(error);
 				});
 		});
 	}
 
 	function onInit() {
-		console.debug("initialization");
 		refreshSize();
 
 		// register tab behavior
@@ -409,7 +427,6 @@
 
 	function refreshSize() {
 		let free_space_template = "{% blocktrans %}__media_size__ <small>(__free_size__ free)</small>{% endblocktrans %}";
-		console.log(free_space_template);
 		let config = {
 			edupi: $('#' + edupi_id).is(':checked'),
 			edupi_resources: $('#' + edupi_resources_id).val(),
@@ -418,18 +435,16 @@
 			africatik: $('#' + africatik_id).is(':checked'),
 			africatikmd: $('#' + africatikmd_id).is(':checked'),
 			wikifundi: [],
-			packages: packages,
+			packages: book_idents,
 		};
 		$.each(["fr", "en", "es"], function (i, lang) {
 			if ($('#' + eval('wikifundi_' + lang + '_id')).is(':checked')) {
 				config.wikifundi.push(lang);
 			}
 		});
-		console.log(config);
 		$.post("/api/get_size", JSON.stringify(config), function () {})
 			.done(function (data) {
-				console.log(data);
-				$('#image_req_size').text(data.hsize);
+				$('#image_req_size').text(humanSize(data.size));
 
 				if (data.media_size == null) {
 					$('#sd_size_holder')[0].className = "danger";
@@ -443,7 +458,7 @@
 
 			})
 			.fail(function (error) {
-				console.log(error);
+				console.error(error);
 			});
 	}
 

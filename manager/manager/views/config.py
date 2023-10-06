@@ -13,8 +13,8 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
 
+from manager.kiwix_library import CATALOG_URL, catalog
 from manager.models import Configuration
-from manager.pibox.packages import get_packages_langs
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +148,7 @@ def configuration_edit(request, config_id=None):
         config = Configuration(organization=request.user.profile.organization)
 
     # list of languages availables in all catalogs
-    context["packages_langs"] = get_packages_langs()
+    context["packages_langs"] = catalog.languages
 
     if request.method == "POST":
         form = ConfigurationForm(request.POST, request.FILES, instance=config)
@@ -175,6 +175,9 @@ def configuration_edit(request, config_id=None):
     else:
         form = ConfigurationForm(instance=config)
 
+    context["CATALOG_URL"] = CATALOG_URL
+    context["DEMO_URL"] = "https://library.kiwix.org"
+    context["languages"] = catalog.languages
     context["form"] = form
     context["missing_zims"] = config.retrieve_missing_zims()
 

@@ -26,13 +26,13 @@ dependencies = [
   "Babel==2.9.1",
   "jsonfield==2.0.2",
   "phonenumbers==8.9.15",
-  "Pillow==10.0.0",
+  "Pillow==10.0.1",
   "pycountry==18.5.26",
   "python-magic==0.4.15",
   "humanfriendly==10.0",
   "ansi2html==1.5.2",
   "mysqlclient==2.2.0",
-  "offspot-config==1.3.0",
+  "offspot-config==1.4.0",
   "PyYAML==6.0.1",
   "python-dateutil==2.7.5",
 ]
@@ -236,3 +236,4 @@ exclude = [".env/**", ".venv/**"]
 extraPaths = ["manager"]
 pythonVersion = "3.11"
 typeCheckingMode="basic"
+reportImplicitStringConcatenation = false

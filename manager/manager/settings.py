@@ -218,3 +218,9 @@ LANGUAGES = [
 
 BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL", "1.0.1")
 BASE_IMAGE_ROOTFS_SIZE = int(os.getenv("BASE_IMAGE_ROOTFS_SIZE", "2449473536"))
+OFFSPOT_TLD = os.getenv("OFFSPOT_TLD", "hotspot")
+# should utilmately be supported by offspot-config
+OFFSPOT_LANGUAGES = [
+    ("en", _lz("English")),
+    ("fr", _lz("French")),
+]

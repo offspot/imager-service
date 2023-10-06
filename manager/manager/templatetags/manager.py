@@ -1,33 +1,21 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 nu
-
-import base64
 import json
 from pathlib import Path
 
 import dateutil.parser
-import humanfriendly
 from django import template
 
+from manager.kiwix_library import Book, catalog
 from manager.models import Address, Order
-from manager.pibox.packages import get_package, get_parsed_package
-from manager.pibox.util import human_readable_size
+from manager.utils import human_readable_size
 
 register = template.Library()
 
 
-def human_size(value, binary=True):  # noqa: FBT002
-    return human_readable_size(value, binary).replace(" ", " ")  # noqa: RUF001
+def human_size(value):
+    return human_readable_size(value).replace(" ", " ")  # noqa: RUF001
 
 
 register.filter("human_size", human_size)
-
-
-def human_number(value, decimals=0):
-    return humanfriendly.format_number(value, num_decimals=decimals)
-
-
-register.filter("human_number", human_number)
 
 
 def raw_number(value):
@@ -37,20 +25,6 @@ def raw_number(value):
 register.filter("raw_number", raw_number)
 
 
-def parsed_sname(package):
-    return get_parsed_package(package)["sname"]
-
-
-register.filter("parsed_sname", parsed_sname)
-
-
-def decodeb64(value):
-    return base64.b64decode(value).decode("UTF-8")
-
-
-register.filter("decodeb64", decodeb64)
-
-
 def fname(value):
     return Path(value).name.split("_")[-1]
 
@@ -58,13 +32,12 @@ def fname(value):
 register.filter("fname", fname)
 
 
-def as_packages(value):
-    return filter(
-        lambda x: x is not None, [get_package(pid) for pid in json.loads(value) or []]
-    )
+def books_from_json(db_value: str) -> list[Book]:
+    books = [catalog.get_or_none(ident) for ident in json.loads(db_value) or []]
+    return [book for book in books if book]
 
 
-register.filter("as_packages", as_packages)
+register.filter("books_from_json", books_from_json)
 
 
 def as_widget(field):
@@ -153,10 +126,3 @@ def yesno(value):
 
 
 register.filter("yesnoraw", yesno)
-
-
-def to_html_id(package_id):
-    return package_id.replace(":", "___").replace(".", "__")
-
-
-register.filter("html_id", to_html_id)

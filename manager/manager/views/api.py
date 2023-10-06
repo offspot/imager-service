@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 nu
-
-import collections
 import datetime
 import json
 
@@ -12,52 +8,27 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from manager.builder import prepare_builder_for_collection
+from manager.kiwix_library import catalog
 from manager.models import Configuration, Media, Organization, Profile
-from manager.pibox.content import get_collection, get_required_image_size
-from manager.pibox.packages import get_packages_by_lang
-from manager.pibox.util import ONE_GB, human_readable_size
+from manager.utils import ONE_GB, human_readable_size
 
 
 def packages_for_language(request, lang_code):
-    if request.GET.get("order") == "size":
-        order = ("size", True)
-    else:
-        order = ("sname", False)
-        # TODO
-        # order = ("title", False)
-
-    def _filter(package):
-        return {
-            k: v
-            for k, v in package.items()
-            if k
-            in (
-                "sname",
-                "hsize",
-                "tags",
-                "version",
-                "type",
-                "description",
-                "size",
-                "skey",
-                "key",
+    order_by_size: bool = request.GET.get("order") == "size"
+    if not order_by_size:
+        return JsonResponse(
+            {"books": [book.to_dict() for book in catalog.get_for_lang(lang_code)]}
+        )
+    return JsonResponse(
+        {
+            "books": sorted(
+                [book.to_dict() for book in catalog.get_for_lang(lang_code)],
+                key=lambda book: book["size"],
+                reverse=True,
             )
         }
-        # TODO
-        # return {**package, "hsize": human_size(package["size"])}
-
-    ordered = collections.OrderedDict(
-        sorted(
-            [
-                (k, _filter(v))
-                for k, v in get_packages_by_lang().get(lang_code, {}).items()
-            ],
-            key=lambda x: x[1][order[0]],
-            reverse=order[1],
-        )
     )
-
-    return JsonResponse({"packages": ordered})
 
 
 @csrf_exempt
@@ -72,7 +43,7 @@ def required_size_for_config(request):
         return JsonResponse({"error": str(request.body)})
 
     # check disk space
-    collection = get_collection(
+    builder = prepare_builder_for_collection(
         edupi=data.get("edupi", False),
         edupi_resources=data.get("edupi_resources", None),
         nomad=data.get("nomad", False),
@@ -82,13 +53,13 @@ def required_size_for_config(request):
         packages=data.get("packages", []),
         wikifundi_languages=data.get("wikifundi", []),
     )
-    required_image_size = get_required_image_size(collection)
+    required_image_size = builder.get_min_size()
     media = Media.get_min_for(required_image_size)
     return JsonResponse(
         {
             "size": required_image_size,
-            "hsize": human_readable_size(required_image_size, False),
-            "media_size": human_readable_size(media.size * ONE_GB, False)
+            "hsize": human_readable_size(required_image_size, binary=False),
+            "media_size": human_readable_size(media.size * ONE_GB, binary=False)
             if media
             else None,
             "hfree": human_readable_size(media.bytes - required_image_size)

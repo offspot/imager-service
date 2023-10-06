@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 nu
-
+import base64
 import collections
 import io
 import json
@@ -26,6 +24,7 @@ from django.utils.translation import (
 from django.utils.translation import (
     gettext_lazy as _lz,
 )
+from offspot_config.builder import ConfigBuilder
 from offspot_runtime.checks import (
     is_valid_domain,
     is_valid_hostname,
@@ -34,27 +33,6 @@ from offspot_runtime.checks import (
     is_valid_wpa2_passphrase,
 )
 
-from manager.pibox.config import (
-    extract_branding,
-    get_if_str,
-    get_if_str_in,
-    get_list_if_values_match,
-    get_nested_key,
-    get_uuid,
-)
-from manager.pibox.content import get_collection, get_required_image_size
-from manager.pibox.data import hotspot_languages
-from manager.pibox.packages import get_packages_id
-from manager.pibox.util import (
-    ONE_GB,
-    b64decode,
-    b64encode,
-    get_hardware_adjusted_image_size,
-    human_readable_size,
-    is_valid_admin_login,
-    is_valid_admin_pwd,
-    is_valid_language,
-)
 from manager.scheduler import (
     SchedulerAPIError,
     cancel_order,
@@ -63,6 +41,19 @@ from manager.scheduler import (
     get_order,
     get_warehouse_choices,
     get_warehouse_from,
+)
+from manager.utils import (
+    ONE_GB,
+    extract_branding,
+    get_if_str,
+    get_if_str_in,
+    get_list_if_values_match,
+    get_nested_key,
+    get_uuid,
+    human_readable_size,
+    is_valid_admin_login,
+    is_valid_admin_pwd,
+    is_valid_language,
 )
 
 logger = logging.getLogger(__name__)
@@ -77,9 +68,11 @@ def get_branding_path(instance, filename):  # noqa: ARG001
 
 
 def save_branding_file(branding_file):
-    rpath = get_branding_path(1, branding_file.get("fname"))
-    b64decode(rpath, branding_file.get("data"), settings.MEDIA_ROOT)
-    return rpath
+    fname = get_branding_path(1, branding_file.get("fname"))
+    fpath = Path(settings.MEDIA_ROOT) / fname
+    with open(fpath, "wb") as fp:
+        fp.write(base64.b64decode(branding_file.get("data")))
+    return fname
 
 
 def retrieve_branding_file(field):
@@ -89,7 +82,8 @@ def retrieve_branding_file(field):
     if not fpath.exists():
         return None
     fname = Path(field.name).name.split("_")[-1]  # remove UUID
-    return {"fname": fname, "data": b64encode(fpath)}
+    with open(fpath, "rb") as fp:
+        return {"fname": fname, "data": base64.b64encode(fp.read()).decode("utf-8")}
 
 
 def validate_project_name(value):
@@ -235,7 +229,7 @@ class Configuration(models.Model):
     )
     language = models.CharField(
         max_length=3,
-        choices=hotspot_languages,
+        choices=settings.OFFSPOT_LANGUAGES,
         default="en",
         verbose_name=_lz("Language"),
         help_text=_lz("Hotspot interface language"),
@@ -358,7 +352,7 @@ class Configuration(models.Model):
     def create_from(cls, config, author):
         # only packages IDs which are in the catalogs
         packages_list = get_list_if_values_match(
-            get_nested_key(config, ["content", "zims"]), get_packages_id()
+            get_nested_key(config, ["content", "zims"]), catalog.get_all_ids()
         )
         # list of requested langs for wikifundi
         wikifundi_langs = get_list_if_values_match(
@@ -459,7 +453,7 @@ class Configuration(models.Model):
         return new_instance
 
     def size_value_changed(self):
-        computed_size = get_required_image_size(self.collection)
+        computed_size = self.builder.get_min_size()
         if computed_size != self.size:
             self.size = computed_size
             return True
@@ -468,28 +462,16 @@ class Configuration(models.Model):
     def save(self, *args, **kwargs):
         # remove packages not in catalog
         self.content_zims = [
-            package for package in self.content_zims if package in get_packages_id()
+            ident for ident in self.content_zims if ident in catalog.get_all_ids()
         ]
-        # TODO
-        # self.content_zims = [
-        #     package_id
-        #     for package_id in self.content_zims
-        #     if package_id in get_packages_id()
-        # ]
         self.size_value_changed()
         super().save(*args, **kwargs)
 
     def retrieve_missing_zims(self):
         """checks packages list over catalog for changes"""
         return [
-            package for package in self.content_zims if package not in get_packages_id()
+            ident for ident in self.content_zims if ident not in catalog.get_all_ids()
         ]
-        # TODO
-        # return [
-        #     package_id
-        #     for package_id in self.content_zims
-        #     if package_id not in get_packages_id()
-        # ]
 
     @classmethod
     def get_choices(cls, organization):
@@ -553,17 +535,9 @@ class Configuration(models.Model):
         return self.display_name
 
     @property
-    def collection(self):
-        return get_collection(
-            edupi=self.content_edupi,
-            edupi_resources=self.content_edupi_resources or None,
-            nomad=self.content_nomad,
-            mathews=self.content_mathews,
-            africatik=self.content_africatik,
-            africatikmd=self.content_africatikmd,
-            packages=self.content_zims or [],
-            wikifundi_languages=self.wikifundi_languages,
-        )
+    def builder(self) -> ConfigBuilder:
+        from manager.builder import prepare_builder_for
+        return prepare_builder_for(self)
 
     def to_dict(self):
         # for key in ("project_name", "language", "timezone"):
@@ -1014,7 +988,7 @@ class Media(models.Model):
 
     @property
     def human(self):
-        return human_readable_size(self.size * ONE_GB, False)
+        return human_readable_size(self.size * ONE_GB, binary=False)
 
     @property
     def units(self):

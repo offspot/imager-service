@@ -8,8 +8,9 @@ import os
 import re
 import urllib.parse
 from collections.abc import Generator
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import Any
 
 import langcodes
 import requests
@@ -108,6 +109,9 @@ class Book:
     def expanded_size(self) -> int:
         return self.size
 
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
 
 class Catalog:
     def __init__(self):
@@ -150,6 +154,10 @@ class Catalog:
         self.ensure_fresh()
         return self._books[ident]
 
+    def get_or_none(self, ident: str) -> Book | None:
+        self.ensure_fresh()
+        return self._books.get(ident)
+
     def get_all_ids(self) -> Generator[str, None, None]:
         self.ensure_fresh()
         yield from self._books.keys()
@@ -166,6 +174,7 @@ class Catalog:
             self.refresh()
 
     def refresh(self):
+        logger.debug(f"refreshing catalog via {CATALOG_URL}")
         books: dict[str, Book] = {}
         langs: dict[str, list[str]] = {}
         try:
