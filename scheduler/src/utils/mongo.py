@@ -210,6 +210,7 @@ class Orders(BaseCollection):
 
     schema = {
         "config": {"type": "dict", "required": True},
+        "config_yaml": {"type": "string", "required": False},
         "sd_card": {
             "type": "dict",
             "required": True,
@@ -285,7 +286,7 @@ class Orders(BaseCollection):
 
     @classmethod
     def get_tasks(cls, order_id, with_logs=False):
-        order = cls().get(order_id, {"tasks": 1})
+        order = cls().get(order_id)
         return {
             "create": CreatorTasks().get(
                 order["tasks"].get("create"), with_logs=with_logs
@@ -330,6 +331,7 @@ class Orders(BaseCollection):
             "download_uri": order["warehouse"]["download_uri"],
             "worker": None,
             "config": order["config"],
+            "config_yaml": order.get("config_yaml", ""),
             "size": order["sd_card"]["size"],
             "logs": {"worker": None, "installer": None, "uploader": None},
             "status": CreatorTasks.pending,
@@ -676,9 +678,9 @@ class Tasks(BaseCollection):
     @classmethod
     def get_size(cls, task_id):
         task = cls.get(task_id)
-        if cls == CreatorTasks:
+        if isinstance(task, CreatorTasks):
             return humanfriendly.parse_size(task["config"]["size"])
-        if cls in (DownloaderTasks, WriterTasks):
+        if isinstance(task, (DownloaderTasks, WriterTasks)):
             return task["image_size"]
 
 
@@ -691,6 +693,7 @@ class CreatorTasks(Tasks):
         "channel": {"type": "string", "required": True, "nullable": True},
         "worker": {"type": "string", "required": True, "nullable": True},
         "config": {"type": "dict", "required": True},
+        "config_yaml": {"type": "string", "required": False},
         "size": {"type": "integer", "required": True},
         "logs": {"type": "dict"},
         "image": {"type": "dict", "required": False},
