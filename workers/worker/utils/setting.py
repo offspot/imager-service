@@ -18,21 +18,13 @@ class Setting:
     api_url: str = None
 
     working_dir: Path = None
+    cache_dir: Path = None
 
-    installer_binary_path: Path = None
-    aria2_binary_path: Path = None
-    etcher_binary_path: Path = None
+    imager_binary_path: Path = None
     curl_binary_path: Path = None
-
-    usb_slot: str = None
-    usb_path: Path = None
-
-    proxy: str = None
 
     poll_interval = 60  # 1mn
     log_upload_interval = 60 * 2  # 2mn
-
-    download_max_connections = 5
 
     s3_access_key = None
     s3_secret_key = None
@@ -43,27 +35,16 @@ class Setting:
 
     @classmethod
     def read_from_env(cls):
-        cls.installer_binary_path = Path(
-            os.getenv("INSTALLER_BIN_PATH", "/usr/bin/kiwix-hotspot")
-        )
-        cls.aria2_binary_path = Path(os.getenv("ARIA2_BIN_PATH", "/usr/bin/aria2c"))
-        cls.etcher_binary_path = Path(
-            os.getenv("ETCHER_BIN_PATH", "/usr/local/etcher/balena-etcher")
+        cls.imager_binary_path = Path(
+            os.getenv("IMAGER_BIN_PATH", "/usr/loca/bin/image-creator")
         )
         cls.curl_binary_path = Path(os.getenv("CURL_BIN_PATH", "/usr/bin/curl"))
-        cls.working_dir = Path(os.getenv("WORKING_DIR", "")).resolve(strict=True)
-        cls.username = os.getenv("USERNAME", None)
-        cls.password = os.getenv("PASSWORD", None)
+        cls.working_dir = Path(os.getenv("WORKING_DIR", "data")).resolve(strict=True)
+        cls.cache_dir = Path(os.getenv("CACHE_DIR", "cache")).resolve(strict=True)
+        cls.username = os.getenv("USERNAME", "")
+        cls.password = os.getenv("PASSWORD", "")
         cls.api_url = os.getenv(
             "CARDSHOP_API_URL", "https://api.cardshop.hotspot.kiwix.org"
-        )
-        cls.usb_slot = Path(os.getenv("USB_SLOT", "no_slot"))
-        cls.usb_path = Path(os.getenv("USB_PATH", "/dev/sdcard") or "/dev/sdcard")
-        cls.host_device = os.getenv("HOST_DEVICE", "unknown")
-        cls.proxy = os.getenv("PROXY", None)
-
-        cls.download_max_connections = int(
-            os.getenv("MAX_CONNECTIONS", cls.download_max_connections)
         )
 
         cls.s3_access_key = os.getenv("S3_ACCESS_KEY", cls.s3_access_key)

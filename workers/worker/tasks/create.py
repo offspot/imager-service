@@ -7,41 +7,62 @@ import io
 import json
 import logging
 import datetime
+import threading
 import subprocess
+import tempfile
 import urllib.parse
 
 import torf
 from kiwixstorage import KiwixStorage
 
-from tasks.base import BaseTask
 from utils.setting import Setting
 from utils.s3 import ImageTransferHook
 from utils import get_checksum
-from utils.scheduler import authenticate, get_access_token
+from utils.scheduler import authenticate, get_access_token, update_task_status
 
 logger = logging.getLogger(__name__)
 
 
-def free_space():
-    """clean up cache folder"""
-    logger.info("clean-up cache folder to free space")
-    clean_cache_output = subprocess.run(
-        args=[
-            str(Setting.installer_binary_path),
-            "cache",
-            "--build",
-            str(Setting.working_dir),
-            "reset",
-            "--keep-master",
-        ],
-        universal_newlines=True,
-        capture_output=True,
-        check=True,
-    ).stdout
-    logger.info(clean_cache_output)
+class CreateTask(threading.Thread):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        self.exception: Exception = None  # exception to be re-raised by caller
+        self.task: dict = {}
+        self.logs = {}
 
-class CreateTask(BaseTask):
+        self._should_stop: bool = False  # stop flag
+
+        self.extra = {}  # extra data to populate and send
+
+        self.logger = logging.getLogger(__name__)  # to be overwritten
+
+    def stop(self):
+        self.logger.info("stopping thread")
+        self._should_stop = True
+
+    @property
+    def canceled(self):
+        return self._should_stop
+
+    def report_status(self, status, status_log=None):
+        self.logger.info(
+            "updating task #{} status to: {}".format(self.task["_id"], status)
+        )
+        success, tid = update_task_status(
+            self.task["_id"], status, status_log, extra=self.extra
+        )
+        return success
+
+    def file_path(self, ext):
+        return Setting.working_dir.joinpath(self.task["fname"]).with_suffix(f".{ext}")
+
+    def read_log(self, path):
+        cat = subprocess.run(["cat", str(path)], text=True, capture_output=True)
+        return "{stdout}\n{stderr}".format(
+            stdout=cat.stdout or "", stderr=cat.stderr or ""
+        )
+
     def remove_files(self, only_errorneous=True):
         suffixes = [".ERROR.img", ".BUILDING.img"]
         if not only_errorneous:
@@ -76,10 +97,10 @@ class CreateTask(BaseTask):
 
     @property
     def config_path(self):
-        return self.file_path("json")
+        return self.file_path("yaml")
 
     def run(self):
-        super().run()
+        self.task, self.logger = self._args
 
         # make sure warehouse URI is OK before we start
         try:
@@ -119,38 +140,31 @@ class CreateTask(BaseTask):
                 self.report_status(success_status)
 
     def build_image(self):
-        # clean up cache
-        free_space()
-
         self.logger.info("Starting image creation")
 
         # write config to a file
-        with open(str(self.config_path), "w") as fd:
-            json.dump(self.task.get("config"), fd, indent=4)
+        self.config_path.write_text(self.task["config_yaml"])
 
+        # "{}GB".format(self.task.get("size"))
+
+        build_dir = tempfile.TemporaryDirectory(
+            suffix=".build",
+            dir=Setting.working_dir,
+            ignore_cleanup_errors=True,
+        )
         args = [
-            str(Setting.installer_binary_path),
-            "cli",
-            "--root",
-            "--filename",
-            self.img_name,
+            str(Setting.imager_binary_path),
+            "--max-size",
+            "1TB",
+            "--debug",
+            "--cache-dir",
+            str(Setting.cache_dir),
             "--build-dir",
-            str(Setting.working_dir),
-            "--config",
+            build_dir.name,
             str(self.config_path),
-            "--size",
-            "{}GB".format(self.task.get("size")),
+            str(Setting.working_dir / self.img_name),
         ]
 
-        if bool(os.getenv("FAKE_CREATION", False)):
-            args = [
-                "/bin/dd",
-                "if=/dev/zero",
-                f"of={str(self.img_path)}",
-                "bs=1",
-                "count=0",
-                f"seek={20 * 2**20}",
-            ]
         self.logger.info("Starting {args}\n".format(args=" ".join(args)))
 
         self.logs["installer_log"] = "{args}\n".format(args=" ".join(args))
@@ -195,6 +209,7 @@ class CreateTask(BaseTask):
         self.logs["installer_log"] = self.read_log(self.log_path)
 
         # clean up working folder
+        build_dir.cleanup()
         self.remove_files()
 
         if not successful:
