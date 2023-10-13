@@ -20,10 +20,14 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 # all_ids = get_packages_id()  # current, on-library IDs
-all_ids = catalog.get_all_ids()
+all_ids = list(catalog.get_all_ids())
 
 
 def get_new_id(yaml_id: str) -> str | int:
+    # already converted
+    if yaml_id in all_ids:
+        return yaml_id
+
     if yaml_id in gone_ids:
         return -1
 
@@ -53,7 +57,7 @@ def get_new_id(yaml_id: str) -> str | int:
 
     for publisher in ("Kiwix", "openZIM", "WikiProjectMed"):
         opds_id = to_human_id(name, publisher, flavour)
-        if opds_id in catalog:
+        if opds_id in all_ids:
             return opds_id
 
     return 0
@@ -67,7 +71,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):  # noqa: ARG002
         # toggle this once you've run the script successfuly
         # and you're confident you can update the DB
-        alter = False
+        alter = True
 
         self.stdout.write("looping through all configurations...")
 

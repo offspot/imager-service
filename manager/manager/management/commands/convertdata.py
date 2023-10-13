@@ -166,7 +166,7 @@ fixed_ids = {
     "aimhi_en_geography-website.en": ("aimhi_en_-Geography (Website)", ""),
     "german.stackexchange.com_en_all.en": ("german.stackexchange.com_de_all", ""),
     "allthetropes_en_all_maxi.en": ("allthetropes_en_all", "_maxi"),
-    "wikipedia_en_medicine_nodet.en": ("wikipedia_en_medicine", "nodet"),
+    "wikipedia_en_medicine_nodet.en": ("wikipedia_en_medicine", "mini"),
     "energypedia_en_all_nopic.en": ("energypedia_en_all", "_nopic"),
     "phet_en-ca.en": ("phets_eng", ""),
     "aimhi_en_philosophy-website.en": ("aimhi_en_-Philosophy (Website)", ""),

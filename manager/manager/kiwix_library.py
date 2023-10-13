@@ -15,6 +15,7 @@ from typing import Any
 import langcodes
 import requests
 import xmltodict
+from offspot_config.zim import ZimPackage
 
 CATALOG_URL = os.getenv("CATALOG_URL", "https://library.kiwix.org")
 UPDATE_EVERY_SECONDS: int = int(os.getenv("UPDATE_EVERY_SECONDS", "3600"))
@@ -111,6 +112,22 @@ class Book:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+    def get_zim_package(self) -> ZimPackage:
+        return ZimPackage(
+            kind="zim",
+            ident=self.ident,
+            name=self.name,
+            title=self.title,
+            description=self.description,
+            languages=self.langs_iso639_3,
+            tags=self.tags,
+            flavour=self.flavour,
+            download_size=self.size,
+            download_url=self.url,
+            icon=self.illustration_url,
+            version=self.version,
+        )
 
 
 class Catalog:

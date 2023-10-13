@@ -33,6 +33,7 @@ from offspot_runtime.checks import (
     is_valid_wpa2_passphrase,
 )
 
+from manager.kiwix_library import catalog
 from manager.scheduler import (
     SchedulerAPIError,
     cancel_order,

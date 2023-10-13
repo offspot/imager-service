@@ -8,8 +8,8 @@ from offspot_config.constants import CONTENT_TARGET_PATH
 from offspot_config.inputs import BaseConfig
 from offspot_config.utils.download import get_online_rsc_size
 from offspot_config.utils.misc import format_size
-from offspot_config.zim import get_zim_package
 
+from manager.kiwix_library import catalog
 from manager.models import Configuration
 
 
@@ -111,7 +111,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     builder.add_reverseproxy()
 
     for zim_ident in config.content_zims:
-        builder.add_zim(get_zim_package(zim_ident))
+        builder.add_zim(catalog.get(zim_ident).get_zim_package())
 
     for lang in ("fr", "en", "es"):
         if getattr(config, f"content_wikifundi_{lang}"):
