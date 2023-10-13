@@ -71,7 +71,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):  # noqa: ARG002
         # toggle this once you've run the script successfuly
         # and you're confident you can update the DB
-        alter = True
+        alter = False
 
         self.stdout.write("looping through all configurations...")
 
