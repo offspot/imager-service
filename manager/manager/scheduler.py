@@ -18,7 +18,7 @@ URL = settings.CARDSHOP_API_URL
 USERNAME = settings.MANAGER_API_USERNAME
 PASSWORD = settings.MANAGER_API_KEY
 ACCESS_TOKEN = None
-ACCESS_TOKEN_EXPIRY = None
+ACCESS_TOKEN_EXPIRY = datetime.datetime(1970, 1, 1)
 REFRESH_TOKEN = None
 REFRESH_TOKEN_EXPIRY = None
 ROLES = {
@@ -90,7 +90,7 @@ def get_token_headers():
 @auth_required
 def query_api(method, path, payload=None, params=None):
     try:
-        req = getattr(requests, method.lower(), "get")(
+        req = getattr(requests, method.lower(), requests.get)(
             url=get_url(path), headers=get_token_headers(), json=payload, params=params
         )
     except Exception as exp:

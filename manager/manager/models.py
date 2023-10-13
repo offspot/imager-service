@@ -541,8 +541,6 @@ class Configuration(models.Model):
         return prepare_builder_for(self)
 
     def to_dict(self):
-        # for key in ("project_name", "language", "timezone"):
-        #     config.append((key, getattr(self, key)))
         return collections.OrderedDict(
             [
                 ("name", self.name),
@@ -587,6 +585,9 @@ class Configuration(models.Model):
                 ),
             ]
         )
+
+    def to_creator_yaml(self) -> str:
+        return self.builder.render()
 
 
 class Organization(models.Model):
@@ -1130,6 +1131,7 @@ class Order(models.Model):
     config = models.JSONField(
         verbose_name=_lz("Config"),
     )
+    config_yaml = models.TextField(verbose_name=_lz("YAML Config"), default="")
     media_name = models.CharField(max_length=50, verbose_name=_lz("Media name"))
     media_type = models.CharField(max_length=50, verbose_name=_lz("Media type"))
     media_duration = models.IntegerField(
@@ -1264,6 +1266,7 @@ class Order(models.Model):
             client_language=client_language,
             client_limited=client.is_limited,
             config=config.json,
+            config_yaml=config.builder.render(),
             media_name=media.name,
             media_type=media.kind,
             media_size=media.size,
@@ -1336,6 +1339,7 @@ class Order(models.Model):
     def to_payload(self):
         return {
             "config": self.config_json,
+            "config_yaml": self.config_yaml,
             "sd_card": {
                 "name": self.media_name,
                 "size": self.media_size,
