@@ -32,6 +32,7 @@ SECRET_KEY = "s245*pzp1poz*#_!&$65&ld!f)5de2eshwc*!8w(2#5d&w0b=0"
 DEBUG = bool(os.getenv("DEBUG", ""))
 
 ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = [os.getenv("CSRF_TRUSTED_ORIGINS", "https://imager.kiwix.org")]
 
 
 # Application definition
