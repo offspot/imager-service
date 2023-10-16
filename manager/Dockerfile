@@ -16,7 +16,21 @@ RUN apt-get update -y \
     && rm -rf /lib/systemd/system/supervisor.service \
     && update-rc.d -f supervisor remove \
     && rm -f /etc/init.d/supervisor \
-    && pip install -U pip uwsgi==2.0.22
+    && pip install -U pip \
+    && python3 -m venv /app/manager-env \
+    && python3 -m venv /app/status-env
+
+# install uwsgi from source to be able to build the http plugin (outside venv)
+RUN curl -L -O https://files.pythonhosted.org/packages/a7/4e/c4d5559b3504bb65175a759392b03cac04b8771e9a9b14811adf1151f02f/uwsgi-2.0.22.tar.gz \
+    && tar xf uwsgi-2.0.22.tar.gz \
+    && cd uwsgi-2.0.22 \
+    && python uwsgiconfig.py -p plugins/http \
+    && python uwsgiconfig.py -p plugins/python \
+    && mkdir -p /usr/local/lib/uwsgi \
+    && cp -v /uwsgi-2.0.22/*_plugin.so /usr/local/lib/uwsgi/ \
+    && pip install . \
+    && cd - \
+    && rm -rf /uwsgi-2.0.22
 
 # install main setup: supervisor, which launches uwsgi and caddy
 COPY uwsgi.ini /etc/uwsgi/uwsgi.ini
@@ -29,20 +43,19 @@ COPY manage.py /app/manage.py
 COPY manager /app/manager
 COPY locale /app/locale
 COPY contents.json /app/contents.json
-COPY uwsgi-manager.ini /etc/uwsgi/manager.ini
-RUN pip install /app
+COPY uwsgi-manager.ini /etc/uwsgi/apps/manager.ini
+RUN /app/manager-env/bin/pip install /app
 
 # install health-check app code (in its own env)
 COPY status /app/status
-RUN python3 -m venv /app/status-env \
-    && /app/status-env/bin/pip install -r /app/status/requirements.txt
-COPY uwsgi-status.ini /etc/uwsgi/uwsgi-status.ini
+RUN /app/status-env/bin/pip install -r /app/status/requirements.txt
+COPY uwsgi-status.ini /etc/uwsgi/apps/status.ini
 
 # install periodic-tasks cron job
 RUN printf "SHELL=/bin/bash\n\
 BASH_ENV=/container.env\n\
 DJANGO_SETTINGS_MODULE=manager.settings\n\
-*/5 * * * * cd /app && /usr/local/bin/python ./manage.py periodic_tasks >> /proc/1/fd/1 2>>/proc/1/fd/2\n\
+*/5 * * * * cd /app && /app/manager-env/bin/python ./manage.py periodic_tasks >> /proc/1/fd/1 2>>/proc/1/fd/2\n\
 " > /etc/cron.d/manager-cron \
     && touch /etc/cron.d/manager-cron \
     && chmod 0644 /etc/cron.d/manager-cron \
@@ -60,6 +73,7 @@ ENV CARDSHOP_API_URL_EXTERNAL https://api.cardshop.hotspot.kiwix.org
 ENV MANAGER_API_TOKEN NOT_SET
 ENV ADMIN_PASSWORD admin
 ENV SUPPORT_EMAIL stephane@kiwix.org
+ENV DJANGO_SETTINGS_MODULE manager.settings
 
 # for status page
 ENV STATUS_S3_URL "http://org-kiwix-hotspot-cardshop-download.s3.us-west-1.wasabisys.com"

@@ -6,14 +6,14 @@ declare -p | grep -Ev 'BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID' > /contai
 mkdir -p ${DATA_DIR}/{media,static}
 
 # always migrate & collect static file
-python3 ./manage.py migrate
-python3 ./manage.py loaddata manager/fixtures/media.json
-python3 ./manage.py collectstatic --no-input
+/app/manager-env/bin/python ./manage.py migrate
+/app/manager-env/bin/python ./manage.py loaddata manager/fixtures/media.json
+/app/manager-env/bin/python ./manage.py collectstatic --no-input
 chmod -R o+rx ${DATA_DIR}
 
 # create user on first run
 if [ "${FIRSTRUN}" = "y" ]; then
-	python3 ./manage.py shell -c "from manager.models import Profile ; print(Profile.create_admin())"
+	/app/manager-env/bin/python ./manage.py shell -c "from manager.models import Profile ; print(Profile.create_admin())"
 fi
 
 echo "start cron"

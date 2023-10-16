@@ -17,5 +17,9 @@
         }
     }
 
-    reverse_proxy 127.0.0.1:5000
+    handle /health-check* {
+        reverse_proxy 127.0.0.1:5002
+    }
+
+    reverse_proxy 127.0.0.1:5001
 }
