@@ -20,7 +20,7 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p $WORKING_DIR $CACHE_DIR \
-    && echo "enabled: false" > /cache/policy.yaml \
+    && printf "enabled: false\noci_images:\n  enabled: false\nfiles:\n  enabled: false\n" > /cache/policy.yaml \
     && pip3 install -U pip \
     # image-creator
     && curl -L -o /usr/local/bin/image-creator https://drive.offspot.it/image-creator/image-creator_linux-x86_64_0.1 \
