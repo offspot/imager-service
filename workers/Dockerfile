@@ -14,7 +14,9 @@ ENV CURL_BIN_PATH "/usr/bin/curl"
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
     && echo "UTC" > /etc/timezone \
     && apt-get update -y \
-    && apt-get install -y --no-install-recommends curl \
+    && apt-get install -y --no-install-recommends \
+        curl \
+        mount fdisk e2fsprogs qemu-utils \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p $WORKING_DIR $CACHE_DIR \
