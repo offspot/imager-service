@@ -31,10 +31,10 @@ jobs:
       - name: Publish Docker Image
         uses: openzim/docker-publish-action@v10
         with:
-          image-name: offspot/cardshop-worker
+          image-name: offspot/imager-worker
           restrict-to: offspot/cardshop
           context: workers
-          manual-tag: imager
+          manual-tag: latest
           registries: ghcr.io
           credentials:
             GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
