@@ -16,6 +16,7 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
     && apt-get update -y \
     && apt-get install -y --no-install-recommends \
         curl \
+        coreutils util-linux dmsetup \
         mount fdisk e2fsprogs qemu-utils parted \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
@@ -23,7 +24,7 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
     && printf "enabled: false\noci_images:\n  enabled: false\nfiles:\n  enabled: false\n" > /cache/policy.yaml \
     && pip3 install -U pip \
     # image-creator
-    && curl -L -o /usr/local/bin/image-creator https://drive.offspot.it/image-creator/image-creator_linux-x86_64_0.3 \
+    && curl -L -o /usr/local/bin/image-creator https://drive.offspot.it/image-creator/image-creator_linux-x86_64_0.4 \
     && chmod +x /usr/local/bin/image-creator \
     && echo "--- dependencies version:" && image-creator --version
 
