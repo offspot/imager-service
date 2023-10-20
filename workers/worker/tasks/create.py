@@ -162,7 +162,7 @@ class CreateTask(threading.Thread):
             "--build-dir",
             build_dir.name,
             str(self.config_path),
-            str(Setting.working_dir / self.img_name),
+            str(self.img_path),
         ]
 
         self.logger.info("Starting {args}\n".format(args=" ".join(args)))
