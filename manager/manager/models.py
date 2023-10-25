@@ -25,6 +25,7 @@ from django.utils.translation import (
     gettext_lazy as _lz,
 )
 from offspot_config.builder import ConfigBuilder
+from offspot_config.utils.sizes import round_for_cluster
 from offspot_runtime.checks import (
     is_valid_domain,
     is_valid_hostname,
@@ -987,7 +988,9 @@ class Media(models.Model):
         return self.actual_size or self.get_bytes()
 
     def get_bytes(self):
-        return get_hardware_adjusted_image_size(self.size * ONE_GB)
+        # reduced bytes size as the HW might not support advertised size
+        size = self.size * 0.97 if self.size / ONE_GB <= 16 else 0.96
+        return round_for_cluster(size * ONE_GB)
 
     @property
     def human(self):
