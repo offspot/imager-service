@@ -125,7 +125,7 @@ class Book:
             flavour=self.flavour,
             download_size=self.size,
             download_url=self.url,
-            icon=self.illustration_url,
+            icon_url=self.illustration_url,
             version=self.version,
         )
 
