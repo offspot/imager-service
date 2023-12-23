@@ -108,6 +108,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             "ADMIN_PASSWORD": str(config.admin_password),
         },
         write_config=True,
+        kiwix_zim_mirror="https://mirror.download.kiwix.org/zim/"
     )
     builder.add_dashboard(allow_zim_downloads=True)
     builder.add_captive_portal()
