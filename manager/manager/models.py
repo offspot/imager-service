@@ -1273,9 +1273,6 @@ class Order(models.Model):
         warehouse = client.organization.get_warehouse_details(
             use_public=media.kind == Media.VIRTUAL
         )
-        # request an image aligned with media size
-        builder = config.builder
-        builder.set_output_size(media.bytes)
         order = cls(
             organization=client.organization,
             created_by=client,
@@ -1285,7 +1282,7 @@ class Order(models.Model):
             client_language=client_language,
             client_limited=client.is_limited,
             config=config.json,
-            config_yaml=builder.render(),
+            config_yaml=config.builder.render(),
             media_name=media.name,
             media_type=media.kind,
             media_size=media.size,
