@@ -56,6 +56,7 @@ class ConfigurationForm(forms.ModelForm):
             "content_mathews",
             "content_africatik",
             "content_africatikmd",
+            "content_metrics",
         ]
         widgets = {  # noqa: RUF012
             "branding_css": forms.ClearableFileInput(

@@ -130,6 +130,7 @@ td img {
 				{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
 			</div>
 			<div class="form-group col-md-4">
+				{% include "_input_field.html" with field=form.content_metrics changes_size=1 %}
 			</div>
 		</div>
 
@@ -218,6 +219,7 @@ td img {
 	var mathews_id = "{{ form.content_mathews.id_for_label }}";
 	var africatik_id = "{{ form.content_africatik.id_for_label }}";
 	var africatikmd_id = "{{ form.content_africatikmd.id_for_label }}";
+	var metrics_id = "{{ form.content_metrics.id_for_label }}";
 	var wikifundi_fr_id = "{{ form.content_wikifundi_fr.id_for_label }}";
 	var wikifundi_en_id = "{{ form.content_wikifundi_en.id_for_label }}";
 	var wikifundi_es_id = "{{ form.content_wikifundi_es.id_for_label }}";
@@ -434,6 +436,7 @@ td img {
 			mathews: $('#' + mathews_id).is(':checked'),
 			africatik: $('#' + africatik_id).is(':checked'),
 			africatikmd: $('#' + africatikmd_id).is(':checked'),
+			metrics: $('#' + metrics_id).is(':checked'),
 			wikifundi: [],
 			packages: book_idents,
 		};

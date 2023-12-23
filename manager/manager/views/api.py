@@ -50,6 +50,7 @@ def required_size_for_config(request):
         mathews=data.get("mathews", False),
         africatik=data.get("africatik", False),
         africatikmd=data.get("africatikmd", False),
+        metrics=data.get("metrics", False),
         packages=data.get("packages", []),
         wikifundi_languages=data.get("wikifundi", []),
     )

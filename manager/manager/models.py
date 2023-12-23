@@ -350,6 +350,14 @@ class Configuration(models.Model):
         ),
     )
 
+    content_metrics = models.BooleanField(
+        default=False,
+        verbose_name=_lz("Hotspot Metrics"),
+        help_text=_lz(
+            "Statistiques d'utilisation du Hotspot"
+        ),
+    )
+
     @classmethod
     def create_from(cls, config, author):
         # only packages IDs which are in the catalogs
@@ -425,6 +433,9 @@ class Configuration(models.Model):
             "content_africatik": bool(get_nested_key(config, ["content", "africatik"])),
             "content_africatikmd": bool(
                 get_nested_key(config, ["content", "africatikmd"])
+            ),
+            "content_metrics": bool(
+                get_nested_key(config, ["content", "metrics"])
             ),
         }
 
@@ -572,6 +583,7 @@ class Configuration(models.Model):
                             ("mathews", self.content_mathews),
                             ("africatik", self.content_africatik),
                             ("africatikmd", self.content_africatikmd),
+                            ("metrics", self.content_metrics),
                         ]
                     ),
                 ),
@@ -989,7 +1001,7 @@ class Media(models.Model):
 
     def get_bytes(self):
         # reduced bytes size as the HW might not support advertised size
-        size = self.size * 0.97 if self.size / ONE_GB <= 16 else 0.96
+        size = self.size - get_sd_hardware_margin_for(self.size)
         return round_for_cluster(size * ONE_GB)
 
     @property

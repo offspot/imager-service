@@ -35,6 +35,7 @@ class ConfigLike:
     content_mathews: bool = False
     content_africatik: bool = False
     content_africatikmd: bool = False
+    content_metrics: bool = False
 
     @property
     def size(self) -> int:
@@ -69,6 +70,7 @@ def prepare_builder_for_collection(
     mathews: bool,
     africatik: bool,
     africatikmd: bool,
+    metrics: bool,
     packages: list[str],
     wikifundi_languages: list[str],
 ) -> ConfigBuilder:
@@ -80,6 +82,7 @@ def prepare_builder_for_collection(
         content_mathews=mathews,
         content_africatik=africatik,
         content_africatikmd=africatikmd,
+        content_metrics=metrics,
         content_wikifundi_fr="fr" in wikifundi_languages,
         content_wikifundi_en="en" in wikifundi_languages,
         content_wikifundi_es="es" in wikifundi_languages,
@@ -95,23 +98,25 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             source=settings.BASE_IMAGE_URL,
             rootfs_size=settings.BASE_IMAGE_ROOTFS_SIZE,
         ),
-        name=config.name,
-        domain=config.name,
+        name=str(config.name),
+        domain=str(config.name),
         tld=settings.OFFSPOT_TLD,
-        ssid=config.name,
+        ssid=str(config.name),
         passphrase=None,
         environ={
-            "ADMIN_USERNAME": config.admin_account,
-            "ADMIN_PASSWORD": config.admin_password,
+            "ADMIN_USERNAME": str(config.admin_account),
+            "ADMIN_PASSWORD": str(config.admin_password),
         },
+        write_config=True,
     )
     builder.add_dashboard(allow_zim_downloads=True)
-    builder.add_hwclock()
     builder.add_captive_portal()
     builder.add_reverseproxy()
 
     for zim_ident in config.content_zims:
         builder.add_zim(catalog.get(zim_ident).get_zim_package())
+
+    builder.add_hwclock()
 
     for lang in ("fr", "en", "es"):
         if getattr(config, f"content_wikifundi_{lang}"):
@@ -152,15 +157,18 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             app_catalog.get_filespackage("africatik-md.offspot.kiwix.org")
         )
 
-    # branding for dashboard (a single CSS file)
-    builder.add_file(
-        url_or_content=gen_css_from_dashboard_options(
-            "https://logo.png", colors="from-logo"
-        ),
-        to=str(CONTENT_TARGET_PATH / "dashboard-app/custom.css"),
-        via="direct",
-        size=0,
-        is_url=False,
-    )
+    if config.content_metrics:
+        builder.add_metrics()
+
+    # # branding for dashboard (a single CSS file)
+    # builder.add_file(
+    #     url_or_content=gen_css_from_dashboard_options(
+    #         "https://logo.png", colors="from-logo"
+    #     ),
+    #     to=str(CONTENT_TARGET_PATH / "dashboard-app/custom.css"),
+    #     via="direct",
+    #     size=0,
+    #     is_url=False,
+    # )
 
     return builder
