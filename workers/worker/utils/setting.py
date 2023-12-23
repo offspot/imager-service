@@ -23,8 +23,8 @@ class Setting:
     imager_binary_path: Path = None
     curl_binary_path: Path = None
 
-    poll_interval = 60  # 1mn
-    log_upload_interval = 60 * 2  # 2mn
+    poll_interval = 10
+    log_upload_interval = 20
 
     s3_access_key = None
     s3_secret_key = None
