@@ -180,6 +180,8 @@ class BaseWorker:
                             # TODO: remove
                             if not task["upload_uri"].startswith("s3://"):
                                 continue
+                            if task.get("config_yaml", ""):
+                                continue
                         except Exception:
                             pass
 
