@@ -24,7 +24,7 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
     && printf "enabled: false\noci_images:\n  enabled: false\nfiles:\n  enabled: false\n" > /cache/policy.yaml \
     && pip3 install -U pip \
     # image-creator
-    && curl -L -o /usr/local/bin/image-creator https://drive.offspot.it/image-creator/image-creator_linux-x86_64_0.6 \
+    && curl -L -o /usr/local/bin/image-creator https://drive.offspot.it/image-creator/image-creator_linux-x86_64_0.7 \
     && chmod +x /usr/local/bin/image-creator \
     && echo "--- dependencies version:" && image-creator --version
 
