@@ -161,6 +161,8 @@ class CreateTask(threading.Thread):
             str(Setting.cache_dir),
             "--build-dir",
             build_dir.name,
+            "--concurrency",
+            "1",
             str(self.config_path),
             str(self.img_path),
         ]
