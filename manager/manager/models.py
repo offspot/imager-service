@@ -284,12 +284,6 @@ class Configuration(models.Model):
         upload_to=get_branding_path,
         verbose_name=_lz("Favicon (1MB max Image)"),
     )
-    branding_css = models.FileField(
-        blank=True,
-        null=True,
-        upload_to=get_branding_path,
-        verbose_name=_lz("CSS File"),
-    )
 
     content_zims = models.JSONField(
         blank=True,
@@ -419,7 +413,6 @@ class Configuration(models.Model):
             "branding_favicon": save_branding_file(favicon)
             if favicon is not None
             else None,
-            "branding_css": save_branding_file(css) if css is not None else None,
             "content_zims": packages_list,
             "content_wikifundi_fr": "fr" in wikifundi_langs,
             "content_wikifundi_en": "en" in wikifundi_langs,
@@ -445,7 +438,7 @@ class Configuration(models.Model):
             logger.warn(exp)
 
             # remove saved branding files
-            for key in ("branding_logo", "branding_favicon", "branding_css"):
+            for key in ("branding_logo", "branding_favicon"):
                 if kwargs.get(key):
                     try:
                         Path(settings.MEDIA_ROOT).joinpath(kwargs.get(key))
@@ -593,7 +586,6 @@ class Configuration(models.Model):
                         [
                             ("logo", retrieve_branding_file(self.branding_logo)),
                             ("favicon", retrieve_branding_file(self.branding_favicon)),
-                            ("css", retrieve_branding_file(self.branding_css)),
                         ]
                     ),
                 ),

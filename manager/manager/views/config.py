@@ -45,7 +45,6 @@ class ConfigurationForm(forms.ModelForm):
             "admin_password",
             "branding_logo",
             "branding_favicon",
-            "branding_css",
             "content_zims",
             "content_wikifundi_fr",
             "content_wikifundi_en",
@@ -58,11 +57,6 @@ class ConfigurationForm(forms.ModelForm):
             "content_africatikmd",
             "content_metrics",
         ]
-        widgets = {  # noqa: RUF012
-            "branding_css": forms.ClearableFileInput(
-                attrs={"accept": "text/css,text/plain"}
-            ),
-        }
 
 
 def handle_uploaded_json(fd):

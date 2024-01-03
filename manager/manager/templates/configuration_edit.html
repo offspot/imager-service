@@ -103,12 +103,9 @@ td img {
 		<h4>{% blocktrans %}Advanced Branding{% endblocktrans %}</h4>
 		<p>{% blocktrans %}Change <em>favicon</em> and <em>CSS</em> only of you know what you are doing.{% endblocktrans %}</p>
 		<div class="form-row visual-group">
-			<div class="form-group col-md-6">
+			<div class="form-group">
 				{% include "_input_field.html" with field=form.branding_favicon type=file use_raw=1 %}
 				{% include "_file_preview.html" with field=form.branding_favicon class="favicon" %}
-			</div>
-			<div class="form-group col-md-6">
-			  {% include "_input_field.html" with field=form.branding_css type=file use_raw=1 %}
 			</div>
 		</div>
 

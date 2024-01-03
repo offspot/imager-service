@@ -24,7 +24,6 @@ class ConfigLike:
     admin_password: str = "admin-password"
     branding_logo: str = ""
     branding_favicon: str = ""
-    branding_css: str = ""
     content_zims: list[str] = field(default_factory=list)  # parsed json
     content_wikifundi_fr: bool = False
     content_wikifundi_en: bool = False
