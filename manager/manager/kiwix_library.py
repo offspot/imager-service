@@ -6,6 +6,7 @@ import datetime
 import logging
 import os
 import re
+import threading
 import urllib.parse
 from collections.abc import Generator
 from dataclasses import asdict, dataclass, field
@@ -137,7 +138,8 @@ class Catalog:
         self._books: dict[str, Book] = {}
         # list of book-idents by language (ISO-639-1)
         self._by_langs: dict[str, list[str]]
-        self.ensure_fresh()
+        self.refresh_thread: threading.Thread = threading.Thread()
+        self.refresh()
 
     def __contains__(self, ident: str) -> bool:
         return ident in self.get_all_ids()
@@ -185,10 +187,17 @@ class Catalog:
             yield self.get(ident)
 
     def ensure_fresh(self):
+        # only refresh library if it reachs a configured age
         if self.updated_on < datetime.datetime.utcnow() - datetime.timedelta(
             seconds=UPDATE_EVERY_SECONDS
         ):
-            self.refresh()
+            # dont refresh if already refreshing
+            if self.refresh_thread.is_alive():
+                return
+            # refresh in a dedicated thread as to no block current request
+            # current request will use cached data
+            self.refresh_thread = threading.Thread(target=self.refresh)
+            self.refresh_thread.start()
 
     def refresh(self):
         logger.debug(f"refreshing catalog via {CATALOG_URL}")
@@ -258,6 +267,7 @@ class Catalog:
             self._books = books
             self._by_langs = langs
             self.updated_on = datetime.datetime.utcnow()
+            logger.debug(f"refreshed on {self.updated_on}")
 
 
 catalog = Catalog()
