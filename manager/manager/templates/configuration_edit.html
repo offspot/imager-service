@@ -390,7 +390,7 @@ tr.removed {
 						}
 
 						let row = $('<tr id="catalog-row-'+ book.ident +'">');
-						let main_td = '<a href="#" class="add-package" data-book-ident="'+ book.ident +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ book.ident +'" class="fas fa-plus-circle primary"></i></a><a title="Voir en ligne" href="' + getDemoUrl(book) + '" target="_blank"><img src="' + getIllusUrl(book) + '" /></a> <strong>' + book.title + '</strong> <p><em>' + book.description + '</em></p><p>' + tags.html() + '</p>';
+						let main_td = '<a href="#" class="add-package" data-book-ident="'+ book.ident +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ book.ident +'" class="fas fa-plus-circle primary"></i></a><a title="Voir en ligne" href="' + getDemoUrl(book) + '" target="_blank"><img src="' + getIllusUrl(book) + '" loading="lazy" /></a> <strong>' + book.title + '</strong> <p><em>' + book.description + '</em></p><p>' + tags.html() + '</p>';
 						row.append($('<td>').html(main_td));
 						row.append($('<td>').text(humanSize(book.size)));
 
