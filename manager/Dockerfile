@@ -51,6 +51,9 @@ COPY status /app/status
 RUN /app/status-env/bin/pip install -r /app/status/requirements.txt
 COPY uwsgi-status.ini /etc/uwsgi/apps/status.ini
 
+# install uwsgitop for easier monitoring
+RUN /app/manager-env/bin/pip install uwsgitop
+
 # install periodic-tasks cron job
 RUN printf "SHELL=/bin/bash\n\
 BASH_ENV=/container.env\n\
