@@ -125,10 +125,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 ###############
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
     "handlers": {
         "console": {"class": "logging.StreamHandler"},
-        "timed-console": {"class": "logging.StreamHandler", "formatter": "verbose"},
     },
     "formatters": {
         "verbose": {"format": "{levelname} {asctime} {message}", "style": "{"},
@@ -142,6 +141,7 @@ LOGGING = {
         "manager": {
             "handlers": ["console"],
             "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
+            "propagate": False,
         },
     },
 }
