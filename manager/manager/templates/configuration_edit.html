@@ -9,9 +9,17 @@ td img {
 	width: 48px;
 	height: 48px;
 }
+#back-to-top {
+  position: fixed;
+  bottom: 1em;
+  float: right;
+  right: 1em;
+  z-index: 100;
+}
 {% endblock %}
 
 {% block content %}
+	<a href="#"><button id="back-to-top" class="btn btn-secondary">↑ Top</button></a>
 
 	{% if form.errors or form.non_field_errors %}<div class="alert alert-danger">{% blocktrans %}Your config has errors and can not be saved. Please fix them and retry.{% endblocktrans %}{% if form.non_field_errors %}<br />{{ form.non_field_errors }}{% endif %}</div>{% endif %}
 
