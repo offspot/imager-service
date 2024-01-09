@@ -16,6 +16,9 @@ td img {
   right: 1em;
   z-index: 100;
 }
+tr.removed {
+	display: none;
+}
 {% endblock %}
 
 {% block content %}
@@ -327,8 +330,8 @@ td img {
 				$(selected_row.find('.fa-plus-circle')).attr('class', 'fas fa-minus-circle primary');
 				$(selected_row.find('.add-package')).attr('class', 'remove-package');
 
-				// remove row from catalog
-				removeRow(catalog_row);
+				// hide in catalog
+				catalog_row.addClass("removed");
 			}
 
 			// refresh form field
@@ -362,8 +365,9 @@ td img {
 			// refresh popovers
 			registerPopovers();
 
-			// reload lang filter (so it can be added back)
-			reloadLangFilter();
+			// restore row in catalog
+			let catalog_row = $(document.getElementById('catalog-row-' + ident));
+			catalog_row.removeClass("removed");
 		});
 	}
 
@@ -376,12 +380,6 @@ td img {
 				.done(function (data) {
 					books_list.empty();
 					$.each(data.books, function(index, book) {
-
-						// don't add row to catalog if already selected
-						if (book_idents.indexOf(book.ident) != -1) {
-							return;
-						}
-
 						// tags to badges
 						let tags = $('<span>');
 						if (getCategory(book)) {
@@ -392,9 +390,14 @@ td img {
 						}
 
 						let row = $('<tr id="catalog-row-'+ book.ident +'">');
-						let main_td = '<a href="#" class="add-package" data-book-ident="'+ book.ident +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ book.ident +'" class="fas fa-plus-circle primary"></i></a><a title="Voir en ligne" href="' + getDemoUrl(book) + '" target="_blank"><img src="' + getIllusUrl(book) + '" async /></a> <strong>' + book.title + '</strong> <p><em>' + book.description + '</em></p><p>' + tags.html() + '</p>';
+						let main_td = '<a href="#" class="add-package" data-book-ident="'+ book.ident +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ book.ident +'" class="fas fa-plus-circle primary"></i></a><a title="Voir en ligne" href="' + getDemoUrl(book) + '" target="_blank"><img src="' + getIllusUrl(book) + '" /></a> <strong>' + book.title + '</strong> <p><em>' + book.description + '</em></p><p>' + tags.html() + '</p>';
 						row.append($('<td>').html(main_td));
 						row.append($('<td>').text(humanSize(book.size)));
+
+						// if already selected, mark as removed in catalog
+						if (book_idents.indexOf(book.ident) != -1) {
+							row.addClass("removed");
+						}
 
 						books_list.append(row);
 					});
