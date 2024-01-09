@@ -29,6 +29,17 @@ gone_ids = [
     "wikiquote_en_simple_all_maxi.simple",
     "core_knowledge.en",
     "feed_the_beast.en",
+    "tutorial-wikipedia_id_all.id",
+    "halachipedia_en_all_maxi.en",
+    "canadianprepper_en_all.en",
+    "canadian_prepper_en_surviving-disaster.en",
+    "canadian-prepper_en_surviving-disaster.en",
+    "halachipedia_en_all_nopic.en",
+    "storyweaver.org_en.en",
+    "bestedlessons.org_en_all.en",
+    "ruangguru_id_all--bincang-literasi-digital.id",
+    "harmony-project.org_en_all.en",
+    "sheetmusicintl_en_all.en",
 ]
 
 # new Name, Flavour data for previous IDs
@@ -214,14 +225,14 @@ fixed_ids = {
     "bitcoin_en_all_maxi.en": ("bitcoin_en_all", "_maxi"),
     "installgentoo_en_all_nopic.en": ("installgentoo_en_all", "_nopic"),
     "scratch-wiki_fr_all_nopic.fr": ("scratch-wiki_fr_all", "_nopic"),
-    "westeros_en_all_maxi.en": ("westeros_en_all", "_maxi"),
+    "westeros_en_all_maxi.en": ("kiwix.westeros_en_all", ""),
     "phet_en.en": ("phets_eng", ""),
     "aimhi_en_inspiring-guests.en": ("aimhi_en_-Inspiring Guests", ""),
     "energypedia_en_all_maxi.en": ("energypedia_en_all", "_maxi"),
     "phet_es-mx.es": ("phets_spa", ""),
     "ukrainian.stackexchange.com_en_all.en": ("ukrainian.stackexchange.com_uk_all", ""),
     "vikidia_es_all_maxi.es": ("vikidia_es_all", "_maxi"),
-    "westeros_en_all.en": ("westeros_en_all", "_maxi"),
+    "westeros_en_all.en": ("kiwix.westeros_en_all", ""),
     "korean.stackexchange.com_en_all.en": ("korean.stackexchange.com_ko_all", ""),
     "italian.stackexchange.com_en_all.en": ("italian.stackexchange.com_it_all", ""),
     "bitcoin_en_all_nopic.en": ("bitcoin_en_all", "_nopic"),
@@ -236,7 +247,7 @@ fixed_ids = {
     "spanish.stackexchange.com_en_all.en": ("spanish.stackexchange.com_es_all", ""),
     "gutenberg_tl_all.tl": ("gutenberg_tl_all", ""),
     "aimhi_en_hischool-physics.en": ("aimhi_en_-HiSchool Physics", ""),
-    "westeros_en_all_nopic.en": ("westeros_en_all", "_nopic"),
+    "westeros_en_all_nopic.en": ("kiwix.westeros_en_all", ""),
     "wikiversity_fr_all_maxi.fr": ("wikiversity_fr_all", "_maxi"),
     "appropedia_en_all_maxi.en": ("appropedia_en_all", "_maxi"),
     "scienceinthebath_en_assorted-nonsense.en": (
@@ -2630,4 +2641,9 @@ fixed_ids = {
     "vikidia_es_all_maxi.es": ("vikidia_es_all", "maxi"),
     "phet_en_all.en": ("phets_en_all", ""),
     "phet_ab.ab": ("phets_abk", ""),
+    "africanstorybook.org_en_all.en": ("africanstorybook.org_mul_all_2024-01.zim", ""),
+    "africanstorybook.org_mul_all.en": ("africanstorybook.org_mul_all_2024-01.zim", ""),
+    "wiktionary_fr_app_maxi.fr": ("wiktionary_fr_all", "maxi"),
+    "phet_sr_all.sr": ("phets_srp", ""),
+
 }

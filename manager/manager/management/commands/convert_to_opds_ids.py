@@ -33,7 +33,8 @@ def get_new_id(yaml_id: str) -> str | int:
 
     # khan videos in fixed_ids dont have the lang suffix
     if yaml_id.startswith("khan-academy-videos_"):
-        yaml_id = yaml_id.rsplit(".", 1)[0]
+        return -1  # eventually got removed
+        # yaml_id = yaml_id.rsplit(".", 1)[0]
 
     repl_flavours = {
         "nodet": "mini",
@@ -55,7 +56,7 @@ def get_new_id(yaml_id: str) -> str | int:
             flavour = last_part
             name = re.sub(f"_{last_part}$", "", name)
 
-    for publisher in ("Kiwix", "openZIM", "WikiProjectMed"):
+    for publisher in ("Kiwix", "openZIM", "WikiProjectMed", "Openzim"):
         opds_id = to_human_id(name, publisher, flavour)
         if opds_id in all_ids:
             return opds_id
