@@ -25,7 +25,7 @@ from django.utils.translation import (
     gettext_lazy as _lz,
 )
 from offspot_config.builder import ConfigBuilder
-from offspot_config.utils.sizes import round_for_cluster
+from offspot_config.utils.sizes import get_sd_hardware_margin_for, round_for_cluster
 from offspot_runtime.checks import (
     is_valid_domain,
     is_valid_hostname,

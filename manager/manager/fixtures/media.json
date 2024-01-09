@@ -152,5 +152,49 @@
         "actual_size": 245760000000,
         "units_coef": 1.0
     }
+},
+{
+    "model": "manager.media",
+    "pk": 29,
+    "fields": {
+        "name": "512GB Download",
+        "kind": "virtual",
+        "size": 512,
+        "actual_size": 496000000000,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 30,
+    "fields": {
+        "name": "512GB microSD",
+        "kind": "physical",
+        "size": 512,
+        "actual_size": 496000000000,
+        "units_coef": 10.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 31,
+    "fields": {
+        "name": "1TB Download",
+        "kind": "virtual",
+        "size": 1024,
+        "actual_size": 993000000000,
+        "units_coef": 1.0
+    }
+},
+{
+    "model": "manager.media",
+    "pk": 32,
+    "fields": {
+        "name": "1TB microSD",
+        "kind": "physical",
+        "size": 1024,
+        "actual_size": 993000000000,
+        "units_coef": 10.0
+    }
 }
 ]
