@@ -21,16 +21,20 @@ td img {
 {% block content %}
 	<a href="#"><button id="back-to-top" class="btn btn-secondary">↑ Top</button></a>
 
-	{% if form.errors or form.non_field_errors %}<div class="alert alert-danger">{% blocktrans %}Your config has errors and can not be saved. Please fix them and retry.{% endblocktrans %}{% if form.non_field_errors %}<br />{{ form.non_field_errors }}{% endif %}</div>{% endif %}
+	{% if form.errors or form.non_field_errors %}
+	<div class="alert alert-danger alert-dismissible fade show" role="alert">{% blocktrans %}Your config has errors and can not be saved. Please fix them and retry.{% endblocktrans %}{% if form.non_field_errors %}<br />{{ form.non_field_errors }}{% endif %}
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	</div>{% endif %}
 
 	{% if missing_zims %}
-	<div class="alert alert-danger">{% blocktrans count counter=missing_zims|length %}
+	<div class="alert alert-danger alert-dismissible fade show" role="alert">{% blocktrans count counter=missing_zims|length %}
 		<p>Your config contains one ZIM that is not present anymore in the catalog. It might have been removed but has most likely been renamed.</p>
 		<p>Said ZIM will be <strong>automatically removed</strong> as soon as you <em>Update the Configuration</em>. Make sure to <strong>add-back renamed version</strong> if applicable.</p>
 		{% plural %}
 		<p>Your config contains {{ counter }} ZIMs that are not present anymore in the catalog. Those might have been removed but have most likely been renamed.</p>
 		<p>Said ZIMs will be <strong>automatically removed</strong> as soon as you <em>Update the Configuration</em>. Make sure to <strong>add-back renamed versions</strong> if applicable.</p>{% endblocktrans %}
 		<ul>{% for ident in missing_zims %}<li><code>{{ ident }}</code></li>{% endfor %}</ul>
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 	</div>
 	{% endif %}
 

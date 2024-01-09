@@ -111,7 +111,12 @@
 	<div class="container">
 		{% if messages %}
 		<div class="messages">
-			{% for message in messages %}<p class="alert {{ message.tags }}">{{ message|safe }}</p>{% endfor %}
+			{% for message in messages %}
+			<div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+				{{ message|safe }}
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			{% endfor %}
 		</div>
 		{% endif %}
 
