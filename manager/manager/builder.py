@@ -126,13 +126,12 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
 
     if config.content_edupi:
         builder.add_app(
-            app_catalog.get_apppackage("edupi.offspot.kiwix.org"),
-            environ={"SRC_DIR": "/data/source"},
+            app_catalog.get_apppackage("file-manager.offspot.kiwix.org"),
         )
         if config.content_edupi_resources:
             builder.add_file(
                 url_or_content=str(config.content_edupi_resources),
-                to=f'{get_app_path(app_catalog.get_apppackage("edupi.offspot.kiwix.org"))}/source',
+                to="${APP_DIR:file-manager.offspot.kiwix.org}",
                 size=get_online_rsc_size(str(config.content_edupi_resources)),
                 via="zip",
             )
