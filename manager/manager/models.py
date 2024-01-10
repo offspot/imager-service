@@ -575,7 +575,7 @@ class Configuration(models.Model):
                         ]
                     ),
                 ),
-                ("size", self.min_media.human),
+                ("size", self.min_media.human if self.min_media else 0),
                 (
                     "content",
                     collections.OrderedDict(
