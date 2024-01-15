@@ -97,10 +97,10 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             source=settings.BASE_IMAGE_URL,
             rootfs_size=settings.BASE_IMAGE_ROOTFS_SIZE,
         ),
-        name=str(config.name),
-        domain=str(config.name),
+        name=str(config.project_name),
+        domain=str(config.project_name),
         tld=settings.OFFSPOT_TLD,
-        ssid=str(config.name),
+        ssid=str(config.project_name),
         passphrase=None,
         environ={
             "ADMIN_USERNAME": str(config.admin_account),
