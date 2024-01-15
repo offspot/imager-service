@@ -307,15 +307,15 @@ class Configuration(models.Model):
     )
     content_edupi = models.BooleanField(
         default=False,
-        verbose_name=_lz("EduPi"),
+        verbose_name=_lz("File resources"),
         help_text=_lz("Share arbitrary files with all users"),
     )
     content_edupi_resources = models.CharField(
         max_length=500,
         blank=True,
         null=True,
-        verbose_name=_lz("EduPi Resources"),
-        help_text=_lz("ZIP folder archive of documents to initialize EduPi with"),
+        verbose_name=_lz("Preloaded File Resources"),
+        help_text=_lz("Uncompressed ZIP folder archive of files to initialize with"),
     )
     content_nomad = models.BooleanField(
         default=False,

@@ -1,4 +1,3 @@
-import pathlib
 from dataclasses import dataclass, field
 
 from django.conf import settings
