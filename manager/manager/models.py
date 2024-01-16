@@ -153,11 +153,26 @@ def validate_admin_pwd(value):
 class ConvertedImageFileField(models.ImageField):
     def __init__(self, *args, **kwargs):
         self.max_upload_size = kwargs.pop("max_upload_size", 1048576)
+        self.max_disk_size = kwargs.pop("max_disk_size", 3145728)
 
         super().__init__(*args, **kwargs)
 
     def validate(self, value, model_instance):
         super().validate(value, model_instance)
+
+        file = getattr(model_instance, self.attname)
+        file_path = Path(file.path)
+
+        # assume this is a regular save without an uploaded new content
+        # if user is reuploading a file with exact same name and exact same bytes size
+        # then we'd skip the update (!) but we can't know
+        if (
+            file_path.exists()
+            and file.size < self.max_disk_size
+            and file.size == value.size
+            and file.name == value.name
+        ):
+            return
 
         if value.size > self.max_upload_size:
             raise ValidationError(
@@ -176,11 +191,24 @@ class ConvertedImageFileField(models.ImageField):
             with PIL.Image.open(src) as image:
                 image.save(dst, "PNG")
         except Exception as exc:
-            logger.warning(f"cant convert {value.path} to PNG: {exc}")
+            logger.warning(f"Cant convert {value.name} to PNG: {exc}")
             raise ValidationError(
                 _("File cannot be converted to PNG"), code="convert_failed"
             ) from exc
         else:
+            converted_size = dst.getbuffer().nbytes
+            if converted_size > self.max_disk_size:
+                raise ValidationError(
+                    _(
+                        "File (converted to PNG) size is too large: %(value)s. "
+                        + "Keep it under %(max)s"
+                    ),
+                    code="converted_too_big",
+                    params={
+                        "value": human_readable_size(converted_size),
+                        "max": human_readable_size(self.max_disk_size),
+                    },
+                )
             value.save(name=str(Path(value.name).with_suffix(".png")), content=dst)
 
 
@@ -347,9 +375,7 @@ class Configuration(models.Model):
     content_metrics = models.BooleanField(
         default=False,
         verbose_name=_lz("Hotspot Metrics"),
-        help_text=_lz(
-            "Statistiques d'utilisation du Hotspot"
-        ),
+        help_text=_lz("Statistiques d'utilisation du Hotspot"),
     )
 
     @classmethod
@@ -427,9 +453,7 @@ class Configuration(models.Model):
             "content_africatikmd": bool(
                 get_nested_key(config, ["content", "africatikmd"])
             ),
-            "content_metrics": bool(
-                get_nested_key(config, ["content", "metrics"])
-            ),
+            "content_metrics": bool(get_nested_key(config, ["content", "metrics"])),
         }
 
         try:
