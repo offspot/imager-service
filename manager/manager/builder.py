@@ -2,11 +2,9 @@ from dataclasses import dataclass, field
 
 from django.conf import settings
 from offspot_config.builder import ConfigBuilder
-from offspot_config.catalog import app_catalog, get_app_path
-from offspot_config.constants import CONTENT_TARGET_PATH
+from offspot_config.catalog import app_catalog
 from offspot_config.inputs import BaseConfig
 from offspot_config.utils.download import get_online_rsc_size
-from offspot_config.utils.misc import format_size
 
 from manager.kiwix_library import catalog
 from manager.models import Configuration
@@ -106,7 +104,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             "ADMIN_PASSWORD": str(config.admin_password),
         },
         write_config=True,
-        kiwix_zim_mirror="https://mirror.download.kiwix.org/zim/"
+        kiwix_zim_mirror="https://mirror.download.kiwix.org/zim/",
     )
     builder.add_dashboard(allow_zim_downloads=True)
     builder.add_captive_portal()

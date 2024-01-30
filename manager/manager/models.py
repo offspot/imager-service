@@ -7,6 +7,7 @@ import re
 import uuid
 import zoneinfo
 from pathlib import Path
+from typing import ClassVar
 
 import babel.languages
 import dateutil.parser
@@ -215,7 +216,7 @@ class ConvertedImageFileField(models.ImageField):
 class Configuration(models.Model):
     class Meta:
         get_latest_by = "-id"
-        ordering = ["-id"]
+        ordering: ClassVar[list[str]] = ["-id"]
         verbose_name = _lz("configuration")
         verbose_name_plural = _lz("configurations")
 
@@ -436,9 +437,10 @@ class Configuration(models.Model):
                 cls._meta.get_field("admin_password").default,
             ),
             "branding_logo": save_branding_file(logo) if logo is not None else None,
-            "branding_favicon": save_branding_file(favicon)
-            if favicon is not None
-            else None,
+            "branding_favicon": (
+                save_branding_file(favicon) if favicon is not None else None
+            ),
+            "branding_css": (save_branding_file(css) if css is not None else None),
             "content_zims": packages_list,
             "content_wikifundi_fr": "fr" in wikifundi_langs,
             "content_wikifundi_en": "en" in wikifundi_langs,
@@ -622,7 +624,7 @@ class Configuration(models.Model):
 
 class Organization(models.Model):
     class Meta:
-        ordering = ["slug"]
+        ordering: ClassVar[list[str]] = ["slug"]
         verbose_name = _lz("organization")
         verbose_name_plural = _lz("organizations")
 
@@ -691,7 +693,7 @@ class Organization(models.Model):
 
 class Profile(models.Model):
     class Meta:
-        ordering = ["organization", "user__username"]
+        ordering: ClassVar[list[str]] = ["organization", "user__username"]
         verbose_name = _lz("profile")
         verbose_name_plural = _lz("profiles")
 
@@ -832,7 +834,7 @@ class Profile(models.Model):
 
 class Address(models.Model):
     class Meta:
-        ordering = ["-id"]
+        ordering: ClassVar[list[str]] = ["-id"]
         verbose_name = _lz("address")
         verbose_name_plural = _lz("addresss")
 
@@ -960,7 +962,7 @@ class Media(models.Model):
 
     class Meta:
         unique_together = (("kind", "size"),)
-        ordering = ["size"]
+        ordering: ClassVar[list[str]] = ["size"]
         verbose_name = _lz("media")
         verbose_name_plural = _lz("medias")
 
@@ -1012,7 +1014,7 @@ class Media(models.Model):
         return self.name
 
     @property
-    def bytes(self):  # noqa: A003
+    def bytes(self):
         return self.actual_size or self.get_bytes()
 
     def get_bytes(self):
@@ -1038,7 +1040,7 @@ class Media(models.Model):
 
 class OrderData(dict):
     @property
-    def id(self):  # noqa: A003
+    def id(self):
         return self.get("_id")
 
     @property
@@ -1117,7 +1119,7 @@ class Order(models.Model):
     }
 
     class Meta:
-        ordering = ["-created_on"]
+        ordering: ClassVar[list[str]] = ["-created_on"]
         verbose_name = _lz("order")
         verbose_name_plural = _lz("orders")
 

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Executes periodic tasks"  # noqa: A003
+    help = "Executes periodic tasks"
 
     def handle(self, *args, **options):  # noqa: ARG002
         logger.info("## running periodic tasks...")

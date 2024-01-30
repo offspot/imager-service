@@ -49,9 +49,11 @@ def status(path: str = ""):  # noqa: ARG001
     context = loop.run_until_complete(collect_statuses())
     return (
         render_template("status.html", **context),
-        http.HTTPStatus.OK
-        if context["global_status"]
-        else http.HTTPStatus.SERVICE_UNAVAILABLE,
+        (
+            http.HTTPStatus.OK
+            if context["global_status"]
+            else http.HTTPStatus.SERVICE_UNAVAILABLE
+        ),
     )
 
 

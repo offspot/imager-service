@@ -35,12 +35,14 @@ def send_mailgun_email(
         url=f"{settings.MAILGUN_API_URL}/messages",
         auth=("api", settings.MAILGUN_API_KEY),
         data=data,
-        files=[
-            ("attachment", (os.path.basename(fpath), open(fpath, "rb").read()))
-            for fpath in attachments
-        ]
-        if attachments
-        else [],
+        files=(
+            [
+                ("attachment", (os.path.basename(fpath), open(fpath, "rb").read()))
+                for fpath in attachments
+            ]
+            if attachments
+            else []
+        ),
         timeout=6,
     )
     resp.raise_for_status()

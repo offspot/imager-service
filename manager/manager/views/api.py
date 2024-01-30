@@ -60,12 +60,16 @@ def required_size_for_config(request):
         {
             "size": required_image_size,
             "hsize": human_readable_size(required_image_size, binary=False),
-            "media_size": human_readable_size(media.size * ONE_GB, binary=False)
-            if media
-            else None,
-            "hfree": human_readable_size(media.bytes - required_image_size)
-            if media
-            else None,
+            "media_size": (
+                human_readable_size(media.size * ONE_GB, binary=False)
+                if media
+                else None
+            ),
+            "hfree": (
+                human_readable_size(media.bytes - required_image_size)
+                if media
+                else None
+            ),
         }
     )
 

@@ -65,9 +65,7 @@ def get_new_id(yaml_id: str) -> str | int:
 
 
 class Command(BaseCommand):
-    help = (  # noqa: A003
-        "Convert all YAML-based ZIM packages IDs " "into OPDS-based human IDs"
-    )
+    help = "Convert all YAML-based ZIM packages IDs " "into OPDS-based human IDs"
 
     def handle(self, *args, **options):  # noqa: ARG002
         # toggle this once you've run the script successfuly
