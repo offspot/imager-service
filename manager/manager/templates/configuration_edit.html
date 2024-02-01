@@ -210,7 +210,6 @@ tr.removed {
 	<div class="tab-pane fade" id="zims" role="tabpanel" aria-labelledby="zims-tab">
 		{% if form.content_zims.errors %}<div class="alert alert-danger">{% blocktrans with errors=form.content_zims.errors %}Your selection has errors: {{ errors }}{% endblocktrans %}</div>{% endif %}
 
-		<h3>{% blocktrans %}Static Content Packages{% endblocktrans %}</h3>
 		<div class="form-row visual-group">
 			<div class="col-md-6">
 				<input type="hidden" id="catalog_order" value="" />
