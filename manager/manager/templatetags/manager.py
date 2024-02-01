@@ -187,6 +187,22 @@ def only_files(value: Iterable[Package]) -> Iterable[FilesPackage]:
 register.filter("only_files", only_files)
 
 
+def hide_internals(value: dict[str, Package]) -> dict[str, Package]:
+    """yes or no string from bool value"""
+    internal_idents = [
+        "contentfilter.offspot.kiwix.org",
+        "file-manager.offspot.kiwix.org",
+    ]
+    return {
+        ident: package
+        for ident, package in value.items()
+        if ident not in internal_idents
+    }
+
+
+register.filter("hide_internals", hide_internals)
+
+
 def to_json(value) -> str:
     return json.dumps(value, cls=AppCatalogEncoder)
 

@@ -350,8 +350,10 @@ class Configuration(models.Model):
         max_length=500,
         blank=True,
         null=True,
-        verbose_name=_lz("Preloaded File Resources"),
-        help_text=_lz("Uncompressed ZIP folder archive of files to initialize with"),
+        verbose_name=_lz("Preloaded Files"),
+        help_text=_lz(
+            "Preload File Manager with files here by indicating the URL of a ZIP file containing your resources"
+        ),
     )
     content_nomad = models.BooleanField(
         default=False,
@@ -382,7 +384,7 @@ class Configuration(models.Model):
 
     content_metrics = models.BooleanField(
         default=False,
-        verbose_name=_lz("Hotspot Metrics"),
+        verbose_name=_lz("Metrics Dashboard"),
         help_text=_lz("Statistiques d'utilisation du Hotspot"),
     )
 

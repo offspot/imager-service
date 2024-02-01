@@ -103,6 +103,27 @@ tr.removed {
 				{% include "_input_field.html" with field=form.admin_password %}
 			</div>
 		</div>
+
+		<h3>Optional tools</h3>
+		<div class="form-row visual-group">
+			<div class="form-group col-md-4">
+				{% include "_input_field.html" with field=form.content_metrics type="checkbox" changes_size=1 %}
+			</div>
+			<div class="form-group col-md-4">
+				<div id="container_id_filemanager">
+					<label for="id_filemanager">File Manager</label>
+					<input type="checkbox" id="id_filemanager" class=" changes-size" data-toggle="toggle" name="filemanager" aria-describedby="id_filemanagerHelp">
+					<small id="id_filemanagerHelp" class="form-text text-muted">Allows importing external files to the hotspot.</small>
+				</div>
+			</div>
+		</div>
+		<div class="form-row visual-group">
+			<div class="form-group col-md-4"></div>
+			<div class="form-group col-md-8">
+				{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
+			</div>
+		</div>
+
 	</div>
 
 	<div class="tab-pane fade" id="branding" role="tabpanel" aria-labelledby="branding-tab">
@@ -137,17 +158,6 @@ tr.removed {
 
 	<div class="tab-pane fade" id="apps" role="tabpanel" aria-labelledby="apps-tab">
 		{% if form.content_packages.errors %}<div class="alert alert-danger">{% blocktrans with errors=form.content_packages.errors %}Your selection has errors: {{ errors }}{% endblocktrans %}</div>{% endif %}
-
-		<h4>{% blocktrans %}Options{% endblocktrans %}</h4>
-		<div class="form-row visual-group">
-			<div class="form-group col-md-6">
-				{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
-			</div>
-			<div class="col-md-1"></div>
-			<div class="form-group col-md-5">
-				{% include "_input_field.html" with field=form.content_metrics type="checkbox" changes_size=1 %}
-			</div>
-		</div>
 
 		<div class="form-row visual-group">
 			<div class="col-md-6">
@@ -254,7 +264,7 @@ tr.removed {
 {% endblock %}
 
 {% block javascript %}
-	var app_catalog = {{ app_catalog|to_json|safe }};
+	var app_catalog = {{ app_catalog|hide_internals|to_json|safe }};
 	var edupi_resources_id = "{{ form.content_edupi_resources.id_for_label }}";
 	var zim_field_id = "{{ form.content_zims.id_for_label }}";
 	var zims_field = $("#" + zim_field_id);
@@ -265,6 +275,7 @@ tr.removed {
 	var files_idents = [{% for file in form.content_packages.value|files_from_json %}"{{ file.ident }}",{% endfor %}];
 	var catalogUrl = '{{ CATALOG_URL }}';
 	var demoUrl = '{{ DEMO_URL }}';
+	var file_manager_ident = "file-manager.offspot.kiwix.org";
 
   function humanSize(sizeInBytes) {
     var i = -1;
@@ -420,6 +431,21 @@ tr.removed {
 		});
 	}
 
+	function registerToggleInternalApps() {
+		$("#id_filemanager").on('change', function (e) {
+			let enabled = $(this).prop("checked");
+			let index = apps_idents.indexOf(file_manager_ident);
+			let selected = index != -1;
+			if (enabled && !selected) {
+				apps_idents.push(file_manager_ident);
+			}
+			if (!enabled && selected) {
+				apps_idents.splice(index, 1);
+			}
+			syncPackageField();
+		});
+	}
+
 	function registerZIMChooser() {
 		$('#lang_filter').on('change', function(e) {
 			let lang_code = $(this).val() || "none";
@@ -484,11 +510,12 @@ tr.removed {
 		});
 		setOrdering("name");
 
-		// register packages (apps and files)
-		populatePackages();
-
 		registerAddPackage();
 		registerRemovePackage();
+		registerToggleInternalApps();
+
+		// register packages (apps and files)
+		populatePackages();
 
 		// first refresh run
 		onRefresh();
@@ -621,14 +648,23 @@ tr.removed {
 		let selected_apps_list = $('#apps table.selected tbody');
 		selected_apps_list.empty();
 		$.each(apps_idents, function(index, ident) {
-			selected_apps_list.append(genRowForPackage(app_catalog[ident], 'app', 'remove'));
+			if (app_catalog[ident] !== undefined) {
+				selected_apps_list.append(genRowForPackage(app_catalog[ident], 'app', 'remove'));
+			} else {
+				// INTERNAL TOOLS
+				if (ident == file_manager_ident) {
+					$("#id_filemanager").attr("checked", "checked");
+				}
+			}
 		});
 
 		// FILES
 		let selected_files_list = $('#files table.selected tbody');
 		selected_files_list.empty();
 		$.each(files_idents, function(index, ident) {
-			selected_files_list.append(genRowForPackage(app_catalog[ident], 'file', 'remove'));
+			if (app_catalog[ident] !== undefined) {
+				selected_files_list.append(genRowForPackage(app_catalog[ident], 'file', 'remove'));
+			}
 		});
 	}
 
