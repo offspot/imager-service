@@ -1,14 +1,33 @@
 import json
+from collections.abc import Iterable
 from pathlib import Path
 
 import dateutil.parser
 from django import template
+from offspot_config.catalog import app_catalog
+from offspot_config.packages import AppPackage, FilesPackage, Package
 
 from manager.kiwix_library import Book, catalog
 from manager.models import Address, Order
 from manager.utils import human_readable_size
 
 register = template.Library()
+
+
+class AppCatalogEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Package):
+            return {
+                "ident": obj.ident,
+                "kind": obj.kind,
+                "title": obj.title,
+                "description": obj.description,
+                "languages": obj.languages,
+                "tags": obj.tags,
+                "icon_url": obj.icon_url or "",
+                "size": obj.size or 0,
+            }
+        return json.JSONEncoder.default(self, obj)
 
 
 def human_size(value):
@@ -38,6 +57,26 @@ def books_from_json(db_value: str) -> list[Book]:
 
 
 register.filter("books_from_json", books_from_json)
+
+
+def apps_from_json(db_value: str) -> list[AppPackage]:
+    apps = [
+        app_catalog.get(ident, None) for ident in json.loads(db_value or "[]") or []
+    ]
+    return [app for app in apps if isinstance(app, AppPackage)]
+
+
+register.filter("apps_from_json", apps_from_json)
+
+
+def files_from_json(db_value: str) -> list[FilesPackage]:
+    files = [
+        app_catalog.get(ident, None) for ident in json.loads(db_value or "[]") or []
+    ]
+    return [file for file in files if isinstance(file, FilesPackage)]
+
+
+register.filter("files_from_json", files_from_json)
 
 
 def as_widget(field):
@@ -126,3 +165,30 @@ def yesno(value):
 
 
 register.filter("yesnoraw", yesno)
+
+
+def only_apps(value: Iterable[Package]) -> Iterable[AppPackage]:
+    """yes or no string from bool value"""
+    for package in value:
+        if isinstance(package, AppPackage):
+            yield package
+
+
+register.filter("only_apps", only_apps)
+
+
+def only_files(value: Iterable[Package]) -> Iterable[FilesPackage]:
+    """yes or no string from bool value"""
+    for package in value:
+        if isinstance(package, FilesPackage):
+            yield package
+
+
+register.filter("only_files", only_files)
+
+
+def to_json(value) -> str:
+    return json.dumps(value, cls=AppCatalogEncoder)
+
+
+register.filter("to_json", to_json)

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 from django.conf import settings
-from offspot_config.builder import ConfigBuilder
+from offspot_config.builder import AppPackage, ConfigBuilder, FilesPackage
 from offspot_config.catalog import app_catalog
 from offspot_config.inputs import BaseConfig
 from offspot_config.utils.download import get_online_rsc_size
@@ -22,15 +22,8 @@ class ConfigLike:
     branding_logo: str = ""
     branding_favicon: str = ""
     content_zims: list[str] = field(default_factory=list)  # parsed json
-    content_wikifundi_fr: bool = False
-    content_wikifundi_en: bool = False
-    content_wikifundi_es: bool = False
-    content_edupi: bool = False
+    content_packages: list[str] = field(default_factory=list)  # parsed json
     content_edupi_resources: str | None = None
-    content_nomad: bool = False
-    content_mathews: bool = False
-    content_africatik: bool = False
-    content_africatikmd: bool = False
     content_metrics: bool = False
 
     @property
@@ -60,29 +53,17 @@ def gen_css_from_dashboard_options(logo_url: str, colors) -> str:
 
 def prepare_builder_for_collection(
     *,
-    edupi: bool,
     edupi_resources: str | None,
-    nomad: bool,
-    mathews: bool,
-    africatik: bool,
-    africatikmd: bool,
     metrics: bool,
+    zims: list[str],
     packages: list[str],
-    wikifundi_languages: list[str],
 ) -> ConfigBuilder:
     """builder from previous collection items"""
     config = ConfigLike(
-        content_edupi=edupi,
         content_edupi_resources=edupi_resources,
-        content_nomad=nomad,
-        content_mathews=mathews,
-        content_africatik=africatik,
-        content_africatikmd=africatikmd,
         content_metrics=metrics,
-        content_wikifundi_fr="fr" in wikifundi_languages,
-        content_wikifundi_en="en" in wikifundi_languages,
-        content_wikifundi_es="es" in wikifundi_languages,
-        content_zims=packages,
+        content_zims=zims,
+        content_packages=packages,
     )
 
     return prepare_builder_for(config=config)
@@ -113,45 +94,25 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     for zim_ident in config.content_zims:
         builder.add_zim(catalog.get(zim_ident).get_zim_package())
 
+    for package_ident in config.content_packages:
+        package = app_catalog[package_ident]
+        if isinstance(package, AppPackage):
+            builder.add_app(package)
+        elif isinstance(package, FilesPackage):
+            builder.add_files_package(package)
+
+    if (
+        config.content_edupi_resources
+        and "file-manager.offspot.kiwix.org" in config.content_packages
+    ):
+        builder.add_file(
+            url_or_content=str(config.content_edupi_resources),
+            to="${APP_DIR:file-manager.offspot.kiwix.org}",
+            size=get_online_rsc_size(str(config.content_edupi_resources)),
+            via="zip",
+        )
+
     builder.add_hwclock()
-
-    for lang in ("fr", "en", "es"):
-        if getattr(config, f"content_wikifundi_{lang}"):
-            builder.add_app(
-                app_catalog.get_apppackage(f"wikifundi-{lang}.offspot.kiwix.org")
-            )
-
-    if config.content_edupi:
-        builder.add_app(
-            app_catalog.get_apppackage("file-manager.offspot.kiwix.org"),
-        )
-        if config.content_edupi_resources:
-            builder.add_file(
-                url_or_content=str(config.content_edupi_resources),
-                to="${APP_DIR:file-manager.offspot.kiwix.org}",
-                size=get_online_rsc_size(str(config.content_edupi_resources)),
-                via="zip",
-            )
-
-    if config.content_nomad:
-        builder.add_files_package(
-            app_catalog.get_filespackage("nomad.offspot.kiwix.org")
-        )
-
-    if config.content_mathews:
-        builder.add_files_package(
-            app_catalog.get_filespackage("mathews.offspot.kiwix.org")
-        )
-
-    if config.content_africatik:
-        builder.add_files_package(
-            app_catalog.get_filespackage("africatik-en.offspot.kiwix.org")
-        )
-
-    if config.content_africatikmd:
-        builder.add_files_package(
-            app_catalog.get_filespackage("africatik-md.offspot.kiwix.org")
-        )
 
     if config.content_metrics:
         builder.add_metrics()

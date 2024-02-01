@@ -12,6 +12,7 @@ from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
+from offspot_config.catalog import app_catalog
 
 from manager.kiwix_library import CATALOG_URL, catalog
 from manager.models import Configuration
@@ -46,15 +47,8 @@ class ConfigurationForm(forms.ModelForm):
             "branding_logo",
             "branding_favicon",
             "content_zims",
-            "content_wikifundi_fr",
-            "content_wikifundi_en",
-            "content_wikifundi_es",
-            "content_edupi",
+            "content_packages",
             "content_edupi_resources",
-            "content_nomad",
-            "content_mathews",
-            "content_africatik",
-            "content_africatikmd",
             "content_metrics",
         ]
 
@@ -173,6 +167,7 @@ def configuration_edit(request, config_id=None):
     context["CATALOG_URL"] = CATALOG_URL
     context["DEMO_URL"] = "https://library.kiwix.org"
     context["languages"] = catalog.languages
+    context["app_catalog"] = app_catalog
     context["form"] = form
     context["missing_zims"] = config.retrieve_missing_zims()
 

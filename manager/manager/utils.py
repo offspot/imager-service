@@ -95,7 +95,7 @@ def is_expected_mime(b64data: str, expected_mimes: list[str]):
     """whether an fname, base64-encoded matches the supplied mime type (unsecure)"""
     content = base64.b64decode(b64data)
     try:
-        return magic.detect_from_content(content[:2048]).mime_type in expected_mimes
+        return magic.Magic(mime=True).from_buffer(content[:2048]) in expected_mimes
     except UnicodeDecodeError:
         return False
 

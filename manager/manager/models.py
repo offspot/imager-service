@@ -317,8 +317,15 @@ class Configuration(models.Model):
     content_zims = models.JSONField(
         blank=True,
         null=True,
-        default=dict,
+        default=list,
     )
+
+    content_packages = models.JSONField(
+        blank=True,
+        null=True,
+        default=list,
+    )
+
     content_wikifundi_fr = models.BooleanField(
         default=False,
         verbose_name=_lz("WikiFundi FR"),
@@ -440,7 +447,6 @@ class Configuration(models.Model):
             "branding_favicon": (
                 save_branding_file(favicon) if favicon is not None else None
             ),
-            "branding_css": (save_branding_file(css) if css is not None else None),
             "content_zims": packages_list,
             "content_wikifundi_fr": "fr" in wikifundi_langs,
             "content_wikifundi_en": "en" in wikifundi_langs,

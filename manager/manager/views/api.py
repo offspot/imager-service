@@ -44,15 +44,10 @@ def required_size_for_config(request):
 
     # check disk space
     builder = prepare_builder_for_collection(
-        edupi=data.get("edupi", False),
         edupi_resources=data.get("edupi_resources", None),
-        nomad=data.get("nomad", False),
-        mathews=data.get("mathews", False),
-        africatik=data.get("africatik", False),
-        africatikmd=data.get("africatikmd", False),
         metrics=data.get("metrics", False),
+        zims=data.get("zims", []),
         packages=data.get("packages", []),
-        wikifundi_languages=data.get("wikifundi", []),
     )
     required_image_size = builder.get_min_size()
     media = Media.get_min_for(required_image_size)

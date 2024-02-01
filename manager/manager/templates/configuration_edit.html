@@ -8,6 +8,7 @@ td img {
 	float: inline-end;
 	width: 48px;
 	height: 48px;
+	padding: .2em;
 }
 #back-to-top {
   position: fixed;
@@ -44,7 +45,9 @@ tr.removed {
 	<ul class="nav nav-tabs" id="configMenuTabHolder" role="tablist">
 		<li class="nav-item"><a class="nav-link active" id="general-tab" data-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="true">{% blocktrans %}General{% endblocktrans %}</a></li>
 		<li class="nav-item"><a class="nav-link" id="branding-tab" data-toggle="tab" href="#branding" role="tab" aria-controls="branding" aria-selected="false">{% blocktrans %}Branding{% endblocktrans %}</a></li>
-		<li class="nav-item"><a class="nav-link" id="contents-tab" data-toggle="tab" href="#contents" role="tab" aria-controls="contents" aria-selected="false">{% blocktrans %}Content{% endblocktrans %}</a></li>
+		<li class="nav-item"><a class="nav-link" id="apps-tab" data-toggle="tab" href="#apps" role="tab" aria-controls="apps" aria-selected="false">{% blocktrans %}Apps{% endblocktrans %}</a></li>
+		<li class="nav-item"><a class="nav-link" id="zims-tab" data-toggle="tab" href="#zims" role="tab" aria-controls="zims" aria-selected="false">{% blocktrans %}ZIMs{% endblocktrans %}</a></li>
+		<li class="nav-item"><a class="nav-link" id="files-tab" data-toggle="tab" href="#files" role="tab" aria-controls="files" aria-selected="false">{% blocktrans %}File Resources{% endblocktrans %}</a></li>
 		<li class="nav-item"><a class="nav-link disabled">
 			<span id="img_size_holder" class="info" data-container="body" data-toggle="popover" data-trigger="hover" data-content="{% blocktrans %}Size of Selected Contents{% endblocktrans %}"><i class="fas fa-hdd"></i> <span id="image_req_size">?</span></span> –
 			<span id="sd_size_holder" class="warning" data-container="body" data-toggle="popover" data-trigger="hover" data-content="{% blocktrans %}Minimum SD-card Size required for Selected Contents{% endblocktrans %}"><i class="fa fa-save"></i> <span id="sd_size">?</span></span>
@@ -126,59 +129,89 @@ tr.removed {
 
 	</div>
 
-  	<div class="tab-pane fade" id="contents" role="tabpanel" aria-labelledby="contents-tab">
-  		{% if form.content_zims.errors %}<div class="alert alert-danger">{% blocktrans with errors=form.content_zims.errors %}Your selection has errors: {{ errors }}{% endblocktrans %}</div>{% endif %}
-  		<input type="hidden" id="{{ form.content_zims.id_for_label }}" class="form-control"
-  			   value="{{ form.content_zims.value|default_if_none:'' }}"
-  			   name="{{ form.content_zims.html_name }}"/>
+	<input type="hidden" id="{{ form.content_zims.id_for_label }}" class="form-control"
+			   value="{{ form.content_zims.value|default_if_none:'' }}"
+			   name="{{ form.content_zims.html_name }}"/>
+	<input type="hidden" id="{{ form.content_packages.id_for_label }}" class="form-control"
+			   value="{{ form.content_packages.value|default_if_none:'' }}"
+			   name="{{ form.content_packages.html_name }}"/>
+	<!-- using single order for all contents tables -->
+	<input type="hidden" id="catalog_order" value="" />
 
+	<div class="tab-pane fade" id="apps" role="tabpanel" aria-labelledby="apps-tab">
+		{% if form.content_packages.errors %}<div class="alert alert-danger">{% blocktrans with errors=form.content_packages.errors %}Your selection has errors: {{ errors }}{% endblocktrans %}</div>{% endif %}
 
-  		<h3>{% blocktrans %}Interactive Tools{% endblocktrans %}</h3>
+		<h4>{% blocktrans %}Options{% endblocktrans %}</h4>
 		<div class="form-row visual-group">
-			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_edupi type="checkbox" size="60 MiB" %}
-			</div>
-			<div class="form-group col-md-4">
+			<div class="form-group col-md-6">
 				{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
 			</div>
-			<div class="form-group col-md-4">
+			<div class="col-md-1"></div>
+			<div class="form-group col-md-5">
 				{% include "_input_field.html" with field=form.content_metrics type="checkbox" changes_size=1 %}
 			</div>
 		</div>
 
 		<div class="form-row visual-group">
-			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_nomad type="checkbox" size="50 MiB" %}
+			<div class="col-md-6">
+
+				<h4 class="alert alert-info">{% blocktrans %}Available App Packages (mostly interactive){% endblocktrans %}</h4>
+				<div class="table-cont">
+					<table class="table table-bordered table-striped table-sm2 available">
+					  	<thead><tr>
+					  		<th>{% blocktrans %}Name{% endblocktrans %}</th>
+					  		<th>{% blocktrans %}Size{% endblocktrans %}</th>
+					  	</tr></thead>
+					  	<tbody></tbody>
+					</table>
+				</div>
+		 </div>
+
+			<div class="col-md-1"></div>
+
+			<div class="col-md-5">
+				<h4 class="alert alert-success">{% blocktrans %}Selected Apps{% endblocktrans %}</h4>
+				<table class="table table-bordered table-striped selected">
+			  	<thead><tr><th>{% blocktrans %}Name{% endblocktrans %}</th><th>{% blocktrans %}Size{% endblocktrans %}</th></tr></thead>
+			  	<tbody></tbody>
+			  </table>
 			</div>
-			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_mathews type="checkbox" size="50 MiB" %}
-			</div>
-			<div class="form-group col-md-4">
-			</div>
+
 		</div>
+	</div>
+
+	<div class="tab-pane fade" id="files" role="tabpanel" aria-labelledby="files-tab">
+		{% if form.content_packages.errors %}<div class="alert alert-danger">{% blocktrans with errors=form.content_packages.errors %}Your selection has errors: {{ errors }}{% endblocktrans %}</div>{% endif %}
 
 		<div class="form-row visual-group">
-			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_africatik type="checkbox" size="12.94 GiB" %}
-			</div>
-			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_africatikmd type="checkbox" size="4.09 GiB" %}
-			</div>
-			<div class="form-group col-md-4">
-			</div>
-		</div>
+			<div class="col-md-6">
+				<h4 class="alert alert-info">{% blocktrans %}Available File Packages{% endblocktrans %}</h4>
+				<div class="table-cont">
+					<table class="table table-bordered table-striped table-sm2 available">
+					  	<thead><tr>
+					  		<th>{% blocktrans %}Name{% endblocktrans %}</th>
+					  		<th>{% blocktrans %}Size{% endblocktrans %}</th>
+					  	</tr></thead>
+					  	<tbody></tbody>
+					</table>
+				</div>
+		 </div>
 
-		<div class="form-row visual-group">
-			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_wikifundi_fr type="checkbox" size="4.43 GiB" %}
+			<div class="col-md-1"></div>
+
+			<div class="col-md-5">
+				<h4 class="alert alert-success">{% blocktrans %}Selected Files{% endblocktrans %}</h4>
+				<table class="table table-bordered table-striped selected">
+			  	<thead><tr><th>{% blocktrans %}Name{% endblocktrans %}</th><th>{% blocktrans %}Size{% endblocktrans %}</th></tr></thead>
+			  	<tbody></tbody>
+			  </table>
 			</div>
-			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_wikifundi_en type="checkbox" size="5.13 GiB" %}
-			</div>
-			<div class="form-group col-md-4">
-				{% include "_input_field.html" with field=form.content_wikifundi_es type="checkbox" size="5.48 GiB" %}
-			</div>
+
 		</div>
+	</div>
+
+	<div class="tab-pane fade" id="zims" role="tabpanel" aria-labelledby="zims-tab">
+		{% if form.content_zims.errors %}<div class="alert alert-danger">{% blocktrans with errors=form.content_zims.errors %}Your selection has errors: {{ errors }}{% endblocktrans %}</div>{% endif %}
 
 		<h3>{% blocktrans %}Static Content Packages{% endblocktrans %}</h3>
 		<div class="form-row visual-group">
@@ -192,25 +225,25 @@ tr.removed {
 				  	{% endfor %}
 			  	</select></h4>
 			  	<div class="table-cont">
-					<table id="packages_list" class="table table-bordered table-striped table-sm2">
-					  	<thead><tr>
-					  		<th class="ordering" data-ordering="name">{% blocktrans %}Name{% endblocktrans %} <i class="fa fa-sort-alpha-down"></i></th>
-					  		<th class="ordering" data-ordering="size">{% blocktrans %}Size{% endblocktrans %} <i class="fa fa-sort-numeric-up"></i></th>
-					  	</tr></thead>
-					  	<tbody></tbody>
-					</table>
-				</div>
+						<table id="zims_list" class="table table-bordered table-striped table-sm2">
+						  	<thead><tr>
+						  		<th class="ordering" data-ordering="name">{% blocktrans %}Name{% endblocktrans %} <i class="fa fa-sort-alpha-down"></i></th>
+						  		<th class="ordering" data-ordering="size">{% blocktrans %}Size{% endblocktrans %} <i class="fa fa-sort-numeric-up"></i></th>
+						  	</tr></thead>
+						  	<tbody></tbody>
+						</table>
+					</div>
 			</div>
 
 			<div class="col-md-1"></div>
 
 			<div class="col-md-5">
 				<h4 class="alert alert-success">{% blocktrans %}Selected ZIMs{% endblocktrans %}</h4>
-				<table id="selected_packages_list" class="table table-bordered table-striped">
-			  	<thead class=""><tr><th>{% blocktrans %}Name{% endblocktrans %}</th><th>{% blocktrans %}Size{% endblocktrans %}</th></tr></thead>
+				<table id="selected_zims_list" class="table table-bordered table-striped">
+			  	<thead><tr><th>{% blocktrans %}Name{% endblocktrans %}</th><th>{% blocktrans %}Size{% endblocktrans %}</th></tr></thead>
 			  	<tbody>
 			  		{% for book in form.content_zims.value|books_from_json %}
-			  		<tr id="selected-row-{{ book.ident }}"><td><a href="#" class="remove-package" data-book-ident="{{ book.ident }}"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ book.ident }}" class="fas fa-minus-circle primary"></i></a> <strong>{{ book.title }}</strong>{% if books.tags %} {% for tag in book.tags %}<span class="badge badge-pill badge-secondary package-tag">{{ tag }}</span>{% endfor %}{% endif %}<p><em>{{ book.description }}</em></p></td><td>{{ book.size|human_size }}</td>
+			  		<tr id="selected-zim-row-{{ book.ident }}"><td><a href="#" class="remove-zim" data-book-ident="{{ book.ident }}"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ book.ident }}" class="fas fa-minus-circle primary"></i></a> <strong>{{ book.title }}</strong>{% if books.tags %} {% for tag in book.tags %}<span class="badge badge-pill badge-secondary package-tag">{{ tag }}</span>{% endfor %}{% endif %}<p><em>{{ book.description }}</em></p></td><td>{{ book.size|human_size }}</td>
 			  		</tr>
 			  		{% endfor %}
 			  	</tbody>
@@ -225,19 +258,15 @@ tr.removed {
 {% endblock %}
 
 {% block javascript %}
-	var edupi_id = "{{ form.content_edupi.id_for_label }}";
+	var app_catalog = {{ app_catalog|to_json|safe }};
 	var edupi_resources_id = "{{ form.content_edupi_resources.id_for_label }}";
-	var nomad_id = "{{ form.content_nomad.id_for_label }}";
-	var mathews_id = "{{ form.content_mathews.id_for_label }}";
-	var africatik_id = "{{ form.content_africatik.id_for_label }}";
-	var africatikmd_id = "{{ form.content_africatikmd.id_for_label }}";
-	var metrics_id = "{{ form.content_metrics.id_for_label }}";
-	var wikifundi_fr_id = "{{ form.content_wikifundi_fr.id_for_label }}";
-	var wikifundi_en_id = "{{ form.content_wikifundi_en.id_for_label }}";
-	var wikifundi_es_id = "{{ form.content_wikifundi_es.id_for_label }}";
 	var zim_field_id = "{{ form.content_zims.id_for_label }}";
-	var zim_field = $("#" + zim_field_id);
-	var book_idents = [{% for book in form.content_zims.value|books_from_json %}"{{ book.ident }}",{% endfor %}];
+	var zims_field = $("#" + zim_field_id);
+	var packages_field_id = "{{ form.content_packages.id_for_label }}";
+	var packages_field = $("#" + packages_field_id);
+	var zims_idents = [{% for book in form.content_zims.value|books_from_json %}"{{ book.ident }}",{% endfor %}];
+	var apps_idents = [{% for app in form.content_packages.value|apps_from_json %}"{{ app.ident }}",{% endfor %}];
+	var files_idents = [{% for file in form.content_packages.value|files_from_json %}"{{ file.ident }}",{% endfor %}];
 	var catalogUrl = '{{ CATALOG_URL }}';
 	var demoUrl = '{{ DEMO_URL }}';
 
@@ -271,14 +300,18 @@ tr.removed {
   }
 
 
-	function syncPackagesField() {
-		zim_field.val(JSON.stringify(book_idents));
+	function syncZimsField() {
+		zims_field.val(JSON.stringify(zims_idents));
+	}
+
+	function syncPackageField() {
+		packages_field.val(JSON.stringify(apps_idents.concat(files_idents)));
 	}
 
 	function onRefresh() {
 		registerPopovers();
-		registerAddPackage();
-		registerRemovePackage();
+		registerAddZim();
+		registerRemoveZim();
 	}
 
 	function registerPopovers() {
@@ -309,72 +342,92 @@ tr.removed {
 		row.remove();
 	}
 
-	function registerAddPackage() {
-		$('.add-package').on('click', function (e) {
+	function registerAddZim() {
+		$('.add-zim').on('click', function (e) {
 			e.preventDefault();
 
 			let ident = $(this).data('book-ident');
 
 			// add book to datalist and refresh size
-			if (book_idents.indexOf(ident) == -1) {
-				book_idents.push(ident);
+			if (zims_idents.indexOf(ident) == -1) {
+				zims_idents.push(ident);
 				refreshSize();
 
 				// add row to table
-				let selected_table = $('#selected_packages_list tbody');
-				let catalog_row = $(document.getElementById('catalog-row-' + ident));
-				let selected_row = $('<tr id="selected-row-'+ ident +'">');
+				let selected_table = $('#selected_zims_list tbody');
+				let catalog_row = $(document.getElementById('catalog-zim-row-' + ident));
+				let selected_row = $('<tr id="selected-zim-row-'+ ident +'">');
 				selected_row.html(catalog_row.html());
 				selected_table.append(selected_row);
 				// update UI inside row
 				$(selected_row.find('.fa-plus-circle')).attr('class', 'fas fa-minus-circle primary');
-				$(selected_row.find('.add-package')).attr('class', 'remove-package');
+				$(selected_row.find('.add-zim')).attr('class', 'remove-zim');
 
 				// hide in catalog
 				catalog_row.addClass("removed");
 			}
 
 			// refresh form field
-			syncPackagesField();
+			syncZimsField();
 
 			// make sure new item can popover
 			registerPopovers();
 
-			registerRemovePackage();
+			registerRemoveZim();
 		});
 	}
 
-	function registerRemovePackage() {
-		$('.remove-package').on('click', function (e) {
+	function registerRemoveZim() {
+		$('.remove-zim').on('click', function (e) {
 			e.preventDefault();
 
 			let ident = $(this).data('book-ident');
 
 			// remove package from datalist and refresh size
-			if (book_idents.indexOf(ident) != -1) {
-				book_idents.splice(book_idents.indexOf(ident), 1);
+			if (zims_idents.indexOf(ident) != -1) {
+				zims_idents.splice(zims_idents.indexOf(ident), 1);
 				refreshSize();
 			}
 
 			// remove row from table
-			removeRow($(document.getElementById('selected-row-'+ ident)));
+			removeRow($(document.getElementById('selected-zim-row-'+ ident)));
 
 			// refresh form field
-			syncPackagesField();
+			syncZimsField();
 
 			// refresh popovers
 			registerPopovers();
 
 			// restore row in catalog
-			let catalog_row = $(document.getElementById('catalog-row-' + ident));
+			let catalog_row = $(document.getElementById('catalog-zim-row-' + ident));
 			catalog_row.removeClass("removed");
+		});
+	}
+
+	function registerAddPackage() {
+		$('.add-app').on('click', function (e) {
+			addPackage($(this).data('ident'), 'app');
+		});
+
+		$('.add-file').on('click', function (e) {
+			addPackage($(this).data('ident'), 'file');
+		});
+	}
+
+	function registerRemovePackage() {
+		$('.remove-app').on('click', function (e) {
+			removePackage($(this).data('ident'), 'app');
+		});
+
+		$('.remove-file').on('click', function (e) {
+			removePackage($(this).data('ident'), 'file');
 		});
 	}
 
 	function registerZIMChooser() {
 		$('#lang_filter').on('change', function(e) {
 			let lang_code = $(this).val() || "none";
-			let books_list = $('#packages_list tbody');
+			let books_list = $('#zims_list tbody');
 			let order = $("#catalog_order").val();
 			$.getJSON("/api/packages/lang_" + lang_code + "?order=" + order, function () {})
 				.done(function (data) {
@@ -389,13 +442,13 @@ tr.removed {
 							tags.append($('<span class="badge badge-pill badge-light package-tag">' + book.flavour + '</span>'));
 						}
 
-						let row = $('<tr id="catalog-row-'+ book.ident +'">');
-						let main_td = '<a href="#" class="add-package" data-book-ident="'+ book.ident +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ book.ident +'" class="fas fa-plus-circle primary"></i></a><a title="Voir en ligne" href="' + getDemoUrl(book) + '" target="_blank"><img src="' + getIllusUrl(book) + '" loading="lazy" /></a> <strong>' + book.title + '</strong> <p><em>' + book.description + '</em></p><p>' + tags.html() + '</p>';
+						let row = $('<tr id="catalog-zim-row-'+ book.ident +'">');
+						let main_td = '<a href="#" class="add-zim" data-book-ident="'+ book.ident +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ book.ident +'" class="fas fa-plus-circle primary"></i></a><a title="Voir en ligne" href="' + getDemoUrl(book) + '" target="_blank"><img src="' + getIllusUrl(book) + '" loading="lazy" /></a> <strong>' + book.title + '</strong> <p><em>' + book.description + '</em></p><p>' + tags.html() + '</p>';
 						row.append($('<td>').html(main_td));
 						row.append($('<td>').text(humanSize(book.size)));
 
 						// if already selected, mark as removed in catalog
-						if (book_idents.indexOf(book.ident) != -1) {
+						if (zims_idents.indexOf(book.ident) != -1) {
 							row.addClass("removed");
 						}
 
@@ -435,6 +488,12 @@ tr.removed {
 		});
 		setOrdering("name");
 
+		// register packages (apps and files)
+		populatePackages();
+
+		registerAddPackage();
+		registerRemovePackage();
+
 		// first refresh run
 		onRefresh();
 	}
@@ -442,21 +501,10 @@ tr.removed {
 	function refreshSize() {
 		let free_space_template = "{% blocktrans %}__media_size__ <small>(__free_size__ free)</small>{% endblocktrans %}";
 		let config = {
-			edupi: $('#' + edupi_id).is(':checked'),
 			edupi_resources: $('#' + edupi_resources_id).val(),
-			nomad: $('#' + nomad_id).is(':checked'),
-			mathews: $('#' + mathews_id).is(':checked'),
-			africatik: $('#' + africatik_id).is(':checked'),
-			africatikmd: $('#' + africatikmd_id).is(':checked'),
-			metrics: $('#' + metrics_id).is(':checked'),
-			wikifundi: [],
-			packages: book_idents,
+			zims: zims_idents,
+			packages: apps_idents.concat(files_idents),
 		};
-		$.each(["fr", "en", "es"], function (i, lang) {
-			if ($('#' + eval('wikifundi_' + lang + '_id')).is(':checked')) {
-				config.wikifundi.push(lang);
-			}
-		});
 		$.post("/api/get_size", JSON.stringify(config), function () {})
 			.done(function (data) {
 				$('#image_req_size').text(humanSize(data.size));
@@ -475,6 +523,117 @@ tr.removed {
 			.fail(function (error) {
 				console.error(error);
 			});
+	}
+
+	function addPackage(ident, kind) {
+		if (kind == "app")
+			source = apps_idents;
+		else if (kind == "file")
+			source = files_idents;
+		else {
+			console.error("unexpected kind", kind);
+			return;
+		}
+		root = $(document.getElementById(kind + 's'));
+
+		// add book to datalist and refresh size
+		if (source.indexOf(ident) == -1) {
+			source.push(ident);
+			refreshSize();
+
+			// add row to table
+			let selected_table = root.find('table.selected tbody');
+
+			let catalog_row = root.find('table.available tr[data-ident="' + ident + '"]');
+			selected_row = $('<tr data-ident="' + ident + '" />');
+			selected_row.html(catalog_row.html());
+			selected_table.append(selected_row);
+
+			// update UI inside row
+			$(selected_row.find('.fa-plus-circle')).attr('class', 'fas fa-minus-circle primary');
+			$(selected_row.find('.add-app')).attr('class', 'remove-app');
+			$(selected_row.find('.add-file')).attr('class', 'remove-file');
+
+			// hide in catalog
+			catalog_row.addClass("removed");
+		}
+
+		// refresh form field
+		syncPackageField();
+
+		// make sure new item can popover
+		registerPopovers();
+
+		registerRemovePackage();
+	}
+
+	function removePackage(ident, kind) {
+
+		if (kind == "app")
+			source = apps_idents;
+		else if (kind == "file")
+			source = files_idents;
+		else {
+			console.error("unexpected kind", kind);
+			return;
+		}
+		root = $(document.getElementById(kind + 's'));
+
+		// remove package from datalist and refresh size
+		if (source.indexOf(ident) != -1) {
+			source.splice(source.indexOf(ident), 1);
+			refreshSize();
+		}
+
+		// remove row from table
+		removeRow(root.find('table.selected tr[data-ident="' + ident + '"]'));
+
+		// refresh form field
+		syncPackageField();
+
+		// refresh popovers
+		registerPopovers();
+
+		// restore row in catalog
+		let catalog_row = root.find('table.available tr[data-ident="' + ident + '"]');
+		catalog_row.removeClass("removed");
+	}
+
+	function genRowForPackage(package, kind, action) {
+		let actionIcon = (action == "add") ? "plus" : "minus";
+		let tags = $('<span>');
+		let row = $('<tr data-ident="'+ package.ident +'">');
+		let main_td = '<a href="#" class="' + action + '-' + kind + '" data-ident="'+ package.ident +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ package.ident +'" class="fas fa-' + actionIcon + '-circle primary"></i></a><img src="' + package.icon_url + '" loading="lazy" /></a> <strong>' + package.title + '</strong> <p><em>' + package.description + '</em></p><p>' + tags.html() + '</p>';
+		row.append($('<td>').html(main_td));
+		row.append($('<td>').text(humanSize(package.size)));
+		return row;
+	}
+
+	function populatePackages() {
+		// initialize catalog first
+		$.each(app_catalog, function(ident, package) {
+			let kind = (package.kind == "files") ? "file" : package.kind;
+			let catalog_list = $('#' + kind + 's table.available tbody');
+			let row = genRowForPackage(package, kind, 'add');
+			if (apps_idents.indexOf(ident) != -1 || files_idents.indexOf(ident) != -1) {
+				row.addClass("removed");
+			}
+			catalog_list.append(row);
+		});
+
+		// APPS
+		let selected_apps_list = $('#apps table.selected tbody');
+		selected_apps_list.empty();
+		$.each(apps_idents, function(index, ident) {
+			selected_apps_list.append(genRowForPackage(app_catalog[ident], 'app', 'remove'));
+		});
+
+		// FILES
+		let selected_files_list = $('#files table.selected tbody');
+		selected_files_list.empty();
+		$.each(files_idents, function(index, ident) {
+			selected_files_list.append(genRowForPackage(app_catalog[ident], 'file', 'remove'));
+		});
 	}
 
 	onInit();
