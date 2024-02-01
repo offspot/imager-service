@@ -520,7 +520,9 @@ class Configuration(models.Model):
                     name=item.display_name, date=item.updated_on.strftime("%c")
                 ),
             )
-            for item in cls.objects.filter(organization=organization)
+            for item in cls.objects.filter(organization=organization).order_by(
+                "-updated_on"
+            )
             if not item.retrieve_missing_zims()
         ]
 
