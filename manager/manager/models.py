@@ -509,6 +509,7 @@ KH_TIMEZONES = [
     "US/Pacific",
     "UTC",
 ]
+KH_TIMEZONES_CHOICES = [(tz, tz) for tz in KH_TIMEZONES]
 
 
 def get_timezones_choices():
@@ -687,7 +688,7 @@ class Configuration(models.Model):
     )
     timezone = models.CharField(
         max_length=75,
-        choices=KH_TIMEZONES,
+        choices=KH_TIMEZONES_CHOICES,
         default="Europe/Paris",
         verbose_name=_lz("Timezone"),
         help_text=_lz("Where the Hotspot would be deployed"),
