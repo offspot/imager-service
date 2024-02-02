@@ -14,9 +14,11 @@ import dateutil.parser
 import phonenumbers
 import PIL
 import pycountry
+import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import (
@@ -147,6 +149,36 @@ def validate_admin_pwd(value):
                 + "(31 chars max, A-Z,a-z,0-9,-,_)"
             ),
             code="invalid_admin_password",
+            params={"value": value},
+        )
+
+
+def validate_fileresources_url(value):
+    try:
+        resp = requests.get(value, stream=True, timeout=5)
+    except Exception as exc:
+        raise ValidationError(
+            _("%(value)s is not a reachable URL"),
+            code="invalid_url_exc",
+            params={"value": value},
+        ) from exc
+    if resp.status_code != 200:  # noqa: PLR2004
+        raise ValidationError(
+            _("%(value)s is not a working URL (HTTP %(code)s)"),
+            code="invalid_url_exc",
+            params={"value": value, "code": resp.status_code},
+        )
+    content_type = resp.headers.get("content-type", "n/a")
+    if content_type != "application/zip":
+        raise ValidationError(
+            _("%(value)s is not a ZIP file (%(ct)s)"),
+            code="invalid_url_exc",
+            params={"value": value, "ct": content_type},
+        )
+    if not resp.headers.get("Content-Length", None):
+        raise ValidationError(
+            _("Size of %(value)s cannot be determinded (Content-Length)"),
+            code="invalid_url_nosize",
             params={"value": value},
         )
 
@@ -352,8 +384,13 @@ class Configuration(models.Model):
         null=True,
         verbose_name=_lz("Preloaded Files"),
         help_text=_lz(
-            "Preload File Manager with files here by indicating the URL of a ZIP file containing your resources"
+            "Preload File Manager with files here by indicating the URL "
+            + "of a ZIP file containing your resources"
         ),
+        validators=[
+            URLValidator(schemes=["http", "https"]),
+            validate_fileresources_url,
+        ],
     )
     content_nomad = models.BooleanField(
         default=False,
