@@ -283,6 +283,7 @@ tr.removed {
 	var demoUrl = '{{ DEMO_URL }}';
 	var file_manager_ident = "file-manager.offspot.kiwix.org";
 	var content_filter_ident = "contentfilter.offspot.kiwix.org";
+	var language_field_id = "{{ form.language.id_for_label }}";
 
   function humanSize(sizeInBytes) {
     var i = -1;
@@ -529,6 +530,13 @@ tr.removed {
 
 		// register packages (apps and files)
 		populatePackages();
+
+		// select ZIM language based on config (if catalog has zim for that lang)
+		let lang = $('#' + language_field_id).val();
+		if ($('#lang_filter option[value="' + lang + '"]').length > 0) {
+			$('#lang_filter').val(lang);
+			$('#lang_filter').trigger('change');
+		}
 
 		// first refresh run
 		onRefresh();

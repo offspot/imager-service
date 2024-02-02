@@ -51,28 +51,31 @@ def fname(value):
 register.filter("fname", fname)
 
 
-def books_from_json(db_value: str) -> list[Book]:
-    books = [catalog.get_or_none(ident) for ident in json.loads(db_value) or []]
+def books_from_json(db_value: str | list[str]) -> list[Book]:
+    if isinstance(db_value, str):
+        db_value = json.loads(db_value or "[]") or []
+    books = [catalog.get_or_none(ident) for ident in db_value or []]
     return [book for book in books if book]
 
 
 register.filter("books_from_json", books_from_json)
 
 
-def apps_from_json(db_value: str) -> list[AppPackage]:
-    apps = [
-        app_catalog.get(ident, None) for ident in json.loads(db_value or "[]") or []
-    ]
+def apps_from_json(db_value: str | list[str]) -> list[AppPackage]:
+    if isinstance(db_value, str):
+        db_value = json.loads(db_value or "[]") or []
+
+    apps = [app_catalog.get(ident, None) for ident in db_value]
     return [app for app in apps if isinstance(app, AppPackage)]
 
 
 register.filter("apps_from_json", apps_from_json)
 
 
-def files_from_json(db_value: str) -> list[FilesPackage]:
-    files = [
-        app_catalog.get(ident, None) for ident in json.loads(db_value or "[]") or []
-    ]
+def files_from_json(db_value: str | list[str]) -> list[FilesPackage]:
+    if isinstance(db_value, str):
+        db_value = json.loads(db_value or "[]") or []
+    files = [app_catalog.get(ident, None) for ident in db_value]
     return [file for file in files if isinstance(file, FilesPackage)]
 
 
