@@ -118,7 +118,13 @@ tr.removed {
 			</div>
 		</div>
 		<div class="form-row visual-group">
-			<div class="form-group col-md-4"></div>
+			<div class="form-group col-md-4">
+				<div id="container_id_contentfilter" style="display: none;">
+					<label for="id_contentfilter">Content Filter</label>
+					<input type="checkbox" id="id_contentfilter" class=" changes-size" data-toggle="toggle" name="contentfilter" aria-describedby="id_contentfilterHelp">
+					<small id="id_contentfilterHelp" class="form-text text-muted">Allows filtering out any webpage from the Hotspot</small>
+				</div>
+			</div>
 			<div class="form-group col-md-8">
 				{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
 			</div>
@@ -276,6 +282,7 @@ tr.removed {
 	var catalogUrl = '{{ CATALOG_URL }}';
 	var demoUrl = '{{ DEMO_URL }}';
 	var file_manager_ident = "file-manager.offspot.kiwix.org";
+	var content_filter_ident = "contentfilter.offspot.kiwix.org";
 
   function humanSize(sizeInBytes) {
     var i = -1;
@@ -431,18 +438,24 @@ tr.removed {
 		});
 	}
 
+	function toggleInternal(ident, enabled) {
+		let index = apps_idents.indexOf(ident);
+		let selected = index != -1;
+		if (enabled && !selected) {
+			apps_idents.push(ident);
+		}
+		if (!enabled && selected) {
+			apps_idents.splice(index, 1);
+		}
+		syncPackageField();
+	}
+
 	function registerToggleInternalApps() {
 		$("#id_filemanager").on('change', function (e) {
-			let enabled = $(this).prop("checked");
-			let index = apps_idents.indexOf(file_manager_ident);
-			let selected = index != -1;
-			if (enabled && !selected) {
-				apps_idents.push(file_manager_ident);
-			}
-			if (!enabled && selected) {
-				apps_idents.splice(index, 1);
-			}
-			syncPackageField();
+			toggleInternal(file_manager_ident, $(this).prop("checked"));
+		});
+		$("#id_contentfilter").on('change', function (e) {
+			toggleInternal(content_filter_ident, $(this).prop("checked"));
 		});
 	}
 
@@ -654,6 +667,9 @@ tr.removed {
 				// INTERNAL TOOLS
 				if (ident == file_manager_ident) {
 					$("#id_filemanager").attr("checked", "checked");
+				}
+				if (ident == content_filter_ident) {
+					$("#id_contentfilter").attr("checked", "checked");
 				}
 			}
 		});
