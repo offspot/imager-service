@@ -7,7 +7,7 @@ import logging
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
@@ -51,6 +51,22 @@ class ConfigurationForm(forms.ModelForm):
             "content_edupi_resources",
             "content_metrics",
         ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get(
+            "content_edupi_resources", False
+        ) and "file-manager.offspot.kiwix.org" not in cleaned_data.get(
+            "content_packages", []
+        ):
+            self.add_error(
+                "content_edupi_resources",
+                ValidationError(
+                    _("Enable File Manager to use a preloading file URL"),
+                    code="invalid_nofm",
+                ),
+            )
+        return cleaned_data
 
 
 def handle_uploaded_json(fd):
