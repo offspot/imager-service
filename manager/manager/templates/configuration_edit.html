@@ -524,12 +524,10 @@ tr.removed {
 		});
 		setOrdering("name");
 
+		populatePackages();
 		registerAddPackage();
 		registerRemovePackage();
 		registerToggleInternalApps();
-
-		// register packages (apps and files)
-		populatePackages();
 
 		// select ZIM language based on config (if catalog has zim for that lang)
 		let lang = $('#' + language_field_id).val();
