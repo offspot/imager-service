@@ -186,6 +186,7 @@ def configuration_edit(request, config_id=None):
     context["app_catalog"] = app_catalog
     context["form"] = form
     context["missing_zims"] = config.retrieve_missing_zims()
+    context["config_id"] = config.id
 
     return render(request, "configuration_edit.html", context)
 

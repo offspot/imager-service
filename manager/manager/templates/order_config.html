@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load manager %}
+
+{% block content %}
+<h2>{% blocktrans %}Confirm Order{% endblocktrans %}</h2>
+
+<form method="POST">
+{% csrf_token %}
+<div class="form-row visual-group">
+	<div class="col-md-2"></div>
+	<div class="col-md-6"></div>
+		<table class="table table-striped">
+			<tbody>
+			<tr><th>Configuration</th><td><a href="{% url 'configuration_edit' config_id=config.id %}">{{ config.project_name }}</a></td></tr>
+			<tr><th>Hotspot WiFi SSID</th><td>{{ config.name }}</td></tr>
+			<tr><th>Image Size</th><td>{{ config.size|human_size }}</td></tr>
+			<tr><th>Send Download Link to</th><td>{{ request.user.profile.name }} <code>{{ request.user.profile.email }}</code></td></tr>
+			</tbody>
+		</table>
+	<div class="col-md-2"></div>
+</div>
+<div class="form-row visual-group">
+	<div class="col-md-4"></div>
+	<div class="col-md-4"><button type="submit" class="btn btn-primary btn-sm form-control">Confirm Image Order</button></div>
+	<div class="col-md-4"></div>
+</div>
+</form>
+{% endblock %}
+

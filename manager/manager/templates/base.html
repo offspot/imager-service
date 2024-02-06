@@ -82,7 +82,6 @@
       <nav class="my-2 my-md-0 mr-md-3">
       	<a class="p-2 text-dark" href="{% url 'home' %}">{% blocktrans %}Home{% endblocktrans %}</a>
       	<a class="p-2 text-dark" href="{% url 'configuration_list' %}">{% blocktrans %}Configurations{% endblocktrans %}</a>
-      	<a class="p-2 text-dark" href="{% url 'address_list' %}">{% blocktrans %}Addresses{% endblocktrans %}</a>
         <a class="p-2 text-dark" href="{% url 'order_list' %}">{% blocktrans %}Orders{% endblocktrans %}</a>
       </nav>
       {% if user.is_staff %}

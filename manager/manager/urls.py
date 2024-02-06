@@ -49,6 +49,11 @@ urlpatterns = [
         config.configuration_export,
         name="configuration_export",
     ),
+    path(
+        "configurations/<int:config_id>/order",
+        ui.order_config,
+        name="configuration_order",
+    ),
     path("configurations/", config.configuration_list, name="configuration_list"),
     # addresses
     path(
@@ -71,7 +76,8 @@ urlpatterns = [
         name="order_add_shipping",
     ),
     # orders
-    path("orders/new", ui.order_new, name="order_new"),
+    # path("orders/new", ui.order_new, name="order_new"),
+    path("orders/new", ui.order_config, name="order_new"),
     path("orders/<str:order_min_id>/cancel", ui.order_cancel, name="order_cancel"),
     path("orders/<str:order_min_id>", ui.order_detail, name="order_detail"),
     path("orders/", ui.order_list, name="order_list"),

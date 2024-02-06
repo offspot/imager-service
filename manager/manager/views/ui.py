@@ -5,6 +5,7 @@ import datetime
 import logging
 
 from django import forms
+from django import conf
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, update_session_auth_hash
@@ -589,6 +590,85 @@ def order_new(request, kind=Media.VIRTUAL):  # noqa: ARG001
     context["form"] = form
 
     return render(request, "order_new.html", context)
+
+
+@login_required
+def order_config(request, config_id: int | None = None):
+    context = {}
+
+    organization = request.user.profile.organization
+    if config_id:
+        config = Configuration.get_or_none(config_id)
+        if not config or config.organization != organization:
+            messages.error(
+                request,
+                _("Configuration #%(id)s is not a valid configuration for you")
+                % {"id": config_id},
+            )
+            return redirect("configuration_list")
+    else:
+        # we need at least one config to pursue
+        if not organization.configurations.count():
+            messages.error(
+                request, _("You need at least one saved Configuration to order")
+            )
+            return redirect("configuration_list")
+        # select latest (already updated_by sorted) if not specified
+        config = organization.configurations.last()
+
+    # update config size?
+    if config.size_value_changed():
+        config.save()
+
+    if not config.min_media:
+        messages.error(
+            request, _("Configuration size it too large and cannot be ordered")
+        )
+        return redirect("configuration_edit", config_id=config.id)
+
+    # staff and admin are allowed to place multiple orders at once
+    if request.user.is_staff or request.user.is_superuser:
+        can_order = True
+        previous_order_id = None
+    else:
+        previous_order_id = Order.profile_has_active(request.user.profile)
+        can_order = not previous_order_id
+    context.update({"can_order": can_order, "previous_order_id": previous_order_id})
+
+    # display an alert informing user he cannot order at the moment
+    # if he had just clicked on Order, using an error message and blocking the process
+    # otherwise a warning is enough
+    if not context["can_order"]:
+        func = getattr(messages, "error" if request.method == "POST" else "warning")
+        func(
+            request,
+            _(
+                "Your previous Order (#%(order_id)s) must complete "
+                + "before you're allowed to request a new one."
+            )
+            % {"order_id": previous_order_id},
+        )
+
+    if request.method == "POST" and can_order:
+        try:
+            order = Order.create_from(
+                client=request.user.profile,
+                config=config,
+                media=config.min_media,
+                quantity=1,
+                address=None,
+                request_lang=get_language_from_request(request),
+            )
+        except Exception as exc:
+            logger.error(exc)
+            messages.error(request, _("Error placing Order… %(err)s") % {"err": exc})
+        else:
+            messages.success(request, OrderForm.success_message(order.min_id))
+            return redirect("order_list")
+
+    context["config"] = config
+
+    return render(request, "order_config.html", context)
 
 
 @login_required
