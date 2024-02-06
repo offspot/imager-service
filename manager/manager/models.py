@@ -1054,7 +1054,11 @@ class Media(models.Model):
 
     @classmethod
     def get_min_for(cls, size):
-        matching = [media for media in cls.objects.all() if media.bytes >= size]
+        matching = [
+            media
+            for media in cls.objects.filter(kind=cls.VIRTUAL)  # assume virtual
+            if media.bytes >= size
+        ]
         return matching[0] if len(matching) else None
 
     def __str__(self):
