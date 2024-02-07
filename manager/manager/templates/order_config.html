@@ -16,6 +16,15 @@
 			<tr><th>Hotspot WiFi SSID</th><td>{{ config.name }}{% if config.wifi_password %} – <i class="fas fa-key fa-xs"></i> <code>{{ config.wifi_password }}</code>{% endif %}</td></tr>
 			<tr><th>Image Size</th><td>{{ config.size|human_size:True }} – <i class="fas fa-sd-card" style="color: #FF9933;"></i> {{ config.min_media.size }}GB+</td></tr>
 			<tr><th>Send Download Link to</th><td>{{ request.user.profile.name }} <code>{{ request.user.profile.email }}</code></td></tr>
+			<tr><th>Apps</th><td>
+				<ul>{% for file in config.content_packages|files_from_json %}<li><span data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ file.ident }}">{{ file.title }}</span></li>{% empty %}–{% endfor %}</ul>
+			</td></tr>
+			<tr><th>Content</th><td>
+				<ul>{% for book in config.content_zims|books_from_json %}<li><span data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ book.ident }}">{{ book.title }}</span></li>{% empty %}–{% endfor %}</ul>
+			</td></tr>
+			<tr><th>Learning Tools</th><td>
+				<ul>{% for app in config.content_packages|apps_from_json %}<li><span data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ app.ident }}">{{ app.title }}</span></li>{% empty %}–{% endfor %}</ul>
+			</td></tr>
 			</tbody>
 		</table>
 	<div class="col-md-2"></div>
@@ -27,5 +36,9 @@
 	<div class="col-md-3"></div>
 </div>
 </form>
+{% endblock %}
+
+{% block javascript %}
+$('[data-toggle="popover"]').popover();
 {% endblock %}
 

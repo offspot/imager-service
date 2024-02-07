@@ -52,6 +52,8 @@ register.filter("fname", fname)
 
 
 def books_from_json(db_value: str | list[str]) -> list[Book]:
+    if db_value is None:
+        db_value = []
     if isinstance(db_value, str):
         db_value = json.loads(db_value or "[]") or []
     books = [catalog.get_or_none(ident) for ident in db_value or []]
@@ -62,6 +64,8 @@ register.filter("books_from_json", books_from_json)
 
 
 def apps_from_json(db_value: str | list[str]) -> list[AppPackage]:
+    if db_value is None:
+        db_value = []
     if isinstance(db_value, str):
         db_value = json.loads(db_value or "[]") or []
 
@@ -73,6 +77,8 @@ register.filter("apps_from_json", apps_from_json)
 
 
 def files_from_json(db_value: str | list[str]) -> list[FilesPackage]:
+    if db_value is None:
+        db_value = []
     if isinstance(db_value, str):
         db_value = json.loads(db_value or "[]") or []
     files = [app_catalog.get(ident, None) for ident in db_value]
