@@ -7,23 +7,24 @@
 
 <form method="POST">
 {% csrf_token %}
-<div class="form-row visual-group">
+<div class="form-row visual-group" id="order_form">
 	<div class="col-md-2"></div>
 	<div class="col-md-6"></div>
 		<table class="table table-striped">
 			<tbody>
 			<tr><th>Configuration</th><td><a href="{% url 'configuration_edit' config_id=config.id %}">{{ config.project_name }}</a></td></tr>
-			<tr><th>Hotspot WiFi SSID</th><td>{{ config.name }}</td></tr>
-			<tr><th>Image Size</th><td>{{ config.size|human_size }}</td></tr>
+			<tr><th>Hotspot WiFi SSID</th><td>{{ config.name }}{% if config.wifi_password %} – <i class="fas fa-key fa-xs"></i> <code>{{ config.wifi_password }}</code>{% endif %}</td></tr>
+			<tr><th>Image Size</th><td>{{ config.size|human_size:False }} – <i class="fas fa-sd-card" style="color: #FF9933;"></i> {{ config.min_media.size }}GB+</td></tr>
 			<tr><th>Send Download Link to</th><td>{{ request.user.profile.name }} <code>{{ request.user.profile.email }}</code></td></tr>
 			</tbody>
 		</table>
 	<div class="col-md-2"></div>
 </div>
 <div class="form-row visual-group">
-	<div class="col-md-4"></div>
-	<div class="col-md-4"><button type="submit" class="btn btn-primary btn-sm form-control">Confirm Image Order</button></div>
-	<div class="col-md-4"></div>
+	<div class="col-md-3"></div>
+	<div class="col-md-3"><a href="{% url 'configuration_edit' config_id=config.id %}"><button form="none" class="btn btn-secondary btn-sm form-control">I forgot something!</button></a></div>
+	<div class="col-md-3"><button form="order_form" class="btn btn-primary btn-sm form-control">Yes, let's go!</button></div>
+	<div class="col-md-3"></div>
 </div>
 </form>
 {% endblock %}

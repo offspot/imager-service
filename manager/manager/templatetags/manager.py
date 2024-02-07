@@ -30,8 +30,8 @@ class AppCatalogEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def human_size(value):
-    return human_readable_size(value).replace(" ", " ")  # noqa: RUF001
+def human_size(value, binary: bool = True):  # noqa: FBT001 FBT002
+    return human_readable_size(value, binary=binary).replace(" ", " ")  # noqa: RUF001
 
 
 register.filter("human_size", human_size)
