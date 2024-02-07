@@ -173,6 +173,8 @@ def configuration_edit(request, config_id=None):
                     % {"err": exp},
                 )
             else:
+                if request.POST.get("order-on-success"):
+                    return redirect("configuration_order", config_id=config.id)
                 messages.success(request, _("Configuration Updated successfuly !"))
                 return redirect("configuration_edit", config.id)
         else:
