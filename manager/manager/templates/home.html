@@ -3,28 +3,20 @@
 {% load manager %}
 
 {% block content %}
-<div class="alert alert-info">
+<div class="">
 
-<h2>{% blocktrans with name=user.profile.name %}Welcome {{ name }}!{% endblocktrans %}</h2>
+<h2>{% blocktrans with name=user.profile.name %}Welcome!{% endblocktrans %}</h2>
 
-<p>{% blocktrans %}This is an online shop where you can prepare, order and download custom images to run on your RaspberryPi.{% endblocktrans %}</p>
+<p>{% blocktrans %}This is an online shop where you can prepare custom images to run on your RaspberryPi as a local WiFi hotspot.{% endblocktrans %}</p>
 
 {% url 'configuration_list'  as config_list_url %}
-{% url 'address_list' as address_list_url %}
-{% url 'order_list' as order_list_url %}
 {% url 'delete_account' as delete_account_url %}
-<p>{% blocktrans %}Placing such an order requires the following from you:{% endblocktrans %}</p>
-<ul>
-	<li>{% blocktrans %}A <a href="{{ config_list_url }}">configuration</a>: this is where you select the content that will be available on your hotspot, as well as a few options options (WiFi name, logo, etc.);{% endblocktrans %}</li>
-	<li>{% blocktrans %}A <a href="{{ address_list_url }}">recipient address</a> to send the download link to. This can be you, or anyone else;{% endblocktrans %}</li>
-	<li>{% blocktrans %}An <a href="{{ order_list_url }}">Order</a> to confirm the configuration you want, and to which address you want it sent to.{% endblocktrans %}</li>
-</ul>
 
-<p>{% blocktrans %}If you require assistance, please contact <a href="mailto:{{ support_email }}">{{ support_email }}</a>.{% endblocktrans %}</p>
-
-</div>
-
+<p>{% blocktrans %}The <a href="{{ config_list_url }}">Configuration</a> tab at the top lets you select the content that will be available on your hotspot, as well as a decide on a few features (WiFi name, language, etc.).{% endblocktrans %}</p>
+<p>{% blocktrans with user_email=user.profile.email %}Image creation may take from a few minutes to a few hours. Once the image is ready, a download link will be sent to <code>{{ user_email }}</code>.{% endblocktrans %}</p>
+<p>{% blocktrans %}If you run into problems, please contact <a href="mailto:{{ support_email }}">{{ support_email }}</a>.{% endblocktrans %}</p>
 <p>{% blocktrans %}If you are through with the Imager, you also have the ability to <a href="{{ delete_account_url }}">delete your account</a>.{% endblocktrans %}</p>
+</div>
 {% endblock %}
 
 {% block javascript %}
