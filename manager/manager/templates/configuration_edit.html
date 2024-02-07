@@ -64,7 +64,7 @@ tr.removed {
 		<div class="form-row visual-group">
 			<div class="col-md-6"></div>
 			<div class="col-md-3">{% if config_id %}<a href="{% url 'configuration_order' config_id %}">{% endif %}<button form="none" class="btn btn-dark btn-sm form-control" {% if not config_id %}disabled="disabled"{% endif %}>{% blocktrans %}Place Order{% endblocktrans %} <i class="fas fa-cart-arrow-down"></i></button></a></div>
-			<div class="col-md-3"><button form="edit-config" class="btn btn-primary btn-sm form-control" style="margin-bottom: .5em;">{% blocktrans %}Update Configuration{% endblocktrans %}</button></div>
+			<div class="col-md-3"><button form="edit-config" class="btn btn-primary btn-sm form-control" style="margin-bottom: .5em;">{% blocktrans %}Save{% endblocktrans %}</button></div>
 		</div>
 
 	<div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
