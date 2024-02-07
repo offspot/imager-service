@@ -556,7 +556,8 @@ tr.removed {
 		};
 		$.post("/api/get_size", JSON.stringify(config), function () {})
 			.done(function (data) {
-				$('#image_req_size').text(humanSize(data.size));
+				//$('#image_req_size').text(humanSize(data.size));  // JS humanSize from bytes
+				$('#image_req_size').text(data.hsize);
 
 				if (data.media_size == null) {
 					$('#sd_size_holder')[0].className = "danger";

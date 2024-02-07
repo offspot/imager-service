@@ -14,7 +14,7 @@
 			<tbody>
 			<tr><th>Configuration</th><td><a href="{% url 'configuration_edit' config_id=config.id %}">{{ config.project_name }}</a></td></tr>
 			<tr><th>Hotspot WiFi SSID</th><td>{{ config.name }}{% if config.wifi_password %} – <i class="fas fa-key fa-xs"></i> <code>{{ config.wifi_password }}</code>{% endif %}</td></tr>
-			<tr><th>Image Size</th><td>{{ config.size|human_size:False }} – <i class="fas fa-sd-card" style="color: #FF9933;"></i> {{ config.min_media.size }}GB+</td></tr>
+			<tr><th>Image Size</th><td>{{ config.size|human_size:True }} – <i class="fas fa-sd-card" style="color: #FF9933;"></i> {{ config.min_media.size }}GB+</td></tr>
 			<tr><th>Send Download Link to</th><td>{{ request.user.profile.name }} <code>{{ request.user.profile.email }}</code></td></tr>
 			</tbody>
 		</table>
