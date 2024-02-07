@@ -382,7 +382,7 @@ class Configuration(models.Model):
         max_length=500,
         blank=True,
         null=True,
-        verbose_name=_lz("Preloaded Files"),
+        verbose_name=_lz("Preload Files"),
         help_text=_lz(
             "Preload File Manager with files here by indicating the URL "
             + "of a ZIP file containing your resources"
