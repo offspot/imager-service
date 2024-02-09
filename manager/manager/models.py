@@ -536,11 +536,22 @@ class Configuration(models.Model):
             return True
         return False
 
-    def save(self, *args, **kwargs):
+    def _cleanup_zims(self):
         # remove packages not in catalog
-        self.content_zims = [
-            ident for ident in self.content_zims if ident in catalog.get_all_ids()
-        ]
+        def _valid_zims_only():
+            for ident in self.content_zims:
+                if ident in catalog.get_all_ids():
+                    yield ident
+                    continue
+                publisher, name, flavour = ident.split(":", 2)
+                ident = f"openZIM:{name}:{flavour}"
+                if ident in catalog.get_all_ids():
+                    yield ident
+
+        self.content_zims = list(_valid_zims_only())
+
+    def save(self, *args, **kwargs):
+        self._cleanup_zims()
         self.size_value_changed()
         super().save(*args, **kwargs)
 
