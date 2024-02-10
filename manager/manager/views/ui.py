@@ -5,7 +5,6 @@ import datetime
 import logging
 
 from django import forms
-from django import conf
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, update_session_auth_hash
@@ -747,3 +746,8 @@ def order_add_shipping(request, order_id):
     context["form"] = form
 
     return render(request, "add_shipping.html", context)
+
+
+def logout_user(request):
+    logout(request)
+    return redirect("home")
