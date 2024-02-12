@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Cardshop\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-12 15:04+0000\n"
-"PO-Revision-Date: 2024-02-12 15:05+0000\n"
+"PO-Revision-Date: 2024-02-12 15:09+0000\n"
 "Last-Translator: reg <rgaudin@gmail.com>\n"
 "Language-Team: French <reg@kiwix.org>\n"
 "Language: fr\n"
@@ -963,7 +963,7 @@ msgstr "Votre sélection comporte des erreurs : %(errors)s"
 
 #: manager/templates/configuration_edit.html:174
 msgid "Available App Packages (mostly interactive)"
-msgstr "Packages d’applications disponibles (principalement interactifs)"
+msgstr "Packages d’applications disponibles"
 
 #: manager/templates/configuration_edit.html:189
 #: manager/templates/configuration_edit.html:219
