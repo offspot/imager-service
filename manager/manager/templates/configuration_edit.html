@@ -233,7 +233,7 @@ tr.removed {
 			<div class="col-md-6">
 				<input type="hidden" id="catalog_order" value="" />
 				<h4 class="alert alert-info">{% blocktrans %}Available ZIMs{% endblocktrans %}
-			  	<select name="lang_filter" id="lang_filter" class="form-control" style="display: inline; width: auto; height: auto; padding: 0; float: right;">
+			  	<select name="lang_filter" id="lang_filter" class="form-control" style="display: inline; width: auto; height: auto; float: right;">
 				  	<option value="">{% blocktrans %}Select a language to filter{% endblocktrans %}</option>
 				  	{% for lang_code, lang_name in languages.items %}
 				  	<option value="{{ lang_code }}">{{ lang_name }}</option>

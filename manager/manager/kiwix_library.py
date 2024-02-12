@@ -13,7 +13,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-import langcodes
+import iso639
 import requests
 import xmltodict
 from offspot_config.zim import ZimPackage
@@ -47,13 +47,26 @@ class Book:
     version: str
 
     def __post_init__(self):
-        for lang in self.langs_iso639_3:
+        for lang in list(self.langs_iso639_3):
             value: str = lang
             try:
-                value = str(langcodes.Language.get(lang).language)
-            except NameError:
-                ...
+                value = iso639.Lang(lang).pt1
+            # skip language if code is invalid or deprecated
+            except (
+                iso639.exceptions.DeprecatedLanguageValue,
+                iso639.exceptions.InvalidLanguageValue,
+            ) as exc:
+                logger.error(f"{self.ident}: {exc}")
+                self.langs_iso639_3.remove(lang)
+                continue
             self.langs_iso639_1.append(value)
+
+        # fallback to eng if no valid code was supplied
+        if not self.langs_iso639_3:
+            self.langs_iso639_3.append("eng")
+        if not self.langs_iso639_1:
+            self.langs_iso639_1.append("en")
+
         # fix many incorrect flavours
         # self.flavour = re.sub(r"^_", "", self.flavour)
 
@@ -78,21 +91,15 @@ class Book:
 
     @property
     def lang_codes(self) -> list[str]:
-        return [
-            self.langs_iso639_1[index] or iso3
-            for index, iso3 in enumerate(self.langs_iso639_3)
-        ]
+        return self.langs_iso639_3
 
     @property
     def lang_code(self) -> str:
-        try:
-            return self.langs_iso639_1[0]
-        except IndexError:
-            return self.langs_iso639_3[0]
+        return self.langs_iso639_3[0]
 
     @property
-    def language(self) -> langcodes.Language:
-        return langcodes.Language.get(self.lang_code)
+    def language(self) -> iso639.Lang:
+        return iso639.Lang(self.lang_code)
 
     # below are ContentPackage interface
     @property
@@ -156,12 +163,15 @@ class Catalog:
 
     @property
     def languages(self) -> collections.OrderedDict[str, str]:
+        overrides = {
+            "ina": "Interlingua",
+        }
         return collections.OrderedDict(
             sorted(
                 [
                     (
-                        str(langcodes.Language.get(lang).language),
-                        str(langcodes.Language.get(lang).language_name()),
+                        lang,
+                        overrides.get(lang, iso639.Lang(lang).name),
                     )
                     for lang in self._by_langs.keys()
                 ],
@@ -256,7 +266,7 @@ class Catalog:
             books = collections.OrderedDict(
                 sorted(
                     ((ident, book) for ident, book in books.items()),
-                    key=lambda item: (item[1].language.language_name(), item[1].title),
+                    key=lambda item: (item[1].language.name, item[1].title),
                 )
             )
             for ident in books.keys():
