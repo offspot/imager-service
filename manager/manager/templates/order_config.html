@@ -5,9 +5,9 @@
 {% block content %}
 <h2>{% blocktrans %}Confirm Order{% endblocktrans %}</h2>
 
-<form method="POST">
+<form method="POST" id="order_form">
 {% csrf_token %}
-<div class="form-row visual-group" id="order_form">
+<div class="form-row visual-group">
 	<div class="col-md-2"></div>
 	<div class="col-md-6"></div>
 		<table class="table table-striped">
