@@ -422,7 +422,7 @@ class Configuration(models.Model):
     content_metrics = models.BooleanField(
         default=False,
         verbose_name=_lz("Metrics Dashboard"),
-        help_text=_lz("Statistiques d'utilisation du Hotspot"),
+        help_text=_lz("Hotspot Usage Statistics"),
     )
 
     @classmethod

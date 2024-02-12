@@ -64,8 +64,8 @@ tr.removed {
 	<div class="tab-content" id="configMenuTabHolderContent">
 
 		<div class="form-row visual-group">
-			<div class="col-md-6"></div>
-			<div class="col-md-3">{% if config_id %}<a href="{% url 'configuration_order' config_id %}">{% endif %}<button id="order-btn" form="edit-config" class="btn btn-dark btn-sm form-control" {% if not config_id %}disabled="disabled"{% endif %}>{% blocktrans %}Save & Request{% endblocktrans %} <i class="fas fa-rocket" style="color: #FF9933;"></i></button></a></div>
+			<div class="col-md-7"></div>
+			<div class="col-md-2">{% if config_id %}<a href="{% url 'configuration_order' config_id %}">{% endif %}<button id="order-btn" form="edit-config" class="btn btn-dark btn-sm form-control" {% if not config_id %}disabled="disabled"{% endif %}>{% blocktrans %}Save & Request{% endblocktrans %} <i class="fas fa-rocket" style="color: #FF9933;"></i></button></a></div>
 			<div class="col-md-3"><button form="edit-config" class="btn btn-primary btn-sm form-control" style="margin-bottom: .5em;"><i class="fas fa-save"></i> {% blocktrans %}Save{% endblocktrans %}</button></div>
 		</div>
 
@@ -107,14 +107,14 @@ tr.removed {
 			</div>
 		</div>
 
-		<h3>Optional tools</h3>
+		<h3>{% blocktrans %}Optional tools{% endblocktrans %}</h3>
 		<div class="form-row visual-group">
 			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_metrics type="checkbox" changes_size=1 %}
 			</div>
 			<div class="form-group col-md-4">
 				<div id="container_id_filemanager">
-					<label for="id_filemanager">File Manager</label>
+					<label for="id_filemanager">{% blocktrans %}File Manager{% endblocktrans %}</label>
 					<input type="checkbox" id="id_filemanager" class=" changes-size" data-toggle="toggle" name="filemanager" aria-describedby="id_filemanagerHelp">
 					<small id="id_filemanagerHelp" class="form-text text-muted">Allows importing external files to the hotspot.</small>
 				</div>
@@ -123,7 +123,7 @@ tr.removed {
 		<div class="form-row visual-group">
 			<div class="form-group col-md-4">
 				<div id="container_id_contentfilter" style="display: none;">
-					<label for="id_contentfilter">Content Filter</label>
+					<label for="id_contentfilter">{% blocktrans %}Content Filter{% endblocktrans %}</label>
 					<input type="checkbox" id="id_contentfilter" class=" changes-size" data-toggle="toggle" name="contentfilter" aria-describedby="id_contentfilterHelp">
 					<small id="id_contentfilterHelp" class="form-text text-muted">Allows filtering out any webpage from the Hotspot</small>
 				</div>
@@ -186,7 +186,7 @@ tr.removed {
 			<div class="col-md-1"></div>
 
 			<div class="col-md-5">
-				<h4 class="alert alert-success">{% blocktrans %}Selected Apps{% endblocktrans %}</h4>
+				<h4 class="alert alert-success">{% blocktrans %}Selected Packages{% endblocktrans %}</h4>
 				<table class="table table-bordered table-striped selected">
 			  	<thead><tr><th>{% blocktrans %}Name{% endblocktrans %}</th><th>{% blocktrans %}Size{% endblocktrans %}</th></tr></thead>
 			  	<tbody></tbody>
@@ -216,7 +216,7 @@ tr.removed {
 			<div class="col-md-1"></div>
 
 			<div class="col-md-5">
-				<h4 class="alert alert-success">{% blocktrans %}Selected Files{% endblocktrans %}</h4>
+				<h4 class="alert alert-success">{% blocktrans %}Selected Packages{% endblocktrans %}</h4>
 				<table class="table table-bordered table-striped selected">
 			  	<thead><tr><th>{% blocktrans %}Name{% endblocktrans %}</th><th>{% blocktrans %}Size{% endblocktrans %}</th></tr></thead>
 			  	<tbody></tbody>
@@ -253,7 +253,7 @@ tr.removed {
 			<div class="col-md-1"></div>
 
 			<div class="col-md-5">
-				<h4 class="alert alert-success">{% blocktrans %}Selected ZIMs{% endblocktrans %}</h4>
+				<h4 class="alert alert-success">{% blocktrans %}Selected Packages{% endblocktrans %}</h4>
 				<table id="selected_zims_list" class="table table-bordered table-striped">
 			  	<thead><tr><th>{% blocktrans %}Name{% endblocktrans %}</th><th>{% blocktrans %}Size{% endblocktrans %}</th></tr></thead>
 			  	<tbody>
