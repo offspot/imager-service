@@ -8,7 +8,7 @@ from offspot_config.catalog import app_catalog
 from offspot_config.packages import AppPackage, FilesPackage, Package
 
 from manager.kiwix_library import Book, catalog
-from manager.models import Address, Order
+from manager.models import Address, Order, openzim_fixed_ident
 from manager.utils import human_readable_size
 
 register = template.Library()
@@ -56,7 +56,10 @@ def books_from_json(db_value: str | list[str]) -> list[Book]:
         db_value = []
     if isinstance(db_value, str):
         db_value = json.loads(db_value or "[]") or []
-    books = [catalog.get_or_none(ident) for ident in db_value or []]
+    books = [
+        catalog.get_or_none(ident) or catalog.get_or_none(openzim_fixed_ident(ident))
+        for ident in db_value or []
+    ]
     return [book for book in books if book]
 
 

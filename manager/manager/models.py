@@ -64,6 +64,12 @@ from manager.utils import (
 logger = logging.getLogger(__name__)
 
 
+def openzim_fixed_ident(ident: str) -> str:
+    """ZIM ident with openZIM publisher (while ZIM transition from bad publishers)"""
+    publisher, name, flavour = ident.split(":", 2)
+    return f"openZIM:{name}:{flavour}"
+
+
 def get_timezones_choices():
     yield from sorted([(tz, tz) for tz in zoneinfo.available_timezones()])
 
@@ -543,10 +549,8 @@ class Configuration(models.Model):
                 if ident in catalog.get_all_ids():
                     yield ident
                     continue
-                publisher, name, flavour = ident.split(":", 2)
-                ident = f"openZIM:{name}:{flavour}"
-                if ident in catalog.get_all_ids():
-                    yield ident
+                if openzim_fixed_ident(ident) in catalog.get_all_ids():
+                    yield openzim_fixed_ident(ident)
 
         self.content_zims = list(_valid_zims_only())
 
@@ -558,7 +562,10 @@ class Configuration(models.Model):
     def retrieve_missing_zims(self):
         """checks packages list over catalog for changes"""
         return [
-            ident for ident in self.content_zims if ident not in catalog.get_all_ids()
+            ident
+            for ident in self.content_zims
+            if ident not in catalog.get_all_ids()
+            and openzim_fixed_ident(ident) not in catalog.get_all_ids()
         ]
 
     @classmethod
