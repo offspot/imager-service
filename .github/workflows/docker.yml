@@ -15,7 +15,7 @@ jobs:
         uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/cardshop-manager
-          restrict-to: offspot/cardshop
+          restrict-to: offspot/imager-service
           context: manager
           registries: ghcr.io
           manual-tag: imager
@@ -39,7 +39,7 @@ jobs:
         uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/imager-worker
-          restrict-to: offspot/cardshop
+          restrict-to: offspot/imager-service
           context: workers
           manual-tag: latest
           registries: ghcr.io
