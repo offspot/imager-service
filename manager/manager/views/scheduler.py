@@ -190,7 +190,7 @@ class ImageForm(SchedulerForm):
     contact_email = forms.EmailField(label="Contact Email")
     warehouse = forms.ChoiceField(choices=get_warehouse_choices())
     channel = forms.ChoiceField(choices=get_channel_choices())
-    private = forms.BooleanField(initial=True, required=True)
+    private = forms.BooleanField(initial=False, required=False)
     active = forms.BooleanField(initial=True, required=False)
 
     @staticmethod
