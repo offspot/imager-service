@@ -16,11 +16,11 @@
 
 {% macro button_download(order) -%}<p style="text-align: center;">
 	<a href="{{ order|public_download_url }}" style="text-decoration: none;">
-		<img src="https://cardshop.hotspot.kiwix.org/static/img/http-download-btn_137x40@2x.png" alt="{{ _('Download %(config_name)s (%(sdcard_size)sGB)')|format(config_name=order.config.name, sdcard_size=order.sd_card.size) }}" style="height:4em;"/>
+		<img src="https://imager.kiwix.org/static/img/http-download-btn_137x40@2x.png" alt="{{ _('Download %(config_name)s (%(sdcard_size)sGB)')|format(config_name=order.config.name, sdcard_size=order.sd_card.size) }}" style="height:4em;"/>
 	</a>
     {% if order|public_download_url_has_torrent %}
     <a href="{{ order|public_download_torrent_url }}" style="text-decoration: none;">
-        <img height="25px" src="https://cardshop.hotspot.kiwix.org/static/img/torrent-download-btn_137x40@2x.png" alt="Magnet" style="height:4em;" />
+        <img height="25px" src="https://imager.kiwix.org/static/img/torrent-download-btn_137x40@2x.png" alt="Magnet" style="height:4em;" />
     </a>
     {% endif %}
 </p>{%- endmacro %}

@@ -4,7 +4,7 @@ import requests
 
 @pytest.fixture(scope="module")
 def root() -> str:
-    return "https://api.cardshop.hotspot.kiwix.org"
+    return "https://api.imager.kiwix.org"
 
 
 @pytest.fixture(scope="class")

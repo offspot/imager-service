@@ -12,13 +12,13 @@
 
 <h2>Using the Imager</h2>
 <p>Using the cardshop is pretty straightforward, but just in case we made a <a href="https://github.com/offspot/cardshop/raw/master/docs/Cardshop%20instructions%20EN.pdf">user manual</a> with what really matters to get going.</p>
-<p>Access it at <a href="https://cardshop.hotspot.kiwix.org/">cardshop.hotspot.kiwix.org</a> with your personal credentials.</p>
+<p>Access it at <a href="https://imager.kiwix.org/">imager.kiwix.org</a> with your personal credentials.</p>
 {% if username %}
 <table class="table table-sm table-striped">
     <tr><th>Username</th><td><code>{{ username|default("Unavailable – please contact us", true) }}</code></td></tr>
     <tr><th>Password</th>
         {% if existing_account %}
-        <td>You already have an account. Password remains unchanged. To reset your password <a href="https://cardshop.hotspot.kiwix.org/reset-password">click here</a>.</td>
+        <td>You already have an account. Password remains unchanged. To reset your password <a href="https://imager.kiwix.org/reset-password">click here</a>.</td>
         {% else %}
         <td><code>{{ password|default("Unavailable – please contact us", true) }}</code></td>{% endif %}
     </tr>

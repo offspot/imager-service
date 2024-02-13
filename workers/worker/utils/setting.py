@@ -44,7 +44,7 @@ class Setting:
         cls.username = os.getenv("USERNAME", "")
         cls.password = os.getenv("PASSWORD", "")
         cls.api_url = os.getenv(
-            "CARDSHOP_API_URL", "https://api.cardshop.hotspot.kiwix.org"
+            "CARDSHOP_API_URL", "https://api.imager.kiwix.org"
         )
 
         cls.s3_access_key = os.getenv("S3_ACCESS_KEY", cls.s3_access_key)

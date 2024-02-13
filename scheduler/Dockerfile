@@ -17,11 +17,11 @@ ENV MONGODB_URI mongo
 # to create initial scheduler user for manager
 ENV MANAGER_ACCOUNT_PASSWORD manager
 # to send URLs via email
-ENV PUBLIC_URL https://cardshop.hotspot.kiwix.org
+ENV PUBLIC_URL https://imager.kiwix.org
 # to build URLs Stripe redirects to
-ENV CARDSHOP_API_URL https://api.cardshop.hotspot.kiwix.org
+ENV CARDSHOP_API_URL https://api.imager.kiwix.org
 # manager API URL to create user accounts (use sloppy version)
-ENV MANAGER_API_URL https://cardshop.hotspot.kiwix.org/api
+ENV MANAGER_API_URL https://imager.kiwix.org/api
 # API token on manager to create user accounts
 ENV MANAGER_ACCOUNTS_API_TOKEN dev
 # to include in shop widget

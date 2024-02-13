@@ -22,12 +22,12 @@ from utils.templates import amount_str, strftime
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
 STRIPE_PUBLIC_API_KEY = os.getenv("STRIPE_PUBLIC_API_KEY")
 CARDSHOP_API_URL = os.getenv(
-    "CARDSHOP_API_URL", "https://api.cardshop.hotspot.kiwix.org"
+    "CARDSHOP_API_URL", "https://api.imager.kiwix.org"
 )
 SHOP_PUBLIC_URL = os.getenv(
     "SHOP_PUBLIC_URL", "https://www.kiwix.org/en/cardshop-access/"
 )
-MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://cardshop.hotspot.kiwix.org")
+MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
 
 # i18n

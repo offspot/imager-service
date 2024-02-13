@@ -11,7 +11,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 CONFIG_PATH = Path("/etc/cardshop-host.config")
 NETPLAN_CONF = Path("/etc/netplan/50-cloud-init.yaml")
-DEFAULT_API_URL = "https://api.cardshop.hotspot.kiwix.org"
+DEFAULT_API_URL = "https://api.imager.kiwix.org"
 UPDATE_SCRIPT = Path(__file__).parent.resolve().joinpath("update.sh")
 ALL_SLOTS = list(string.ascii_uppercase)
 

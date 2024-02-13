@@ -2,7 +2,7 @@
 {% from "macros.html" import tagged_message, button_download %}
 
 {% block message %}
-{% set transmission_link %}<img style="height: 1em; vertical-align: middle;" src="https://cardshop.hotspot.kiwix.org/static/img/transmission-32@2x.png" /> <a href="https://transmissionbt.com/download/">Transmission</a>{% endset %}
+{% set transmission_link %}<img style="height: 1em; vertical-align: middle;" src="https://imager.kiwix.org/static/img/transmission-32@2x.png" /> <a href="https://transmissionbt.com/download/">Transmission</a>{% endset %}
 {% set etcher_link %}<a href="https://www.balena.io/etcher/">balenaEtcher</a>{% endset %}
 
 {% call tagged_message("info") %}{{ _("Your image is ready to download!") }}{% endcall %}

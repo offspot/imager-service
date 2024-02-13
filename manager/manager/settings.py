@@ -186,10 +186,10 @@ MANAGER_API_USERNAME = os.getenv("MANAGER_API_USERNAME", "manager")
 MANAGER_API_KEY = os.getenv("MANAGER_API_KEY", "manager")
 # API URL
 CARDSHOP_API_URL = os.getenv(
-    "CARDSHOP_API_URL", "https://api.cardshop.hotspot.kiwix.org"
+    "CARDSHOP_API_URL", "https://api.imager.kiwix.org"
 )
 CARDSHOP_API_URL_EXTERNAL = os.getenv(
-    "CARDSHOP_API_URL_EXTERNAL", "https://api.cardshop.hotspot.kiwix.org"
+    "CARDSHOP_API_URL_EXTERNAL", "https://api.imager.kiwix.org"
 )
 # Token for API allowing creation of user accounts
 ACCOUNTS_API_TOKEN = os.getenv("ACCOUNTS_API_TOKEN", "dev")
@@ -201,7 +201,7 @@ MAILGUN_API_URL = os.getenv(
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY", "")
 # used for sending reset password links in emails
 CARDSHOP_PUBLIC_URL = os.getenv(
-    "CARDSHOP_PUBLIC_URL", "https://cardshop.hotspot.kiwix.org"
+    "CARDSHOP_PUBLIC_URL", "https://imager.kiwix.org"
 )
 CONTENTS_FILE = os.path.join(BASE_DIR, "contents.json")
 

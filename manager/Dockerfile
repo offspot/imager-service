@@ -71,8 +71,8 @@ RUN chmod 755 /manager-entrypoint.sh
 WORKDIR /app
 VOLUME /data
 ENV DATA_DIR /data
-ENV CARDSHOP_API_URL https://api.cardshop.hotspot.kiwix.org
-ENV CARDSHOP_API_URL_EXTERNAL https://api.cardshop.hotspot.kiwix.org
+ENV CARDSHOP_API_URL https://api.imager.kiwix.org
+ENV CARDSHOP_API_URL_EXTERNAL https://api.imager.kiwix.org
 ENV MANAGER_API_TOKEN NOT_SET
 ENV ADMIN_PASSWORD admin
 ENV SUPPORT_EMAIL stephane@kiwix.org
@@ -80,8 +80,8 @@ ENV DJANGO_SETTINGS_MODULE manager.settings
 
 # for status page
 ENV STATUS_S3_URL "http://org-kiwix-hotspot-cardshop-download.s3.us-west-1.wasabisys.com"
-ENV STATUS_CARDSHOP_URL "https://cardshop.hotspot.kiwix.org"
-ENV STATUS_CARDSHOP_API_URL "https://api.cardshop.hotspot.kiwix.org"
+ENV STATUS_CARDSHOP_URL "https://imager.kiwix.org"
+ENV STATUS_CARDSHOP_API_URL "https://api.imager.kiwix.org"
 ENV USERNAME ""
 ENV STATUS_MANAGER_PASSWORD ""
 ENV MONGODB_URI "mongodb://mongodb"

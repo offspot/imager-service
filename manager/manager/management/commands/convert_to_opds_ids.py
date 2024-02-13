@@ -56,7 +56,7 @@ def get_new_id(yaml_id: str) -> str | int:
             flavour = last_part
             name = re.sub(f"_{last_part}$", "", name)
 
-    for publisher in ("Kiwix", "openZIM", "WikiProjectMed", "Openzim"):
+    for publisher in ("Kiwix", "openZIM", "OpenZIM", "WikiProjectMed", "Openzim"):
         opds_id = to_human_id(name, publisher, flavour)
         if opds_id in all_ids:
             return opds_id
