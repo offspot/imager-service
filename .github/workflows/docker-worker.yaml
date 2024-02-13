@@ -1,0 +1,28 @@
+name: Docker Worker
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'workers/*'
+    tags:
+      - 'workers-*'
+
+jobs:
+  manager:
+    name: Deploy Worker Image
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.4.0
+      - name: Publish Docker Image
+        uses: openzim/docker-publish-action@v10
+        with:
+          image-name: offspot/cardshop-worker
+          on-master: latest
+          restrict-to: offspot/imager-service
+          context: workers
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
