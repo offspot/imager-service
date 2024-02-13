@@ -5,7 +5,7 @@ VOLUME /data
 VOLUME /cache
 ENV WORKING_DIR "/data"
 ENV CACHE_DIR "/cache"
-ENV CARDSHOP_API_URL "https://api.cardshop.hotspot.kiwix.org"
+ENV CARDSHOP_API_URL "https://api.imager.kiwix.org"
 ENV USERNAME ""
 ENV PASSWORD ""
 ENV IMAGER_BIN_PATH "/usr/local/bin/image-creator"
