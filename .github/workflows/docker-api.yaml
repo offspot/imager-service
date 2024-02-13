@@ -5,9 +5,9 @@ on:
     branches:
       - 'main'
     paths:
-      - 'scheduler/*'
+      - 'scheduler/**'
     tags:
-      - 'scheduler-*'
+      - 'scheduler-**'
 
 jobs:
   manager:

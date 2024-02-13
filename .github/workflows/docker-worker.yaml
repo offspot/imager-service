@@ -5,9 +5,10 @@ on:
     branches:
       - 'main'
     paths:
-      - 'workers/*'
+      - 'workers/**'
     tags:
-      - 'workers-*'
+      - 'workers-**'
+  workflow_dispatch:
 
 jobs:
   manager:
