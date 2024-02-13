@@ -215,6 +215,7 @@ class ImageForm(SchedulerForm):
         success, autoimage_slug = add_autoimage(
             slug=self.cleaned_data.get("slug"),
             config=self.cleaned_data.get("config").to_dict(),
+            config_yaml=self.cleaned_data.get("config").builder.render(),
             contact_email=self.cleaned_data.get("contact_email"),
             periodicity="monthly",
             warehouse=self.cleaned_data.get("warehouse"),

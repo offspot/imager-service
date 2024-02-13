@@ -748,6 +748,7 @@ class AutoImages(BaseCollection):
         "slug": {"type": "string", "regex": "^[a-zA-Z0-9_.+-]+$", "required": True},
         "private": {"type": "boolean", "default": True, "required": True},
         "config": {"type": "dict", "required": True},
+        "config_yaml": {"type": "string", "required": True},
         "contact_email": {
             "type": "string",
             "regex": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
@@ -805,6 +806,7 @@ class AutoImages(BaseCollection):
         )
         return {
             "config": image["config"],
+            "config_yaml": image["config_yaml"],
             "fname": fname,
             "sd_card": {
                 "name": "auto",

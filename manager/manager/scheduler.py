@@ -416,6 +416,7 @@ def get_warehouse_choices():
 def add_autoimage(
     slug,
     config,
+    config_yaml,
     contact_email,
     periodicity,
     warehouse,
@@ -425,6 +426,7 @@ def add_autoimage(
     payload = {
         "slug": slug,
         "config": config,
+        "config_yaml": config_yaml,
         "contact_email": contact_email,
         "periodicity": periodicity,
         "warehouse": warehouse,
