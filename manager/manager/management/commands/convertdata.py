@@ -40,6 +40,8 @@ gone_ids = [
     "ruangguru_id_all--bincang-literasi-digital.id",
     "harmony-project.org_en_all.en",
     "sheetmusicintl_en_all.en",
+    "musictheory.net_en_all.en",
+    "rapsberry_pi_docs.en",
 ]
 
 # new Name, Flavour data for previous IDs
@@ -2645,4 +2647,6 @@ fixed_ids = {
     "africanstorybook.org_mul_all.en": ("africanstorybook.org_mul_all_2024-01.zim", ""),
     "wiktionary_fr_app_maxi.fr": ("wiktionary_fr_all", "maxi"),
     "phet_sr_all.sr": ("phets_srp", ""),
+    "africanstorybook.org_en_all.en": ("africanstorybook.org_mul_all", ""),
+    "africanstorybook.org_mul_all.en": ("africanstorybook.org_mul_all", ""),
 }
