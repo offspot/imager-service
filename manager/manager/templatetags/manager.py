@@ -1,34 +1,40 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
-
 import json
-import base64
+from collections.abc import Iterable
 from pathlib import Path
 
-import humanfriendly
 import dateutil.parser
 from django import template
+from offspot_config.catalog import app_catalog
+from offspot_config.packages import AppPackage, FilesPackage, Package
 
-from manager.models import Address, Order
-from manager.pibox.util import human_readable_size
-from manager.pibox.packages import get_parsed_package, get_package
+from manager.kiwix_library import Book, catalog
+from manager.models import Address, Order, openzim_fixed_ident
+from manager.utils import human_readable_size
 
 register = template.Library()
 
 
-def human_size(value, binary=True):
-    return human_readable_size(value, binary).replace(" ", " ")
+class AppCatalogEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Package):
+            return {
+                "ident": obj.ident,
+                "kind": obj.kind,
+                "title": obj.title,
+                "description": obj.description,
+                "languages": obj.languages,
+                "tags": obj.tags,
+                "icon_url": obj.icon_url or "",
+                "size": obj.size or 0,
+            }
+        return json.JSONEncoder.default(self, obj)
+
+
+def human_size(value, binary: bool = True):  # noqa: FBT001 FBT002
+    return human_readable_size(value, binary=binary).replace(" ", " ")  # noqa: RUF001
 
 
 register.filter("human_size", human_size)
-
-
-def human_number(value, decimals=0):
-    return humanfriendly.format_number(value, num_decimals=decimals)
-
-
-register.filter("human_number", human_number)
 
 
 def raw_number(value):
@@ -38,20 +44,6 @@ def raw_number(value):
 register.filter("raw_number", raw_number)
 
 
-def parsed_sname(package):
-    return get_parsed_package(package)["sname"]
-
-
-register.filter("parsed_sname", parsed_sname)
-
-
-def decodeb64(value):
-    return base64.b64decode(value).decode("UTF-8")
-
-
-register.filter("decodeb64", decodeb64)
-
-
 def fname(value):
     return Path(value).name.split("_")[-1]
 
@@ -59,13 +51,44 @@ def fname(value):
 register.filter("fname", fname)
 
 
-def as_packages(value):
-    return filter(
-        lambda x: x is not None, [get_package(pid) for pid in json.loads(value) or []]
-    )
+def books_from_json(db_value: str | list[str]) -> list[Book]:
+    if db_value is None:
+        db_value = []
+    if isinstance(db_value, str):
+        db_value = json.loads(db_value or "[]") or []
+    books = [
+        catalog.get_or_none(ident) or catalog.get_or_none(openzim_fixed_ident(ident))
+        for ident in db_value or []
+    ]
+    return [book for book in books if book]
 
 
-register.filter("as_packages", as_packages)
+register.filter("books_from_json", books_from_json)
+
+
+def apps_from_json(db_value: str | list[str]) -> list[AppPackage]:
+    if db_value is None:
+        db_value = []
+    if isinstance(db_value, str):
+        db_value = json.loads(db_value or "[]") or []
+
+    apps = [app_catalog.get(ident, None) for ident in db_value]
+    return [app for app in apps if isinstance(app, AppPackage)]
+
+
+register.filter("apps_from_json", apps_from_json)
+
+
+def files_from_json(db_value: str | list[str]) -> list[FilesPackage]:
+    if db_value is None:
+        db_value = []
+    if isinstance(db_value, str):
+        db_value = json.loads(db_value or "[]") or []
+    files = [app_catalog.get(ident, None) for ident in db_value]
+    return [file for file in files if isinstance(file, FilesPackage)]
+
+
+register.filter("files_from_json", files_from_json)
 
 
 def as_widget(field):
@@ -154,3 +177,46 @@ def yesno(value):
 
 
 register.filter("yesnoraw", yesno)
+
+
+def only_apps(value: Iterable[Package]) -> Iterable[AppPackage]:
+    """yes or no string from bool value"""
+    for package in value:
+        if isinstance(package, AppPackage):
+            yield package
+
+
+register.filter("only_apps", only_apps)
+
+
+def only_files(value: Iterable[Package]) -> Iterable[FilesPackage]:
+    """yes or no string from bool value"""
+    for package in value:
+        if isinstance(package, FilesPackage):
+            yield package
+
+
+register.filter("only_files", only_files)
+
+
+def hide_internals(value: dict[str, Package]) -> dict[str, Package]:
+    """yes or no string from bool value"""
+    internal_idents = [
+        "contentfilter.offspot.kiwix.org",
+        "file-manager.offspot.kiwix.org",
+    ]
+    return {
+        ident: package
+        for ident, package in value.items()
+        if ident not in internal_idents
+    }
+
+
+register.filter("hide_internals", hide_internals)
+
+
+def to_json(value) -> str:
+    return json.dumps(value, cls=AppCatalogEncoder)
+
+
+register.filter("to_json", to_json)

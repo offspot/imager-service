@@ -2,100 +2,188 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import os
+import io
+import time
 import logging
-import tempfile
-import subprocess
-from pathlib import Path
 
-import requests
-
-from base import BaseWorker
-from utils import download_file
+from tasks.create import CreateTask
 from utils.setting import Setting
-from tasks.create import CreateTask, free_space
+from utils.scheduler import (
+    get_available_tasks,
+    request_task,
+    get_task,
+    upload_logs,
+)
 
 
 logger = logging.getLogger(__name__)
 
 
-class CreatorWorker(BaseWorker):
+class CreatorWorker:
 
-    worker_type = "creator"
-    job_cls = CreateTask
+    def __init__(self):
+        self.running: bool = True
 
-    def check_kiwix_hotspot(self):
-        """check latest version of kiwix-hotspot and download if different"""
-
-        # guess latest version
-        req = requests.get(
-            "https://api.github.com/repos/kiwix/kiwix-hotspot/git/refs/tags"
-        )
-        try:
-            version = req.json()[-1]["ref"].replace("refs/tags/", "")[1:]  # default
-            for item in reversed(req.json()):
-                tag = item["ref"].replace("refs/tags/", "")
-                if tag.startswith("v"):
-                    version = tag[1:]  # remote version (tag) has an extra v at char 0
-                    break
-        except Exception as exp:
-            logger.info("Could not guess latest version, skipping: {}".format(exp))
-            return
-
-        # retrieve local version ()
-        try:
-            local_version = (
-                subprocess.run(
-                    args=[str(Setting.installer_binary_path), "--version"],
-                    universal_newlines=True,
-                    capture_output=True,
-                    check=True,
-                )
-                .stdout.strip()
-                .split(": ")[-1]
-            )
-        except Exception as exp:
-            logger.error(exp)
-            local_version = "unknown"
-
-        if version == local_version:
-            logger.info("Already using latest ({}) version, skipping.".format(version))
-            return
-        else:
-            logger.info(
-                "Using {local} instead of {remote}".format(
-                    remote=version, local=local_version
-                )
-            )
-
-        if bool(os.getenv("DONT_UPDATE_INSTALLER", False)):
-            logger.info("not updating… as requested")
-            return
-
-        # download new version
-        url = (
-            "http://mirror.download.kiwix.org/release/kiwix-hotspot/v{version}/"
-            "kiwix-hotspot-linux.tar.gz".format(version=version)
-        )
-        logger.info("Downloading new Kiwix-hotspot {}".format(version))
-        with tempfile.NamedTemporaryFile() as tmpf:
-            success, size_or_exp = download_file(url, tmpf.name)
-            if not success:
-                logger.info("Failed to download {}".format(url))
-                return
-
-            # extract and move kiwix release
-            proc = subprocess.run(["/bin/tar", "-C", "/tmp", "-x", "-f", tmpf.name])
-            if not proc.returncode == 0:
-                logger.info("Failed to extract {}, skipping.".format(tmpf.name))
-                return
-
-            Path("/tmp/kiwix-hotspot").rename(Setting.installer_binary_path)
-
-        logger.info("Installed {} at {}".format(version, Setting.installer_binary_path))
+        self.task: dict = None
+        self.job: CreateTask = None
+        self.log_stream: io.StringIO = None  # stores worker log during job
+        self.log_handler: logging.Handler = None  # handles logging during job
 
     def start(self):
-        super().start(run_loop=False)
-        self.check_kiwix_hotspot()
-        free_space()
+        logger.info("Welcome to Imager worker:")
+        self.read_setting()
         self.run_loop()
+
+    def read_setting(self):
+        Setting.read_from_env()
+
+    def stop(self):
+        """stops worker completely"""
+        logger.info("received stop request ; shutting down (please wait).")
+        # cancelling job and marking as failed
+        if self.busy and self.job is not None and self.job.is_alive():
+            self.job.stop()
+            self.job.join(timeout=30)
+            self.cleanup_task()
+
+        self.running = False
+
+    @property
+    def busy(self):
+        return self.task is not None
+
+    def start_task(self, task):
+        self._attach_logger()
+        self.task = task
+
+        logger.info("Starting to work on {}".format(self.task["_id"]))
+        self.job = CreateTask(args=(self.task, logger))
+        self.job.start()
+
+    def stop_task(self):
+        if not self.busy:
+            return
+
+        if self.job is not None and self.job.is_alive():
+            self.job.stop()
+            self.job.join(timeout=30)
+
+        self.cleanup_task()
+
+    def _attach_logger(self):
+        # plug dedicated stream to logger
+        self.log_stream = io.StringIO("")
+        self.log_handler = logging.StreamHandler(self.log_stream)
+        logger.addHandler(self.log_handler)
+
+    def get_available_tasks(self):
+        logger.info("requesting list of tasks for worker {}".format(Setting.username))
+        success, tasks = get_available_tasks()
+        if not success:
+            logger.error("ERROR getting tasks: {}".format(tasks))
+            return []
+        return tasks
+
+    def request_task(self, task_id):
+        logger.info("requesting task #{} to scheduler.".format(task_id))
+        success, tid = request_task(task_id)
+        return success
+
+    def upload_worker_logs(self, logs):
+        logger.info("sending logs for task #{}.".format(self.task["_id"]))
+        success, tid = upload_logs(task_id=self.task["_id"], logs=logs)
+
+    def send_ack(self):
+        logger.info("sending ACK to scheduler. working on #{}".format(self.task["_id"]))
+
+    def read_worker_log(self):
+        """returns worker log for seld.task"""
+        if self.log_handler is None or self.log_stream is None:
+            return None
+        logger.removeHandler(self.log_handler)
+        self.log_handler.flush()
+        self.log_handler.close()
+        self.log_handler = None
+        self.log_stream.seek(0)
+        content = self.log_stream.read()
+        self.log_stream.close()
+        self.log_stream = None
+        return content
+
+    def cleanup_task(self):
+        logs = {"worker_log": self.read_worker_log()}
+        if self.job:
+            logs.update(self.job.logs)
+        self.upload_worker_logs(logs)
+        # clean-up
+        self.job = None
+        self.task = None
+
+    @property
+    def has_been_canceled(self):
+        if not self.busy:
+            return False
+        success, task = get_task(self.task["_id"])
+        if success:
+            return task.get("status") == "canceled"
+        return False
+
+    def run_loop(self):
+        logger.info("Starting...")
+
+        url = "{api}/tasks/{type}".format(api=Setting.api_url, type="creator")
+        logger.info("Working off {}".format(url))
+
+        poll_timer, log_upload_timer = [0], [0]
+        while self.running:
+            if self.busy:
+                # send ack to scheduler. we're working on self.task
+                # self.send_ack()
+
+                if not log_upload_timer.pop():
+                    logger.info("periodic log upload..................")
+                    self.upload_worker_logs(self.job.logs)
+                    log_upload_timer = Setting.get_timer(Setting.log_upload_interval)
+
+                if self.has_been_canceled:
+                    logger.info("task cancelation requested. stopping task")
+                    self.stop_task()
+                    continue
+
+                if not self.job.is_alive():
+                    logger.info("job is not alive")
+                    if self.job.exception:
+                        logger.error("job crashed: {}".format(self.job.exception))
+                    else:
+                        logger.info("job successful")
+
+                    self.cleanup_task()
+            else:
+                if not poll_timer.pop():
+                    # fetch tasks on scheduler
+                    for task in self.get_available_tasks():
+                        # skip tasks that are scheduled for other workers
+                        try:
+                            if (
+                                task["worker"] is not None
+                                and task["worker"] != Setting.username
+                            ):
+                                continue
+                            # TODO: remove
+                            if not task["upload_uri"].startswith("s3://"):
+                                continue
+                            if not task.get("config_yaml", ""):
+                                continue
+                        except Exception:
+                            pass
+
+                        # notify scheduler we want to take it
+                        if self.request_task(task["_id"]):
+                            self.start_task(task)
+                            break
+                    poll_timer = Setting.get_timer(Setting.poll_interval)
+
+            time.sleep(1)
+
+        logger.info("exiting gracefuly.")
+

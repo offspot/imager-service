@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import json
@@ -7,15 +6,16 @@ import logging
 
 from django import forms
 from django.contrib import messages
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
-from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
+from offspot_config.catalog import app_catalog
 
+from manager.kiwix_library import CATALOG_URL, catalog
 from manager.models import Configuration
-from manager.pibox.packages import get_packages_langs
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class JSONUploadForm(forms.Form):
 class ConfigurationForm(forms.ModelForm):
     class Meta:
         model = Configuration
-        fields = [
+        fields = [  # noqa: RUF012
             "name",
             "project_name",
             "language",
@@ -46,29 +46,33 @@ class ConfigurationForm(forms.ModelForm):
             "admin_password",
             "branding_logo",
             "branding_favicon",
-            "branding_css",
             "content_zims",
-            "content_wikifundi_fr",
-            "content_wikifundi_en",
-            "content_wikifundi_es",
-            "content_edupi",
+            "content_packages",
             "content_edupi_resources",
-            "content_nomad",
-            "content_mathews",
-            "content_africatik",
-            "content_africatikmd",
+            "content_metrics",
         ]
-        widgets = {
-            "branding_css": forms.ClearableFileInput(
-                attrs={"accept": "text/css,text/plain"}
-            ),
-        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get(
+            "content_edupi_resources", False
+        ) and "file-manager.offspot.kiwix.org" not in cleaned_data.get(
+            "content_packages", []
+        ):
+            self.add_error(
+                "content_edupi_resources",
+                ValidationError(
+                    _("Enable File Manager to use a preloading file URL"),
+                    code="invalid_nofm",
+                ),
+            )
+        return cleaned_data
 
 
 def handle_uploaded_json(fd):
     try:
         payload = fd.read()
-        if type(payload) is bytes:
+        if isinstance(payload, bytes):
             payload = payload.decode("UTF-8")
         return json.loads(payload)
     except Exception:
@@ -149,7 +153,7 @@ def configuration_edit(request, config_id=None):
         config = Configuration(organization=request.user.profile.organization)
 
     # list of languages availables in all catalogs
-    context["packages_langs"] = get_packages_langs()
+    context["packages_langs"] = catalog.languages
 
     if request.method == "POST":
         form = ConfigurationForm(request.POST, request.FILES, instance=config)
@@ -169,6 +173,8 @@ def configuration_edit(request, config_id=None):
                     % {"err": exp},
                 )
             else:
+                if request.POST.get("order-on-success"):
+                    return redirect("configuration_order", config_id=config.id)
                 messages.success(request, _("Configuration Updated successfuly !"))
                 return redirect("configuration_edit", config.id)
         else:
@@ -176,8 +182,13 @@ def configuration_edit(request, config_id=None):
     else:
         form = ConfigurationForm(instance=config)
 
+    context["CATALOG_URL"] = CATALOG_URL
+    context["DEMO_URL"] = "https://library.kiwix.org"
+    context["languages"] = catalog.languages
+    context["app_catalog"] = app_catalog
     context["form"] = form
     context["missing_zims"] = config.retrieve_missing_zims()
+    context["config_id"] = config.id
 
     return render(request, "configuration_edit.html", context)
 
@@ -217,9 +228,7 @@ def configuration_delete(request, config_id=None):
             % {"config": config},
         )
     except Exception as exp:
-        logger.error(
-            "Unable to delete configuration {id}: {exp}".format(id=config.id, exp=exp)
-        )
+        logger.error(f"Unable to delete configuration {config.id}: {exp}")
         messages.error(
             request,
             _("Unable to delete Configuration <em>%(config)s</em>: -- ref %(err)s")
@@ -249,11 +258,7 @@ def configuration_duplicate(request, config_id=None):
             % {"config": config, "new_config": nconfig},
         )
     except Exception as exp:
-        logger.error(
-            "Unable to duplicate configuration {id}: {exp}".format(
-                id=config.id, exp=exp
-            )
-        )
+        logger.error(f"Unable to duplicate configuration {config.id}: {exp}")
         messages.error(
             request,
             _("Unable to duplicate Configuration <em>%(config)s</em>: -- ref %(err)s")

@@ -29,9 +29,12 @@ DATA_DIR = os.environ.get("DATA_DIR") or os.path.join(
 SECRET_KEY = "s245*pzp1poz*#_!&$65&ld!f)5de2eshwc*!8w(2#5d&w0b=0"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", False)
+DEBUG = bool(os.getenv("DEBUG", ""))
 
 ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = [
+    os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost"),
+]
 
 
 # Application definition
@@ -94,12 +97,6 @@ DATABASES = {
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    # },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    # },
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
@@ -123,14 +120,14 @@ LOCALE_PATHS = [f"{BASE_DIR}/locale"]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 ###############
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
     "handlers": {
         "console": {"class": "logging.StreamHandler"},
-        "timed-console": {"class": "logging.StreamHandler", "formatter": "verbose"},
     },
     "formatters": {
         "verbose": {"format": "{levelname} {asctime} {message}", "style": "{"},
@@ -144,6 +141,7 @@ LOGGING = {
         "manager": {
             "handlers": ["console"],
             "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
+            "propagate": False,
         },
     },
 }
@@ -221,5 +219,11 @@ LANGUAGES = [
     ("fr", _lz("French")),
 ]
 
-BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL", "1.0.1")
-BASE_IMAGE_ROOTFS_SIZE = int(os.getenv("BASE_IMAGE_ROOTFS_SIZE", "2449473536"))
+BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL", "1.2.0")
+BASE_IMAGE_ROOTFS_SIZE = int(os.getenv("BASE_IMAGE_ROOTFS_SIZE", "2638217216"))
+OFFSPOT_TLD = os.getenv("OFFSPOT_TLD", "hotspot")
+# should utilmately be supported by offspot-config
+OFFSPOT_LANGUAGES = [
+    ("en", _lz("English")),
+    ("fr", _lz("French")),
+]

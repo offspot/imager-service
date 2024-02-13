@@ -1,18 +1,22 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
+import asyncio
+import datetime
+import http
+import logging
 import os
 import sys
 import time
-import asyncio
-import datetime
+from typing import Any
 
 import pymongo
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, jsonify, render_template, request
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 loop = asyncio.get_event_loop()
 app = Flask(__name__)
 
@@ -22,18 +26,18 @@ WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 2.5  # seconds
 
 
 @app.template_filter("status_text")
-def status_text(value):
+def status_text(value: Any) -> str:
     return "Operational" if value else "Failure"
 
 
 @app.template_filter("status_class")
-def status_class(value):
+def status_class(value: Any) -> str:
     return "text-success" if value else "text-danger"
 
 
 @app.route(r"/", methods=["GET"])
 @app.route(r"/<path>", methods=["GET"])
-def status(path=""):
+def status(path: str = ""):  # noqa: ARG001
     if request.args.get("timeout", ""):
         try:
             timeout = int(request.args.get("timeout"))
@@ -45,7 +49,11 @@ def status(path=""):
     context = loop.run_until_complete(collect_statuses())
     return (
         render_template("status.html", **context),
-        200 if context["global_status"] else 503,
+        (
+            http.HTTPStatus.OK
+            if context["global_status"]
+            else http.HTTPStatus.SERVICE_UNAVAILABLE
+        ),
     )
 
 
@@ -90,7 +98,7 @@ async def collect_statuses():
     return context
 
 
-def collect_statuses_sequential():
+def collect_statuses_sequential() -> dict[str, str | bool]:
     scheduler_token = get_scheduler_token()
     scheduler_workers_list = get_scheduler_workers_list(scheduler_token)
     scheduler_status = get_scheduler_status(scheduler_workers_list)
@@ -123,7 +131,7 @@ def collect_statuses_sequential():
     }
 
 
-def _get_scheduler_token(url, username, password):
+def _get_scheduler_token(url: str, username: str, password: str):
     req = requests.post(
         url=f"{url}/auth/authorize",
         headers={
@@ -137,7 +145,7 @@ def _get_scheduler_token(url, username, password):
     return req.json().get("access_token"), req.json().get("refresh_token")
 
 
-def get_scheduler_token():
+def get_scheduler_token() -> str:
     url = os.getenv("STATUS_CARDSHOP_API_URL", "")
     # authenticate over scheduler
     try:
@@ -147,12 +155,12 @@ def get_scheduler_token():
             os.getenv("STATUS_SCHEDULER_PASSWORD", ""),
         )
     except Exception as exc:
-        print(f"Unable to get scheduler token: {exc}")
-        return None
+        logger.debug(f"Unable to get scheduler token: {exc}")
+        return "unknown"
     return access_token
 
 
-def get_scheduler_workers_list(access_token):
+def get_scheduler_workers_list(access_token: str) -> list[dict[str, Any]] | None:
     """Retrieve workers list from scheduler API to test scheduler and workers"""
 
     # fetch our urls
@@ -169,22 +177,22 @@ def get_scheduler_workers_list(access_token):
         )
         return resp.json().get("items")
     except Exception as exc:
-        print(f"Unable to get workers list: {exc}")
+        logger.debug(f"Unable to get workers list: {exc}")
         return None
 
 
-def get_scheduler_status(workers_list):
+def get_scheduler_status(workers_list: list[str]) -> bool:
     """Verify that we can connect to and retrieve data from scheduler API"""
     if not workers_list:
         return False
     try:
         return isinstance(workers_list, list)
     except Exception as exc:
-        print(f"Unable to get Scheduler status: {exc}")
+        logger.debug(f"Unable to get Scheduler status: {exc}")
         return False
 
 
-def get_worker_status(workers_list):
+def get_worker_status(workers_list: list[dict[str, Any]] | None) -> bool:
     """Verify that there is at least one worker registered to the scheduler
 
     - authenticates to the API
@@ -203,11 +211,11 @@ def get_worker_status(workers_list):
             ]
         )
     except Exception as exc:
-        print(f"Unable to get Workers status: {exc}")
+        logger.debug(f"Unable to get Workers status: {exc}")
         return False
 
 
-def get_manager_status():
+def get_manager_status() -> bool:
     """Verify that manager is online and prints homepage once logged-in
 
     It's important to log-in to ensure django doesn't crash on DB operations
@@ -225,13 +233,13 @@ def get_manager_status():
             html = BeautifulSoup(resp.text, "html.parser")
             payload["csrfmiddlewaretoken"] = html.find("input").attrs["value"]
             resp = session.post(url, data=payload, headers={"Referer": url})
-            return resp.status_code == 200
+            return resp.status_code == http.HTTPStatus.OK
     except Exception as exc:
-        print(f"Unable to connect to manager: {exc}")
+        logger.debug(f"Unable to connect to manager: {exc}")
         return False
 
 
-def get_database_status():
+def get_database_status() -> bool:
     """connect to mongo and verify that number of `users` col records is positive"""
     timeout = 1000
     try:
@@ -245,11 +253,11 @@ def get_database_status():
         db = client["Cardshop"]
         return db["users"].count_documents({}) > 0
     except Exception as exc:
-        print(f"Unable to connect to mongo database: {exc}")
+        logger.debug(f"Unable to connect to mongo database: {exc}")
         return False
 
 
-def get_images_status():
+def get_images_status() -> bool:
     """Verify that a standard image is available through its standard name"""
     url = os.getenv("STATUS_CARDSHOP_API_URL", "")
     try:
@@ -259,14 +267,14 @@ def get_images_status():
                 allow_redirects=True,
                 timeout=HTTP_TIMEOUT,
             ).status_code
-            == 200
+            == http.HTTPStatus.OK
         )
     except Exception as exc:
-        print(f"Unable to get auto-image: {exc}")
+        logger.debug(f"Unable to get auto-image: {exc}")
         return False
 
 
-def get_wasabi_status():
+def get_wasabi_status() -> bool:
     """Testing the download of a specific file in our bucket that expires after 1y
 
     and serve only this specific purpose. If this starts failing, check the expiry
@@ -277,16 +285,16 @@ def get_wasabi_status():
             requests.head(
                 url, allow_redirects=True, timeout=WASABI_HTTP_TIMEOUT
             ).status_code
-            == 200
+            == http.HTTPStatus.OK
         )
     except Exception as exc:
-        print(f"Unable to get Wasabi status: {exc}")
+        logger.debug(f"Unable to get Wasabi status: {exc}")
         return False
 
 
-def get_creatorload_status(access_token):
-
+def get_creatorload_status(access_token: str) -> bool:
     url = os.getenv("STATUS_CARDSHOP_API_URL", "")
+    two_days = 60 * 60 * 48
 
     try:
         resp = requests.get(
@@ -298,7 +306,6 @@ def get_creatorload_status(access_token):
             timeout=CREATOR_HTTP_TIMEOUT,
         )
         load = resp.json()
-        print(load)  # debug 2021-09-18
         if load.get("pending_tasks") == 0:
             return True
         if not load.get("estimated_completion"):
@@ -306,9 +313,9 @@ def get_creatorload_status(access_token):
         completes_on = datetime.datetime.fromisoformat(
             load["estimated_completion"].replace("Z", "")
         )
-        return (completes_on - datetime.datetime.now()).total_seconds() <= 172800
+        return (completes_on - datetime.datetime.now()).total_seconds() <= two_days
     except Exception as exc:
-        print(f"Unable to get creators load: {exc}")
+        logger.debug(f"Unable to get creators load: {exc}")
         return False
 
 
@@ -316,7 +323,7 @@ def timed_run():
     """DEBUG: run and print the checks once with timeit"""
     import timeit
 
-    print(
+    logger.info(
         timeit.timeit(
             "pprint.pprint(loop.run_until_complete(collect_statuses()))",
             setup="from __main__ import loop, collect_statuses; import pprint",

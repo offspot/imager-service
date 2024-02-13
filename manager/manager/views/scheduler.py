@@ -1,45 +1,44 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import re
 import logging
+import re
 
 from django import forms
 from django.conf import settings
 from django.contrib import messages
-from django.shortcuts import render, redirect
 from django.core import validators
-from django.utils.translation import gettext as _, gettext_lazy as _lz
+from django.shortcuts import redirect, render
+from django.utils.translation import gettext as _
 
 from manager.decorators import staff_required
+from manager.models import Configuration
 from manager.scheduler import (
-    test_connection,
-    get_channels_list,
-    get_users_list,
-    get_workers_list,
-    as_items_or_none,
-    add_channel,
-    add_warehouse,
-    get_warehouses_list,
-    enable_warehouse,
-    disable_warehouse,
-    add_user,
+    ACCESS_TOKEN,
     ROLES,
     SchedulerAPIError,
-    enable_channel,
-    disable_channel,
-    enable_user,
-    disable_user,
-    authenticate,
-    ACCESS_TOKEN,
-    get_channel_choices,
-    get_warehouse_choices,
-    get_autoimages_list,
     add_autoimage,
+    add_channel,
+    add_user,
+    add_warehouse,
+    as_items_or_none,
+    authenticate,
     delete_autoimage,
+    disable_channel,
+    disable_user,
+    disable_warehouse,
+    enable_channel,
+    enable_user,
+    enable_warehouse,
+    get_autoimages_list,
+    get_channel_choices,
+    get_channels_list,
+    get_users_list,
+    get_warehouse_choices,
+    get_warehouses_list,
+    get_workers_list,
+    test_connection,
 )
-from manager.models import Configuration
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +88,7 @@ class ChannelForm(SchedulerForm):
 
 
 class S3URLFormField(forms.URLField):
-    default_validators = [
+    default_validators = [  # noqa: RUF012
         validators.URLValidator(
             schemes=[
                 "http",
@@ -229,7 +228,6 @@ class ImageForm(SchedulerForm):
 
 @staff_required
 def dashboard(request):
-
     success, code, msg = test_connection()
     if not success:
         messages.error(
@@ -262,7 +260,6 @@ def dashboard(request):
         context[key] = value(prefix=key, client=request.user.profile)
 
     if request.method == "POST" and request.POST.get("form") in forms_map.keys():
-
         # which form is being saved?
         form_key = request.POST.get("form")
         context[form_key] = forms_map.get(form_key)(
@@ -294,7 +291,7 @@ def dashboard(request):
 def channel_enable(request, channel_id):
     success, channel_id = enable_channel(channel_id)
     if not success:
-        logger.error("Unable to enable channel: {}".format(channel_id))
+        logger.error(f"Unable to enable channel: {channel_id}")
         messages.error(
             request,
             _("Unable to enable Channel: -- ref: %(channel_id)s")
@@ -314,7 +311,7 @@ def channel_enable(request, channel_id):
 def channel_disable(request, channel_id):
     success, channel_id = disable_channel(channel_id)
     if not success:
-        logger.error("Unable to disable channel: {}".format(channel_id))
+        logger.error(f"Unable to disable channel: {channel_id}")
         messages.error(
             request,
             _("Unable to disable Channel: -- ref: %(channel_id)s")
@@ -334,7 +331,7 @@ def channel_disable(request, channel_id):
 def warehouse_enable(request, warehouse_id):
     success, warehouse_id = enable_warehouse(warehouse_id)
     if not success:
-        logger.error("Unable to enable warehouse: {}".format(warehouse_id))
+        logger.error(f"Unable to enable warehouse: {warehouse_id}")
         messages.error(
             request,
             _("Unable to enable warehouse: -- ref: %(warehouse_id)s")
@@ -354,7 +351,7 @@ def warehouse_enable(request, warehouse_id):
 def warehouse_disable(request, warehouse_id):
     success, warehouse_id = disable_warehouse(warehouse_id)
     if not success:
-        logger.error("Unable to disable warehouse: {}".format(warehouse_id))
+        logger.error(f"Unable to disable warehouse: {warehouse_id}")
         messages.error(
             request,
             _("Unable to disable warehouse: -- ref: %(warehouse_id)s")
@@ -374,7 +371,7 @@ def warehouse_disable(request, warehouse_id):
 def user_enable(request, user_id):
     success, user_id = enable_user(user_id)
     if not success:
-        logger.error("Unable to enable user: {}".format(user_id))
+        logger.error(f"Unable to enable user: {user_id}")
         messages.error(
             request,
             _("Unable to enable user: -- ref: %(user_id)s") % {"user_id": user_id},
@@ -391,7 +388,7 @@ def user_enable(request, user_id):
 def user_disable(request, user_id):
     success, user_id = disable_user(user_id)
     if not success:
-        logger.error("Unable to disable user: {}".format(user_id))
+        logger.error(f"Unable to disable user: {user_id}")
         messages.error(
             request,
             _("Unable to disable user: -- ref: %(user_id)s") % {"user_id": user_id},
@@ -407,7 +404,7 @@ def user_disable(request, user_id):
 @staff_required
 def refresh_token(request):
     authenticate(force=True)
-    logger.info("Re-authenticated against the scheduler: `{}`".format(ACCESS_TOKEN))
+    logger.info(f"Re-authenticated against the scheduler: `{ACCESS_TOKEN}`")
     messages.info(
         request,
         _("Re-authenticated against the scheduler: <code>%(token)s</code>")
@@ -416,9 +413,7 @@ def refresh_token(request):
     return redirect("scheduler")
 
 
-staff_required
-
-
+@staff_required
 def image_delete(request, image_slug):
     success, _ = delete_autoimage(image_slug)
     if not success:

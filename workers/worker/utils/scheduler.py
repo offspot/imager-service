@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
-
 import json
 import logging
 import datetime
@@ -15,10 +11,10 @@ POST = "POST"
 PATCH = "PATCH"
 DELETE = "DELETE"
 ACCESS_TOKEN = None
-ACCESS_TOKEN_EXPIRY = None
+ACCESS_TOKEN_EXPIRY = datetime.datetime(1970, 1, 1)
 REFRESH_TOKEN = None
 REFRESH_TOKEN_EXPIRY = None
-WORKER_TYPE = "not-set"
+WORKER_TYPE = "creator"
 
 logger = logging.getLogger(__name__)
 
@@ -87,19 +83,14 @@ def get_token_headers():
     return {"token": ACCESS_TOKEN, "Content-type": "application/json"}
 
 
-def set_worker_type(worker_type):
-    global WORKER_TYPE
-    WORKER_TYPE = worker_type
-
-
 @auth_required
 def query_api(method, path, payload=None):
     try:
-        req = getattr(requests, method.lower(), "get")(
+        req = getattr(requests, method.lower(), requests.get)(
             url=get_url(path),
             headers=get_token_headers(),
             json=payload,
-            params={"slot": Setting.usb_slot},
+            timeout=30,
         )
     except Exception as exp:
         import traceback

@@ -116,7 +116,7 @@
 	{% for media in medias %}
 	<tr><th><a href="{% url "admin:manager_media_change" media.id %}">{{ media.name }}</a></th>
 		<td>{{ media.verbose_kind }}</td>
-		<td>{{ media.bytes|human_size:False }}</a></td>
+		<td>{{ media.bytes|human_size }}</a></td>
 		<td>{{ media.units_coef }}</td>
 	</tr>
 	{% endfor %}

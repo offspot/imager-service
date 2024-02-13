@@ -1,14 +1,15 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-from manager.scheduler import query_api, GET, fix_id
+from manager.scheduler import GET, fix_id, query_api
 
 
-class APIQuerySet(object):
+class APIQuerySet:
     """QuerySet-like object for an API request's results"""
 
-    def __init__(self, query, method=GET, params={}):
+    def __init__(self, query, method=GET, params=None):
+        if params is None:
+            params = {}
         self.method = method
         self.query = query
         self.params = params

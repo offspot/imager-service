@@ -1,70 +1,65 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
-
-import re
+import base64
+import collections
 import io
 import json
-import uuid
 import logging
-import collections
+import re
+import uuid
 import zoneinfo
+from datetime import timezone
 from pathlib import Path
+from typing import ClassVar
 
 import babel.languages
-import pycountry
-import jsonfield
-import phonenumbers
 import dateutil.parser
+import phonenumbers
 import PIL
-from django import forms
-from django.db import models
+import pycountry
+import requests
 from django.conf import settings
-from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+from django.db import models
 from django.utils.translation import (
     gettext as _,
+)
+from django.utils.translation import (
     gettext_lazy as _lz,
 )
+from offspot_config.builder import ConfigBuilder
+from offspot_config.utils.sizes import get_sd_hardware_margin_for, round_for_cluster
 from offspot_runtime.checks import (
-    is_valid_timezone,
-    is_valid_ssid,
-    is_valid_hostname,
-    is_valid_wpa2_passphrase,
     is_valid_domain,
+    is_valid_hostname,
+    is_valid_ssid,
+    is_valid_timezone,
+    is_valid_wpa2_passphrase,
 )
 
+from manager.kiwix_library import catalog
 from manager.scheduler import (
-    create_order,
     SchedulerAPIError,
-    get_order,
-    get_warehouse_from,
-    get_channel_choices,
-    get_warehouse_choices,
     cancel_order,
+    create_order,
+    get_channel_choices,
+    get_order,
+    get_warehouse_choices,
+    get_warehouse_from,
 )
-from manager.pibox.packages import get_packages_id
-from manager.pibox.data import hotspot_languages
-from manager.pibox.util import (
+from manager.utils import (
     ONE_GB,
-    b64encode,
-    b64decode,
-    human_readable_size,
-    get_hardware_adjusted_image_size,
-    is_valid_language,
-    is_valid_admin_login,
-    is_valid_admin_pwd,
-)
-from manager.pibox.config import (
-    get_uuid,
+    extract_branding,
     get_if_str,
     get_if_str_in,
-    get_nested_key,
-    extract_branding,
     get_list_if_values_match,
+    get_nested_key,
+    get_uuid,
+    human_readable_size,
+    is_valid_admin_login,
+    is_valid_admin_pwd,
+    is_valid_language,
 )
-from manager.pibox.content import get_collection, get_required_image_size
 
 logger = logging.getLogger(__name__)
 
@@ -512,19 +507,26 @@ KH_TIMEZONES = [
 KH_TIMEZONES_CHOICES = [(tz, tz) for tz in KH_TIMEZONES]
 
 
+def openzim_fixed_ident(ident: str) -> str:
+    """ZIM ident with openZIM publisher (while ZIM transition from bad publishers)"""
+    publisher, name, flavour = ident.split(":", 2)
+    return f"openZIM:{name}:{flavour}"
+
+
 def get_timezones_choices():
-    for tz in sorted([(tz, tz) for tz in zoneinfo.available_timezones()]):
-        yield tz
+    yield from sorted([(tz, tz) for tz in zoneinfo.available_timezones()])
 
 
-def get_branding_path(instance, filename):
-    return "{uuid}_{fname}".format(uuid=get_uuid(), fname=filename)
+def get_branding_path(instance, filename):  # noqa: ARG001
+    return f"{get_uuid()}_{filename}"
 
 
 def save_branding_file(branding_file):
-    rpath = get_branding_path(1, branding_file.get("fname"))
-    b64decode(rpath, branding_file.get("data"), settings.MEDIA_ROOT)
-    return rpath
+    fname = get_branding_path(1, branding_file.get("fname"))
+    fpath = Path(settings.MEDIA_ROOT) / fname
+    with open(fpath, "wb") as fp:
+        fp.write(base64.b64decode(branding_file.get("data")))
+    return fname
 
 
 def retrieve_branding_file(field):
@@ -534,7 +536,8 @@ def retrieve_branding_file(field):
     if not fpath.exists():
         return None
     fname = Path(field.name).name.split("_")[-1]  # remove UUID
-    return {"fname": fname, "data": b64encode(fpath)}
+    with open(fpath, "rb") as fp:
+        return {"fname": fname, "data": base64.b64encode(fp.read()).decode("utf-8")}
 
 
 def validate_project_name(value):
@@ -599,14 +602,59 @@ def validate_admin_pwd(value):
         )
 
 
+def validate_fileresources_url(value):
+    try:
+        resp = requests.get(value, stream=True, timeout=5)
+    except Exception as exc:
+        raise ValidationError(
+            _("%(value)s is not a reachable URL"),
+            code="invalid_url_exc",
+            params={"value": value},
+        ) from exc
+    if resp.status_code != 200:  # noqa: PLR2004
+        raise ValidationError(
+            _("%(value)s is not a working URL (HTTP %(code)s)"),
+            code="invalid_url_exc",
+            params={"value": value, "code": resp.status_code},
+        )
+    content_type = resp.headers.get("content-type", "n/a")
+    if content_type != "application/zip":
+        raise ValidationError(
+            _("%(value)s is not a ZIP file (%(ct)s)"),
+            code="invalid_url_exc",
+            params={"value": value, "ct": content_type},
+        )
+    if not resp.headers.get("Content-Length", None):
+        raise ValidationError(
+            _("Size of %(value)s cannot be determinded (Content-Length)"),
+            code="invalid_url_nosize",
+            params={"value": value},
+        )
+
+
 class ConvertedImageFileField(models.ImageField):
     def __init__(self, *args, **kwargs):
         self.max_upload_size = kwargs.pop("max_upload_size", 1048576)
+        self.max_disk_size = kwargs.pop("max_disk_size", 3145728)
 
         super().__init__(*args, **kwargs)
 
     def validate(self, value, model_instance):
         super().validate(value, model_instance)
+
+        file = getattr(model_instance, self.attname)
+        file_path = Path(file.path)
+
+        # assume this is a regular save without an uploaded new content
+        # if user is reuploading a file with exact same name and exact same bytes size
+        # then we'd skip the update (!) but we can't know
+        if (
+            file_path.exists()
+            and file.size < self.max_disk_size
+            and file.size == value.size
+            and file.name == value.name
+        ):
+            return
 
         if value.size > self.max_upload_size:
             raise ValidationError(
@@ -625,23 +673,36 @@ class ConvertedImageFileField(models.ImageField):
             with PIL.Image.open(src) as image:
                 image.save(dst, "PNG")
         except Exception as exc:
-            logger.warning(f"cant convert {value.path} to PNG: {exc}")
+            logger.warning(f"Cant convert {value.name} to PNG: {exc}")
             raise ValidationError(
                 _("File cannot be converted to PNG"), code="convert_failed"
-            )
+            ) from exc
         else:
+            converted_size = dst.getbuffer().nbytes
+            if converted_size > self.max_disk_size:
+                raise ValidationError(
+                    _(
+                        "File (converted to PNG) size is too large: %(value)s. "
+                        + "Keep it under %(max)s"
+                    ),
+                    code="converted_too_big",
+                    params={
+                        "value": human_readable_size(converted_size),
+                        "max": human_readable_size(self.max_disk_size),
+                    },
+                )
             value.save(name=str(Path(value.name).with_suffix(".png")), content=dst)
 
 
 class Configuration(models.Model):
     class Meta:
         get_latest_by = "-id"
-        ordering = ["-id"]
+        ordering: ClassVar[list[str]] = ["-id"]
         verbose_name = _lz("configuration")
         verbose_name_plural = _lz("configurations")
 
-    KALITE_LANGUAGES = ["en", "fr", "es"]
-    WIKIFUNDI_LANGUAGES = ["en", "fr", "es"]
+    KALITE_LANGUAGES = ["en", "fr", "es"]  # noqa: RUF012
+    WIKIFUNDI_LANGUAGES = ["en", "fr", "es"]  # noqa: RUF012
 
     organization = models.ForeignKey(
         "Organization",
@@ -667,7 +728,7 @@ class Configuration(models.Model):
     name = models.CharField(
         verbose_name=_lz("Config Name"),
         max_length=100,
-        help_text=_lz("Used <strong>only within the Cardshop</strong>"),
+        help_text=_lz("Used <strong>only within the Imager</strong>"),
     )
     project_name = models.CharField(
         max_length=32,
@@ -680,7 +741,7 @@ class Configuration(models.Model):
     )
     language = models.CharField(
         max_length=3,
-        choices=hotspot_languages,
+        choices=settings.OFFSPOT_LANGUAGES,
         default="en",
         verbose_name=_lz("Language"),
         help_text=_lz("Hotspot interface language"),
@@ -733,19 +794,19 @@ class Configuration(models.Model):
         upload_to=get_branding_path,
         verbose_name=_lz("Favicon (1MB max Image)"),
     )
-    branding_css = models.FileField(
+
+    content_zims = models.JSONField(
         blank=True,
         null=True,
-        upload_to=get_branding_path,
-        verbose_name=_lz("CSS File"),
+        default=list,
     )
 
-    content_zims = jsonfield.JSONField(
+    content_packages = models.JSONField(
         blank=True,
         null=True,
-        load_kwargs={"object_pairs_hook": collections.OrderedDict},
-        default="",
+        default=list,
     )
+
     content_wikifundi_fr = models.BooleanField(
         default=False,
         verbose_name=_lz("WikiFundi FR"),
@@ -763,15 +824,22 @@ class Configuration(models.Model):
     )
     content_edupi = models.BooleanField(
         default=False,
-        verbose_name=_lz("EduPi"),
+        verbose_name=_lz("File resources"),
         help_text=_lz("Share arbitrary files with all users"),
     )
     content_edupi_resources = models.CharField(
         max_length=500,
         blank=True,
         null=True,
-        verbose_name=_lz("EduPi Resources"),
-        help_text=_lz("ZIP folder archive of documents to initialize EduPi with"),
+        verbose_name=_lz("Preload Files"),
+        help_text=_lz(
+            "Preload File Manager with files here by indicating the URL "
+            + "of a ZIP file containing your resources"
+        ),
+        validators=[
+            URLValidator(schemes=["http", "https"]),
+            validate_fileresources_url,
+        ],
     )
     content_nomad = models.BooleanField(
         default=False,
@@ -788,7 +856,7 @@ class Configuration(models.Model):
         verbose_name=_lz("Africatik Écoles"),
         help_text=_lz(
             "Applications éducatives adaptées au contexte culturel africain "
-            "(version Écoles numériques)"
+            + "(version Écoles numériques)"
         ),
     )
     content_africatikmd = models.BooleanField(
@@ -796,15 +864,21 @@ class Configuration(models.Model):
         verbose_name=_lz("Africatik Maisons digitales"),
         help_text=_lz(
             "Applications éducatives adaptées au contexte culturel africain "
-            "(version Maisons digitales)"
+            + "(version Maisons digitales)"
         ),
+    )
+
+    content_metrics = models.BooleanField(
+        default=False,
+        verbose_name=_lz("Metrics Dashboard"),
+        help_text=_lz("Hotspot Usage Statistics"),
     )
 
     @classmethod
     def create_from(cls, config, author):
         # only packages IDs which are in the catalogs
         packages_list = get_list_if_values_match(
-            get_nested_key(config, ["content", "zims"]), get_packages_id()
+            get_nested_key(config, ["content", "zims"]), catalog.get_all_ids()
         )
         # list of requested langs for wikifundi
         wikifundi_langs = get_list_if_values_match(
@@ -861,7 +935,6 @@ class Configuration(models.Model):
             "branding_favicon": (
                 save_branding_file(favicon) if favicon is not None else None
             ),
-            "branding_css": save_branding_file(css) if css is not None else None,
             "content_zims": packages_list,
             "content_wikifundi_fr": "fr" in wikifundi_langs,
             "content_wikifundi_en": "en" in wikifundi_langs,
@@ -876,6 +949,7 @@ class Configuration(models.Model):
             "content_africatikmd": bool(
                 get_nested_key(config, ["content", "africatikmd"])
             ),
+            "content_metrics": bool(get_nested_key(config, ["content", "metrics"])),
         }
 
         try:
@@ -884,7 +958,7 @@ class Configuration(models.Model):
             logger.warn(exp)
 
             # remove saved branding files
-            for key in ("branding_logo", "branding_favicon", "branding_css"):
+            for key in ("branding_logo", "branding_favicon"):
                 if kwargs.get(key):
                     try:
                         Path(settings.MEDIA_ROOT).joinpath(kwargs.get(key))
@@ -905,24 +979,36 @@ class Configuration(models.Model):
         return new_instance
 
     def size_value_changed(self):
-        computed_size = get_required_image_size(self.collection)
+        computed_size = self.builder.get_min_size()
         if computed_size != self.size:
             self.size = computed_size
             return True
         return False
 
-    def save(self, *args, **kwargs):
+    def _cleanup_zims(self):
         # remove packages not in catalog
-        self.content_zims = [
-            package for package in self.content_zims if package in get_packages_id()
-        ]
+        def _valid_zims_only():
+            for ident in self.content_zims:
+                if ident in catalog.get_all_ids():
+                    yield ident
+                    continue
+                if openzim_fixed_ident(ident) in catalog.get_all_ids():
+                    yield openzim_fixed_ident(ident)
+
+        self.content_zims = list(_valid_zims_only())
+
+    def save(self, *args, **kwargs):
+        self._cleanup_zims()
         self.size_value_changed()
         super().save(*args, **kwargs)
 
     def retrieve_missing_zims(self):
         """checks packages list over catalog for changes"""
         return [
-            package for package in self.content_zims if package not in get_packages_id()
+            ident
+            for ident in self.content_zims
+            if ident not in catalog.get_all_ids()
+            and openzim_fixed_ident(ident) not in catalog.get_all_ids()
         ]
 
     @classmethod
@@ -934,7 +1020,9 @@ class Configuration(models.Model):
                     name=item.display_name, date=item.updated_on.strftime("%c")
                 ),
             )
-            for item in cls.objects.filter(organization=organization)
+            for item in cls.objects.filter(organization=organization).order_by(
+                "-updated_on"
+            )
             if not item.retrieve_missing_zims()
         ]
 
@@ -977,7 +1065,7 @@ class Configuration(models.Model):
         return [
             lang
             for lang in self.WIKIFUNDI_LANGUAGES
-            if getattr(self, "content_wikifundi_{}".format(lang), False)
+            if getattr(self, f"content_wikifundi_{lang}", False)
         ]
 
     def all_languages(self):
@@ -987,21 +1075,12 @@ class Configuration(models.Model):
         return self.display_name
 
     @property
-    def collection(self):
-        return get_collection(
-            edupi=self.content_edupi,
-            edupi_resources=self.content_edupi_resources or None,
-            nomad=self.content_nomad,
-            mathews=self.content_mathews,
-            africatik=self.content_africatik,
-            africatikmd=self.content_africatikmd,
-            packages=self.content_zims or [],
-            wikifundi_languages=self.wikifundi_languages,
-        )
+    def builder(self) -> ConfigBuilder:
+        from manager.builder import prepare_builder_for
+
+        return prepare_builder_for(self)
 
     def to_dict(self):
-        # for key in ("project_name", "language", "timezone"):
-        #     config.append((key, getattr(self, key)))
         return collections.OrderedDict(
             [
                 ("name", self.name),
@@ -1031,6 +1110,7 @@ class Configuration(models.Model):
                             ("mathews", self.content_mathews),
                             ("africatik", self.content_africatik),
                             ("africatikmd", self.content_africatikmd),
+                            ("metrics", self.content_metrics),
                         ]
                     ),
                 ),
@@ -1040,17 +1120,19 @@ class Configuration(models.Model):
                         [
                             ("logo", retrieve_branding_file(self.branding_logo)),
                             ("favicon", retrieve_branding_file(self.branding_favicon)),
-                            ("css", retrieve_branding_file(self.branding_css)),
                         ]
                     ),
                 ),
             ]
         )
 
+    def to_creator_yaml(self) -> str:
+        return self.builder.render()
+
 
 class Organization(models.Model):
     class Meta:
-        ordering = ["slug"]
+        ordering: ClassVar[list[str]] = ["slug"]
         verbose_name = _lz("organization")
         verbose_name_plural = _lz("organizations")
 
@@ -1105,7 +1187,7 @@ class Organization(models.Model):
             slug="kiwix", name="Kiwix", email="reg@kiwix.org", units=256000
         )
 
-    def get_warehouse_details(self, use_public=False):
+    def get_warehouse_details(self, *, use_public=False):
         success, warehouse = get_warehouse_from(
             self.public_warehouse if use_public else self.warehouse
         )
@@ -1119,7 +1201,7 @@ class Organization(models.Model):
 
 class Profile(models.Model):
     class Meta:
-        ordering = ["organization", "user__username"]
+        ordering: ClassVar[list[str]] = ["organization", "user__username"]
         verbose_name = _lz("profile")
         verbose_name_plural = _lz("profiles")
 
@@ -1255,16 +1337,16 @@ class Profile(models.Model):
         return settings.LANGUAGE_CODE
 
     def __str__(self):
-        return "{user} ({org})".format(user=self.name, org=str(self.organization))
+        return f"{self.name} ({self.organization!s})"
 
 
 class Address(models.Model):
     class Meta:
-        ordering = ("-id",)
+        ordering: ClassVar[list[str]] = ["-id"]
         verbose_name = _lz("address")
         verbose_name_plural = _lz("addresss")
 
-    COUNTRIES = collections.OrderedDict(
+    COUNTRIES = collections.OrderedDict(  # noqa: RUF012
         sorted([(c.alpha_2, c.name) for c in pycountry.countries], key=lambda x: x[1])
     )
 
@@ -1280,7 +1362,7 @@ class Address(models.Model):
     name = models.CharField(
         max_length=100,
         verbose_name=_lz("Address Name"),
-        help_text=_lz("Used only within the Cardshop"),
+        help_text=_lz("Used only within the Imager"),
     )
     recipient = models.CharField(max_length=100, verbose_name=_lz("Recipient Name"))
     email = models.EmailField(max_length=255, verbose_name=_lz("Email"))
@@ -1383,12 +1465,12 @@ class Address(models.Model):
 class Media(models.Model):
     PHYSICAL = "physical"
     VIRTUAL = "virtual"
-    KINDS = {PHYSICAL: "Physical", VIRTUAL: "Virtual"}
+    KINDS = {PHYSICAL: "Physical", VIRTUAL: "Virtual"}  # noqa: RUF012
     EXPIRATION_DELAY = 14
 
     class Meta:
         unique_together = (("kind", "size"),)
-        ordering = ["size"]
+        ordering: ClassVar[list[str]] = ["size"]
         verbose_name = _lz("media")
         verbose_name_plural = _lz("medias")
 
@@ -1408,10 +1490,10 @@ class Media(models.Model):
 
     def save(self, *args, **kwargs):
         self.actual_size = self.get_bytes()
-        return super(Media, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     @staticmethod
-    def choices_for(items, display_units=True):
+    def choices_for(items, *, display_units=True):
         return [
             (item.id, f"{item.name} ({item.units}U)" if display_units else item.name)
             for item in items
@@ -1425,7 +1507,7 @@ class Media(models.Model):
             return None
 
     @classmethod
-    def get_choices(cls, kind=None, display_units=True):
+    def get_choices(cls, *, kind=None, display_units=True):
         qs = cls.objects.all()
         if kind is not None:
             qs = qs.filter(kind=kind)
@@ -1433,7 +1515,11 @@ class Media(models.Model):
 
     @classmethod
     def get_min_for(cls, size):
-        matching = [media for media in cls.objects.all() if media.bytes >= size]
+        matching = [
+            media
+            for media in cls.objects.filter(kind=cls.VIRTUAL)  # assume virtual
+            if media.bytes >= size
+        ]
         return matching[0] if len(matching) else None
 
     def __str__(self):
@@ -1444,11 +1530,13 @@ class Media(models.Model):
         return self.actual_size or self.get_bytes()
 
     def get_bytes(self):
-        return get_hardware_adjusted_image_size(self.size * ONE_GB)
+        # reduced bytes size as the HW might not support advertised size
+        size = self.size - get_sd_hardware_margin_for(self.size)
+        return round_for_cluster(size * ONE_GB)
 
     @property
     def human(self):
-        return human_readable_size(self.size * ONE_GB, False)
+        return human_readable_size(self.size * ONE_GB, binary=False)
 
     @property
     def units(self):
@@ -1534,7 +1622,7 @@ class Order(models.Model):
     FAILED = "failed"
     CANCELED = "canceled"
     COMPLETED = "completed"
-    STATUSES = {
+    STATUSES = {  # noqa: RUF012
         IN_PROGRESS: "In Progress",
         COMPLETED: "Completed",
         FAILED: "Failed",
@@ -1543,7 +1631,7 @@ class Order(models.Model):
     }
 
     class Meta:
-        ordering = ["-created_on"]
+        ordering: ClassVar[list[str]] = ["-created_on"]
         verbose_name = _lz("order")
         verbose_name_plural = _lz("orders")
 
@@ -1558,8 +1646,7 @@ class Order(models.Model):
     scheduler_id = models.CharField(
         max_length=50, unique=True, blank=True, verbose_name=_lz("Scheduler ID")
     )
-    scheduler_data = jsonfield.JSONField(
-        load_kwargs={"object_pairs_hook": collections.OrderedDict},
+    scheduler_data = models.JSONField(
         null=True,
         blank=True,
         verbose_name=_lz("Scheduler Data"),
@@ -1587,10 +1674,10 @@ class Order(models.Model):
         choices=settings.LANGUAGES,
         default=settings.LANGUAGE_CODE,
     )
-    config = jsonfield.JSONField(
-        load_kwargs={"object_pairs_hook": collections.OrderedDict},
+    config = models.JSONField(
         verbose_name=_lz("Config"),
     )
+    config_yaml = models.TextField(verbose_name=_lz("YAML Config"), default="")
     media_name = models.CharField(max_length=50, verbose_name=_lz("Media name"))
     media_type = models.CharField(max_length=50, verbose_name=_lz("Media type"))
     media_duration = models.IntegerField(
@@ -1673,7 +1760,7 @@ class Order(models.Model):
             return None
 
     @classmethod
-    def _submit_provisionned_order(cls, order, skip_units=False):
+    def _submit_provisionned_order(cls, order, *, skip_units=False):
         if not skip_units:
             if (
                 order.created_by.is_limited
@@ -1725,6 +1812,7 @@ class Order(models.Model):
             client_language=client_language,
             client_limited=client.is_limited,
             config=config.json,
+            config_yaml=config.builder.render(),
             media_name=media.name,
             media_type=media.kind,
             media_size=media.size,
@@ -1746,9 +1834,9 @@ class Order(models.Model):
     @classmethod
     def profile_has_active(cls, client):
         for order in cls.objects.filter(created_by=client, status=cls.IN_PROGRESS):
-            order = cls.fetch_and_get(order.id)
-            if order.status == cls.IN_PROGRESS:
-                return order.min_id
+            order_ = cls.fetch_and_get(order.id)
+            if order_.status == cls.IN_PROGRESS:
+                return order_.min_id
         return False
 
     def recreate(self):
@@ -1777,7 +1865,7 @@ class Order(models.Model):
 
     @property
     def min_id(self):
-        return "L{dj}R{sched}".format(dj=self.id, sched=self.scheduler_id[:4]).upper()
+        return f"L{self.id}R{self.scheduler_id[:4]}".upper()
 
     @property
     def short_id(self):
@@ -1792,11 +1880,12 @@ class Order(models.Model):
         return self.STATUSES.get(self.status)
 
     def __str__(self):
-        return "Order #{id}/{sid}".format(id=self.id, sid=self.scheduler_id)
+        return f"Order #{self.id}/{self.scheduler_id}"
 
     def to_payload(self):
         return {
             "config": self.config_json,
+            "config_yaml": self.config_yaml,
             "sd_card": {
                 "name": self.media_name,
                 "size": self.media_size,

@@ -1,0 +1,25 @@
+{
+    auto_https off
+}
+
+:80 {
+    root * /app
+    encode gzip
+
+    request_body {
+        max_size 10MB
+    }
+
+    route {
+        file_server /static/* {
+            browse
+            root  /data
+        }
+    }
+
+    handle /health-check* {
+        reverse_proxy 127.0.0.1:5002
+    }
+
+    reverse_proxy 127.0.0.1:5001
+}

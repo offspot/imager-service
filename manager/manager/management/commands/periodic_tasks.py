@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import logging
 
-from django.utils import timezone
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from manager.models import Order, Profile
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = "Executes periodic tasks"
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         logger.info("## running periodic tasks...")
         now = timezone.now()
 

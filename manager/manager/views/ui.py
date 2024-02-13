@@ -1,39 +1,41 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import logging
 import datetime
+import logging
 
 from django import forms
-from django.http import Http404
 from django.conf import settings
-from django.utils import timezone
-from django.template import loader
 from django.contrib import messages
-from django.contrib.auth import logout
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
-from django.core.exceptions import PermissionDenied
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
+from django.http import Http404
+from django.shortcuts import redirect, render
+from django.template import loader
+from django.utils import timezone
 from django.utils.translation import (
-    gettext as _,
-    gettext_lazy as _lz,
     get_language_from_request,
 )
+from django.utils.translation import (
+    gettext as _,
+)
+from django.utils.translation import (
+    gettext_lazy as _lz,
+)
 
+from manager.email import send_mailgun_email
 from manager.models import (
     Address,
-    Media,
     Configuration,
+    Media,
     Order,
-    Profile,
     PasswordResetCode,
+    Profile,
 )
-from manager.email import send_mailgun_email
-from manager.scheduler import add_order_shipment, anonymize_orders, SchedulerAPIError
+from manager.scheduler import SchedulerAPIError, add_order_shipment, anonymize_orders
 
 logger = logging.getLogger(__name__)
 NB_ORDERS_PER_PAGE = 10
@@ -43,7 +45,14 @@ NB_ADDRESSES_PER_PAGE = 10
 class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
-        fields = ["name", "recipient", "email", "phone", "address", "country"]
+        fields = [  # noqa: RUF012
+            "name",
+            "recipient",
+            "email",
+            "phone",
+            "address",
+            "country",
+        ]
 
     def __init__(self, *args, **kwargs):
         client = kwargs.pop("client")
@@ -56,10 +65,12 @@ class AddressForm(forms.ModelForm):
             return self.cleaned_data.get("phone")
         try:
             cleaned_phone = Address.cleaned_phone(self.cleaned_data.get("phone"))
-        except Exception as exp:
-            logger.error(exp)
-            logger.exception(exp)
-            raise forms.ValidationError(_("Invalid Phone Number"), code="invalid")
+        except Exception as exc:
+            logger.error(exc)
+            logger.exception(exc)
+            raise forms.ValidationError(
+                _("Invalid Phone Number"), code="invalid"
+            ) from exc
 
         return cleaned_phone
 
@@ -67,7 +78,7 @@ class AddressForm(forms.ModelForm):
         return self.cleaned_data.get("address").strip()
 
     def save(self, *args, **kwargs):
-        instance = super().save(commit=False)
+        instance = super().save(*args, **kwargs, commit=False)
         instance.organization = self.organization
         instance.created_by = self.created_by
         instance.save()
@@ -83,7 +94,7 @@ class AddressForm(forms.ModelForm):
 
 
 class OrderForm(forms.Form):
-    KIND_CHOICES = {
+    KIND_CHOICES = {  # noqa: RUF012
         Media.VIRTUAL: _lz("Download Link"),
         Media.PHYSICAL: _lz("Physical micro-SD Card(s)"),
     }
@@ -96,9 +107,10 @@ class OrderForm(forms.Form):
         self.request_lang = get_language_from_request(request)
         self.organization = self.client.organization
         self.fields["config"].choices = Configuration.get_choices(self.organization)
-        self.fields["address"].choices = [("none", "Myself")] + Address.get_choices(
-            self.organization
-        )
+        self.fields["address"].choices = [
+            ("none", "Myself"),
+            *Address.get_choices(self.organization),
+        ]
         self.fields["media"].choices = Media.get_choices(
             kind=None if self.client.can_order_physical else Media.VIRTUAL,
             display_units=self.client.is_limited,
@@ -135,12 +147,6 @@ class OrderForm(forms.Form):
         help_text=_lz("Number of physical micro-SD cards you want"),
     )
 
-    def VIRTUAL_CHOICES(self):
-        return Media.get_choices(kind=Media.VIRTUAL)
-
-    def PHYSICAL_CHOICES(self):
-        return Media.get_choices(kind=Media.PHYSICAL)
-
     def clean_config(self):
         config = Configuration.get_or_none(self.cleaned_data.get("config"))
         if config is None or config.organization != self.organization:
@@ -170,8 +176,10 @@ class OrderForm(forms.Form):
             return 1
         try:
             quantity = int(self.cleaned_data.get("quantity"))
-        except Exception:
-            raise forms.ValidationError(_("Incorrect quantity"), code="invalid")
+        except Exception as exc:
+            raise forms.ValidationError(
+                _("Incorrect quantity"), code="invalid"
+            ) from exc
         return quantity
 
     def clean(self):
@@ -203,7 +211,7 @@ class OrderForm(forms.Form):
                 field = "media"
             self.add_error(field, msg)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # noqa: ARG002
         return Order.create_from(
             client=self.client,
             config=self.cleaned_data.get("config"),
@@ -226,7 +234,7 @@ class OrderShippingForm(forms.Form):
 
     details = forms.CharField(help_text=_lz("Shipment tracking details or similar"))
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # noqa: ARG002
         success, response = add_order_shipment(
             order_id=self.order.scheduler_id,
             shipment_details=self.cleaned_data.get("details"),
@@ -249,15 +257,15 @@ def password_change(request):
         if form.is_valid():
             try:
                 form.save()
-            except Exception as exp:
-                logger.error(exp)
+            except Exception as exc:
+                logger.error(exc)
                 messages.error(
                     request,
                     _(
                         "Failed to update your password although it looks OK. "
                         "ref: %(err)s"
                     )
-                    % {"err": exp},
+                    % {"err": exc},
                 )
             else:
                 messages.success(request, _("Password Updated successfuly!"))
@@ -275,8 +283,10 @@ class EmailForm(forms.Form):
     def clean_email(self):
         try:
             return Profile.get_using(self.cleaned_data.get("email"))
-        except Exception:
-            raise forms.ValidationError(_("No account for e-mail"), code="invalid")
+        except Exception as exc:
+            raise forms.ValidationError(
+                _("No account for e-mail"), code="invalid"
+            ) from exc
 
 
 def password_reset(request):
@@ -290,7 +300,7 @@ def password_reset(request):
                 )
                 send_mailgun_email(
                     to=prc.profile.email,
-                    subject=_("Cardshop Password Reset"),
+                    subject=_("Imager Password Reset"),
                     contents=loader.render_to_string(
                         "password_reset_email.html",
                         {
@@ -396,11 +406,11 @@ def delete_account(request):
     if request.method == "POST":
         try:
             do_delete_account(request.user.profile)
-        except Exception as exp:
-            logger.error(exp)
+        except Exception as exc:
+            logger.error(exc)
             messages.error(
                 request,
-                _("Failed to delete your account. (ref: %(err)s)") % {"err": exp},
+                _("Failed to delete your account. (ref: %(err)s)") % {"err": exc},
             )
         else:
             messages.success(request, _("Account deleted successfuly!"))
@@ -411,7 +421,6 @@ def delete_account(request):
 
 @login_required
 def address_list(request):
-
     page = request.GET.get("page")
 
     address_filter = bool(request.GET.get("all", False) == "yes")
@@ -437,7 +446,6 @@ def address_list(request):
 
 @login_required
 def address_edit(request, address_id=None):
-
     address = Address.get_or_none(address_id)
     if address is None and address_id is not None:
         raise Http404(_("Address not found"))
@@ -455,12 +463,9 @@ def address_edit(request, address_id=None):
         if form.is_valid():
             try:
                 res = form.save()
-            except Exception as exp:
-                import traceback
-
-                print(traceback.format_exc())
-                logger.error(exp)
-                messages.error(request, _("Error while saving… %(err)s") % {"err": exp})
+            except Exception as exc:
+                logger.error(exc)
+                messages.error(request, _("Error while saving… %(err)s") % {"err": exc})
             else:
                 messages.success(request, form.success_message(res, not bool(address)))
                 return redirect("address_list")
@@ -473,7 +478,6 @@ def address_edit(request, address_id=None):
 
 @login_required
 def address_delete(request, address_id=None):
-
     address = Address.get_or_none(address_id)
     if address is None:
         raise Http404(_("Address not found"))
@@ -488,12 +492,12 @@ def address_delete(request, address_id=None):
             _("Successfuly deleted Address <em>%(address)s</em>")
             % {"address": address},
         )
-    except Exception as exp:
-        logger.error(f"Unable to delete Address {address.id}: {exp}")
+    except Exception as exc:
+        logger.error(f"Unable to delete Address {address.id}: {exc}")
         messages.error(
             request,
             _("Unable to delete Address <em>%(address)s</em>: -- ref %(err)s")
-            % {"address": address, "err": exp},
+            % {"address": address, "err": exc},
         )
 
     return redirect("address_list")
@@ -525,7 +529,7 @@ def order_list(request):
 
 
 @login_required
-def order_new(request, kind=Media.VIRTUAL):
+def order_new(request, kind=Media.VIRTUAL):  # noqa: ARG001
     context = {
         "addresses": Address.objects.filter(
             organization=request.user.profile.organization
@@ -569,15 +573,14 @@ def order_new(request, kind=Media.VIRTUAL):
 
     form = OrderForm(request=request)
     if request.method == "POST" and can_order:
-
         # which form is being saved?
         form = OrderForm(request.POST, request=request)
         if form.is_valid():
             try:
                 res = form.save()
-            except Exception as exp:
-                logger.error(exp)
-                messages.error(request, _("Error while saving… %(err)s") % {"err": exp})
+            except Exception as exc:
+                logger.error(exc)
+                messages.error(request, _("Error while saving… %(err)s") % {"err": exc})
             else:
                 messages.success(request, form.success_message(res))
                 return redirect("order_list")
@@ -586,6 +589,85 @@ def order_new(request, kind=Media.VIRTUAL):
     context["form"] = form
 
     return render(request, "order_new.html", context)
+
+
+@login_required
+def order_config(request, config_id: int | None = None):
+    context = {}
+
+    organization = request.user.profile.organization
+    if config_id:
+        config = Configuration.get_or_none(config_id)
+        if not config or config.organization != organization:
+            messages.error(
+                request,
+                _("Configuration #%(id)s is not a valid configuration for you")
+                % {"id": config_id},
+            )
+            return redirect("configuration_list")
+    else:
+        # we need at least one config to pursue
+        if not organization.configurations.count():
+            messages.error(
+                request, _("You need at least one saved Configuration to order")
+            )
+            return redirect("configuration_list")
+        # select latest (already updated_by sorted) if not specified
+        config = organization.configurations.last()
+
+    # update config size?
+    if config.size_value_changed():
+        config.save()
+
+    if not config.min_media:
+        messages.error(
+            request, _("Configuration size it too large and cannot be ordered")
+        )
+        return redirect("configuration_edit", config_id=config.id)
+
+    # staff and admin are allowed to place multiple orders at once
+    if request.user.is_staff or request.user.is_superuser:
+        can_order = True
+        previous_order_id = None
+    else:
+        previous_order_id = Order.profile_has_active(request.user.profile)
+        can_order = not previous_order_id
+    context.update({"can_order": can_order, "previous_order_id": previous_order_id})
+
+    # display an alert informing user he cannot order at the moment
+    # if he had just clicked on Order, using an error message and blocking the process
+    # otherwise a warning is enough
+    if not context["can_order"]:
+        func = getattr(messages, "error" if request.method == "POST" else "warning")
+        func(
+            request,
+            _(
+                "Your previous Order (#%(order_id)s) must complete "
+                + "before you're allowed to request a new one."
+            )
+            % {"order_id": previous_order_id},
+        )
+
+    if request.method == "POST" and can_order:
+        try:
+            order = Order.create_from(
+                client=request.user.profile,
+                config=config,
+                media=config.min_media,
+                quantity=1,
+                address=None,
+                request_lang=get_language_from_request(request),
+            )
+        except Exception as exc:
+            logger.error(exc)
+            messages.error(request, _("Error placing Order… %(err)s") % {"err": exc})
+        else:
+            messages.success(request, OrderForm.success_message(order.min_id))
+            return redirect("order_list")
+
+    context["config"] = config
+
+    return render(request, "order_config.html", context)
 
 
 @login_required
@@ -601,7 +683,7 @@ def order_detail(request, order_min_id):
 
 
 @login_required
-def order_detail_scheduler_id(request, order_id):
+def order_detail_scheduler_id(request, order_id):  # noqa: ARG001
     order = Order.get_by_scheduler_id(order_id)
     if order is None:
         raise Http404(
@@ -649,12 +731,12 @@ def order_add_shipping(request, order_id):
         if form.is_valid():
             try:
                 form.save()
-            except Exception as exp:
-                logger.error(exp)
+            except Exception as exc:
+                logger.error(exc)
                 messages.error(
                     request,
                     _("Failed to record shipping informations.. (ref: %(err)s)")
-                    % {"err": exp},
+                    % {"err": exc},
                 )
             else:
                 messages.success(request, _("Order Shipping informations recorded!"))
@@ -664,3 +746,8 @@ def order_add_shipping(request, order_id):
     context["form"] = form
 
     return render(request, "add_shipping.html", context)
+
+
+def logout_user(request):
+    logout(request)
+    return redirect("home")

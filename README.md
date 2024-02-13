@@ -11,7 +11,7 @@ SD-cards).
 
 ## i18n
 
-As manager and scheduler uses different stacks, while bot depending on the same tools
+As manager and scheduler uses different stacks, while both depending on the same tools
 uses different management scripts
 
 ### manager
