@@ -15,7 +15,6 @@ from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.template import loader
-from django.utils import timezone
 from django.utils.translation import (
     get_language_from_request,
 )
@@ -347,7 +346,9 @@ class PasswordResetForm(forms.Form):
         prc = PasswordResetCode.get_or_none(self.cleaned_data.get("code"))
         if not prc:
             raise forms.ValidationError(_("Invalid validation code"), code="invalid")
-        if prc.created_on + datetime.timedelta(days=1) < timezone.now():
+        if prc.created_on + datetime.timedelta(days=1) < datetime.datetime.now(
+            tz=datetime.UTC
+        ):
             raise forms.ValidationError(_("Expired validation code"), code="invalid")
         return prc
 

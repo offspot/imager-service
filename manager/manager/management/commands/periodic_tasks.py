@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 nu
-
+import datetime
 import logging
 
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 
 from manager.models import Order, Profile
 
@@ -16,7 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):  # noqa: ARG002
         logger.info("## running periodic tasks...")
-        now = timezone.now()
+        now = datetime.datetime.now(tz=datetime.UTC)
 
         logger.info("updating scheduler data for in-progress orders...")
         for order in Order.objects.filter(status=Order.IN_PROGRESS):

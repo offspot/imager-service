@@ -1,12 +1,12 @@
 import base64
 import collections
+import datetime
 import io
 import json
 import logging
 import re
 import uuid
 import zoneinfo
-from datetime import timezone
 from pathlib import Path
 from typing import ClassVar
 
@@ -1305,7 +1305,7 @@ class Profile(models.Model):
 
         try:
             if expiry and not expiry.tzinfo:
-                expiry = expiry.astimezone(timezone.utc)
+                expiry = expiry.astimezone(datetime.UTC)
             return cls.objects.create(
                 user=user,
                 organization=organization,
@@ -1718,7 +1718,7 @@ class Order(models.Model):
         if retrieved:
             order.retrieved = True
             order.scheduler_data = scheduler_data
-            order.scheduler_data_on = timezone.now()
+            order.scheduler_data_on = datetime.datetime.now(tz=datetime.UTC)
             # update status fron scheduler data
             order.status = Order.status_from_statuses(scheduler_data.get("statuses"))
             order.save()
@@ -1929,7 +1929,7 @@ class Order(models.Model):
     def anonymize(self):
         redacted = "[ANONYMIZED]"
         self.scheduler_data = {}
-        self.scheduler_data_on = timezone.now()
+        self.scheduler_data_on = datetime.datetime.now(tz=datetime.UTC)
         self.client_name = redacted
         self.client_email = "anonymized.tld"
         self.recipient_name = redacted
