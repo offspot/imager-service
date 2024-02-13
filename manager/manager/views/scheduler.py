@@ -416,7 +416,7 @@ def refresh_token(request):
 
 @staff_required
 def image_delete(request, image_slug):
-    success, _ = delete_autoimage(image_slug)
+    success, _resp = delete_autoimage(image_slug)
     if not success:
         logger.error(f"Unable to delete image: {image_slug}")
         messages.error(
