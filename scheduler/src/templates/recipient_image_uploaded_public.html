@@ -3,7 +3,7 @@
 
 {% block message %}
 {% set transmission_link %}<img style="height: 1em; vertical-align: middle;" src="https://imager.kiwix.org/static/img/transmission-32@2x.png" /> <a href="https://transmissionbt.com/download/">Transmission</a>{% endset %}
-{% set etcher_link %}<a href="https://www.balena.io/etcher/">balenaEtcher</a>{% endset %}
+{% set etcher_link %}<a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a>{% endset %}
 
 {% call tagged_message("info") %}{{ _("Your image is ready to download!") }}{% endcall %}
 <p>{{ _("Dear %(recipient_name)s,")|format(recipient_name=order.recipient.name) }}</p>
