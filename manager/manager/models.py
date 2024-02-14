@@ -27,7 +27,7 @@ from django.utils.translation import (
 from django.utils.translation import (
     gettext_lazy as _lz,
 )
-from offspot_config.builder import ConfigBuilder
+from offspot_config.builder import ConfigBuilder, app_catalog
 from offspot_config.utils.sizes import get_sd_hardware_margin_for, round_for_cluster
 from offspot_runtime.checks import (
     is_valid_domain,
@@ -877,21 +877,23 @@ class Configuration(models.Model):
     @classmethod
     def create_from(cls, config, author):
         # only packages IDs which are in the catalogs
-        packages_list = get_list_if_values_match(
-            get_nested_key(config, ["content", "zims"]), catalog.get_all_ids()
+        zims_list = get_list_if_values_match(
+            get_nested_key(config, ["content", "zims"]), list(catalog.get_all_ids())
         )
-        # list of requested langs for wikifundi
-        wikifundi_langs = get_list_if_values_match(
-            get_nested_key(config, ["content", "wikifundi"]), cls.WIKIFUNDI_LANGUAGES
+        packages_list = get_list_if_values_match(
+            get_nested_key(config, ["content", "packages"]), app_catalog.keys()
         )
 
         # branding
         logo = extract_branding(config, "logo", ["image/png"])
         favicon = extract_branding(config, "favicon", ["image/x-icon", "image/png"])
-        css = extract_branding(config, "css", ["text/css", "text/plain"])
 
         # name is used twice
         name = get_if_str(
+            get_nested_key(config, "name"),
+            cls._meta.get_field("name").default,
+        )
+        project_name = get_if_str(
             get_nested_key(config, "project_name"),
             cls._meta.get_field("project_name").default,
         )
@@ -913,7 +915,7 @@ class Configuration(models.Model):
             "updated_by": author,
             "organization": author.organization,
             "name": name,
-            "project_name": name,
+            "project_name": project_name,
             "language": get_if_str_in(
                 get_nested_key(config, "language"),
                 dict(cls._meta.get_field("language").choices).keys(),
@@ -935,19 +937,10 @@ class Configuration(models.Model):
             "branding_favicon": (
                 save_branding_file(favicon) if favicon is not None else None
             ),
-            "content_zims": packages_list,
-            "content_wikifundi_fr": "fr" in wikifundi_langs,
-            "content_wikifundi_en": "en" in wikifundi_langs,
-            "content_wikifundi_es": "es" in wikifundi_langs,
-            "content_edupi": bool(get_nested_key(config, ["content", "edupi"])),
+            "content_zims": zims_list,
+            "content_packages": packages_list,
             "content_edupi_resources": get_if_str(
                 get_nested_key(config, ["content", "edupi_resources"])
-            ),
-            "content_nomad": bool(get_nested_key(config, ["content", "nomad"])),
-            "content_mathews": bool(get_nested_key(config, ["content", "mathews"])),
-            "content_africatik": bool(get_nested_key(config, ["content", "africatik"])),
-            "content_africatikmd": bool(
-                get_nested_key(config, ["content", "africatikmd"])
             ),
             "content_metrics": bool(get_nested_key(config, ["content", "metrics"])),
         }
@@ -1097,19 +1090,15 @@ class Configuration(models.Model):
                         ]
                     ),
                 ),
-                ("size", self.min_media.human if self.min_media else 0),
+                ("human_size", self.min_media.human if self.min_media else 0),
+                ("size", self.min_media.size if self.min_media else 0),
                 (
                     "content",
                     collections.OrderedDict(
                         [
                             ("zims", self.content_zims),
-                            ("wikifundi", self.wikifundi_languages),
-                            ("edupi", self.content_edupi),
+                            ("packages", self.content_packages),
                             ("edupi_resources", self.content_edupi_resources),
-                            ("nomad", self.content_nomad),
-                            ("mathews", self.content_mathews),
-                            ("africatik", self.content_africatik),
-                            ("africatikmd", self.content_africatikmd),
                             ("metrics", self.content_metrics),
                         ]
                     ),
