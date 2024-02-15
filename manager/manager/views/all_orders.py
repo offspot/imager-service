@@ -139,6 +139,27 @@ def detail(request, order_id):
 
 
 @staff_required
+def yaml_config(request, order_id):
+    success, code, msg = test_connection()
+    if not success:
+        messages.error(
+            request,
+            _("Unable to connect (HTTP %(code)s) to API at <code>%(url)s</code>%(msg)s")
+            % {
+                "url": settings.CARDSHOP_API_URL,
+                "code": code,
+                "msg": " -- " + msg if msg else "",
+            },
+        )
+        return redirect("all-orders")
+
+    retrieved, order = get_order(order_id)
+    orderdata = OrderData(order)
+
+    return HttpResponse(orderdata.get("config_yaml", ""), content_type="text/yaml")
+
+
+@staff_required
 def order_log(request, order_id, step, kind, index=None, fmt="txt"):  # noqa: ARG001
     if fmt not in ("txt", "html"):
         raise Http404(_("Unhandled format `%(fmt)s`") % {"fmt": fmt})

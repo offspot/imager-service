@@ -98,6 +98,11 @@ urlpatterns = [
         name="all-orders-recreate",
     ),
     path(
+        "all-orders/<str:order_id>.yaml",
+        all_orders.yaml_config,
+        name="all-orders-yaml",
+    ),
+    path(
         "all-orders/<str:order_id>/delete",
         all_orders.delete,
         name="all-orders-delete",

@@ -4,8 +4,10 @@
 	<tr>
 		<th>{% blocktrans %}Config{% endblocktrans %}</th>
 		<td>{{ orderdata.config.name }}</td>
-     	<td colspan="2"><button class="btn btn-sm btn-secondary toggle">{% blocktrans %}Toggle config display{% endblocktrans %}</button><br />
-					    <span class="pretty-config hidden"><code><pre>{{ orderdata.pretty_config }}</pre></code></span></td>
+     	<td colspan="2">
+     			<a href="{% url "all-orders-yaml" order_id=orderdata|id %}" download><button class="btn btn-sm btn-secondary">{% blocktrans %}Download YAML{% endblocktrans %}</button></a>
+   				<button class="btn btn-sm btn-secondary toggle">{% blocktrans %}Toggle config display{% endblocktrans %}</button><br />
+			    <span class="pretty-config hidden"><code><pre>{{ orderdata.pretty_config }}</pre></code></span></td>
 	</tr>
 	<tr><th>{% blocktrans %}SD-card{% endblocktrans %}</th><td><strong>{{ orderdata.sd_card.name }}</strong></td><td colspan="2">{{ orderdata.sd_card.size }}GB</td></tr>
 	<tr><th>{% blocktrans %}Quantity{% endblocktrans %}</th><td>{{ orderdata.quantity }}</td><td colspan="2">{{ orderdata.units }}U</td></tr>
