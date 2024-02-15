@@ -55,7 +55,7 @@ def get_list(request):
 
     if success:
         messages.set_level(request, messages.DEBUG)
-        messages.debug(
+        messages.info(
             request,
             _("Connected to Scheduler API at <code>%(url)s</code>")
             % {"url": settings.CARDSHOP_API_URL},
@@ -130,7 +130,7 @@ def detail(request, order_id):
 
     if success:
         messages.set_level(request, messages.DEBUG)
-        messages.debug(
+        messages.info(
             request,
             _("Connected to Scheduler API at <code>%(url)s</code>")
             % {"url": settings.CARDSHOP_API_URL},
