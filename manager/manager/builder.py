@@ -77,9 +77,11 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
         ),
         name=str(config.project_name),
         domain=str(config.project_name),
+        welcome_domain="goto.kiwix",
         tld=settings.OFFSPOT_TLD,
         ssid=str(config.project_name),
-        passphrase=None,
+        passphrase=config.wifi_password,
+        timezone=config.timezone,
         environ={
             "ADMIN_USERNAME": str(config.admin_account),
             "ADMIN_PASSWORD": str(config.admin_password),
