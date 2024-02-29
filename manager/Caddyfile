@@ -17,6 +17,12 @@
         }
     }
 
+    route {
+        file_server /media/* {
+            root  /data
+        }
+    }
+
     handle /health-check* {
         reverse_proxy 127.0.0.1:5002
     }
