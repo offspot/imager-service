@@ -220,3 +220,15 @@ def to_json(value) -> str:
 
 
 register.filter("to_json", to_json)
+
+
+def has_expired(errors) -> bool:
+    if not errors:
+        return False
+    for error in errors.get("__all__", []):
+        if error.code == "expired":
+            return True
+    return False
+
+
+register.filter("has_expired", has_expired)

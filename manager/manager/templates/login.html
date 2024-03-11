@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load manager %}
 
 {% block css %}
 .form-signin {
@@ -43,7 +44,7 @@
     <p class="alert alert-warning">{% blocktrans %}<strong>Access Refused:</strong> Your account doesn't have access to this page. To proceed, please login with an account that has access.{% endblocktrans %}</p>
     {% endif %}
 {% endif %}
-{% if form.errors %}<p class="alert alert-danger">{% blocktrans %}Your username and password didn't match. Please try again.{% endblocktrans %}</p>{% endif %}
+{% if form.errors %}<p class="alert alert-danger">{% if form.errors.as_data|has_expired %}{% blocktrans %}Your account has expired.{% endblocktrans %}{% else %}{% blocktrans %}Your username and password didn't match. Please try again.{% endblocktrans %}{% endif %}</p>{% endif %}
 <label for="{{ form.username.id_for_label }}" class="sr-only">{{ form.username.label }}</label>
 {{ form.username.errors }}
 <input type="text" class="form-control" value="{{ form.username.value|default_if_none:"" }}" placeholder="{{ form.username.label }}" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" required autofocus>

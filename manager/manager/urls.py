@@ -7,6 +7,7 @@ from django.contrib import admin as django_admin
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
+from manager.auth import ProfileAuthenticationForm
 from manager.views import admin, all_orders, api, config, scheduler, ui
 
 urlpatterns = [
@@ -163,7 +164,9 @@ urlpatterns = [
     path("django-admin/", django_admin.site.urls),
     path(
         "login/",
-        auth_views.LoginView.as_view(template_name="login.html"),
+        auth_views.LoginView.as_view(
+            template_name="login.html", authentication_form=ProfileAuthenticationForm
+        ),
         name="login",
     ),
     path("logout/", ui.logout_user, name="logout"),
