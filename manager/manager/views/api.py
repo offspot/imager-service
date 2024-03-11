@@ -111,7 +111,7 @@ def create_user_account(request):
         return JsonResponse({"error": "missing required email"}, status=400)
 
     # parse expiry if provided
-    expiry = data.get("expiry")
+    expiry = data.get("expire_on")
     if expiry:
         try:
             expiry = datetime.datetime.fromisoformat(expiry)
