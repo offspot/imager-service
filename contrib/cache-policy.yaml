@@ -1,0 +1,35 @@
+---
+enabled: true
+max_size: 800GB
+eviction: lru
+keep_identified_versions: 1
+oci_images:
+  enabled: true
+  eviction: lru
+  filters:
+    # we don't overwrite our own image
+    - pattern: ^ghcr.io/offspot/
+      check_after: 90d
+      eviction: lru
+    # limit caching of other images (none in use ATM)
+    - pattern: ^
+      max_size: 20GiB
+files:
+  enabled: true
+  eviction: lru
+  filters:
+    # hidden/dev files does not follow a strict publishing policy
+    - pattern: ^https?://(mirror.)?download.kiwix.org/zim/.hidden
+      ignore: true
+    # our ZIM files are not overriden
+    - pattern: ^https?://(mirror.)?download.kiwix.org/zim/
+      # after 3m we should already have gotten rid of it due to update being used
+      check_after: 90d
+      eviction: lru
+    # offspot drive (support files) follow a strict publishing policy (no overrides)
+    - pattern: ^https://drive.(offspot.it|farm.openzim.org)/
+      check_after: 30d
+      eviction: lru
+    # dont cache other files (file-manager support files, branding, etc)
+    - pattern: ^
+      ignore: true
