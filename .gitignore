@@ -109,7 +109,7 @@ venv.bak/
 /ssl
 
 workers/osx-kiwix-hotspot
-scripts/
+contrib/
 deployment/
 data/
 host/
