@@ -4,7 +4,7 @@ jsonschema==2.6.0
 PyJWT==1.6.4
 cerberus==1.2
 yagmail==0.11.214
-requests==2.20.1
+requests==2.31.0
 pycountry==18.5.26
 pdfkit==0.6.1
 langcodes==1.4.1
