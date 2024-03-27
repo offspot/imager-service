@@ -79,11 +79,13 @@
 	<header>
 	<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
       <h5 class="my-0 mr-md-auto font-weight-normal"><img class="logo-sq" src="{% static 'img/logotype-horizontal.svg' %}" alt="{% blocktrans %}Kiwix Imager{% endblocktrans %}" /></h5>
+      {% if user.is_authenticated %}
       <nav class="my-2 my-md-0 mr-md-3">
-      	<a class="p-2 text-dark" href="{% url 'home' %}">{% blocktrans %}Home{% endblocktrans %}</a>
-      	<a class="p-2 text-dark" href="{% url 'configuration_list' %}">{% blocktrans %}Configurations{% endblocktrans %}</a>
-        <a class="p-2 text-dark" href="{% url 'order_list' %}">{% blocktrans %}Orders{% endblocktrans %}</a>
+          <a class="p-2 text-dark" href="{% url 'home' %}">{% blocktrans %}Home{% endblocktrans %}</a>
+          <a class="p-2 text-dark" href="{% url 'configuration_list' %}">{% blocktrans %}Configurations{% endblocktrans %}</a>
+          <a class="p-2 text-dark" href="{% url 'order_list' %}">{% blocktrans %}Orders{% endblocktrans %}</a>
       </nav>
+      {% endif %}
       {% if user.is_staff %}
         <nav class="nav-item dropdown">
         	<a class="nav-link dropdown-toggle text-dark" href="#" id="admin-dd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% blocktrans %}Admin{% endblocktrans %}</a>
