@@ -2,3 +2,4 @@ requests==2.31.0
 humanfriendly==10.0
 kiwixstorage==0.8.3
 torf==4.2.2
+pyyaml==6.0.1

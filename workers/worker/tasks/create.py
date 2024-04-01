@@ -2,25 +2,41 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import os
+import datetime
 import io
 import json
 import logging
-import datetime
-import threading
+import re
 import subprocess
 import tempfile
+import threading
 import urllib.parse
 
 import torf
+import yaml
 from kiwixstorage import KiwixStorage
-
-from utils.setting import Setting
-from utils.s3 import ImageTransferHook
 from utils import get_checksum
+from utils.s3 import ImageTransferHook
 from utils.scheduler import authenticate, get_access_token, update_task_status
+from utils.setting import Setting
+
+try:
+    from yaml import CDumper as Dumper
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    # we don't NEED cython ext but it's faster so use it if avail.
+    from yaml import Dumper, SafeLoader
 
 logger = logging.getLogger(__name__)
+
+
+def get_image_creator_version(text: str) -> str | None:
+    try:
+        payload = yaml.load(text, Loader=SafeLoader)
+        if re.match(r"^[\d\.]+$", payload["image-creator"]["version"]):
+            return payload["image-creator"]["version"]
+    except Exception:
+        ...
 
 
 class CreateTask(threading.Thread):
@@ -141,9 +157,18 @@ class CreateTask(threading.Thread):
 
     def build_image(self):
         self.logger.info("Starting image creation")
+        imager_path = Setting.imager_binary_path
 
         # write config to a file
         self.config_path.write_text(self.task["config_yaml"])
+
+        # were we asked to use a specific image-creator version?
+        ic_version = get_image_creator_version(self.task["config_yaml"])
+        if ic_version:
+            imager_path = imager_path.with_name(f"image-creator_{ic_version}")
+            if not imager_path.exists():
+                logger.warning(f"requested image-creator version missing: {ic_version}")
+                imager_path = Setting.imager_binary_path
 
         # "{}GB".format(self.task.get("size"))
 
@@ -153,7 +178,7 @@ class CreateTask(threading.Thread):
             ignore_cleanup_errors=True,
         )
         args = [
-            str(Setting.imager_binary_path),
+            str(imager_path),
             "--max-size",
             "1TB",
             "--debug",

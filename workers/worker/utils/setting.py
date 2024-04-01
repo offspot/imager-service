@@ -36,7 +36,7 @@ class Setting:
     @classmethod
     def read_from_env(cls):
         cls.imager_binary_path = Path(
-            os.getenv("IMAGER_BIN_PATH", "/usr/loca/bin/image-creator")
+            os.getenv("IMAGER_BIN_PATH", "/usr/local/bin/image-creator")
         )
         cls.curl_binary_path = Path(os.getenv("CURL_BIN_PATH", "/usr/bin/curl"))
         cls.working_dir = Path(os.getenv("WORKING_DIR", "data")).resolve(strict=True)
