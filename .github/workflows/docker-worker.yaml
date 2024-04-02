@@ -19,7 +19,7 @@ jobs:
       - name: Publish Docker Image
         uses: openzim/docker-publish-action@v10
         with:
-          image-name: offspot/cardshop-worker
+          image-name: offspot/imager-worker
           on-master: latest
           restrict-to: offspot/imager-service
           context: workers
