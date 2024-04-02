@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 class ProfileAuthenticationForm(AuthenticationForm):
     def confirm_login_allowed(self, user):
         """only-allow login from profile with no expire_on or expire_on in the future"""
+        super().confirm_login_allowed(user)
         profile = getattr(user, "profile", None)
         if not profile:
             raise ValidationError("Invalid Profile", code="invalid")
