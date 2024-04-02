@@ -1,5 +1,5 @@
 FROM docker.io/library/python:3.11-slim-bookworm
-LABEL org.opencontainers.image.source https://github.com/offspot/cardshop
+LABEL org.opencontainers.image.source https://github.com/offspot/imager-service
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone

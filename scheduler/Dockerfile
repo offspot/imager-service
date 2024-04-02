@@ -1,5 +1,5 @@
 FROM rgaudin/uwsgi-nginx:python3.8
-LABEL org.opencontainers.image.source https://github.com/offspot/cardshop
+LABEL org.opencontainers.image.source https://github.com/offspot/imager-service
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone
