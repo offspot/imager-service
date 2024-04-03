@@ -752,3 +752,42 @@ def order_add_shipping(request, order_id):
 def logout_user(request):
     logout(request)
     return redirect("home")
+
+
+def beta_toggle(request):
+    context = {}
+    if request.method == "POST":
+        if request.POST.get("toggle") in ("disable", "enable"):
+            enable = request.POST.get("toggle", "disable") == "enable"
+            # how come?
+            if request.user.profile.organization.beta_is_active == enable:
+                return redirect("toggle_beta")
+
+            try:
+                request.user.profile.organization.beta_is_active = enable
+                request.user.profile.organization.save()
+                msg = (
+                    _("Beta features enabled! Don't forget to report feedback.")
+                    if enable
+                    else _("Beta features disabled! Back to regular mode")
+                )
+                messages.info(request, msg)
+                return redirect("home")
+            except Exception as exc:
+                logger.error("Failed to toggle Beta Features.")
+                logger.exception(exc)
+                messages.error(
+                    request,
+                    _(
+                        "Failed to toggle Beta Features. "
+                        "Please try again later: %(err)s"
+                    )
+                    % {"err": exc},
+                )
+                return redirect("toggle_beta")
+
+    context["BETA_FEATURES"] = settings.BETA_FEATURES
+    context["status"] = (
+        "enabled" if request.user.profile.organization.beta_is_active else "disabled"
+    )
+    return render(request, "beta.html", context)

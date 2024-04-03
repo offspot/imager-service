@@ -178,6 +178,7 @@ urlpatterns = [
     ),
     path("reset-password", ui.password_reset, name="reset_password"),
     path("delete", ui.delete_account, name="delete_account"),
+    path("beta-toggle", ui.beta_toggle, name="toggle_beta"),
     path("", ui.home, name="home"),
     *static(settings.STATIC_URL, document_root=settings.STATIC_ROOT),
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),

@@ -103,6 +103,8 @@
         <div class="dropdown-menu" aria-labelledby="user-dd">
           <a class="dropdown-item" href="{% url 'change_password' %}">{% blocktrans context "Menu link" %}Change Password{% endblocktrans %}</a>
           <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="{% url 'toggle_beta' %}">{% blocktrans context "Menu link" %}Beta features{% endblocktrans %}</a>
+          <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="{% url 'logout' %}">{% blocktrans context "Menu link" %}Sign out{% endblocktrans %}</a>
         </div>
       </nav>{% else %}<a class="btn btn-outline-primary" href="{% url 'login' %}">{% blocktrans context "Menu link" %}Sign in{% endblocktrans %}</a>{% endif %}

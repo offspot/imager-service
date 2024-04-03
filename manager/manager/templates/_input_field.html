@@ -1,7 +1,7 @@
 {% load manager %}
 <div id="container_{{ field.id_for_label }}">
-{% include "_label_for.html" with field=field size=size %}
-{% if use_raw %}<br />{{ field|as_widget }}{% else %}
+{% if not no_label %}{% include "_label_for.html" with field=field size=size %}{% endif %}
+{% if use_raw %}{% if not no_label %}<br />{% endif %}{{ field|as_widget }}{% else %}
 <{% if textarea %}textarea{% else %}input type="{% if type %}{{ type }}{% else %}text{% endif %}"{% endif %}
 	   id="{{ field.id_for_label }}"
 	   class="{% if changes_size or size %} changes-size{% endif %}{% if type != "checkbox" %} form-control{% endif %}{% if field.errors %} alert alert-danger{% endif %}"

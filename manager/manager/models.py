@@ -16,6 +16,7 @@ import phonenumbers
 import PIL
 import pycountry
 import requests
+from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -694,6 +695,29 @@ class ConvertedImageFileField(models.ImageField):
             value.save(name=str(Path(value.name).with_suffix(".png")), content=dst)
 
 
+class JSONList(models.JSONField, list):
+    """ consider JSON field as a list """
+    ...
+
+
+class BetaFeaturesListFormField(forms.MultipleChoiceField):
+    """ mutilple choice field for selecting beta_features (stored in JSONField)"""
+
+    def __init__(self, **kwargs):
+        # remove JSONField related kwargs
+        kwargs.pop("encoder", None)
+        kwargs.pop("decoder", None)
+        super().__init__(choices=settings.BETA_FEATURES.items, **kwargs)
+
+
+class BetaFeaturesListField(models.JSONField, list):
+
+    def formfield(self, **kwargs):
+        defaults = {"form_class": BetaFeaturesListFormField}
+        defaults.update(kwargs)
+        return super().formfield(**defaults)
+
+
 class Configuration(models.Model):
     class Meta:
         get_latest_by = "-id"
@@ -795,13 +819,13 @@ class Configuration(models.Model):
         verbose_name=_lz("Favicon (1MB max Image)"),
     )
 
-    content_zims = models.JSONField(
+    content_zims = JSONList(
         blank=True,
         null=True,
         default=list,
     )
 
-    content_packages = models.JSONField(
+    content_packages = JSONList(
         blank=True,
         null=True,
         default=list,
@@ -872,6 +896,19 @@ class Configuration(models.Model):
         default=False,
         verbose_name=_lz("Metrics Dashboard"),
         help_text=_lz("Hotspot Usage Statistics"),
+    )
+
+    option_kiwix_readers = models.BooleanField(
+        default=False,
+        verbose_name=_lz("Kiwix Readers"),
+        help_text=_lz("Downloadable Kiwix software for all platforms"),
+    )
+
+    beta_features = BetaFeaturesListField(
+        blank=True,
+        null=True,
+        default=list,
+        help_text=_lz("List of beta features you want to test"),
     )
 
     @classmethod
@@ -1112,11 +1149,34 @@ class Configuration(models.Model):
                         ]
                     ),
                 ),
+                ("beta_features", self.current_beta_features),
             ]
         )
 
     def to_creator_yaml(self) -> str:
         return self.builder.render()
+
+    @property
+    def current_beta_features(self) -> list[str]:
+        """ list of currently valid beta features"""
+        if not self.organization.beta_is_active:
+            return []
+        if not self.beta_features:
+            return []
+        return [
+            feature
+            for feature in self.beta_features
+            if feature in settings.BETA_FEATURES
+        ]
+
+    @property
+    def has_any_beta(self) -> bool:
+        """ whether config has any currently valid beta feature"""
+        return bool(self.current_beta_features)
+
+    def has_beta(self, feature: str) -> bool:
+        """ whether that feature is currently valid and selected"""
+        return feature in self.current_beta_features
 
 
 class Organization(models.Model):
@@ -1156,6 +1216,7 @@ class Organization(models.Model):
     units = models.IntegerField(
         null=True, blank=True, default=0, verbose_name=_lz("Units")
     )
+    beta_is_active = models.BooleanField(verbose_name="Beta is active", default=False)
 
     @property
     def is_limited(self):

@@ -10,7 +10,7 @@ from manager.models import Configuration
 try:
     from manager.management.commands.convertdata import fixed_ids, gone_ids
 except ImportError:
-    print(  # noqa: T201
+    print(
         """You must implement update data variables:
 - fixed_ids: Dict[str, Tuple(str, str)] = {"old_id.xx": ("new_name", "flavour")}
 - gone_ids: List[str] = ["old_id_not_in_lib_anymore.xx"]
