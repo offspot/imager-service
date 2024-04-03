@@ -30,9 +30,8 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-def get_image_creator_version(text: str) -> str | None:
+def get_image_creator_version(payload: dict) -> str | None:
     try:
-        payload = yaml.load(text, Loader=SafeLoader)
         if re.match(r"^[\d\.]+$", payload["image-creator"]["version"]):
             return payload["image-creator"]["version"]
     except Exception:
@@ -159,18 +158,24 @@ class CreateTask(threading.Thread):
         self.logger.info("Starting image creation")
         imager_path = Setting.imager_binary_path
 
-        # write config to a file
-        self.config_path.write_text(self.task["config_yaml"])
+        # read config
+        payload = yaml.load(self.task["config_yaml"], Loader=SafeLoader)
 
         # were we asked to use a specific image-creator version?
-        ic_version = get_image_creator_version(self.task["config_yaml"])
+        ic_version = get_image_creator_version(payload)
         if ic_version:
             imager_path = imager_path.with_name(f"image-creator_{ic_version}")
             if not imager_path.exists():
                 logger.warning(f"requested image-creator version missing: {ic_version}")
                 imager_path = Setting.imager_binary_path
 
-        # "{}GB".format(self.task.get("size"))
+        # write config to file, making sure to exclude special image-creator prop
+        try:
+            del payload["image-creator"]
+        except KeyError:
+            ...
+        self.config_path.write_text(payload)
+        del payload
 
         build_dir = tempfile.TemporaryDirectory(
             suffix=".build",
