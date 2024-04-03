@@ -155,20 +155,24 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
         return builder
 
     if config.has_beta("dashboard-1.4"):
+        # change image for dashboard (download and compose)
         dashboard_img = get_internal_image("dashboard")
         if (
             dashboard_img in builder.config["oci_images"]
             and dashboard_img.oci.tag == "1.3.1"
         ):
-            builder.config["oci_images"].remove(dashboard_img)
-            builder.config["oci_images"].add(
-                OCIImage(
-                    ident="ghcr.io/offspot/dashboard:1.4.0",
-                    filesize=164505600,
-                    fullsize=164399817,
-                )
+            dashboard_img_new = OCIImage(
+                ident="ghcr.io/offspot/dashboard:1.4.0",
+                filesize=164505600,
+                fullsize=164399817,
             )
+            builder.config["oci_images"].remove(dashboard_img)
+            builder.config["oci_images"].add(dashboard_img_new)
+            builder.compose["services"]["home"]["image"] = dashboard_img_new.source
+
     if config.has_beta("image-creator-1.0"):
+        # set special image-creator.version prop in YAML that worker understands
+        # and will have it change imager path
         builder.config["image-creator"] = {"version": "1.0.0"}
 
     return builder
