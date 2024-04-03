@@ -132,9 +132,11 @@ class CreateTask(threading.Thread):
             (
                 "upload_image",
                 "uploading",
-                "uploaded_public"
-                if self.task["media_type"] == "virtual"
-                else "uploaded",
+                (
+                    "uploaded_public"
+                    if self.task["media_type"] == "virtual"
+                    else "uploaded"
+                ),
                 "failed_to_upload",
             ),
         ]
@@ -174,7 +176,9 @@ class CreateTask(threading.Thread):
             del payload["image-creator"]
         except KeyError:
             ...
-        self.config_path.write_text(payload)
+        self.config_path.write_text(
+            yaml.dump(payload, Dumper=Dumper, explicit_start=True, sort_keys=False)
+        )
         del payload
 
         build_dir = tempfile.TemporaryDirectory(
