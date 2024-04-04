@@ -107,31 +107,46 @@ tr.removed {
 			</div>
 		</div>
 
+		<hr />
+
 		<h3>{% blocktrans %}Optional tools{% endblocktrans %}</h3>
+
 		<div class="form-row visual-group">
 			<div class="form-group col-md-4">
 				{% include "_input_field.html" with field=form.content_metrics type="checkbox" changes_size=1 %}
 			</div>
 			<div class="form-group col-md-4">
+				{% include "_input_field.html" with field=form.option_kiwix_readers type="checkbox" changes_size=1 %}
+			</div>
+		</div>
+
+		<div class="form-row visual-group">
+			<div class="form-group col-md-8">
 				<div id="container_id_filemanager">
 					<label for="id_filemanager">{% blocktrans %}File Manager{% endblocktrans %}</label>
 					<input type="checkbox" id="id_filemanager" class=" changes-size" data-toggle="toggle" name="filemanager" aria-describedby="id_filemanagerHelp">
 					<small id="id_filemanagerHelp" class="form-text text-muted">Allows importing external files to the hotspot.</small>
+					{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
 				</div>
 			</div>
 		</div>
+
+
+		<!-- <div id="container_id_contentfilter" style="display: none;">
+			<label for="id_contentfilter">{% blocktrans %}Content Filter{% endblocktrans %}</label>
+			<input type="checkbox" id="id_contentfilter" class=" changes-size" data-toggle="toggle" name="contentfilter" aria-describedby="id_contentfilterHelp">
+			<small id="id_contentfilterHelp" class="form-text text-muted">Allows filtering out any webpage from the Hotspot</small>
+		</div> -->
+
+		{% if user.profile.organization.beta_is_active and BETA_FEATURES %}
+		<hr />
+		<h3>{% blocktrans %}Beta Features{% endblocktrans %} <a title="{% blocktrans %}What's this?{% endblocktrans %}" href="{% url 'toggle_beta' %}"><i class="fa fa-xs fa-bug"></i></a></h3>
 		<div class="form-row visual-group">
-			<div class="form-group col-md-4">
-				<div id="container_id_contentfilter" style="display: none;">
-					<label for="id_contentfilter">{% blocktrans %}Content Filter{% endblocktrans %}</label>
-					<input type="checkbox" id="id_contentfilter" class=" changes-size" data-toggle="toggle" name="contentfilter" aria-describedby="id_contentfilterHelp">
-					<small id="id_contentfilterHelp" class="form-text text-muted">Allows filtering out any webpage from the Hotspot</small>
-				</div>
-			</div>
-			<div class="form-group col-md-8">
-				{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
+			<div class="form-group col-md-12">
+				{% include "_input_field.html" with field=form.beta_features use_raw=1 changes_size=1 no_label=1 %}
 			</div>
 		</div>
+		{% endif %}
 
 	</div>
 

@@ -5,6 +5,7 @@ import json
 import logging
 
 from django import forms
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -50,6 +51,8 @@ class ConfigurationForm(forms.ModelForm):
             "content_packages",
             "content_edupi_resources",
             "content_metrics",
+            "option_kiwix_readers",
+            "beta_features",
         ]
 
     def clean(self):
@@ -117,6 +120,7 @@ def configuration_list(request):
                         config=js_config or {}, author=request.user.profile
                     )
                 except Exception as exp:
+                    logger.exception(exp)
                     messages.error(
                         request,
                         _(
@@ -163,12 +167,13 @@ def configuration_edit(request, config_id=None):
                 instance.updated_by = request.user.profile
                 instance.save()
             except Exception as exp:
+                logger.exception(exp)
                 messages.error(
                     request,
                     _(
                         "Failed to save your configuration (although it looks good). "
                         "Try again and contact support "
-                        "if it happens again (ref: $(err)s)"
+                        "if it happens again (ref: %(err)s)"
                     )
                     % {"err": exp},
                 )
@@ -189,6 +194,7 @@ def configuration_edit(request, config_id=None):
     context["form"] = form
     context["missing_zims"] = config.retrieve_missing_zims()
     context["config_id"] = config.id
+    context["BETA_FEATURES"] = settings.BETA_FEATURES
 
     return render(request, "configuration_edit.html", context)
 

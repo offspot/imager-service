@@ -185,9 +185,7 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin")
 MANAGER_API_USERNAME = os.getenv("MANAGER_API_USERNAME", "manager")
 MANAGER_API_KEY = os.getenv("MANAGER_API_KEY", "manager")
 # API URL
-CARDSHOP_API_URL = os.getenv(
-    "CARDSHOP_API_URL", "https://api.imager.kiwix.org"
-)
+CARDSHOP_API_URL = os.getenv("CARDSHOP_API_URL", "https://api.imager.kiwix.org")
 CARDSHOP_API_URL_EXTERNAL = os.getenv(
     "CARDSHOP_API_URL_EXTERNAL", "https://api.imager.kiwix.org"
 )
@@ -200,9 +198,7 @@ MAILGUN_API_URL = os.getenv(
 )
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY", "")
 # used for sending reset password links in emails
-CARDSHOP_PUBLIC_URL = os.getenv(
-    "CARDSHOP_PUBLIC_URL", "https://imager.kiwix.org"
-)
+CARDSHOP_PUBLIC_URL = os.getenv("CARDSHOP_PUBLIC_URL", "https://imager.kiwix.org")
 CONTENTS_FILE = os.path.join(BASE_DIR, "contents.json")
 
 CACHES = {
@@ -219,11 +215,29 @@ LANGUAGES = [
     ("fr", _lz("French")),
 ]
 
-BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL", "1.2.0")
-BASE_IMAGE_ROOTFS_SIZE = int(os.getenv("BASE_IMAGE_ROOTFS_SIZE", "2638217216"))
+BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL", "1.2.1")
+BASE_IMAGE_ROOTFS_SIZE = int(os.getenv("BASE_IMAGE_ROOTFS_SIZE", "2663383040"))
 OFFSPOT_TLD = os.getenv("OFFSPOT_TLD", "hotspot")
 # should utilmately be supported by offspot-config
 OFFSPOT_LANGUAGES = [
     ("en", _lz("English")),
     ("fr", _lz("French")),
 ]
+
+# map of platform to URL for Kiwix Readers
+# All of them will be added to the builder if use selects the appr. option
+# must be manually updated from time to time
+KIWIX_READERS = {
+    "windows": "https://download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.3.1-2.zip",
+    "android": "https://download.kiwix.org/release/kiwix-android/kiwix-3.9.1.apk",
+    "macos": "https://download.kiwix.org/release/kiwix-desktop-macos/kiwix-desktop-macos_3.1.0.dmg",
+    "linux": "https://download.kiwix.org/release/kiwix-desktop/kiwix-desktop_x86_64_2.3.1-4.appimage",
+}
+
+# map of ident to description for all currently being tested beta features
+# OK to be empty.
+# must be handled individually in builder
+BETA_FEATURES = {
+    "dashboard-1.4": "Dashboard 1.4 UI with separate Downloads and Readers option",
+    "image-creator-1.0": "Image-creator 1.0 with aria2 downloader",
+}

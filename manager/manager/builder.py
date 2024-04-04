@@ -1,9 +1,16 @@
 from dataclasses import dataclass, field
 
 from django.conf import settings
-from offspot_config.builder import AppPackage, ConfigBuilder, FilesPackage
+from offspot_config.builder import (
+    AppPackage,
+    ConfigBuilder,
+    FilesPackage,
+    get_internal_image,
+)
 from offspot_config.catalog import app_catalog
 from offspot_config.inputs import BaseConfig
+from offspot_config.oci_images import OCIImage
+from offspot_config.utils.dashboard import Link, Reader
 from offspot_config.utils.download import get_online_rsc_size
 
 from manager.kiwix_library import catalog
@@ -25,6 +32,7 @@ class ConfigLike:
     content_packages: list[str] = field(default_factory=list)  # parsed json
     content_edupi_resources: str | None = None
     content_metrics: bool = False
+    option_kiwix_readers: bool = False
 
     @property
     def size(self) -> int:
@@ -37,6 +45,16 @@ class ConfigLike:
     @property
     def display_name(self):
         return self.name or self.project_name
+
+    def has_any_beta(self) -> bool:
+        # assume to not have any beta feature for now
+        # only used for size computation in UI
+        return False
+
+    def has_beta(self, feature: str) -> bool:  # noqa: ARG002
+        # assume to not have any beta feature for now
+        # only used for size computation in UI
+        return False
 
 
 def gen_css_from_dashboard_options(logo_url: str, colors) -> str:
@@ -80,8 +98,8 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
         welcome_domain="goto.kiwix",
         tld=settings.OFFSPOT_TLD,
         ssid=str(config.project_name),
-        passphrase=config.wifi_password,
-        timezone=config.timezone,
+        passphrase=str(config.wifi_password) if config.wifi_password else None,
+        timezone=str(config.timezone),
         environ={
             "ADMIN_USERNAME": str(config.admin_account),
             "ADMIN_PASSWORD": str(config.admin_password),
@@ -89,7 +107,20 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
         write_config=True,
         kiwix_zim_mirror="https://mirror.download.kiwix.org/zim/",
     )
-    builder.add_dashboard(allow_zim_downloads=True)
+
+    # dashboard links
+    links = []
+    if config.content_metrics:
+        links.append(Link("Metrics", "//metrics.${FQDN}"))
+
+    readers = None
+    if config.option_kiwix_readers:
+        readers = [
+            Reader.using(platform=platform, download_url=url)
+            for platform, url in settings.KIWIX_READERS.items()
+        ]
+
+    builder.add_dashboard(allow_zim_downloads=True, readers=readers, links=links)
     builder.add_captive_portal()
     builder.add_reverseproxy()
 
@@ -119,15 +150,29 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     if config.content_metrics:
         builder.add_metrics()
 
-    # # branding for dashboard (a single CSS file)
-    # builder.add_file(
-    #     url_or_content=gen_css_from_dashboard_options(
-    #         "https://logo.png", colors="from-logo"
-    #     ),
-    #     to=str(CONTENT_TARGET_PATH / "dashboard-app/custom.css"),
-    #     via="direct",
-    #     size=0,
-    #     is_url=False,
-    # )
+    # post-config updates for [beta features]
+    if not config.has_any_beta:
+        return builder
+
+    if config.has_beta("dashboard-1.4"):
+        # change image for dashboard (download and compose)
+        dashboard_img = get_internal_image("dashboard")
+        if (
+            dashboard_img in builder.config["oci_images"]
+            and dashboard_img.oci.tag == "1.3.1"
+        ):
+            dashboard_img_new = OCIImage(
+                ident="ghcr.io/offspot/dashboard:1.4.0",
+                filesize=164505600,
+                fullsize=164399817,
+            )
+            builder.config["oci_images"].remove(dashboard_img)
+            builder.config["oci_images"].add(dashboard_img_new)
+            builder.compose["services"]["home"]["image"] = dashboard_img_new.source
+
+    if config.has_beta("image-creator-1.0"):
+        # set special image-creator.version prop in YAML that worker understands
+        # and will have it change imager path
+        builder.config["image-creator"] = {"version": "1.0.1"}
 
     return builder
