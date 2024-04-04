@@ -125,8 +125,8 @@ tr.removed {
 				<div id="container_id_filemanager">
 					<label for="id_filemanager">{% blocktrans %}File Manager{% endblocktrans %}</label>
 					<input type="checkbox" id="id_filemanager" class=" changes-size" data-toggle="toggle" name="filemanager" aria-describedby="id_filemanagerHelp">
-					<small id="id_filemanagerHelp" class="form-text text-muted">Allows importing external files to the hotspot.</small>
-					{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 %}
+					<small id="id_filemanagerHelp" class="form-text text-muted hidden">Allows importing external files to the hotspot.</small>
+					{% include "_input_field.html" with field=form.content_edupi_resources changes_size=1 no_label=1 %}
 				</div>
 			</div>
 		</div>
@@ -140,7 +140,7 @@ tr.removed {
 
 		{% if user.profile.organization.beta_is_active and BETA_FEATURES %}
 		<hr />
-		<h3>{% blocktrans %}Beta Features{% endblocktrans %} <a title="{% blocktrans %}What's this?{% endblocktrans %}" href="{% url 'toggle_beta' %}"><i class="fa fa-xs fa-bug"></i></a></h3>
+		<h3>{% blocktrans %}Beta Features{% endblocktrans %} <small style="font-size:50%;">Please select one or more to activate</small></h3>
 		<div class="form-row visual-group">
 			<div class="form-group col-md-12">
 				{% include "_input_field.html" with field=form.beta_features use_raw=1 changes_size=1 no_label=1 %}

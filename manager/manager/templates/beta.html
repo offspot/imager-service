@@ -3,43 +3,29 @@
 {% load manager %}
 
 {% block content %}
-<h1>{% blocktrans %}Testing Beta Features{% endblocktrans %}</h1>
+<h1>{% blocktrans %}Beta Features{% endblocktrans %}</h1>
 <p class="alerts alert alert-info">{% blocktrans with org=user.profile.organization %}<em>{{ org }}</em> Organization's Beta Status: <strong>{{ status }}</strong>{% endblocktrans %}</p>
-{% blocktrans context "Beta Features toggle page" %}
-<p><em>Kiwix Hotspot</em> is an ever-evolving software composed of many components and configurable with (sometimes external) Apps.</p>
-<p>Some changes or improvements require extensive testing in real-life situations. Features that are <em>being-tested</em> are thus not ready yet and not available to the average Imager Service User.</p>
-<p>Some adventurous Users, on the other hand may want to test those <em>Preview</em> features and report feedback to the developers. If you are one of them, keep reading.</p>
-{% endblocktrans %}
 
-{% if user.profile.organization.beta_is_active %}
-<h2>{% blocktrans %}Disable Beta features{% endblocktrans %}</h2>
-<p>{% blocktrans %}Enough with the testing? Return to regular mode{% endblocktrans %}</p>
+
 <form id="enable-form" method="POST">
-{% csrf_token %}
-<input type="hidden" name="toggle" value="disable" />
-<button class="btn btn-primary">{% blocktrans with org=user.profile.organization %}I want to disable beta features for <em>{{ org }}</em>{% endblocktrans %}</button>
+    {% csrf_token %}
+
+<input type="hidden" name="toggle" value="{% if user.profile.organization.beta_is_active %}disable{% else %}enable{% endif %}" />
+<button class="btn btn-primary">
+    {% if user.profile.organization.beta_is_active %}
+        {% blocktrans with org=user.profile.organization %}I want to disable beta features for <em>{{ org }}</em>{% endblocktrans %}</button>
+    {% else %}
+        {% blocktrans with org=user.profile.organization %}I want to enable beta features for <em>{{ org }}</em>{% endblocktrans %}
+    {% endif %}
 </form>
-{% endif %}
 
 <hr />
 
-<h2>{% blocktrans %}Disclaimer and Conditions{% endblocktrans %}</h2>
-{% blocktrans context "Beta Features toggle page" with org=user.profile.organization %}
+{% blocktrans %}
 <ul>
     <li>This is for <strong>testing only</strong>. Those features are likely buggy and unfinished.</li>
-    <li>This feature is toggled at <em>Organization</em> level (ie. <em>{{ org }}</em> in your case).</li>
-    <li>This can be reverted at any time.</li>
-    <li>Enabling <em>Beta Features</em> here only gives access to the opportinity to select some beta features when editing a configuration.</li>
-    <li>Beta feature inclusion is evaluated at Order Time and applies only:</li>
-        <ul>
-            <li>If User (Org actually) still have Beta enabled.</li>
-            <li>If said beta feature has been selected in Configuration.</li>
-            <li>If said beta feature is still being tested.</li>
-            <li>➡️ means Ordering the same config at different times can result in different image. <strong>It's for testing!</strong></li>
-        </ul>
     <li>We expect people testing those features to send us feedback:</li>
         <ul>
-            <li>Any feedback is welcome but we'll focus on things that doesn't work as expected.</li>
             <li>Submit an issue <a href="https://github.com/offspot/overview/issues/new">On Github</a> or send an email to <a href="mailto:contact+offspot@kiwix.org"><code>contact+offspot@kiwix.org</code></a> (if you don't want to create an account there).</li>
         </ul>
     </ul>
@@ -48,8 +34,7 @@
 
 <hr />
 
-<h2>{% blocktrans %}Current beta features{% endblocktrans %}</h3>
-<p>{% blocktrans %}If ensure about what use this could be to you, know that we are currently testing the following:{% endblocktrans %}</p>
+<h2>{% blocktrans %}Current beta{% endblocktrans %}</h3>
 <dl>
     {% for feature, desc in BETA_FEATURES.items %}
     <dt><code>{{ feature }}</code></dt>
@@ -59,15 +44,4 @@
     {% endfor %}
 </ul>
 
-{% if not user.profile.organization.beta_is_active %}
-<hr />
-
-<h2>{% blocktrans %}Enabling Beta features{% endblocktrans %} <i class="fa fa-bug fa-xs"></i></h2>
-<p>{% blocktrans %}I have read and understood the warnings and I am willing to test!{% endblocktrans %}</p>
-<form id="enable-form" method="POST">
-{% csrf_token %}
-<input type="hidden" name="toggle" value="enable" />
-<button class="btn btn-warning">{% blocktrans with org=user.profile.organization %}I want to enable beta features for <em>{{ org }}</em>{% endblocktrans %}</button>
-</form>
-{% endif %}
 {% endblock %}
