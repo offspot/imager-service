@@ -162,7 +162,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             and dashboard_img.oci.tag == "1.3.1"
         ):
             dashboard_img_new = OCIImage(
-                ident="ghcr.io/offspot/dashboard:1.4.0",
+                ident="ghcr.io/offspot/dashboard:1.4.1",
                 filesize=164505600,
                 fullsize=164399817,
             )
