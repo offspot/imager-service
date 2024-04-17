@@ -228,10 +228,13 @@ OFFSPOT_LANGUAGES = [
 # All of them will be added to the builder if use selects the appr. option
 # must be manually updated from time to time
 KIWIX_READERS = {
-    "windows": "https://download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.3.1-2.zip",
-    "android": "https://download.kiwix.org/release/kiwix-android/kiwix-3.9.1.apk",
-    "macos": "https://download.kiwix.org/release/kiwix-desktop-macos/kiwix-desktop-macos_3.1.0.dmg",
-    "linux": "https://download.kiwix.org/release/kiwix-desktop/kiwix-desktop_x86_64_2.3.1-4.appimage",
+    "windows": "https://mirror.download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.3.1-2.zip",
+    "android": "https://mirror.download.kiwix.org/release/kiwix-android/"
+    "kiwix-3.9.1.apk",
+    "macos": "https://mirror.download.kiwix.org/release/kiwix-desktop-macos/"
+    "kiwix-desktop-macos_3.1.0.dmg",
+    "linux": "https://mirror.download.kiwix.org/release/kiwix-desktop/"
+    "kiwix-desktop_x86_64_2.3.1-4.appimage",
 }
 
 # map of ident to description for all currently being tested beta features
