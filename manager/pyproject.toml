@@ -31,7 +31,7 @@ dependencies = [
   "humanfriendly==10.0",
   "ansi2html==1.9.1",
   "mysqlclient==2.2.4",
-  "offspot-config==1.13.0",
+  "offspot-config==2.0.0",
   "PyYAML==6.0.1",
   "python-dateutil==2.8.2",
 ]

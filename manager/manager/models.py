@@ -696,12 +696,13 @@ class ConvertedImageFileField(models.ImageField):
 
 
 class JSONList(models.JSONField, list):
-    """ consider JSON field as a list """
+    """consider JSON field as a list"""
+
     ...
 
 
 class BetaFeaturesListFormField(forms.MultipleChoiceField):
-    """ mutilple choice field for selecting beta_features (stored in JSONField)"""
+    """mutilple choice field for selecting beta_features (stored in JSONField)"""
 
     def __init__(self, **kwargs):
         # remove JSONField related kwargs
@@ -1158,7 +1159,7 @@ class Configuration(models.Model):
 
     @property
     def current_beta_features(self) -> list[str]:
-        """ list of currently valid beta features"""
+        """list of currently valid beta features"""
         if not self.organization.beta_is_active:
             return []
         if not self.beta_features:
@@ -1171,11 +1172,11 @@ class Configuration(models.Model):
 
     @property
     def has_any_beta(self) -> bool:
-        """ whether config has any currently valid beta feature"""
+        """whether config has any currently valid beta feature"""
         return bool(self.current_beta_features)
 
     def has_beta(self, feature: str) -> bool:
-        """ whether that feature is currently valid and selected"""
+        """whether that feature is currently valid and selected"""
         return feature in self.current_beta_features
 
 

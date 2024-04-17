@@ -8,7 +8,7 @@ from offspot_config.builder import (
     get_internal_image,
 )
 from offspot_config.catalog import app_catalog
-from offspot_config.inputs import BaseConfig
+from offspot_config.inputs.base import BaseConfig
 from offspot_config.oci_images import OCIImage
 from offspot_config.utils.dashboard import Link, Reader
 from offspot_config.utils.download import get_online_rsc_size
