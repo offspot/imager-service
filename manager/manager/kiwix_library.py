@@ -16,6 +16,7 @@ from typing import Any
 import iso639
 import requests
 import xmltodict
+from offspot_config.inputs.checksum import Checksum
 from offspot_config.zim import ZimPackage
 
 CATALOG_URL = os.getenv("CATALOG_URL", "https://library.kiwix.org")
@@ -107,8 +108,8 @@ class Book:
         return "zim"
 
     @property
-    def checksum(self) -> str | None:
-        return None
+    def checksum(self) -> Checksum:
+        return Checksum(algo="md5", value=f"{self.url}.md5", kind="url")
 
     @property
     def archive_size(self) -> int:
@@ -133,6 +134,7 @@ class Book:
             flavour=self.flavour,
             download_size=self.size,
             download_url=self.url,
+            download_checksum=self.checksum,
             icon_url=self.illustration_url,
             version=self.version,
         )
