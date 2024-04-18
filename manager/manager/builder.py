@@ -170,6 +170,6 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     if config.has_beta("image-creator-1.0"):
         # set special image-creator.version prop in YAML that worker understands
         # and will have it change imager path
-        builder.config["image-creator"] = {"version": "1.0.2"}
+        builder.config["image-creator"] = {"version": "1.1.0"}
 
     return builder
