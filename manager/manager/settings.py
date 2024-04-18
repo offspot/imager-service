@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-import urllib
+import urllib.parse
 
 from django.utils.translation import gettext_lazy as _lz
+from offspot_config.builder import Reader
+from offspot_config.inputs.checksum import Checksum
+from offspot_config.utils.download import read_checksum_from
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -227,15 +230,30 @@ OFFSPOT_LANGUAGES = [
 # map of platform to URL for Kiwix Readers
 # All of them will be added to the builder if use selects the appr. option
 # must be manually updated from time to time
-KIWIX_READERS = {
-    "windows": "https://mirror.download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.3.1-2.zip",
-    "android": "https://mirror.download.kiwix.org/release/kiwix-android/"
-    "kiwix-3.9.1.apk",
-    "macos": "https://mirror.download.kiwix.org/release/kiwix-desktop-macos/"
+KIWIX_READERS_SOURCES = {
+    "windows": "https://download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.3.1-2.zip",
+    "android": "https://download.kiwix.org/release/kiwix-android/" "kiwix-3.9.1.apk",
+    "macos": "https://download.kiwix.org/release/kiwix-desktop-macos/"
     "kiwix-desktop-macos_3.1.0.dmg",
-    "linux": "https://mirror.download.kiwix.org/release/kiwix-desktop/"
+    "linux": "https://download.kiwix.org/release/kiwix-desktop/"
     "kiwix-desktop_x86_64_2.3.1-4.appimage",
 }
+
+
+def get_reader_from(platform: str, url: str):
+    uri = urllib.parse.urlsplit(url)
+    if uri.netloc == "download.kiwix.org":
+        checksum = Checksum(algo="md5", value=read_checksum_from(f"{url}.md5"))
+        url = uri._replace(netloc="mirror.download.kiwix.org").geturl()
+    else:
+        checksum = None
+    return Reader.using(platform=platform, download_url=url, checksum=checksum)
+
+
+# fetch this on start and forget about it
+KIWIX_READERS = [
+    get_reader_from(platform, url) for platform, url in KIWIX_READERS_SOURCES.items()
+]
 
 # map of ident to description for all currently being tested beta features
 # OK to be empty.

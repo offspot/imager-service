@@ -10,7 +10,7 @@ from offspot_config.builder import (
 from offspot_config.catalog import app_catalog
 from offspot_config.inputs.base import BaseConfig
 from offspot_config.oci_images import OCIImage
-from offspot_config.utils.dashboard import Link, Reader
+from offspot_config.utils.dashboard import Link
 from offspot_config.utils.download import get_online_rsc_size
 
 from manager.kiwix_library import catalog
@@ -115,10 +115,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
 
     readers = None
     if config.option_kiwix_readers:
-        readers = [
-            Reader.using(platform=platform, download_url=url)
-            for platform, url in settings.KIWIX_READERS.items()
-        ]
+        readers = settings.KIWIX_READERS
 
     builder.add_dashboard(allow_zim_downloads=True, readers=readers, links=links)
     builder.add_captive_portal()
