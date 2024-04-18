@@ -38,7 +38,7 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
     && curl -L -o /usr/local/bin/image-creator_1.0.2 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.0.2 \
     && chmod +x /usr/local/bin/image-creator_1.0.2 \
     && echo "--- beta version: " && image-creator_1.0.2 --version \
-    && curl -L -o /usr/local/bin/image-creator_1.0.2 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.1.0 \
+    && curl -L -o /usr/local/bin/image-creator_1.1.0 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.1.0 \
     && chmod +x /usr/local/bin/image-creator_1.1.0 \
     && echo "--- beta version: " && image-creator_1.1.0 --version
 
