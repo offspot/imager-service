@@ -832,26 +832,6 @@ class Configuration(models.Model):
         default=list,
     )
 
-    content_wikifundi_fr = models.BooleanField(
-        default=False,
-        verbose_name=_lz("WikiFundi FR"),
-        help_text=_lz("Wikipedia-like Editing Platform (French)"),
-    )
-    content_wikifundi_en = models.BooleanField(
-        default=False,
-        verbose_name=_lz("WikiFundi EN"),
-        help_text=_lz("Wikipedia-like Editing Platform (English)"),
-    )
-    content_wikifundi_es = models.BooleanField(
-        default=False,
-        verbose_name=_lz("WikiFundi ES"),
-        help_text=_lz("Wikipedia-like Editing Platform (Spanish)"),
-    )
-    content_edupi = models.BooleanField(
-        default=False,
-        verbose_name=_lz("File resources"),
-        help_text=_lz("Share arbitrary files with all users"),
-    )
     content_edupi_resources = models.CharField(
         max_length=500,
         blank=True,
@@ -865,32 +845,6 @@ class Configuration(models.Model):
             URLValidator(schemes=["http", "https"]),
             validate_fileresources_url,
         ],
-    )
-    content_nomad = models.BooleanField(
-        default=False,
-        verbose_name=_lz("Nomad android apps"),
-        help_text=_lz("Révisions du CP à la 3è"),
-    )
-    content_mathews = models.BooleanField(
-        default=False,
-        verbose_name=_lz("Math Mathews android"),
-        help_text=_lz("Un jeu pour réviser les maths"),
-    )
-    content_africatik = models.BooleanField(
-        default=False,
-        verbose_name=_lz("Africatik Écoles"),
-        help_text=_lz(
-            "Applications éducatives adaptées au contexte culturel africain "
-            + "(version Écoles numériques)"
-        ),
-    )
-    content_africatikmd = models.BooleanField(
-        default=False,
-        verbose_name=_lz("Africatik Maisons digitales"),
-        help_text=_lz(
-            "Applications éducatives adaptées au contexte culturel africain "
-            + "(version Maisons digitales)"
-        ),
     )
 
     content_metrics = models.BooleanField(
@@ -1090,14 +1044,6 @@ class Configuration(models.Model):
     @property
     def min_units(self):
         return self.min_media.units
-
-    @property
-    def wikifundi_languages(self):
-        return [
-            lang
-            for lang in self.WIKIFUNDI_LANGUAGES
-            if getattr(self, f"content_wikifundi_{lang}", False)
-        ]
 
     def all_languages(self):
         return self._meta.get_field("language").choices
