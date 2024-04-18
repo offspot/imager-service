@@ -37,7 +37,10 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
     && echo "--- beta version: " && image-creator_1.0.1 --version \
     && curl -L -o /usr/local/bin/image-creator_1.0.2 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.0.2 \
     && chmod +x /usr/local/bin/image-creator_1.0.2 \
-    && echo "--- beta version: " && image-creator_1.0.2 --version
+    && echo "--- beta version: " && image-creator_1.0.2 --version \
+    && curl -L -o /usr/local/bin/image-creator_1.0.2 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.1.0 \
+    && chmod +x /usr/local/bin/image-creator_1.1.0 \
+    && echo "--- beta version: " && image-creator_1.1.0 --version
 
 COPY requirements.txt /src/
 RUN pip install -r /src/requirements.txt
