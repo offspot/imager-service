@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
 from offspot_config.catalog import app_catalog
@@ -211,10 +211,22 @@ def configuration_export(request, config_id=None):
     response = JsonResponse(
         config.to_dict(), safe=False, json_dumps_params={"indent": 4}
     )
-    response["Content-Disposition"] = 'attachment; filename="{}.json"'.format(
-        config.display_name
+    response["Content-Disposition"] = (
+        f'attachment; filename="{config.display_name}.json"'
     )
     return response
+
+
+@login_required
+def configuration_yaml(request, config_id=None):
+    config = Configuration.get_or_none(config_id)
+    if config is None:
+        raise Http404(_("Configuration not found"))
+
+    if config.organization != request.user.profile.organization:
+        raise PermissionDenied()
+
+    return HttpResponse(config.builder.render(), content_type="text/yaml")
 
 
 @login_required

@@ -51,6 +51,11 @@ urlpatterns = [
         name="configuration_export",
     ),
     path(
+        "configurations/<int:config_id>.yaml",
+        config.configuration_yaml,
+        name="configuration_yaml",
+    ),
+    path(
         "configurations/<int:config_id>/order",
         ui.order_config,
         name="configuration_order",
