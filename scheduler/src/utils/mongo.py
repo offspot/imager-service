@@ -765,6 +765,21 @@ class AutoImages(BaseCollection):
         "order": {"type": "string", "required": True, "nullable": True},
     }
 
+    update_schema = {
+        "slug": {"type": "string", "regex": "^[a-zA-Z0-9_.+-]+$", "required": True},
+        "private": {"type": "boolean", "default": True, "required": True},
+        "config": {"type": "dict", "required": True},
+        "config_yaml": {"type": "string", "required": True},
+        "contact_email": {
+            "type": "string",
+            "regex": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
+            "required": True,
+        },
+        "periodicity": {"type": "string", "regex": "^.+$", "required": True},
+        "warehouse": {"type": "dict", "required": False},
+        "channel": {"type": "string", "required": True},
+    }
+
     def __init__(self):
         super().__init__(Database(), "autoimages")
 

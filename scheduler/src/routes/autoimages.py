@@ -76,6 +76,27 @@ def document(autoimage_slug: ObjectId, user: dict):
             raise errors.NotFound()
 
         return jsonify(autoimage)
+
+    # replacing autoimage without removing existing record
+    elif request.method == "PUT":
+        # check user permission
+        ensure_user_matches_role(user, Users.MANAGER_ROLE)
+
+        autoimage = AutoImages().find_one({"slug": autoimage_slug}, {})
+        if autoimage is None:
+            raise errors.NotFound()
+
+        try:
+            request_json = request.get_json()
+            validate(request_json, AutoImages.update_schema)
+        except ValidationError as error:
+            raise errors.BadRequest(str(error))
+
+        AutoImages().update_one({"slug": autoimage_slug}, {"$set": request_json})
+        # we blank image status so periodic-tasks will recreate it
+        AutoImages.update_status(autoimage_slug, status=None)
+        return jsonify(autoimage)
+
     elif request.method == "DELETE":
         ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
