@@ -144,10 +144,10 @@
 		$( document ).ready(function() {
     		console.log( "ready!" );
     		$('[data-toggle=confirmation]').confirmation({
-			  rootSelector: '[data-toggle=confirmation]',
-			  singleton: true,
-			});
-    		{% block javascript %}{% endblock %}
+				  rootSelector: '[data-toggle=confirmation]',
+				  singleton: true,
+				});
+  		{% block javascript %}{% endblock %}
 		});
 	</script>
 </body>

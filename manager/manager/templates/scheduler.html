@@ -199,7 +199,7 @@
 {% else %}
 <p class="info">{% blocktrans %}hum, there's no existing image…{% endblocktrans %}</p>
 {% endif %}
-<form method="POST" class="form-check form-check-inline">
+<form id="autoimages" method="POST" class="form-check form-check-inline">
 	{% csrf_token %}
 	<input type="hidden" name="form" value="image_form">
 	<div class="form-row visual-group">
@@ -215,5 +215,29 @@
 {% endblock %}
 
 {% block javascript %}
-	$('[data-toggle="popover"]').popover();
+		$('[data-toggle="popover"]').popover();
+
+		var existing_slugs = [{% for image in images %}'{{ image.slug }}', {% endfor %}];
+		// update autoimage button color and text in case of update
+		$('#{{ image_form.slug.id_for_label }}').on('change', function (event) {
+			if (existing_slugs.indexOf($('#{{ image_form.slug.id_for_label }}').val()) != -1) {
+				$('#autoimages button').addClass('btn-warning');
+				$('#autoimages button').text('Update');
+			} else {
+				$('#autoimages button').removeClass('btn-warning');
+				$('#autoimages button').text('Create');
+			}
+		});
+		// require confirmation on autoimage submit should the slug already exists
+		$('#autoimages').on('submit', function (event) {
+			event.preventDefault();
+			let new_slug = $('#{{ image_form.slug.id_for_label }}').val();
+			if (existing_slugs.indexOf(new_slug) != -1) {
+				if (confirm(`Autoimage “${new_slug}” already exists.\nPlease confirm you want to replace it.`)) {
+					event.currentTarget.submit();
+				}
+				return false;
+			}
+			event.currentTarget.submit();
+		});
 {% endblock %}

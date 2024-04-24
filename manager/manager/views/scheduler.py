@@ -38,6 +38,7 @@ from manager.scheduler import (
     get_warehouses_list,
     get_workers_list,
     test_connection,
+    update_autoimage,
 )
 
 logger = logging.getLogger(__name__)
@@ -58,8 +59,7 @@ class ChannelForm(SchedulerForm):
     sender_address = forms.CharField(widget=forms.Textarea)
     sender_email = forms.EmailField()
 
-    @staticmethod
-    def success_message(result):
+    def success_message(self, result):
         return _("Successfuly created channel <em>%(channel)s</em>") % {
             "channel": result
         }
@@ -109,8 +109,7 @@ class WarehouseForm(SchedulerForm):
     download_uri = S3URLFormField()
     active = forms.BooleanField(initial=True, required=False)
 
-    @staticmethod
-    def success_message(result):
+    def success_message(self, result):
         return _("Successfuly created warehouse <em>%(warehouse)s</em>") % {
             "warehouse": result
         }
@@ -142,8 +141,7 @@ class UserForm(SchedulerForm):
     email = forms.EmailField()
     password = forms.CharField()
 
-    @staticmethod
-    def success_message(result):
+    def success_message(self, result):
         return _("Successfuly created User <em>%(user)s</em>") % {"user": result}
 
     def clean_username(self):
@@ -192,9 +190,14 @@ class ImageForm(SchedulerForm):
     channel = forms.ChoiceField(choices=get_channel_choices())
     private = forms.BooleanField(initial=False, required=False)
     active = forms.BooleanField(initial=True, required=False)
+    is_update = False
 
-    @staticmethod
-    def success_message(result):
+    def success_message(self, result):
+        if self.is_update:
+            return _(
+                "Successfuly requested Update for Auto Image <em>%(img)s</em>. "
+                "Will be processed shortly"
+            ) % {"img": result}
         return _("Successfuly created Auto Image <em>%(img)s</em>") % {"img": result}
 
     def clean_slug(self):
@@ -212,7 +215,12 @@ class ImageForm(SchedulerForm):
         if not self.is_valid():
             raise ValueError(_("%(class)s is not valid") % {"class": type(self)})
 
-        success, autoimage_slug = add_autoimage(
+        images = as_items_or_none(*get_autoimages_list())
+        existing_slugs = [img["slug"] for img in images] if images else []
+        self.is_update = self.cleaned_data.get("slug") in existing_slugs
+        func = update_autoimage if self.is_update else add_autoimage
+
+        success, autoimage_slug = func(
             slug=self.cleaned_data.get("slug"),
             config=self.cleaned_data.get("config").to_dict(),
             config_yaml=self.cleaned_data.get("config").builder.render(),
@@ -250,6 +258,9 @@ def dashboard(request):
         "images": as_items_or_none(*get_autoimages_list()) or None,
         "api_url": settings.CARDSHOP_API_URL_EXTERNAL,
     }
+    # images is accessed several times
+    if context["images"]:
+        context["images"] = list(context["images"])
 
     forms_map = {
         "channel_form": ChannelForm,

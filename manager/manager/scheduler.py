@@ -12,6 +12,7 @@ from django.conf import settings
 GET = "GET"
 POST = "POST"
 PATCH = "PATCH"
+PUT = "PUT"
 DELETE = "DELETE"
 # URL = "https://api.demo.plug.kiwix.org"
 URL = settings.CARDSHOP_API_URL
@@ -446,3 +447,31 @@ def delete_autoimage(autoimage_slug):
     if success or code == http.HTTPStatus.NOT_FOUND:
         return True, None
     return False, response
+
+
+@auth_required
+def update_autoimage(
+    slug,
+    config,
+    config_yaml,
+    contact_email,
+    periodicity,
+    warehouse,
+    channel,
+    private,
+):
+    payload = {
+        "slug": slug,
+        "config": config,
+        "config_yaml": config_yaml,
+        "contact_email": contact_email,
+        "periodicity": periodicity,
+        "warehouse": warehouse,
+        "channel": channel,
+        "private": private,
+    }
+
+    success, code, response = query_api(PUT, f"/auto-images/{slug}", payload=payload)
+    if not success or "slug" not in response:
+        return False, response
+    return True, response.get("slug")
