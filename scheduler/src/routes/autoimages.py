@@ -95,7 +95,7 @@ def document(autoimage_slug: ObjectId, user: dict):
         AutoImages().update_one({"slug": autoimage_slug}, {"$set": request_json})
         # we blank image status so periodic-tasks will recreate it
         AutoImages.update_status(autoimage_slug, status=None)
-        return jsonify(autoimage)
+        return jsonify({"slug": request_json["slug"]})
 
     elif request.method == "DELETE":
         ensure_user_matches_role(user, Users.MANAGER_ROLE)
