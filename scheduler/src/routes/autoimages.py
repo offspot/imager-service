@@ -64,7 +64,7 @@ def collection(user: dict):
         return jsonify({"slug": request_json["slug"]})
 
 
-@blueprint.route("/<string:autoimage_slug>", methods=["GET", "DELETE"])
+@blueprint.route("/<string:autoimage_slug>", methods=["GET", "PUT", "DELETE"])
 @authenticate()
 def document(autoimage_slug: ObjectId, user: dict):
     if request.method == "GET":
