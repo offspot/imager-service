@@ -24,23 +24,14 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
     && printf "enabled: false\noci_images:\n  enabled: false\nfiles:\n  enabled: false\n" > /cache/policy.yaml \
     && pip3 install -U pip \
     # image-creator
-    && curl -L -o /usr/local/bin/image-creator_0.9.7 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_0.9.7 \
-    && chmod +x /usr/local/bin/image-creator_0.9.7 \
-    && ln -s /usr/local/bin/image-creator_0.9.7 //usr/local/bin/image-creator \
-    && echo "--- dependencies version: " && image-creator --version \
-    # beta version
-    && curl -L -o /usr/local/bin/image-creator_1.0.0 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.0.0 \
-    && chmod +x /usr/local/bin/image-creator_1.0.0 \
-    && echo "--- beta version: " && image-creator_1.0.0 --version \
-    && curl -L -o /usr/local/bin/image-creator_1.0.1 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.0.1 \
-    && chmod +x /usr/local/bin/image-creator_1.0.1 \
-    && echo "--- beta version: " && image-creator_1.0.1 --version \
-    && curl -L -o /usr/local/bin/image-creator_1.0.2 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.0.2 \
-    && chmod +x /usr/local/bin/image-creator_1.0.2 \
-    && echo "--- beta version: " && image-creator_1.0.2 --version \
-    && curl -L -o /usr/local/bin/image-creator_1.1.0 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.1.0 \
-    && chmod +x /usr/local/bin/image-creator_1.1.0 \
-    && echo "--- beta version: " && image-creator_1.1.0 --version
+    && curl -L -o /usr/local/bin/image-creator_0.9.8 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_0.9.8 \
+    && chmod +x /usr/local/bin/image-creator_0.9.8 \
+    && echo "--- dependencies version: " && image-creator_0.9.8 --version \
+    && curl -L -o /usr/local/bin/image-creator_1.1.1 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.1.1 \
+    && chmod +x /usr/local/bin/image-creator_1.1.1 \
+    && echo "--- beta version: " && image-creator_1.1.1 --version \
+    # set default
+    && ln -s /usr/local/bin/image-creator_1.1.1 /usr/local/bin/image-creator
 
 COPY requirements.txt /src/
 RUN pip install -r /src/requirements.txt
