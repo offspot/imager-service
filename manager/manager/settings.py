@@ -11,12 +11,15 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import pathlib
 import urllib.parse
 
 from django.utils.translation import gettext_lazy as _lz
-from offspot_config.builder import Reader
+from offspot_config.builder import BRANDING_PATH, Reader
+from offspot_config.constants import INTERNAL_BRANDING_PATH
 from offspot_config.inputs.checksum import Checksum
 from offspot_config.utils.download import read_checksum_from
+from offspot_config.utils.misc import b64_encode
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -261,4 +264,24 @@ KIWIX_READERS = [
 BETA_FEATURES = {
     "dashboard-1.4": "Dashboard 1.4 UI with separate Downloads and Readers option",
     "image-creator-1.0": "Image-creator 1.0 with aria2 downloader",
+}
+
+
+def get_branding_payload(fname: str) -> dict:
+    data = INTERNAL_BRANDING_PATH.joinpath(fname).read_bytes()
+    # write to disk for web-server served previews
+    fpath = pathlib.Path(MEDIA_ROOT).joinpath("branding").joinpath(fname)
+    fpath.parent.mkdir(parents=True, exist_ok=True)
+    fpath.write_bytes(data)
+    return {
+        "url_or_content": b64_encode(data),
+        "to": str(BRANDING_PATH.joinpath(fname)),
+        "via": "base64",
+        "size": len(data),
+    }
+
+
+BRANDING_FILES_PAYLOADS = {
+    fname: get_branding_payload(fname)
+    for fname in ("horizontal-logo-light.png", "square-logo-light.png")
 }

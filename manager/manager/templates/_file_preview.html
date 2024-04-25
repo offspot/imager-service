@@ -1,6 +1,9 @@
 {% load manager %}
-{% if field.value.name %}
-<a href="{{ field.value.url }}" target="_blank" title="{{ field.value.name|fname }}">
-	{% if is_css %}Open in tab{% else %}<img class="branding {{ class }}" src="{{ field.value.url }}" />{% endif %}
-</a>
-{% endif %}
+{% load static %}
+<div style="padding: 0; border: 1px dotted gray; margin-top: 1em">
+	{% if field.value.name %}
+	<a href="{{ field.value.url }}" target="_blank" title="{{ field.value.name|fname }}">
+		<img src="{{ field.value.url }}" style="{{ style }}" />
+	</a>
+	{% else %}<img src="{% get_media_prefix %}branding/{{ default }}" style="{{ style }}" />{% endif %}
+</div>

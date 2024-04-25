@@ -1,4 +1,3 @@
-import base64
 import collections
 import datetime
 import io
@@ -29,6 +28,7 @@ from django.utils.translation import (
     gettext_lazy as _lz,
 )
 from offspot_config.builder import ConfigBuilder, app_catalog
+from offspot_config.utils.misc import b64_decode
 from offspot_config.utils.sizes import get_sd_hardware_margin_for, round_for_cluster
 from offspot_runtime.checks import (
     is_valid_domain,
@@ -60,6 +60,7 @@ from manager.utils import (
     is_valid_admin_login,
     is_valid_admin_pwd,
     is_valid_language,
+    retrieve_branding_file,
 )
 
 logger = logging.getLogger(__name__)
@@ -525,20 +526,8 @@ def get_branding_path(instance, filename):  # noqa: ARG001
 def save_branding_file(branding_file):
     fname = get_branding_path(1, branding_file.get("fname"))
     fpath = Path(settings.MEDIA_ROOT) / fname
-    with open(fpath, "wb") as fp:
-        fp.write(base64.b64decode(branding_file.get("data")))
+    fpath.write_bytes(b64_decode(branding_file.get("data")))
     return fname
-
-
-def retrieve_branding_file(field):
-    if not field.name:
-        return None
-    fpath = Path(settings.MEDIA_ROOT).joinpath(field.name)
-    if not fpath.exists():
-        return None
-    fname = Path(field.name).name.split("_")[-1]  # remove UUID
-    with open(fpath, "rb") as fp:
-        return {"fname": fname, "data": base64.b64encode(fp.read()).decode("utf-8")}
 
 
 def validate_project_name(value):
@@ -811,13 +800,13 @@ class Configuration(models.Model):
         blank=True,
         null=True,
         upload_to=get_branding_path,
-        verbose_name=_lz("Logo (1MB max Image)"),
+        verbose_name=_lz("Horizontal Logo (1MB max Image)"),
     )
     branding_favicon = models.ImageField(
         blank=True,
         null=True,
         upload_to=get_branding_path,
-        verbose_name=_lz("Favicon (1MB max Image)"),
+        verbose_name=_lz("Square Logo (1MB max Image)"),
     )
 
     content_zims = JSONList(

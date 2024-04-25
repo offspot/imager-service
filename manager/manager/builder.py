@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 
 from django.conf import settings
 from offspot_config.builder import (
+    BRANDING_PATH,
     AppPackage,
     ConfigBuilder,
     FilesPackage,
@@ -15,6 +16,7 @@ from offspot_config.utils.download import get_online_rsc_size
 
 from manager.kiwix_library import catalog
 from manager.models import Configuration
+from manager.utils import retrieve_branding_file
 
 
 @dataclass
@@ -108,6 +110,43 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
         kiwix_zim_mirror="https://mirror.download.kiwix.org/zim/",
     )
 
+    # add branding
+    horizontal = (
+        None
+        if isinstance(config.branding_logo, str)
+        else retrieve_branding_file(config.branding_logo)
+    )
+    if horizontal:
+        builder.add_file(
+            url_or_content=horizontal["data"],
+            to=str(BRANDING_PATH.joinpath("horizontal-logo-light.png")),
+            via="base64",
+            size=int(horizontal["size"]),
+            is_url=False,
+        )
+    else:
+        builder.add_file(
+            **settings.BRANDING_FILES_PAYLOADS["horizontal-logo-light.png"]
+        )
+    del horizontal
+
+    square = (
+        None
+        if isinstance(config.branding_logo, str)
+        else retrieve_branding_file(config.branding_favicon)
+    )
+    if square:
+        builder.add_file(
+            url_or_content=square["data"],
+            to=str(BRANDING_PATH.joinpath("square-logo-light.png")),
+            via="base64",
+            size=int(square["size"]),
+            is_url=False,
+        )
+    else:
+        builder.add_file(**settings.BRANDING_FILES_PAYLOADS["square-logo-light.png"])
+    del square
+
     # dashboard links
     links = []
     if config.content_metrics:
@@ -159,9 +198,9 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             and dashboard_img.oci.tag == "1.3.1"
         ):
             dashboard_img_new = OCIImage(
-                ident="ghcr.io/offspot/dashboard:1.4.2",
-                filesize=164505600,
-                fullsize=164399817,
+                ident="ghcr.io/offspot/dashboard:1.4.3",
+                filesize=179845120,
+                fullsize=179738692,
             )
             builder.config["oci_images"].remove(dashboard_img)
             builder.config["oci_images"].add(dashboard_img_new)

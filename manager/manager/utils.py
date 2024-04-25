@@ -1,4 +1,3 @@
-import base64
 import string
 import uuid
 from pathlib import Path
@@ -6,6 +5,7 @@ from pathlib import Path
 import humanfriendly
 import magic
 from django.conf import settings
+from offspot_config.utils.misc import b64_decode, b64_encode
 
 ONE_GB = int(1e9)
 
@@ -93,7 +93,7 @@ def get_nested_key(data, keys):
 
 def is_expected_mime(b64data: str, expected_mimes: list[str]):
     """whether an fname, base64-encoded matches the supplied mime type (unsecure)"""
-    content = base64.b64decode(b64data)
+    content = b64_decode(b64data)
     try:
         return magic.Magic(mime=True).from_buffer(content[:2048]) in expected_mimes
     except UnicodeDecodeError:
@@ -109,3 +109,14 @@ def extract_branding(config, key, mimes):
     if is_expected_mime(data, mimes):
         return {"fname": fname, "data": data}
     return None
+
+
+def retrieve_branding_file(field) -> dict[str, str | bytes | int] | None:
+    if not field.name:
+        return None
+    fpath = Path(settings.MEDIA_ROOT).joinpath(field.name)
+    if not fpath.exists():
+        return None
+    fname = Path(field.name).name.split("_")[-1]  # remove UUID
+    content = fpath.read_bytes()
+    return {"fname": fname, "data": b64_encode(content), "size": len(content)}
