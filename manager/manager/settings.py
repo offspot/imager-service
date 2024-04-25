@@ -278,6 +278,7 @@ def get_branding_payload(fname: str) -> dict:
         "to": str(BRANDING_PATH.joinpath(fname)),
         "via": "base64",
         "size": len(data),
+        "is_url": False,
     }
 
 

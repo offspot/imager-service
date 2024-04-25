@@ -179,6 +179,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             to="${APP_DIR:file-manager.offspot.kiwix.org}",
             size=get_online_rsc_size(str(config.content_edupi_resources)),
             via="zip",
+            is_url=True,
         )
 
     builder.add_hwclock()
