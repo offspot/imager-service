@@ -206,9 +206,9 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             builder.config["oci_images"].add(dashboard_img_new)
             builder.compose["services"]["home"]["image"] = dashboard_img_new.source
 
-    if config.has_beta("image-creator-1.0"):
-        # set special image-creator.version prop in YAML that worker understands
-        # and will have it change imager path
-        builder.config["image-creator"] = {"version": "1.1.0"}
+    # if config.has_beta("image-creator-1.0"):
+    #     # set special image-creator.version prop in YAML that worker understands
+    #     # and will have it change imager path
+    #     builder.config["image-creator"] = {"version": "1.1.0"}
 
     return builder

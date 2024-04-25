@@ -263,7 +263,7 @@ KIWIX_READERS = [
 # must be handled individually in builder
 BETA_FEATURES = {
     "dashboard-1.4": "Dashboard 1.4 UI with separate Downloads and Readers option",
-    "image-creator-1.0": "Image-creator 1.0 with aria2 downloader",
+    # "image-creator-1.0": "Image-creator 1.0 with aria2 downloader",
 }
 
 
