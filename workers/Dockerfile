@@ -31,7 +31,7 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
     && chmod +x /usr/local/bin/image-creator_1.1.1 \
     && echo "--- beta version: " && image-creator_1.1.1 --version \
     # set default
-    && ln -s /usr/local/bin/image-creator_1.1.1 /usr/local/bin/image-creator
+    && ln -s /usr/local/bin/image-creator_0.9.8 /usr/local/bin/image-creator
 
 COPY requirements.txt /src/
 RUN pip install -r /src/requirements.txt
