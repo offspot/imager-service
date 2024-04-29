@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
                 help_text="Network name; the landing page will also be at http://name.hotspot",
                 max_length=32,
                 validators=[manager.models.validate_project_name],
-                verbose_name="Hospot name",
+                verbose_name="Hotspot name",
             ),
         ),
         migrations.AlterField(

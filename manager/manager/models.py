@@ -747,7 +747,7 @@ class Configuration(models.Model):
     project_name = models.CharField(
         max_length=32,
         default="kiwix",
-        verbose_name=_lz("Hospot name"),
+        verbose_name=_lz("Hotspot name"),
         help_text=_lz(
             "Network name; the landing page will also be at http://name.hotspot"
         ),

@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 default="kiwix",
                 help_text="Network name; the landing page will also be at http://name.hotspot",
                 max_length=100,
-                verbose_name="Hospot name",
+                verbose_name="Hotspot name",
             ),
         ),
         migrations.AlterField(
