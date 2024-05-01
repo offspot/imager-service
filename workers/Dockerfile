@@ -27,11 +27,11 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
     && curl -L -o /usr/local/bin/image-creator_0.9.8 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_0.9.8 \
     && chmod +x /usr/local/bin/image-creator_0.9.8 \
     && echo "--- dependencies version: " && image-creator_0.9.8 --version \
-    && curl -L -o /usr/local/bin/image-creator_1.1.2 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.1.2 \
-    && chmod +x /usr/local/bin/image-creator_1.1.2 \
-    && echo "--- beta version: " && image-creator_1.1.2 --version \
+    && curl -L -o /usr/local/bin/image-creator_1.1.3 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.1.3 \
+    && chmod +x /usr/local/bin/image-creator_1.1.3 \
+    && echo "--- beta version: " && image-creator_1.1.3 --version \
     # set default
-    && ln -s /usr/local/bin/image-creator_1.1.2 /usr/local/bin/image-creator
+    && ln -s /usr/local/bin/image-creator_1.1.3 /usr/local/bin/image-creator
 
 COPY requirements.txt /src/
 RUN pip install -r /src/requirements.txt
