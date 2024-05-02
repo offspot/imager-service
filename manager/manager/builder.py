@@ -35,6 +35,7 @@ class ConfigLike:
     content_edupi_resources: str | None = None
     content_metrics: bool = False
     option_kiwix_readers: bool = False
+    beta_features: list[str] = field(default_factory=list)  # parsed json
 
     @property
     def size(self) -> int:
@@ -48,15 +49,25 @@ class ConfigLike:
     def display_name(self):
         return self.name or self.project_name
 
-    def has_any_beta(self) -> bool:
-        # assume to not have any beta feature for now
-        # only used for size computation in UI
-        return False
+    @property
+    def current_beta_features(self) -> list[str]:
+        """list of currently valid beta features"""
+        if not self.beta_features:
+            return []
+        return [
+            feature
+            for feature in self.beta_features
+            if feature in settings.BETA_FEATURES
+        ]
 
-    def has_beta(self, feature: str) -> bool:  # noqa: ARG002
-        # assume to not have any beta feature for now
-        # only used for size computation in UI
-        return False
+    @property
+    def has_any_beta(self) -> bool:
+        """whether config has any currently valid beta feature"""
+        return bool(self.current_beta_features)
+
+    def has_beta(self, feature: str) -> bool:
+        """whether that feature is currently valid and selected"""
+        return feature in self.current_beta_features
 
 
 def gen_css_from_dashboard_options(logo_url: str, colors) -> str:
@@ -111,10 +122,8 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     )
 
     # add branding
-    horizontal = (
-        None
-        if isinstance(config.branding_logo, str)
-        else retrieve_branding_file(config.branding_logo)
+    horizontal = retrieve_branding_file(
+        config.branding_logo, is_virtual=isinstance(config, ConfigLike)
     )
     if horizontal:
         builder.add_file(
@@ -130,10 +139,8 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
         )
     del horizontal
 
-    square = (
-        None
-        if isinstance(config.branding_favicon, str)
-        else retrieve_branding_file(config.branding_favicon)
+    square = retrieve_branding_file(
+        config.branding_favicon, is_virtual=isinstance(config, ConfigLike)
     )
     if square:
         builder.add_file(

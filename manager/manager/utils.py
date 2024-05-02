@@ -111,12 +111,20 @@ def extract_branding(config, key, mimes):
     return None
 
 
-def retrieve_branding_file(field) -> dict[str, str | bytes | int] | None:
+def retrieve_branding_file(
+    field, is_virtual: bool = False
+) -> dict[str, str | bytes | int] | None:
+    if not field:
+        return None
+    if is_virtual:  # base64 from parsed from JSON
+        return {"fname": "virtual.png", "data": field, "size": len(b64_decode(field))}
+    # Configuration field (ImageFieldFile)
     if not field.name:
         return None
-    fpath = Path(settings.MEDIA_ROOT).joinpath(field.name)
+    fname = field.name
+    fpath = Path(settings.MEDIA_ROOT).joinpath(fname)
     if not fpath.exists():
         return None
-    fname = Path(field.name).name.split("_")[-1]  # remove UUID
+    fname = Path(fname).name.split("_")[-1]  # remove UUID
     content = fpath.read_bytes()
     return {"fname": fname, "data": b64_encode(content), "size": len(content)}

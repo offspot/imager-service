@@ -530,6 +530,94 @@ def save_branding_file(branding_file):
     return fname
 
 
+def parse_json_config(cls, config, dont_store_branding: bool = False):
+    # only packages IDs which are in the catalogs
+    zims_list = get_list_if_values_match(
+        get_nested_key(config, ["content", "zims"]), list(catalog.get_all_ids())
+    )
+    packages_list = get_list_if_values_match(
+        get_nested_key(config, ["content", "packages"]), app_catalog.keys()
+    )
+    beta_features = get_list_if_values_match(
+        get_nested_key(config, ["beta_features"]), list(settings.BETA_FEATURES.keys())
+    )
+
+    # branding
+    logo = extract_branding(config, "logo", ["image/png"])
+    favicon = extract_branding(config, "favicon", ["image/x-icon", "image/png"])
+
+    # name is used twice
+    name = get_if_str(
+        get_nested_key(config, "name"),
+        cls._meta.get_field("name").default,
+    )
+    project_name = get_if_str(
+        get_nested_key(config, "project_name"),
+        cls._meta.get_field("project_name").default,
+    )
+
+    # options
+    name = get_if_str(
+        get_nested_key(config, "name"),
+        cls._meta.get_field("name").default,
+    )
+
+    # wifi
+    wifi_password = None
+    # wifi (previous format)
+    if "wifi" in config and isinstance(config["wifi"], dict):
+        if "password" in config["wifi"].keys() and config["wifi"].get(
+            "protected", True
+        ):
+            wifi_password = get_if_str(get_nested_key(config, ["wifi", "password"]))
+    # wifi (new format)
+    if "wifi_password" in config.keys():
+        wifi_password = config["wifi_password"]
+
+    def branding_arg(value):
+        if not value:
+            return None
+        if dont_store_branding:
+            # return base64 string directly
+            return value.get("data")
+        return save_branding_file(value)
+
+    # rebuild clean config from data
+    return {
+        "name": name,
+        "project_name": project_name,
+        "language": get_if_str_in(
+            get_nested_key(config, "language"),
+            dict(cls._meta.get_field("language").choices).keys(),
+        ),
+        "timezone": get_if_str_in(
+            get_nested_key(config, "timezone"),
+            dict(cls._meta.get_field("timezone").choices).keys(),
+        ),
+        "wifi_password": wifi_password,
+        "admin_account": get_if_str(
+            get_nested_key(config, ["admin_account", "login"]),
+            cls._meta.get_field("admin_account").default,
+        ),
+        "admin_password": get_if_str(
+            get_nested_key(config, ["admin_account", "password"]),
+            cls._meta.get_field("admin_password").default,
+        ),
+        "content_zims": zims_list,
+        "content_packages": packages_list,
+        "content_edupi_resources": get_if_str(
+            get_nested_key(config, ["content", "edupi_resources"])
+        ),
+        "content_metrics": bool(get_nested_key(config, ["content", "metrics"])),
+        "option_kiwix_readers": bool(
+            get_nested_key(config, ["options", "kiwix_readers"])
+        ),
+        "branding_logo": branding_arg(logo),
+        "branding_favicon": branding_arg(favicon),
+        "beta_features": beta_features,
+    }
+
+
 def validate_project_name(value):
     # must be a valid SSID and a valid hostname
     test1 = is_valid_ssid(value)
@@ -854,74 +942,13 @@ class Configuration(models.Model):
 
     @classmethod
     def create_from(cls, config, author):
-        # only packages IDs which are in the catalogs
-        zims_list = get_list_if_values_match(
-            get_nested_key(config, ["content", "zims"]), list(catalog.get_all_ids())
+        kwargs = parse_json_config(cls, config)
+        kwargs.update(
+            {
+                "updated_by": author,
+                "organization": author.organization,
+            }
         )
-        packages_list = get_list_if_values_match(
-            get_nested_key(config, ["content", "packages"]), app_catalog.keys()
-        )
-
-        # branding
-        logo = extract_branding(config, "logo", ["image/png"])
-        favicon = extract_branding(config, "favicon", ["image/x-icon", "image/png"])
-
-        # name is used twice
-        name = get_if_str(
-            get_nested_key(config, "name"),
-            cls._meta.get_field("name").default,
-        )
-        project_name = get_if_str(
-            get_nested_key(config, "project_name"),
-            cls._meta.get_field("project_name").default,
-        )
-
-        # wifi
-        wifi_password = None
-        # wifi (previous format)
-        if "wifi" in config and isinstance(config["wifi"], dict):
-            if "password" in config["wifi"].keys() and config["wifi"].get(
-                "protected", True
-            ):
-                wifi_password = get_if_str(get_nested_key(config, ["wifi", "password"]))
-        # wifi (new format)
-        if "wifi_password" in config.keys():
-            wifi_password = config["wifi_password"]
-
-        # rebuild clean config from data
-        kwargs = {
-            "updated_by": author,
-            "organization": author.organization,
-            "name": name,
-            "project_name": project_name,
-            "language": get_if_str_in(
-                get_nested_key(config, "language"),
-                dict(cls._meta.get_field("language").choices).keys(),
-            ),
-            "timezone": get_if_str_in(
-                get_nested_key(config, "timezone"),
-                dict(cls._meta.get_field("timezone").choices).keys(),
-            ),
-            "wifi_password": wifi_password,
-            "admin_account": get_if_str(
-                get_nested_key(config, ["admin_account", "login"]),
-                cls._meta.get_field("admin_account").default,
-            ),
-            "admin_password": get_if_str(
-                get_nested_key(config, ["admin_account", "password"]),
-                cls._meta.get_field("admin_password").default,
-            ),
-            "branding_logo": save_branding_file(logo) if logo is not None else None,
-            "branding_favicon": (
-                save_branding_file(favicon) if favicon is not None else None
-            ),
-            "content_zims": zims_list,
-            "content_packages": packages_list,
-            "content_edupi_resources": get_if_str(
-                get_nested_key(config, ["content", "edupi_resources"])
-            ),
-            "content_metrics": bool(get_nested_key(config, ["content", "metrics"])),
-        }
 
         try:
             return cls.objects.create(**kwargs)
@@ -931,10 +958,9 @@ class Configuration(models.Model):
             # remove saved branding files
             for key in ("branding_logo", "branding_favicon"):
                 if kwargs.get(key):
-                    try:
-                        Path(settings.MEDIA_ROOT).joinpath(kwargs.get(key))
-                    except FileNotFoundError:
-                        pass
+                    Path(settings.MEDIA_ROOT).joinpath(kwargs.get(key)).unlink(
+                        missing_ok=True
+                    )
             raise exp
 
     def duplicate(self, by):
@@ -1071,6 +1097,12 @@ class Configuration(models.Model):
                             ("edupi_resources", self.content_edupi_resources),
                             ("metrics", self.content_metrics),
                         ]
+                    ),
+                ),
+                (
+                    "options",
+                    collections.OrderedDict(
+                        [("kiwix_readers", self.option_kiwix_readers)]
                     ),
                 ),
                 (

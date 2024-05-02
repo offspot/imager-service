@@ -1,16 +1,27 @@
 import datetime
 import json
+from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Max
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from manager.builder import prepare_builder_for_collection
+from manager.builder import (
+    ConfigLike,
+    prepare_builder_for,
+    prepare_builder_for_collection,
+)
 from manager.kiwix_library import catalog
-from manager.models import Configuration, Media, Organization, Profile
+from manager.models import (
+    Configuration,
+    Media,
+    Organization,
+    Profile,
+    parse_json_config,
+)
 from manager.utils import ONE_GB, human_readable_size
 
 
@@ -179,3 +190,26 @@ def create_user_account(request):
         },
         status=201,
     )
+
+
+@csrf_exempt
+@require_POST
+def json_to_yaml(request):
+    """An offspot-config builder Image YAML from an exported JSON config"""
+    if request.headers.get("Token") != settings.ACCOUNTS_API_TOKEN:
+        return JsonResponse({"error": "PermissionDenied"}, status=403)
+
+    try:
+        payload = request.body
+        if not payload:
+            raise ValueError("Missing payload")
+        if isinstance(payload, bytes):
+            payload = payload.decode("UTF-8")
+        data = json.loads(payload)
+    except Exception as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+
+    kwargs = parse_json_config(Configuration, data, dont_store_branding=True)
+    yaml_text = prepare_builder_for(ConfigLike(**kwargs)).render()
+
+    return HttpResponse(yaml_text, content_type="text/yaml")

@@ -28,6 +28,7 @@ urlpatterns = [
         api.media_choices_for_configuration,
         name="api_medias_choices",
     ),
+    path("api/json-to-yaml", api.json_to_yaml, name="api_json_to_yaml"),
     # configuration
     path("configurations/new", config.configuration_edit, name="configuration_add"),
     path(
