@@ -715,9 +715,6 @@ class Configuration(models.Model):
         verbose_name = _lz("configuration")
         verbose_name_plural = _lz("configurations")
 
-    KALITE_LANGUAGES = ["en", "fr", "es"]  # noqa: RUF012
-    WIKIFUNDI_LANGUAGES = ["en", "fr", "es"]  # noqa: RUF012
-
     organization = models.ForeignKey(
         "Organization",
         on_delete=models.CASCADE,
