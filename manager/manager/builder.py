@@ -132,7 +132,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
 
     square = (
         None
-        if isinstance(config.branding_logo, str)
+        if isinstance(config.branding_favicon, str)
         else retrieve_branding_file(config.branding_favicon)
     )
     if square:
