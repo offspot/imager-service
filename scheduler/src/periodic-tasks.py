@@ -19,6 +19,8 @@ from utils.templates import (
 )
 from routes.orders import create_order_from
 
+MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org/api")
+MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -95,47 +97,6 @@ def run_periodic_tasks():
     logger.info("managing auto-images")
     check_autoimages()
 
-    # timeout orders based on status
-
-    # orders cant stay in creation for more than 12h
-    # orders in downloading/writing cant be slower than 4Mb/s
-    # now = datetime.datetime.now()
-    # min_bps = int(humanfriendly.parse_size("4MiB") / 8)
-
-    # for morder in Orders().find(
-    #     {"status": {"$in": [Orders().creating, Orders.downloading, Orders.writing]}},
-    #     {"_id": 1},
-    # ):
-    #     order = Orders().get_with_tasks(morder["_id"])
-    #     ls = order["statuses"][-1]
-
-    #     # prepare expired dt based on status
-    #     if ls["status"] == Orders().creating:
-    #         task = CreatorTasks().get(order["tasks"]["create"])
-    #     elif ls["status"] in (Orders.downloading, Orders.writing):
-    #         size = humanfriendly.parse_size(order["config"]["size"])
-    #         expired = now - datetime.timedelta(seconds=int(size / min_bps))
-    #         if ls["status"] == Orders.downloading:
-    #             task_cls, task_id = DownloaderTasks, order["tasks"]["download"]
-    #         else:
-    #             task_cls, task_id = WriterTasks, order["tasks"]["write"]
-    #     else:
-    #         # last status not in-progress
-    #         continue
-
-    #     # compare last update with expiry datetime
-    #     if ls["on"] > expired:
-    #         continue
-
-    #     # timeout task
-    #     task_cls().update_status(task_id=task_id, status=task_cls.timedout)
-
-    #     # timeout order
-    #     task_cls().cascade_status(task_id=task_id, status=task_cls.timedout)
-
-    #     # notify failure
-    #     send_order_failed_email(order["_id"])  # TODO: forward to task/order mgmt
-
     logger.info("timing out expired orders")
     for task_cls, task in Tasks.all_inprogress():
         task_id = task["_id"]
@@ -180,18 +141,6 @@ def run_periodic_tasks():
         logger.info("Order #{} has reach expiration.".format(order["_id"]))
         Orders().update_status(order["_id"], Orders.expired)
 
-        # logger.info(
-        #     "Order #{} has reach expiration. deleting file".format(order["_id"])
-        # )
-        # order_fname = "{}.img".format(order["_id"])
-
-        # # actually delete file
-        # if remove_image(order_fname, order["warehouse"]["upload_uri"]):
-        #     # update order (all done)
-        #     Orders().update_status(order["_id"], Orders.expired)
-        # else:
-        #     logger.error("Failed to remove expired file {}".format(order_fname))
-
 
 def check_autoimages():
     # update images that were building
@@ -229,9 +178,18 @@ def check_autoimages():
     for image in AutoImages.all_needing_rebuild():
         logger.info(f".. {image['slug']} ; starting build")
 
-        # create order
         payload = AutoImages.create_order_payload(image["slug"])
         try:
+            # retrieve up-to-date YAML from stored JSON config
+            resp = requests.post(
+                f"{MANAGER_API_URL}/json-to-yaml",
+                headers={"Token": MANAGER_ACCOUNTS_API_TOKEN},
+                json=payload["config"],
+            )
+            resp.raise_for_status()
+            payload["config_yaml"] = resp.text
+
+            # create order
             order_id = create_order_from(payload)
         except Exception as exc:
             logger.error(f"Error creating image `{image['slug']}`: {exc}")
