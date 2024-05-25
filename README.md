@@ -6,7 +6,7 @@ a central scheduler, creator workers (to create image files),
 downloader workers and writer workers (to write images onto real
 SD-cards).
 
-[![CodeFactor](https://www.codefactor.io/repository/github/offspot/cardshop/badge)](https://www.codefactor.io/repository/github/offspot/cardshop)
+[![CodeFactor](https://www.codefactor.io/repository/github/offspot/imager-service/badge)](https://www.codefactor.io/repository/github/offspot/imager-service)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## i18n
