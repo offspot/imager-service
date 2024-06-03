@@ -35,24 +35,28 @@ LANG_STRINGS = {
     "en": {
         "product_wikipedia": "Wikipedia Hotspot English",
         "product_preppers": "Preppers Hotspot",
+        "product_computer": "Computer Hotspot",
         "product_access_1m": "One month Imager Access",
         "product_access_1y": "Annual Imager Access",
     },
     "de": {
         "product_wikipedia": "Wikipedia Hotspot auf Deutsch",
         "product_preppers": "Preppers Hotspot",
+        "product_computer": "Computer Hotspot",
         "product_access_1m": "One month Imager Access",
         "product_access_1y": "Annual Imager Access",
     },
     "es": {
         "product_wikipedia": "Wikipedia Hotspot en español",
         "product_preppers": "Preppers Hotspot",
+        "product_computer": "Computer Hotspot",
         "product_access_1m": "One month Imager Access",
         "product_access_1y": "Annual Imager Access",
     },
     "fr": {
         "product_wikipedia": "Wikipedia Hotspot Français",
         "product_preppers": "Preppers Hotspot",
+        "product_computer": "Computer Hotspot",
         "product_access_1m": "Accès Imager 1 mois",
         "product_access_1y": "Accès Imager annuel",
     },
@@ -266,6 +270,11 @@ PRODUCTS = {
         os.getenv("STRIPE_PRICE_PP"),
         handle_image_order,
     ),
+    "computer": (
+        os.getenv("STRIPE_METHOD_CS"),
+        os.getenv("STRIPE_PRICE_CS"),
+        handle_image_order,
+    ),
     "access-1m": (
         os.getenv("STRIPE_METHOD_ACCESS1M"),
         os.getenv("STRIPE_PRICE_ACCESS1M"),
@@ -410,7 +419,7 @@ def success():
 
     context = {"customer": customer, "session": session, "shop_url": SHOP_PUBLIC_URL}
     product = session.metadata.get("product")
-    if product.startswith("wikipedia-") or product in ("preppers", ):
+    if product.startswith("wikipedia-") or product in ("preppers", "computer"):
         kind = "image"
         http_url, torrent_url, _ = get_links_for(product)
         context.update({"http_url": http_url, "torrent_url": torrent_url})
