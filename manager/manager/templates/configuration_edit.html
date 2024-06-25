@@ -273,7 +273,7 @@ tr.removed {
 			  	<thead><tr><th>{% blocktrans %}Name{% endblocktrans %}</th><th>{% blocktrans %}Size{% endblocktrans %}</th></tr></thead>
 			  	<tbody>
 			  		{% for book in form.content_zims.value|books_from_json %}
-			  		<tr id="selected-zim-row-{{ book.ident }}"><td><a href="#" class="remove-zim" data-book-ident="{{ book.ident }}"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ book.ident }}" class="fas fa-minus-circle primary"></i></a> <strong>{{ book.title }}</strong>{% if books.tags %} {% for tag in book.tags %}<span class="badge badge-pill badge-secondary package-tag">{{ tag }}</span>{% endfor %}{% endif %}<p><em>{{ book.description }}</em></p></td><td>{{ book.size|human_size }}</td>
+			  		<tr id="selected-zim-row-{{ book.ident }}"><td><a href="#" class="remove-zim" data-book-ident="{{ book.ident }}"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ book.ident }}" class="fas fa-minus-circle primary"></i></a> <strong>{{ book.title }}</strong>{% if books.tags %} {% for tag in book.tags %}<span class="badge badge-pill badge-secondary package-tag">{{ tag }}</span>{% endfor %}{% endif %}<p><em>{{ book.description }}</em></p></td><td>{{ book.size|human_size:True }}</td>
 			  		</tr>
 			  		{% endfor %}
 			  	</tbody>
@@ -305,7 +305,7 @@ tr.removed {
 
   function humanSize(sizeInBytes) {
     var i = -1;
-    var units = ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    var units = ['kiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
     do {
       sizeInBytes /= 1024;
       i++;
