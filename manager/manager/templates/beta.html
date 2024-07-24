@@ -13,10 +13,11 @@
 <input type="hidden" name="toggle" value="{% if user.profile.organization.beta_is_active %}disable{% else %}enable{% endif %}" />
 <button class="btn btn-primary">
     {% if user.profile.organization.beta_is_active %}
-        {% blocktrans with org=user.profile.organization %}I want to disable beta features for <em>{{ org }}</em>{% endblocktrans %}</button>
+        {% blocktrans with org=user.profile.organization %}I want to disable beta features for <em>{{ org }}</em>{% endblocktrans %}
     {% else %}
         {% blocktrans with org=user.profile.organization %}I want to enable beta features for <em>{{ org }}</em>{% endblocktrans %}
     {% endif %}
+</button>
 </form>
 
 <hr />
