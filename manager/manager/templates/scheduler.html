@@ -185,7 +185,7 @@
 			<li><a href="{{ image.http_url }}" target="_blank">HTTP</a></li>
 			{% if image.torrent_url %}<li><a href="{{ image.torrent_url }}" target="_blank">{% blocktrans %}torrent{% endblocktrans %}</a></li>{% endif %}
 			<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/json" target="_blank">{% blocktrans %}JSON{% endblocktrans %}</a></li>
-			{% if not image.private %}<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/redirect" target="_blank">{% blocktrans %}redirect{% endblocktrans %}</a></li>{% endif %}
+			{% if not image.private %}<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/redirect/http" target="_blank">{% blocktrans %}redirect{% endblocktrans %}</a></li>{% endif %}
 			</ul>
 			{% else %}{% blocktrans %}n/a{% endblocktrans %}{% endif %}</td>
 		<td>{% if image.order %}<a href="{% url "all-orders-detail" order_id=image.order %}">{{ image.order|short_id }}</a>{% else %}{% blocktrans %}n/a{% endblocktrans %}{% endif %}</td>
