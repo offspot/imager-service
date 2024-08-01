@@ -976,9 +976,12 @@ class Configuration(models.Model):
         return new_instance
 
     def size_value_changed(self):
-        computed_size = self.builder.get_min_size()
-        if computed_size != self.size:
-            self.size = computed_size
+        try:  # get_min_size initialize a builder which could fail on missing ZIM
+            computed_size = self.builder.get_min_size()
+            if computed_size != self.size:
+                self.size = computed_size
+                return True
+        except Exception:
             return True
         return False
 
