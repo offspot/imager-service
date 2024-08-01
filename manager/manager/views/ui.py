@@ -614,7 +614,7 @@ def order_config(request, config_id: int | None = None):
             )
             return redirect("configuration_list")
         # select latest (already updated_by sorted) if not specified
-        config = organization.configurations.last()
+        config = organization.configurations.latest("updated_on")
 
     # update config size?
     if config.size_value_changed():
