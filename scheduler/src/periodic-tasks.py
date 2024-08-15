@@ -47,49 +47,6 @@ def is_expired(status, since, size=0):
         return since < now - datetime.timedelta(seconds=int(size / min_bps))
 
 
-def remove_image(image_fname, upload_uri):
-
-    # use manager credentials to be able to delete files over FTP
-    username = "manager"
-    req = requests.post(
-        url="{api_url}/auth/authorize".format(
-            api_url=os.getenv("CARDSHOP_API_INTERNAL_URL")
-        ),
-        headers={
-            "username": "manager",
-            "password": os.getenv("MANAGER_API_KEY"),
-            "Content-type": "application/json",
-        },
-    )
-    try:
-        req.raise_for_status()
-    except Exception:
-        return False
-    access_token = req.json().get("access_token")
-
-    args = [
-        "/usr/bin/curl",
-        "--connect-timeout",
-        "60",
-        "--insecure",
-        "--ipv4",
-        "--retry-connrefused",
-        "--retry-delay",
-        "60",
-        "--retry",
-        "20",
-        "--stderr",
-        "-",
-        "--user",
-        "{user}:{passwd}".format(user=username, passwd=access_token),
-        upload_uri,
-        "-Q",
-        "-DELE {}".format(image_fname),
-    ]
-
-    return subprocess.run(args).returncode == 0
-
-
 def run_periodic_tasks():
     logger.info("running periodic tasks !!")
 
