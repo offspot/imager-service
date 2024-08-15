@@ -34,6 +34,7 @@ MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
 LANG_STRINGS = {
     "en": {
         "product_wikipedia": "Wikipedia Hotspot English",
+        "product_ted": "TED Hotspot",
         "product_preppers": "Preppers Hotspot",
         "product_computer": "Computer Hotspot",
         "product_access_1m": "One month Imager Access",
@@ -41,6 +42,7 @@ LANG_STRINGS = {
     },
     "de": {
         "product_wikipedia": "Wikipedia Hotspot auf Deutsch",
+        "product_ted": "TED Hotspot",
         "product_preppers": "Preppers Hotspot",
         "product_computer": "Computer Hotspot",
         "product_access_1m": "One month Imager Access",
@@ -48,6 +50,7 @@ LANG_STRINGS = {
     },
     "es": {
         "product_wikipedia": "Wikipedia Hotspot en español",
+        "product_ted": "TED Hotspot",
         "product_preppers": "Preppers Hotspot",
         "product_computer": "Computer Hotspot",
         "product_access_1m": "One month Imager Access",
@@ -55,6 +58,7 @@ LANG_STRINGS = {
     },
     "fr": {
         "product_wikipedia": "Wikipedia Hotspot Français",
+        "product_ted": "TED Hotspot",
         "product_preppers": "Preppers Hotspot",
         "product_computer": "Computer Hotspot",
         "product_access_1m": "Accès Imager 1 mois",
@@ -270,6 +274,11 @@ PRODUCTS = {
         os.getenv("STRIPE_PRICE_PP"),
         handle_image_order,
     ),
+    "ted": (
+        os.getenv("STRIPE_METHOD_TED"),
+        os.getenv("STRIPE_PRICE_TED"),
+        handle_image_order,
+    ),
     "computer": (
         os.getenv("STRIPE_METHOD_CS"),
         os.getenv("STRIPE_PRICE_CS"),
@@ -419,7 +428,7 @@ def success():
 
     context = {"customer": customer, "session": session, "shop_url": SHOP_PUBLIC_URL}
     product = session.metadata.get("product")
-    if product.startswith("wikipedia-") or product in ("preppers", "computer"):
+    if product.startswith("wikipedia-") or product in ("preppers", "computer", "ted"):
         kind = "image"
         http_url, torrent_url, _ = get_links_for(product)
         context.update({"http_url": http_url, "torrent_url": torrent_url})
