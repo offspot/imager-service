@@ -236,7 +236,7 @@ OFFSPOT_LANGUAGES = [
 KIWIX_READERS_SOURCES = {
     "windows": "https://download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.3.1-2.zip",
     "android": "https://download.kiwix.org/release/kiwix-android/kiwix-3.11.1.apk",
-    "macos": "https://download.kiwix.org/release/kiwix-macos/kiwix-macos_3.4.0.dmg",
+    "macos": "https://download.kiwix.org/release/kiwix-macos/kiwix-macos_3.5.0.dmg",
     "linux": "https://download.kiwix.org/release/kiwix-desktop/"
     + "kiwix-desktop_x86_64_2.3.1-4.appimage",
 }
