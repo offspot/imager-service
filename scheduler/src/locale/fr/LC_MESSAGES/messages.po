@@ -258,6 +258,12 @@ msgstr ""
 "http://<em>nom</em>.hotspot) dans la barre d’adresse de votre navigateur "
 "(attention à utiliser <em>http</em> et non https)."
 
+#: src/templates/recipient_image_uploaded_public.html:21
+msgid ""
+"If you encounter any issue, check out our <a href="https://kiwix.org/en/hotspot-checklist-and-troubleshooting/">troubleshooting checklist</a> before reaching out by responding to this email."
+msgstr ""
+"Si vous rencontrez un problème pour utiliser votre hotspot, consultez <a href="https://kiwix.org/en/hotspot-checklist-and-troubleshooting/">notre checklist</a> avant de nous contacter en répondant à cet email"
+
 #: src/templates/recipient_image_uploaded_public.html:22
 msgid "Have a nice day,"
 msgstr "Bonne journée,"
