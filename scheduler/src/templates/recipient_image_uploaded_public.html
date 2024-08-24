@@ -3,6 +3,7 @@
 
 {% block message %}
 {% set transmission_link %}<img style="height: 1em; vertical-align: middle;" src="https://imager.kiwix.org/static/img/transmission-32@2x.png" /> <a href="https://transmissionbt.com/download/">Transmission</a>{% endset %}
+{% set faq_link %}<a href="https://kiwix.org/en/hotspot-checklist-and-troubleshooting/">troubleshooting checklist</a>{% endset %}
 {% set etcher_link %}<a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a>{% endset %}
 
 {% call tagged_message("info") %}{{ _("Your image is ready to download!") }}{% endcall %}
@@ -18,6 +19,6 @@
 <p>{{ _("You are allowed to share this link freely until %(expiration_date)s, after which the file will be permanently deleted.")|format(expiration_date=order.sd_card.expiration.strftime('%c')) }}</p>
 <p>{{ _("To install the file onto a microSD card, we recommend using %(etcher_link)s.")|format(etcher_link=etcher_link)|safe }}</p>
 <p>{{ _("You do not need to connect your Raspberry to a screen. Simply connect to the Hotspot by typing <code>http://goto.kiwix.hotspot</code> (or http://<em>name</em>.hotspot) in your browser's address bar (be mindful to use <em>http</em> and not https).")|safe }}</p>
-<p>{{ _("If you encounter any issue, check out our <a href=\"https://kiwix.org/en/hotspot-checklist-and-troubleshooting/\">troubleshooting checklist</a> before reaching out by responding to this email.") }}</p>
+<p>{{ _("If you encounter any issue, check out our %(faq_link)s before reaching out by responding to this email.")|format(faq_link=faq_link)|safe }}</p>
 <p>{{ _("Have a nice day,") }}</p>
 {% endblock %}
