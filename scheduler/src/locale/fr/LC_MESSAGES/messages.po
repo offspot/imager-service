@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-09-22 13:44+0000\n"
-"PO-Revision-Date: 2023-09-22 13:48+0000\n"
+"POT-Creation-Date: 2024-08-27 12:26+0000\n"
+"PO-Revision-Date: 2024-08-27 12:27+0000\n"
 "Last-Translator: reg <rgaudin@gmail.com>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Language: fr\n"
@@ -73,8 +73,8 @@ msgstr "<code>%(status)s</code>, %(status_on)s"
 #: src/templates/macros.html:7
 #, python-format
 msgid ""
-"Confirm <strong>%(sdcard_name)s</strong> SD-card inserted into <strong>"
-"%(slot)s</strong>"
+"Confirm <strong>%(sdcard_name)s</strong> SD-card inserted into <strong>%(slot)s</"
+"strong>"
 msgstr ""
 "Confirmez <strong>%(sdcard_name)s</strong> carte SD insérée dans <strong>"
 "%(slot)s</strong>"
@@ -139,8 +139,7 @@ msgstr "Cher opérateur de %(worker)s,"
 #: src/templates/operator_order_failed.html:9
 #, python-format
 msgid ""
-"<code>WriterTask #%(task_id)s</code> failed with status <code>%(status)s</"
-"code>."
+"<code>WriterTask #%(task_id)s</code> failed with status <code>%(status)s</code>."
 msgstr ""
 "La <code>WriterTask #%(task_id)s</code> a échouée avec le statut <code>"
 "%(status)s</code>."
@@ -148,8 +147,8 @@ msgstr ""
 #: src/templates/operator_order_failed.html:10
 #, python-format
 msgid ""
-"Please investigate and contact this order's contact <em>%(client_name)s</em> "
-"at %(contact_link)s."
+"Please investigate and contact this order's contact <em>%(client_name)s</em> at "
+"%(contact_link)s."
 msgstr ""
 "Veuillez enquêter et contacter le responsable de cette commande <em>"
 "%(client_name)s</em> à %(contact_link)s."
@@ -168,9 +167,9 @@ msgstr ""
 #: src/templates/operator_worker_sos.html:6
 #, python-format
 msgid ""
-"On %(ack_on)s, your (<code>%(username)s/%(worker_type)s</code>) worker for "
-"slot <code>%(slot)s</code> sent an SOS meaning it could not start with the "
-"following payload:"
+"On %(ack_on)s, your (<code>%(username)s/%(worker_type)s</code>) worker for slot "
+"<code>%(slot)s</code> sent an SOS meaning it could not start with the following "
+"payload:"
 msgstr ""
 "À %(ack_on)s, votre worker (<code>%(username)s/%(worker_type)s</code>) pour le "
 "slot <code>%(slot)s</code> a envoyé un SOS signifiant qu’il ne pouvait pas "
@@ -182,11 +181,11 @@ msgstr ""
 "Veuillez vous assurer que les appareils sont en ordre et vérifier l’état sur "
 "l'Imager."
 
-#: src/templates/recipient_image_uploaded_public.html:8
+#: src/templates/recipient_image_uploaded_public.html:9
 msgid "Your image is ready to download!"
 msgstr "Votre image est prête à être téléchargée !"
 
-#: src/templates/recipient_image_uploaded_public.html:9
+#: src/templates/recipient_image_uploaded_public.html:10
 #: src/templates/recipient_order_created.html:6
 #: src/templates/recipient_order_failed.html:6
 #: src/templates/recipient_order_shipped.html:6
@@ -194,22 +193,22 @@ msgstr "Votre image est prête à être téléchargée !"
 msgid "Dear %(recipient_name)s,"
 msgstr "Cher %(recipient_name)s,"
 
-#: src/templates/recipient_image_uploaded_public.html:10
+#: src/templates/recipient_image_uploaded_public.html:11
 #, python-format
 msgid "Your Hotspot Image “%(config_name)s” is now ready to download."
 msgstr ""
 "Votre image de point d’accès « %(config_name)s » est maintenant prête à être "
 "téléchargée."
 
-#: src/templates/recipient_image_uploaded_public.html:13
+#: src/templates/recipient_image_uploaded_public.html:14
 msgid ""
-"Your image is also available as a <em>torrent</em>. You need a BitTorrent "
-"client (software) to retrieve the actual <em>img</em> file."
+"Your image is also available as a <em>torrent</em>. You need a BitTorrent client "
+"(software) to retrieve the actual <em>img</em> file."
 msgstr ""
 "Votre image est également disponible sous forme de <em>torrent</em>. Vous avez "
 "besoin d’un logiciel BitTorrent pour récupérer le fichier <em>img</em> réel."
 
-#: src/templates/recipient_image_uploaded_public.html:14
+#: src/templates/recipient_image_uploaded_public.html:15
 #, python-format
 msgid ""
 "We recommend you use %(transmission_link)s if you don't already have one. It "
@@ -220,25 +219,25 @@ msgstr ""
 "déjà un. Il vous permettra de mettre en pause et de reprendre facilement votre "
 "téléchargement et de vous assurer que votre fichier n’est pas corrompu."
 
-#: src/templates/recipient_image_uploaded_public.html:16
+#: src/templates/recipient_image_uploaded_public.html:17
 msgid ""
-"You can pause and resume your download as you wish. If your connection is "
-"slow, use a download manager!"
+"You can pause and resume your download as you wish. If your connection is slow, "
+"use a download manager!"
 msgstr ""
 "Vous pouvez mettre en pause et reprendre votre téléchargement comme vous le "
 "souhaitez. Si votre connexion est lente, utilisez un gestionnaire de "
 "téléchargement !"
 
-#: src/templates/recipient_image_uploaded_public.html:18
+#: src/templates/recipient_image_uploaded_public.html:19
 #, python-format
 msgid ""
-"You are allowed to share this link freely until %(expiration_date)s, after "
-"which the file will be permanently deleted."
+"You are allowed to share this link freely until %(expiration_date)s, after which "
+"the file will be permanently deleted."
 msgstr ""
 "Vous êtes autorisé à partager ce lien librement jusqu’au %(expiration_date)s, "
 "après quoi le fichier sera définitivement supprimé."
 
-#: src/templates/recipient_image_uploaded_public.html:19
+#: src/templates/recipient_image_uploaded_public.html:20
 #, python-format
 msgid ""
 "To install the file onto a microSD card, we recommend using %(etcher_link)s."
@@ -246,12 +245,12 @@ msgstr ""
 "Pour installer le fichier sur une carte microSD, nous vous recommandons "
 "d’utiliser %(etcher_link)s."
 
-#: src/templates/recipient_image_uploaded_public.html:20
+#: src/templates/recipient_image_uploaded_public.html:21
 msgid ""
 "You do not need to connect your Raspberry to a screen. Simply connect to the "
 "Hotspot by typing <code>http://goto.kiwix.hotspot</code> (or http://<em>name</"
-"em>.hotspot) in your browser's address bar (be mindful to use <em>http</em> "
-"and not https)."
+"em>.hotspot) in your browser's address bar (be mindful to use <em>http</em> and "
+"not https)."
 msgstr ""
 "Vous n’avez pas besoin de connecter votre Raspberry à un écran. Connectez-vous "
 "simplement au Hotspot en tapant <code>http://goto.kiwix.hotspot</code> (ou "
@@ -259,6 +258,15 @@ msgstr ""
 "(attention à utiliser <em>http</em> et non https)."
 
 #: src/templates/recipient_image_uploaded_public.html:22
+#, python-format
+msgid ""
+"If you encounter any issue, check out our %(faq_link)s before reaching out by "
+"responding to this email."
+msgstr ""
+"Si vous rencontrez un problème pour utiliser votre hotspot, consultez "
+"%(faq_link)s avant de nous contacter en répondant à cet email."
+
+#: src/templates/recipient_image_uploaded_public.html:23
 msgid "Have a nice day,"
 msgstr "Bonne journée,"
 
@@ -288,10 +296,9 @@ msgid ""
 "within 24 hours at most."
 msgstr ""
 "Votre commande de téléchargement <strong>%(sd_size)sGB</strong> avec la "
-"configuration <strong>%(config_name)s</strong> a été acceptée par le système. "
-"La durée de préparation dépend de la taille de l'image et de la charge du "
-"serveur, mais votre commande devrait être prête dans les 24 heures au plus "
-"tard."
+"configuration <strong>%(config_name)s</strong> a été acceptée par le système. La "
+"durée de préparation dépend de la taille de l'image et de la charge du serveur, "
+"mais votre commande devrait être prête dans les 24 heures au plus tard."
 
 #: src/templates/recipient_order_created.html:10
 msgid "You will be notified when it is ready for download."
@@ -304,8 +311,7 @@ msgstr "Votre commande a échouée !"
 #: src/templates/recipient_order_failed.html:7
 #, python-format
 msgid "Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> card"
-msgstr ""
-"Votre commande de <strong>%(quantity)s x %(sdcard_name)s</strong> carte(s)"
+msgstr "Votre commande de <strong>%(quantity)s x %(sdcard_name)s</strong> carte(s)"
 
 #: src/templates/recipient_order_failed.html:8
 #, python-format
@@ -351,8 +357,8 @@ msgid ""
 "Please, contact <em>%(client_name)s</em> should you have any question… and to "
 "confirm reception!"
 msgstr ""
-"Veuillez contacter <em>%(client_name)s</em> si vous avez des questions… et "
-"pour confirmer la réception !"
+"Veuillez contacter <em>%(client_name)s</em> si vous avez des questions… et pour "
+"confirmer la réception !"
 
 #: src/templates/recipient_order_shipped.html:10
 #, python-format
