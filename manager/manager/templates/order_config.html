@@ -12,8 +12,8 @@
 	<div class="col-md-6"></div>
 		<table class="table table-striped">
 			<tbody>
-			<tr><th>{% blocktrans context "Order confirmation Summary" %}Configuration{% endblocktrans %}</th><td><a href="{% url 'configuration_edit' config_id=config.id %}">{{ config.project_name }}</a></td></tr>
-			<tr><th>{% blocktrans context "Order confirmation Summary" %}Hotspot WiFi SSID{% endblocktrans %}</th><td>{{ config.name }}{% if config.wifi_password %} – <i class="fas fa-key fa-xs"></i> <code>{{ config.wifi_password }}</code>{% endif %}</td></tr>
+			<tr><th>{% blocktrans context "Order confirmation Summary" %}Configuration{% endblocktrans %}</th><td><a href="{% url 'configuration_edit' config_id=config.id %}">{{ config.name }}</a></td></tr>
+			<tr><th>{% blocktrans context "Order confirmation Summary" %}Hotspot WiFi SSID{% endblocktrans %}</th><td>{{ config.project_name }}{% if config.wifi_password %} – <i class="fas fa-key fa-xs"></i> <code>{{ config.wifi_password }}</code>{% endif %}</td></tr>
 			<tr><th>{% blocktrans context "Order confirmation Summary" %}Image Size{% endblocktrans %}</th><td>{{ config.size|human_size:True }} – <i class="fas fa-sd-card" style="color: #FF9933;"></i> {{ config.min_media.size }}GB+</td></tr>
 			<tr><th>{% blocktrans context "Order confirmation Summary" %}Send Download Link to{% endblocktrans %}</th><td>{{ request.user.profile.name }} <code>{{ request.user.profile.email }}</code></td></tr>
 			<tr><th>{% blocktrans context "Order confirmation Summary" %}Apps{% endblocktrans %}</th><td>
