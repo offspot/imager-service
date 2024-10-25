@@ -53,6 +53,7 @@ class ConfigurationForm(forms.ModelForm):
             "content_metrics",
             "option_kiwix_readers",
             "beta_features",
+            "updated_by",
         ]
 
     def clean(self):
@@ -154,7 +155,10 @@ def configuration_edit(request, config_id=None):
             raise PermissionDenied()
     else:
         # new config
-        config = Configuration(organization=request.user.profile.organization)
+        config = Configuration(
+            organization=request.user.profile.organization,
+            updated_by=request.user.profile,
+        )
 
     # list of languages availables in all catalogs
     context["packages_langs"] = catalog.languages

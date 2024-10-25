@@ -60,6 +60,7 @@ tr.removed {
 		{% csrf_token %}
 
 		<input type="hidden" id="order-btn-field" class="form-control" value="" name="order-on-success"/>
+		{{ form.updated_by.as_hidden }}
 
 	<div class="tab-content" id="configMenuTabHolderContent">
 
