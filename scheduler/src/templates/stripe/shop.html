@@ -31,6 +31,7 @@
 }
 
 .offer:last-child { border: 1px solid #bebebe !important; }
+
 .offer:hover { background-color:rgba(0,0,0,.05) }
 
 .offer.splitter {
@@ -308,6 +309,28 @@ window.onresize = onframeresize;
       </div>
 
       <div class="table-offer">
+
+        <div class="offer">
+          <header>
+            <h2>Medical package</h2>
+            <p>Needed everywhere</p>
+          </header>
+          <section class="price"><span class="amount">$25</span></section>
+          <section class="description">
+            <ul>
+              <li>Emergency and Military Medicine</li>
+              <li>Traveler's Health</li>
+              <li>Common drugs</li>
+              <li>General medicine, and more!</li>
+              <li>Requires a 64GB microSD card. See demo <a target="_blank" href="https://medical.demo.hotspot.kiwix.org/">here</a>.</li>
+            </ul>
+          </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="medical">
+            <button class="btn btn-outline-secondary">Purchase</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
+        </div>
 
         <div class="offer">
           <header>
