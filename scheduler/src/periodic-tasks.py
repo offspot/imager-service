@@ -21,6 +21,7 @@ from routes.orders import create_order_from
 
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org/api")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
+DISABLE_PERIODIC_TASKS = bool(os.getenv("DISABLE_PERIODIC_TASKS", "") == "y")
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -159,4 +160,5 @@ def check_autoimages():
 
 
 if __name__ == "__main__":
-    run_periodic_tasks()
+    if not DISABLE_PERIODIC_TASKS:
+        run_periodic_tasks()
