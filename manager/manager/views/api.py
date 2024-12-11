@@ -137,22 +137,32 @@ def create_user_account(request):
     if not password:
         password = User.objects.make_random_password(length=8)
 
-    if (
-        User.objects.filter(username=username).count()
-        or Organization.objects.filter(slug=username).count()
-    ):
-        return JsonResponse(
-            {"error": f"Username `{username}` is already taken"}, status=409
-        )
-
     if Profile.taken(email):
         account = Profile.objects.filter(user__email=email).first()
+        # user is extending its subscription while it's still active
         if expiry and account.expire_on is not None:
+            account.expire_on = expiry
+            account.save()
+        # returning user (post disabled) ; reactivate user and set new expiry
+        elif expiry:
+            account.user.is_active = True
+            account.user.save()
             account.expire_on = expiry
             account.save()
         return JsonResponse(
             {"error": f"Email `{email}` already has an account ({account.username})"},
             status=409,
+        )
+
+    # Cannot create username because it exists (and must be unique)
+    # but Profile was not found from email.
+    # Should not happen but lets explicitly fail here
+    if (
+        User.objects.filter(username=username).count()
+        or Organization.objects.filter(slug=username).count()
+    ):
+        return JsonResponse(
+            {"error": f"Username `{username}` is already taken"}, status=500
         )
 
     # good to go, create an Organization, User and Profile
