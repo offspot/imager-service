@@ -234,7 +234,7 @@ OFFSPOT_LANGUAGES = [
 # All of them will be added to the builder if use selects the appr. option
 # must be manually updated from time to time
 KIWIX_READERS_SOURCES = {
-    "windows": "https://download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.3.1-2.zip",
+    "windows": "https://download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.4.1.zip",
     "android": "https://download.kiwix.org/release/kiwix-android/kiwix-3.12.0.apk",
     "macos": "https://download.kiwix.org/release/kiwix-macos/kiwix-macos_3.6.0.dmg",
     "linux": "https://download.kiwix.org/release/kiwix-desktop/"
