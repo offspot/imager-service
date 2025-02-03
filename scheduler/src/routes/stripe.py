@@ -197,9 +197,6 @@ def handle_credentials_creation(session, customer):
 
 def handle_image_order(session, customer):
     product = session.metadata.get("product")
-    if product == "computer":
-        product = "computers"
-
     http_url, torrent_url, _ = get_links_for(product)
     product_lang = product.split("-")[-1]
 
@@ -399,10 +396,7 @@ def on_checkout_suceeded():
             logger.exception(exc)
 
         try:
-            product = session["metadata"]["product"]
-            if product == "computer":
-                product = "computers"
-            handler = PRODUCTS.get(product)[2]
+            handler = PRODUCTS.get(session["metadata"]["product"])[2]
             handler(session=session, customer=customer)
         except Exception as exc:
             logger.critical("Unable to process handler")
