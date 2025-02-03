@@ -126,8 +126,6 @@ def send_paid_order_email(
 def get_links_for(product):
     """(http, torrent, magnet) URLs for a product-ID"""
     # currently, product-ids matches the auto-images slugs
-    if product == "computer":  # temporary for webhook started with incorrect ID
-        product = "computers"
     image = AutoImages.get(product)
     return image["http_url"], image["torrent_url"], image["magnet_url"]
 
@@ -199,6 +197,8 @@ def handle_credentials_creation(session, customer):
 
 def handle_image_order(session, customer):
     product = session.metadata.get("product")
+    if product == "computer":
+        product = "computers"
 
     http_url, torrent_url, _ = get_links_for(product)
     product_lang = product.split("-")[-1]
@@ -219,7 +219,7 @@ def handle_image_order(session, customer):
     StripeSession.get_or_create(
         customer_id=customer.id,
         session_id=session.id,
-        product=session.metadata["product"],
+        product=product,
         receipt_sent=True,
         email_id=email_id,
         http_url=http_url,
@@ -289,12 +289,6 @@ PRODUCTS = {
         handle_image_order,
     ),
     "computers": (
-        os.getenv("STRIPE_METHOD_CS"),
-        os.getenv("STRIPE_PRICE_CS"),
-        handle_image_order,
-    ),
-    # temporary for webhook completion
-    "computer": (
         os.getenv("STRIPE_METHOD_CS"),
         os.getenv("STRIPE_PRICE_CS"),
         handle_image_order,
@@ -405,7 +399,10 @@ def on_checkout_suceeded():
             logger.exception(exc)
 
         try:
-            handler = PRODUCTS.get(session["metadata"]["product"])[2]
+            product = session["metadata"]["product"]
+            if product == "computer":
+                product = "computers"
+            handler = PRODUCTS.get(product)[2]
             handler(session=session, customer=customer)
         except Exception as exc:
             logger.critical("Unable to process handler")
@@ -445,7 +442,6 @@ def success():
     product = session.metadata.get("product")
     if product.startswith("wikipedia-") or product in (
         "preppers",
-        "computer",  # temporary
         "computers",
         "ted",
         "medical",
