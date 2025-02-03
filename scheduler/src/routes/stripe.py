@@ -21,9 +21,7 @@ from utils.templates import amount_str, strftime
 # envs & secrets
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
 STRIPE_PUBLIC_API_KEY = os.getenv("STRIPE_PUBLIC_API_KEY")
-CARDSHOP_API_URL = os.getenv(
-    "CARDSHOP_API_URL", "https://api.imager.kiwix.org"
-)
+CARDSHOP_API_URL = os.getenv("CARDSHOP_API_URL", "https://api.imager.kiwix.org")
 SHOP_PUBLIC_URL = os.getenv(
     "SHOP_PUBLIC_URL", "https://www.kiwix.org/en/cardshop-access/"
 )
@@ -37,7 +35,7 @@ LANG_STRINGS = {
         "product_ted": "TED Hotspot",
         "product_preppers": "Preppers Hotspot",
         "product_medical": "Medical Hotspot",
-        "product_computer": "Computer Hotspot",
+        "product_computers": "Computer Hotspot",
         "product_access_1m": "One month Imager Access",
         "product_access_1y": "Annual Imager Access",
     },
@@ -46,7 +44,7 @@ LANG_STRINGS = {
         "product_ted": "TED Hotspot",
         "product_preppers": "Preppers Hotspot",
         "product_medical": "Medical Hotspot",
-        "product_computer": "Computer Hotspot",
+        "product_computers": "Computer Hotspot",
         "product_access_1m": "One month Imager Access",
         "product_access_1y": "Annual Imager Access",
     },
@@ -55,7 +53,7 @@ LANG_STRINGS = {
         "product_ted": "TED Hotspot",
         "product_preppers": "Preppers Hotspot",
         "product_medical": "Medical Hotspot",
-        "product_computer": "Computer Hotspot",
+        "product_computers": "Computer Hotspot",
         "product_access_1m": "One month Imager Access",
         "product_access_1y": "Annual Imager Access",
     },
@@ -64,7 +62,7 @@ LANG_STRINGS = {
         "product_ted": "TED Hotspot",
         "product_preppers": "Preppers Hotspot",
         "product_medical": "Medical Hotspot",
-        "product_computer": "Computer Hotspot",
+        "product_computers": "Computer Hotspot",
         "product_access_1m": "Accès Imager 1 mois",
         "product_access_1y": "Accès Imager annuel",
     },
@@ -128,6 +126,8 @@ def send_paid_order_email(
 def get_links_for(product):
     """(http, torrent, magnet) URLs for a product-ID"""
     # currently, product-ids matches the auto-images slugs
+    if product == "computer":  # temporary for webhook started with incorrect ID
+        product = "computers"
     image = AutoImages.get(product)
     return image["http_url"], image["torrent_url"], image["magnet_url"]
 
@@ -288,6 +288,12 @@ PRODUCTS = {
         os.getenv("STRIPE_PRICE_TED"),
         handle_image_order,
     ),
+    "computers": (
+        os.getenv("STRIPE_METHOD_CS"),
+        os.getenv("STRIPE_PRICE_CS"),
+        handle_image_order,
+    ),
+    # temporary for webhook completion
     "computer": (
         os.getenv("STRIPE_METHOD_CS"),
         os.getenv("STRIPE_PRICE_CS"),
@@ -437,7 +443,13 @@ def success():
 
     context = {"customer": customer, "session": session, "shop_url": SHOP_PUBLIC_URL}
     product = session.metadata.get("product")
-    if product.startswith("wikipedia-") or product in ("preppers", "computer", "ted", "medical"):
+    if product.startswith("wikipedia-") or product in (
+        "preppers",
+        "computer",  # temporary
+        "computers",
+        "ted",
+        "medical",
+    ):
         kind = "image"
         http_url, torrent_url, _ = get_links_for(product)
         context.update({"http_url": http_url, "torrent_url": torrent_url})
