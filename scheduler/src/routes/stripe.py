@@ -389,6 +389,13 @@ def on_checkout_suceeded():
         session = stripe.checkout.Session.retrieve(event["data"]["object"]["id"])
         customer = stripe.customer.Customer.retrieve(session["customer"])
 
+        # TODO: remove once cleared in stripe
+        if (
+            session.stripe_id
+            == "cs_live_a13M2oK5iJnRQvWIB9oS5SAlprQOV66H8NklX68MLkrWgIb3TWqxQv1IQy"
+        ):
+            return jsonify(success=True)
+
         try:
             update_cutomer(customer=customer, session=session)
         except Exception as exc:
