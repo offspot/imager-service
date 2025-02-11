@@ -121,7 +121,7 @@ def send_email_via_api(
     attachments: Optional[Sequence] = None,
 ):
     values = [
-        ("from", os.getenv("MAIL_FROM", "cardshop@kiwix.org")),
+        ("from", os.getenv("MAIL_FROM", "imager@kiwix.org")),
         ("subject", subject),
         ("html", contents),
     ]

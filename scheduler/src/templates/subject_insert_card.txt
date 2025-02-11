@@ -1,1 +1,1 @@
-{% extends "subject_base.txt" %}{% block subject %}{{ _("Order #%(order_id)s: insert %(sdcard_name)s onto slot %(slot)s")|format(order_id=order.min_id, sdcard_name=order.sd_card.name, slot=task.slot) }}{% endblock %}
+{% extends "subject_base.txt" %}{% block subject %}{{ _("Order “%(config_name)s”: insert %(sdcard_name)s onto slot %(slot)s")|format(config_name=order.config.name, sdcard_name=order.sd_card.name, slot=task.slot) }}{% endblock %}

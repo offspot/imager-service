@@ -7,17 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-08-27 12:26+0000\n"
-"PO-Revision-Date: 2024-08-27 12:27+0000\n"
+"POT-Creation-Date: 2025-02-11 10:25+0000\n"
+"PO-Revision-Date: 2025-02-11 10:28+0000\n"
 "Last-Translator: reg <rgaudin@gmail.com>\n"
-"Language-Team: fr <LL@li.org>\n"
 "Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"Generated-By: Babel 2.12.1\n"
-"X-Generator: Poedit 3.1\n"
+"Generated-By: Babel 2.9.1\n"
 
 #: src/templates/email_base.html:5
 msgid "<em>The Kiwix Imager Team.</em>"
@@ -73,11 +72,11 @@ msgstr "<code>%(status)s</code>, %(status_on)s"
 #: src/templates/macros.html:7
 #, python-format
 msgid ""
-"Confirm <strong>%(sdcard_name)s</strong> SD-card inserted into <strong>%(slot)s</"
-"strong>"
+"Confirm <strong>%(sdcard_name)s</strong> SD-card inserted into "
+"<strong>%(slot)s</strong>"
 msgstr ""
-"Confirmez <strong>%(sdcard_name)s</strong> carte SD insérée dans <strong>"
-"%(slot)s</strong>"
+"Confirmez <strong>%(sdcard_name)s</strong> carte SD insérée dans "
+"<strong>%(slot)s</strong>"
 
 #: src/templates/macros.html:13
 msgid "Add Shipping Details"
@@ -104,28 +103,29 @@ msgstr "Salut !"
 #: src/templates/operator_image_written.html:7
 #, python-format
 msgid ""
-"Just letting you know that <code>WriterTask #%(task_id)s</code> completed "
-"successfuly."
+"Just letting you know that <code>WriterTask #%(task_id)s</code> completed"
+" successfuly."
 msgstr ""
-"Je vous informe simplement que la <code>WriterTask #%(task_id)s</code> s’est "
-"terminée avec succès."
+"Je vous informe simplement que la <code>WriterTask #%(task_id)s</code> "
+"s’est terminée avec succès."
 
 #: src/templates/operator_image_written.html:8
 #, python-format
 msgid ""
-"You can now <strong>remove SD-Card from slot <code>%(slot)s</code></strong>."
+"You can now <strong>remove SD-Card from slot "
+"<code>%(slot)s</code></strong>."
 msgstr ""
-"Vous pouvez maintenant <strong>retirer la carte SD de l’emplacement <code>"
-"%(slot)s</code></strong>."
+"Vous pouvez maintenant <strong>retirer la carte SD de l’emplacement "
+"<code>%(slot)s</code></strong>."
 
 #: src/templates/operator_insert_card.html:5
 #, python-format
 msgid ""
-"Please insert <strong>%(sdcard_name)s</strong> onto slot <strong>%(slot)s</"
-"strong>"
+"Please insert <strong>%(sdcard_name)s</strong> onto slot "
+"<strong>%(slot)s</strong>"
 msgstr ""
-"Veuillez insérer <strong>%(sdcard_name)s</strong> dans l’emplacement <strong>"
-"%(slot)s</strong>"
+"Veuillez insérer <strong>%(sdcard_name)s</strong> dans l’emplacement "
+"<strong>%(slot)s</strong>"
 
 #: src/templates/operator_order_failed.html:6
 msgid "Order Writing Failed !"
@@ -139,19 +139,20 @@ msgstr "Cher opérateur de %(worker)s,"
 #: src/templates/operator_order_failed.html:9
 #, python-format
 msgid ""
-"<code>WriterTask #%(task_id)s</code> failed with status <code>%(status)s</code>."
+"<code>WriterTask #%(task_id)s</code> failed with status "
+"<code>%(status)s</code>."
 msgstr ""
-"La <code>WriterTask #%(task_id)s</code> a échouée avec le statut <code>"
-"%(status)s</code>."
+"La <code>WriterTask #%(task_id)s</code> a échouée avec le statut "
+"<code>%(status)s</code>."
 
 #: src/templates/operator_order_failed.html:10
 #, python-format
 msgid ""
-"Please investigate and contact this order's contact <em>%(client_name)s</em> at "
-"%(contact_link)s."
+"Please investigate and contact this order's contact "
+"<em>%(client_name)s</em> at %(contact_link)s."
 msgstr ""
-"Veuillez enquêter et contacter le responsable de cette commande <em>"
-"%(client_name)s</em> à %(contact_link)s."
+"Veuillez enquêter et contacter le responsable de cette commande "
+"<em>%(client_name)s</em> à %(contact_link)s."
 
 #: src/templates/operator_ship_card.html:5
 #, python-format
@@ -162,24 +163,25 @@ msgstr "Veuillez envoyer %(quantity)s x %(sdcard_name)s à %(recipient_name)s"
 #, python-format
 msgid "Worker for slot <strong>%(slot)s</strong> can't start."
 msgstr ""
-"Le worker pour l’emplacement <strong>%(slot)s</strong> ne peut pas démarrer."
+"Le worker pour l’emplacement <strong>%(slot)s</strong> ne peut pas "
+"démarrer."
 
 #: src/templates/operator_worker_sos.html:6
 #, python-format
 msgid ""
-"On %(ack_on)s, your (<code>%(username)s/%(worker_type)s</code>) worker for slot "
-"<code>%(slot)s</code> sent an SOS meaning it could not start with the following "
-"payload:"
+"On %(ack_on)s, your (<code>%(username)s/%(worker_type)s</code>) worker "
+"for slot <code>%(slot)s</code> sent an SOS meaning it could not start "
+"with the following payload:"
 msgstr ""
-"À %(ack_on)s, votre worker (<code>%(username)s/%(worker_type)s</code>) pour le "
-"slot <code>%(slot)s</code> a envoyé un SOS signifiant qu’il ne pouvait pas "
-"commencer la tâche suivante :"
+"À %(ack_on)s, votre worker (<code>%(username)s/%(worker_type)s</code>) "
+"pour le slot <code>%(slot)s</code> a envoyé un SOS signifiant qu’il ne "
+"pouvait pas commencer la tâche suivante :"
 
 #: src/templates/operator_worker_sos.html:8
 msgid "Please make sure the devices are in order and check status on the Imager."
 msgstr ""
-"Veuillez vous assurer que les appareils sont en ordre et vérifier l’état sur "
-"l'Imager."
+"Veuillez vous assurer que les appareils sont en ordre et vérifier l’état "
+"sur l'Imager."
 
 #: src/templates/recipient_image_uploaded_public.html:9
 msgid "Your image is ready to download!"
@@ -197,71 +199,75 @@ msgstr "Cher %(recipient_name)s,"
 #, python-format
 msgid "Your Hotspot Image “%(config_name)s” is now ready to download."
 msgstr ""
-"Votre image de point d’accès « %(config_name)s » est maintenant prête à être "
-"téléchargée."
+"Votre image de point d’accès « %(config_name)s » est maintenant prête à "
+"être téléchargée."
 
 #: src/templates/recipient_image_uploaded_public.html:14
 msgid ""
-"Your image is also available as a <em>torrent</em>. You need a BitTorrent client "
-"(software) to retrieve the actual <em>img</em> file."
+"Your image is also available as a <em>torrent</em>. You need a BitTorrent"
+" client (software) to retrieve the actual <em>img</em> file."
 msgstr ""
-"Votre image est également disponible sous forme de <em>torrent</em>. Vous avez "
-"besoin d’un logiciel BitTorrent pour récupérer le fichier <em>img</em> réel."
+"Votre image est également disponible sous forme de <em>torrent</em>. Vous"
+" avez besoin d’un logiciel BitTorrent pour récupérer le fichier "
+"<em>img</em> réel."
 
 #: src/templates/recipient_image_uploaded_public.html:15
 #, python-format
 msgid ""
-"We recommend you use %(transmission_link)s if you don't already have one. It "
-"will allow you to easily pause and resume your download and ensure that your "
-"file is not corrupt."
+"We recommend you use %(transmission_link)s if you don't already have one."
+" It will allow you to easily pause and resume your download and ensure "
+"that your file is not corrupt."
 msgstr ""
-"Nous vous recommandons d’utiliser %(transmission_link)s si vous n’en avez pas "
-"déjà un. Il vous permettra de mettre en pause et de reprendre facilement votre "
-"téléchargement et de vous assurer que votre fichier n’est pas corrompu."
+"Nous vous recommandons d’utiliser %(transmission_link)s si vous n’en avez"
+" pas déjà un. Il vous permettra de mettre en pause et de reprendre "
+"facilement votre téléchargement et de vous assurer que votre fichier "
+"n’est pas corrompu."
 
 #: src/templates/recipient_image_uploaded_public.html:17
 msgid ""
-"You can pause and resume your download as you wish. If your connection is slow, "
-"use a download manager!"
+"You can pause and resume your download as you wish. If your connection is"
+" slow, use a download manager!"
 msgstr ""
-"Vous pouvez mettre en pause et reprendre votre téléchargement comme vous le "
-"souhaitez. Si votre connexion est lente, utilisez un gestionnaire de "
+"Vous pouvez mettre en pause et reprendre votre téléchargement comme vous "
+"le souhaitez. Si votre connexion est lente, utilisez un gestionnaire de "
 "téléchargement !"
 
 #: src/templates/recipient_image_uploaded_public.html:19
 #, python-format
 msgid ""
-"You are allowed to share this link freely until %(expiration_date)s, after which "
-"the file will be permanently deleted."
+"You are allowed to share this link freely until %(expiration_date)s, "
+"after which the file will be permanently deleted."
 msgstr ""
-"Vous êtes autorisé à partager ce lien librement jusqu’au %(expiration_date)s, "
-"après quoi le fichier sera définitivement supprimé."
+"Vous êtes autorisé à partager ce lien librement jusqu’au "
+"%(expiration_date)s, après quoi le fichier sera définitivement supprimé."
 
 #: src/templates/recipient_image_uploaded_public.html:20
 #, python-format
 msgid ""
-"To install the file onto a microSD card, we recommend using %(etcher_link)s."
+"To install the file onto a microSD card, we recommend using "
+"%(etcher_link)s."
 msgstr ""
 "Pour installer le fichier sur une carte microSD, nous vous recommandons "
 "d’utiliser %(etcher_link)s."
 
 #: src/templates/recipient_image_uploaded_public.html:21
 msgid ""
-"You do not need to connect your Raspberry to a screen. Simply connect to the "
-"Hotspot by typing <code>http://goto.kiwix.hotspot</code> (or http://<em>name</"
-"em>.hotspot) in your browser's address bar (be mindful to use <em>http</em> and "
-"not https)."
+"You do not need to connect your Raspberry to a screen. Simply connect to "
+"the Hotspot by typing <code>http://goto.kiwix.hotspot</code> (or "
+"http://<em>name</em>.hotspot) in your browser's address bar (be mindful "
+"to use <em>http</em> and not https)."
 msgstr ""
-"Vous n’avez pas besoin de connecter votre Raspberry à un écran. Connectez-vous "
-"simplement au Hotspot en tapant <code>http://goto.kiwix.hotspot</code> (ou "
-"http://<em>nom</em>.hotspot) dans la barre d’adresse de votre navigateur "
-"(attention à utiliser <em>http</em> et non https)."
+"Vous n’avez pas besoin de connecter votre Raspberry à un écran. "
+"Connectez-vous simplement au Hotspot en tapant "
+"<code>http://goto.kiwix.hotspot</code> (ou http://<em>nom</em>.hotspot) "
+"dans la barre d’adresse de votre navigateur (attention à utiliser "
+"<em>http</em> et non https)."
 
 #: src/templates/recipient_image_uploaded_public.html:22
 #, python-format
 msgid ""
-"If you encounter any issue, check out our %(faq_link)s before reaching out by "
-"responding to this email."
+"If you encounter any issue, check out our %(faq_link)s before reaching "
+"out by responding to this email."
 msgstr ""
 "Si vous rencontrez un problème pour utiliser votre hotspot, consultez "
 "%(faq_link)s avant de nous contacter en répondant à cet email."
@@ -277,11 +283,13 @@ msgstr "Votre commande a été acceptée !"
 #: src/templates/recipient_order_created.html:7
 #, python-format
 msgid ""
-"Your order of <strong>%(quantity)s x %(sd_name)s</strong> with the <strong>"
-"%(config_name)s</strong> configuration on it has been accepted by the system."
+"Your order of <strong>%(quantity)s x %(sd_name)s</strong> with the "
+"<strong>%(config_name)s</strong> configuration on it has been accepted by"
+" the system."
 msgstr ""
 "Votre commande de <strong>%(quantity)s x %(sd_name)s</strong> avec la "
-"configuration <strong>%(config_name)s</strong> a été acceptée par le système."
+"configuration <strong>%(config_name)s</strong> a été acceptée par le "
+"système."
 
 #: src/templates/recipient_order_created.html:8
 msgid "You will be notified when it is shipped to your address."
@@ -290,15 +298,16 @@ msgstr "Vous serez averti lorsqu’il sera expédié à votre adresse."
 #: src/templates/recipient_order_created.html:9
 #, python-format
 msgid ""
-"Your <strong>%(sd_size)sGB</strong> download order with the <strong>"
-"%(config_name)s</strong> configuration on it has been accepted by the system. "
-"Work duration depends on current server load, but your image should be ready "
-"within 24 hours at most."
+"Your <strong>%(sd_size)sGB</strong> download order with the "
+"<strong>%(config_name)s</strong> configuration on it has been accepted by"
+" the system. Work duration depends on current server load, but your image"
+" should be ready within 24 hours at most."
 msgstr ""
 "Votre commande de téléchargement <strong>%(sd_size)sGB</strong> avec la "
-"configuration <strong>%(config_name)s</strong> a été acceptée par le système. La "
-"durée de préparation dépend de la taille de l'image et de la charge du serveur, "
-"mais votre commande devrait être prête dans les 24 heures au plus tard."
+"configuration <strong>%(config_name)s</strong> a été acceptée par le "
+"système. La durée de préparation dépend de la taille de l'image et de la "
+"charge du serveur, mais votre commande devrait être prête dans les 24 "
+"heures au plus tard."
 
 #: src/templates/recipient_order_created.html:10
 msgid "You will be notified when it is ready for download."
@@ -316,11 +325,11 @@ msgstr "Votre commande de <strong>%(quantity)s x %(sdcard_name)s</strong> carte(
 #: src/templates/recipient_order_failed.html:8
 #, python-format
 msgid ""
-"Your <strong>%(sdcard_size)sGB</strong> download order with the <strong>"
-"%(config_name)s</strong> configuration has failed to complete."
+"Your <strong>%(sdcard_size)sGB</strong> download order with the "
+"<strong>%(config_name)s</strong> configuration has failed to complete."
 msgstr ""
-"Votre commande de <strong>%(sdcard_size)sGB</strong> avec la configuration "
-"<strong>%(config_name)s</strong> a échouée."
+"Votre commande de <strong>%(sdcard_size)sGB</strong> avec la "
+"configuration <strong>%(config_name)s</strong> a échouée."
 
 #: src/templates/recipient_order_failed.html:9
 msgid "Someone will get in touch with you shortly to work out a fix."
@@ -337,28 +346,28 @@ msgstr "Votre commande a été expédiée!"
 #: src/templates/recipient_order_shipped.html:7
 #, python-format
 msgid ""
-"Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> with the <strong>"
-"%(config_name)s</strong> configuration on it has been shipped."
+"Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> with the "
+"<strong>%(config_name)s</strong> configuration on it has been shipped."
 msgstr ""
-"Votre commande de <strong>%(quantity)s x %(sdcard_name)s</strong> avec la "
-"configuration <strong>%(config_name)s</strong> a été expédiée."
+"Votre commande de <strong>%(quantity)s x %(sdcard_name)s</strong> avec la"
+" configuration <strong>%(config_name)s</strong> a été expédiée."
 
 #: src/templates/recipient_order_shipped.html:8
 msgid ""
-"You should expect to receive your order within 10 days, depending on your "
-"address."
+"You should expect to receive your order within 10 days, depending on your"
+" address."
 msgstr ""
-"Vous devriez recevoir votre commande dans les 3 à 10 jours, en fonction votre "
-"adresse."
+"Vous devriez recevoir votre commande dans les 3 à 10 jours, en fonction "
+"votre adresse."
 
 #: src/templates/recipient_order_shipped.html:9
 #, python-format
 msgid ""
-"Please, contact <em>%(client_name)s</em> should you have any question… and to "
-"confirm reception!"
+"Please, contact <em>%(client_name)s</em> should you have any question… "
+"and to confirm reception!"
 msgstr ""
-"Veuillez contacter <em>%(client_name)s</em> si vous avez des questions… et pour "
-"confirmer la réception !"
+"Veuillez contacter <em>%(client_name)s</em> si vous avez des questions… "
+"et pour confirmer la réception !"
 
 #: src/templates/recipient_order_shipped.html:10
 #, python-format
@@ -375,56 +384,57 @@ msgstr "Mise à jour !"
 
 #: src/templates/subject_card_inserted.txt:1
 #, python-format
-msgid "Order #%(order_id)s: insertion successful"
-msgstr "Commande #%(order_id)s : insertion réussie"
+msgid "Order “%(config_name)s”: insertion successful"
+msgstr "Commande «%(config_name)s» : insertion réussie"
 
 #: src/templates/subject_image_uploaded.txt:1
 #, python-format
-msgid "Order #%(order_id)s: image uploaded to warehouse!"
-msgstr "Commande #%(order_id)s : image téléchargée dans la warehouse !"
+msgid "Order “%(config_name)s”: image uploaded to warehouse!"
+msgstr "Commande «%(config_name)s» : image téléchargée dans la warehouse !"
 
 #: src/templates/subject_image_uploaded_public.txt:1
 #, python-format
-msgid "Order #%(order_id)s: your image is ready!"
-msgstr "Commande #%(order_id)s : votre image est prête !"
+msgid "Order “%(config_name)s”: your image is ready!"
+msgstr "Commande «%(config_name)s» : votre image est prête !"
 
 #: src/templates/subject_image_written.txt:1
 #, python-format
-msgid "Order #%(order_id)s: image written to SD card on slot %(slot)s!"
+msgid "Order “%(config_name)s”: image written to SD card on slot %(slot)s!"
 msgstr ""
-"Commande #%(order_id)s : image écrite sur la carte SD sur l’emplacement "
-"%(slot)s !"
+"Commande «%(config_name)s» : image écrite sur la carte SD sur "
+"l’emplacement %(slot)s !"
 
 #: src/templates/subject_insert_card.txt:1
 #, python-format
-msgid "Order #%(order_id)s: insert %(sdcard_name)s onto slot %(slot)s"
+msgid "Order “%(config_name)s”: insert %(sdcard_name)s onto slot %(slot)s"
 msgstr ""
-"Commande #%(order_id)s : insérez %(sdcard_name)s dans l’emplacement %(slot)s"
+"Commande «%(config_name)s» : insérez %(sdcard_name)s dans l’emplacement "
+"%(slot)s"
 
 #: src/templates/subject_order_failed.txt:1
 #, python-format
-msgid "Order #%(order_id)s failed!"
-msgstr "La commande #%(order_id)s a échoué !"
+msgid "Order “%(config_name)s” failed!"
+msgstr "La commande «%(config_name)s» a échoué !"
 
 #: src/templates/subject_order_new.txt:1
 #, python-format
-msgid "Order #%(order_id)s has been created!"
-msgstr "La commande #%(order_id)s a été créée !"
+msgid "Order “%(config_name)s” has been created!"
+msgstr "La commande «%(config_name)s» a été créée !"
 
 #: src/templates/subject_order_shipped.txt:1
 #, python-format
-msgid "Order #%(order_id)s shipped!"
-msgstr "Commande #%(order_id)s expédiée !"
+msgid "Order “%(config_name)s” shipped!"
+msgstr "Commande «%(config_name)s» expédiée !"
 
 #: src/templates/subject_order_status-changed.txt:1
 #, python-format
-msgid "Order #%(order_id)s Status Changed (%(status)s)"
-msgstr "Commande #%(order_id)s Statut modifié (%(status)s)"
+msgid "Order “%(config_name)s” Status Changed (%(status)s)"
+msgstr "Commande «%(config_name)s» : statut modifié (%(status)s)"
 
 #: src/templates/subject_ship_card.txt:1
 #, python-format
-msgid "Order #%(order_id)s: please ship to %(recipient_name)s!"
-msgstr "Commande #%(order_id)s : veuillez expédier à %(recipient_name)s !"
+msgid "Order “%(config_name)s”: please ship to %(recipient_name)s!"
+msgstr "Commande «%(config_name)s» : veuillez expédier à %(recipient_name)s !"
 
 #: src/templates/subject_worker_sos.txt:1
 #, python-format
@@ -433,3 +443,4 @@ msgstr "SOS depuis votre emplacement %(slot)s"
 
 #~ msgid "[Kiwix Hotspot Cardshop]"
 #~ msgstr "[Cardshop Kiwix Hotspot]"
+

@@ -1,1 +1,1 @@
-{% extends "subject_base.txt" %}{% block subject %}{{ _("Order #%(order_id)s has been created!")|format(order_id=order.min_id) }}{% endblock %}
+{% extends "subject_base.txt" %}{% block subject %}{{ _("Order “%(config_name)s” has been created!")|format(config_name=order.config.name) }}{% endblock %}
