@@ -3,12 +3,12 @@
     <div class="container intro">
         <div class="text-center" style="margin-bottom: 5em;">
             <h1>Success!</h1>
-            <p>{{ customer.email }}, your cardshop access is ready.</p>
+            <p>{{ customer.email }}, your Imager Service access is ready.</p>
         </div>
 
         <div class="description">
             <h2>Using the Imager</h2>
-            <p>Access the cardshop at <a href="https://imager.kiwix.org/">imager.kiwix.org</a> with your personal credentials.</p>
+            <p>Access the service at <a href="https://imager.kiwix.org/">imager.kiwix.org</a> with your personal credentials.</p>
             {% if username %}
             <table class="table table-sm table-striped">
                 <tr><th>Username</th><td><code>{{ username|default("Unavailable – please contact us", true) }}</code></td></tr>
