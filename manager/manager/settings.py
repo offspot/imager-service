@@ -175,6 +175,8 @@ if os.getenv("DATABASE", ""):
 
     MESSAGE_STORAGE = "django.contrib.messages.storage.fallback.FallbackStorage"
 
+CONN_MAX_AGE = 600
+CONN_HEALTH_CHECKS = True
 
 MEDIA_ROOT = os.path.join(DATA_DIR, "media")
 MEDIA_URL = "/media/"
