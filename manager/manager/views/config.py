@@ -39,6 +39,7 @@ class ConfigurationForm(forms.ModelForm):
         model = Configuration
         fields = [  # noqa: RUF012
             "name",
+            "ssid",
             "project_name",
             "language",
             "timezone",
@@ -169,6 +170,11 @@ def configuration_edit(request, config_id=None):
             try:
                 instance = form.save(commit=False)
                 instance.updated_by = request.user.profile
+                if not request.user.profile.can_brand:
+                    instance.project_name = settings.DEFAULT_DOMAIN
+                    instance.ssid = settings.DEFAULT_SSID
+                    instance.branding_logo = None
+                    instance.branding_favicon = None
                 instance.save()
             except Exception as exp:
                 logger.exception(exp)

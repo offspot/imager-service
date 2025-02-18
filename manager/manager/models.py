@@ -619,15 +619,26 @@ def parse_json_config(cls, config, dont_store_branding: bool = False):
 
 
 def validate_project_name(value):
-    # must be a valid SSID and a valid hostname
-    test1 = is_valid_ssid(value)
+    # must valid hostname
     test2 = is_valid_hostname(value)
     test3 = is_valid_domain(value)
-    if not test1 or not test2 or not test3:
-        reason = test1.help_text or test2.help_text or test3.help_text
+    if not test2 or not test3:
+        reason = test2.help_text or test3.help_text
         raise ValidationError(
             _("%(value)s is not a valid Hotspot name (%(reason)s)"),
             code="invalid_name",
+            params={"value": value, "reason": reason},
+        )
+
+
+def validate_ssid(value):
+    # must be a valid SSID and a valid hostname
+    test1 = is_valid_ssid(value)
+    if not test1:
+        reason = test1.help_text
+        raise ValidationError(
+            _("%(value)s is not a valid Hotspot SSID (%(reason)s)"),
+            code="invalid_ssid",
             params={"value": value, "reason": reason},
         )
 
@@ -831,12 +842,21 @@ class Configuration(models.Model):
     )
     project_name = models.CharField(
         max_length=32,
-        default="kiwix",
-        verbose_name=_lz("Hotspot name"),
+        default=settings.DEFAULT_DOMAIN,
+        verbose_name=_lz("Domain name"),
         help_text=_lz(
-            "Network name; the landing page will also be at http://name.hotspot"
+            "The landing page will be at http://name.hotspot"
         ),
         validators=[validate_project_name],
+    )
+    ssid = models.CharField(
+        max_length=32,
+        default=settings.DEFAULT_SSID,
+        verbose_name=_lz("WiFi Network name"),
+        help_text=_lz(
+            "Name of network in WiFi list (SSID)"
+        ),
+        validators=[validate_ssid],
     )
     language = models.CharField(
         max_length=3,
@@ -1267,6 +1287,15 @@ class Profile(models.Model):
     @classmethod
     def get_using(cls, email):
         return cls.objects.get(user__email=email)
+
+    @property
+    def can_brand(self):
+        return self.user.is_staff or self.organization.slug == "orange"
+
+    @property
+    def cannot_brand(self):
+        """ useful in templates inline vars """
+        return not self.can_brand
 
     @classmethod
     def create_admin(cls):

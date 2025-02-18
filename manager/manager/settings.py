@@ -286,3 +286,6 @@ BRANDING_FILES_PAYLOADS = {
     fname: get_branding_payload(fname)
     for fname in ("horizontal-logo-light.png", "square-logo-light.png")
 }
+
+DEFAULT_DOMAIN = "kiwix"
+DEFAULT_SSID = "Kiwix Hotspot"

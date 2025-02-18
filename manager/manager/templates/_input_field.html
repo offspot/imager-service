@@ -1,6 +1,6 @@
 {% load manager %}
 <div id="container_{{ field.id_for_label }}">
-{% if not no_label %}{% include "_label_for.html" with field=field size=size %}{% endif %}
+{% if not no_label %}{% include "_label_for.html" with field=field size=size locked=locked %}{% endif %}
 {% if use_raw %}{% if not no_label %}<br />{% endif %}{{ field|as_widget }}{% else %}
 <{% if textarea %}textarea{% else %}input type="{% if type %}{{ type }}{% else %}text{% endif %}"{% endif %}
 	   id="{{ field.id_for_label }}"
@@ -9,12 +9,14 @@
 	   		data-toggle="toggle" {% if field.value %}checked="checked"{% endif %}
 	   {% else %}
 	   		value="{{ field.value|default_if_none:"" }}"
-   	   {% endif %}
+ 	   {% endif %}
+   	 {% if disabled %}disabled="disabled"{% endif %}
 	   {% if placeholder %} placeholder="{{ placeholder }}"{% endif %}
-	   name="{{ field.html_name }}"
+	   name="{{ field.html_name }}{% if disabled %}_disabled{% endif %}"
 	   {% if field.help_text %}
 	   		aria-describedby="{{ field.id_for_label }}Help"
 	   {% endif %} {% if textarea %}>{{ field.value|default_if_none:"" }}</textarea>{% else %}/>{% endif %}
+{% if disabled %}<input type="hidden" name="{{ field.html_name }}" value="{{ field.value|default_if_none:'' }}" />{% endif %}
 {% endif %}
 {% if field.help_text %}
 	<small id="{{ field.id_for_label }}Help" class="form-text text-muted">{{ field.help_text|safe }}</small>

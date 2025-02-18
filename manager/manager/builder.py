@@ -22,6 +22,7 @@ from manager.utils import retrieve_branding_file
 @dataclass
 class ConfigLike:
     name: str = "default"
+    ssid: str = "default"
     project_name: str = "default"
     language: str = "en"
     timezone: str = "UTC"
@@ -106,11 +107,11 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             source=settings.BASE_IMAGE_URL,
             rootfs_size=settings.BASE_IMAGE_ROOTFS_SIZE,
         ),
-        name=str(config.project_name),
+        name=str(config.ssid),
         domain=str(config.project_name),
         welcome_domain="goto.kiwix",
         tld=settings.OFFSPOT_TLD,
-        ssid=str(config.project_name),
+        ssid=str(config.ssid),
         passphrase=str(config.wifi_password) if config.wifi_password else None,
         timezone=str(config.timezone),
         environ={

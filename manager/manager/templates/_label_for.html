@@ -1,5 +1,6 @@
 <label for="{{ field.id_for_label }}">
 	{{ field.label }}
+	{% if locked %}{% include "_locked_badge.html" %}{% endif %}
 	{% if field.field.required %}<sup style="color: #721c24">*</sup>{% endif %}
 	{% if size %}<span>({{ size }})</span>{% endif %}
 	{% if field.errors %}
