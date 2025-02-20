@@ -1,11 +1,35 @@
-{% extends "email_order_base.html" %}
-{% from "macros.html" import tagged_message %}
+{% extends "email_base.html" %}
 
-{% block message %}
-{% call tagged_message("success") %}{{ _("Your order has shipped!") }}{% endcall %}
-<p>{{ _("Dear %(recipient_name)s,")|format(recipient_name=order.recipient.name) }}<br />
-{{ _("Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> with the <strong>%(config_name)s</strong> configuration on it has been shipped.")|format(quantity=order.quantity, sdcard_name=order.sd_card.name, config_name=order.config.name)|safe }}</p>
-<p>{{ _("You should expect to receive your order within 10 days, depending on your address.") }}</p>
-<p>{{ _("Please, contact <em>%(client_name)s</em> should you have any question… and to confirm reception!")|format(client_name=order.client.name)|safe }}</p>
-<p>{{ _("Shipment tracking information: <code>%(tracking)s</code>")|format(tracking=order.recipient.shipment|default("none"))|safe }}</p>
+{% block content %}
+{% set config_name_span %}<span style="color: #fd8a31;">{{ order.config.name }}</span>{% endset %}
+
+<h2 style="margin-bottom: 2rem; color:#5a5a5a;">{{ _("Your Hotspot order for %(config_name)s has shipped!")|format(config_name=config_name_span)|safe }}</h2>
+
+<div style="background-color: #fcfcfc; border: 2px solid #efefef; border-radius: 1rem; padding: 1rem;">
+  <table style="border-collapse: separate; border-spacing: 1rem .3rem; font-size: .8rem;">
+    <thead>
+      <tr>
+        <th style="color: #5c5c5b; text-align: left; background-color: transparent;">{{ _("Your Order") }}</th>
+        <th style=" background-color: transparent;"></th>
+        <th style="color: #5c5c5b; text-align: left; background-color: transparent;">{{ _("%(sdcard_size)sGB")|format(sdcard_size=order.sd_card.size) }}</th>
+      </tr>
+    <tr><th colspan="3" style="height: 1rem; background-color: transparent;"></th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="color: #9b9b9b;">Kiwix Hotspot OS</td><th style="background-color: transparent;"></th><td style="color: #9b9b9b;">Software required to run the Hotspot</td></tr>
+      {% for content_title, content_desc in order_entries %}
+      <tr><td style="color: #4e4e4e;">{{ content_title }}</td><th style="background-color: transparent;"></th><td style="color: #4e4e4e;">{{ content_desc }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p style="display: block; height: 1em;"></p>
+
+<div style="background-color: #fcfcfc; border: 2px solid #efefef; border-radius: 1rem; padding: 0 1rem;">
+  <p style="color: #4c4c4c;">{{ _("Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> with the <strong>%(config_name)s</strong> configuration on it has been shipped.")|format(quantity=order.quantity, sdcard_name=order.sd_card.name, config_name=order.config.name)|safe }}</p>
+  <p style="color: #4c4c4c;">{{ _("You should expect to receive your order within 10 days, depending on your address.") }}</p>
+  <p style="color: #4c4c4c;">{{ _("Please, contact <em>%(client_name)s</em> should you have any question… and to confirm reception!")|format(client_name=order.client.name)|safe }}</p>
+  <p style="color: #4c4c4c;">{{ _("Shipment tracking information: <code>%(tracking)s</code>")|format(tracking=order.recipient.shipment|default("none"))|safe }}</p>
+</div>
 {% endblock %}

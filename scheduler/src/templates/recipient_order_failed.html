@@ -1,11 +1,42 @@
-{% extends "email_order_base.html" %}
-{% from "macros.html" import tagged_message %}
+{% extends "email_base.html" %}
 
-{% block message %}
-{% call tagged_message("error") %}{{ _("Your order has failed!") }}{% endcall %}
-<p>{{ _("Dear %(recipient_name)s,")|format(recipient_name=order.recipient.name) }}<br />
-{% if order.sd_card.type == "physical" %}<p>{{ _("Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> card")|format(quantity=order.quantity, sdcard_name=order.sd_card.name)|safe }}</p>
-{% else %}<p>{{ _("Your <strong>%(sdcard_size)sGB</strong> download order with the <strong>%(config_name)s</strong> configuration has failed to complete.")|format(sdcard_size=order.sd_card.size, config_name=order.config.name)|safe }}</p>{% endif %}
-<p>{{ _("Someone will get in touch with you shortly to work out a fix.") }}</p>
-<p>{{ _("Please accept our sincere apologies.") }}</p>
+{% block content %}
+{% set config_name_span %}<span style="color: #fd8a31;">{{ order.config.name }}</span>{% endset %}
+{% set status %}<code style="font-family: monospace; white-space:nowrap;">{{ order.statuses[-1].status }}</code>{% endset %}
+
+<h2 style="margin-bottom: 2rem; color:#5a5a5a;">{{ _("Your Hotspot order for %(config_name)s has failed")|format(config_name=config_name_span)|safe }}</h2>
+
+<div style="background-color: #fcfcfc; border: 2px solid #efefef; border-radius: 1rem; padding: 1rem;">
+  <table style="border-collapse: separate; border-spacing: 1rem .3rem; font-size: .8rem;">
+    <thead>
+      <tr>
+        <th style="color: #5c5c5b; text-align: left; background-color: transparent;">{{ _("Your Order") }}</th>
+        <th style=" background-color: transparent;"></th>
+        <th style="color: #5c5c5b; text-align: left; background-color: transparent;">{{ _("%(sdcard_size)sGB")|format(sdcard_size=order.sd_card.size) }}</th>
+      </tr>
+    <tr><th colspan="3" style="height: 1rem; background-color: transparent;"></th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="color: #9b9b9b;">Kiwix Hotspot OS</td><th style="background-color: transparent;"></th><td style="color: #9b9b9b;">Software required to run the Hotspot</td></tr>
+      {% for content_title, content_desc in order_entries %}
+      <tr><td style="color: #4e4e4e;">{{ content_title }}</td><th style="background-color: transparent;"></th><td style="color: #4e4e4e;">{{ content_desc }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p style="display: block; height: 1em;"></p>
+
+<div style="background-color: #fcfcfc; border: 2px solid #efefef; border-radius: 1rem; padding: 0 1rem;">
+  {% if order.sd_card.type == "physical" %}
+  <p style="color: #4c4c4c;">{{ _("Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> card")|format(quantity=order.quantity, sdcard_name=order.sd_card.name)|safe }}</p>
+  {% else %}
+  <p style="color: #4c4c4c;">{{ _("Your <strong>%(sdcard_size)sGB</strong> download order with the <strong>%(config_name)s</strong> configuration has failed to complete.")|format(sdcard_size=order.sd_card.size, config_name=order.config.name)|safe }}</p>
+  {% endif %}
+  <p style="color: #4c4c4c;">{{ _("Someone will get in touch with you shortly to work out a fix.") }}</p>
+  <p style="color: #4c4c4c;">{{ _("Please accept our sincere apologies.") }}</p>
+
+  <p style="color:#5a5a5a;">{{ _("<strong>Error code</strong>: %(status)s, %(status_on)s")|format(status=status, status_on=order.statuses[-1].on|date)|safe }}</p>
+
+</div>
 {% endblock %}
