@@ -1,1 +1,1 @@
-{% extends "subject_base.txt" %}{% block subject %}{{ _("Order “%(config_name)s” Status Changed (%(status)s)")|format(config_name=order.config.name, status=order.status) }}{% endblock %}
+{% extends "subject_base.txt" %}{% block subject %}{{ _("“%(config_name)s” Status Changed (%(status)s)")|format(config_name=order.config.name, status=order.status) }}{% endblock %}

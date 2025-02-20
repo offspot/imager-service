@@ -1,1 +1,1 @@
-{% extends "subject_base.txt" %}{% block subject %}{{ _("Order “%(config_name)s”: please ship to %(recipient_name)s!")|format(config_name=order.config.name, recipient_name=order.recipient.name) }}{% endblock %}
+{% extends "subject_base.txt" %}{% block subject %}{{ _("“%(config_name)s”: please ship to %(recipient_name)s!")|format(config_name=order.config.name, recipient_name=order.recipient.name) }}{% endblock %}
