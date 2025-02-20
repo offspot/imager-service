@@ -8,12 +8,14 @@ import pathlib
 from typing import Optional, Sequence
 from contextlib import contextmanager
 
+from babel.dates import format_datetime
 from babel.support import Translations
 import pdfkit
 import yagmail
 import requests
 from werkzeug.datastructures import MultiDict
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+import yaml
 
 from utils.mongo import Orders, Users, Channels, WriterTasks, Acknowlegments
 from utils.templates import (
@@ -29,7 +31,15 @@ from utils.templates import (
     get_public_download_url,
     get_public_download_torrent_url,
     public_download_url_has_torrent,
+    strftime,
 )
+
+try:
+    from yaml import CDumper as Dumper
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    # we don't NEED cython ext but it's faster so use it if avail.
+    from yaml import Dumper, SafeLoader
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +50,14 @@ jinja_env = Environment(
     autoescape=select_autoescape(["html", "xml", "txt"]),
     extensions=["jinja2.ext.i18n", "jinja2.ext.autoescape", "jinja2.ext.with_"],
 )
+
+
+def format_dt(date, fmt="long", locale=None):
+    return format_datetime(
+        date, fmt, locale=locale or getattr(jinja_env, "_locale", "en")
+    )
+
+
 jinja_env.filters["id"] = get_id
 jinja_env.filters["yesno"] = yesno
 jinja_env.filters["qrcode"] = b64qrcode
@@ -52,6 +70,7 @@ jinja_env.filters["public_download_url_has_torrent"] = public_download_url_has_t
 jinja_env.filters["country"] = country_name
 jinja_env.filters["language"] = language_name
 jinja_env.filters["linebreaksbr"] = linebreaksbr
+jinja_env.filters["date"] = format_dt
 
 
 CLIENT_EMAIL_STATUSES = [
@@ -74,9 +93,11 @@ FAILED_ORDER_EMAIL = os.getenv("FAILED_ORDER_EMAIL")
 def localized_for(lang, *args, **kwargs):
     translations = Translations.load(locale_dir, [lang])
     try:
+        jinja_env._locale = lang
         yield jinja_env.install_gettext_translations(translations)
     finally:
         jinja_env.uninstall_gettext_translations(translations)
+        jinja_env._locale = "en"
 
 
 def get_sender():
@@ -140,12 +161,14 @@ def send_email_via_api(
         url=os.getenv("MAILGUN_API_URL") + "/messages",
         auth=("api", os.getenv("MAILGUN_API_KEY")),
         data=data,
-        files=[
-            ("attachment", (os.path.basename(fpath), open(fpath, "rb").read()))
-            for fpath in attachments
-        ]
-        if attachments
-        else [],
+        files=(
+            [
+                ("attachment", (os.path.basename(fpath), open(fpath, "rb").read()))
+                for fpath in attachments
+            ]
+            if attachments
+            else []
+        ),
     )
     resp.raise_for_status()
     return resp.json().get("id")
@@ -242,6 +265,23 @@ def get_email_for(order_id, kind, formatted=True):
     return None, "en"
 
 
+def get_dashboard_entries(yaml_text):
+
+    payload = yaml.load(yaml_text, Loader=SafeLoader)
+    content = {}
+    for file in payload.get("files", []):
+        if not isinstance(file, dict):
+            continue
+        if file.get("to", "") == "/data/contents/dashboard.yaml":
+            content = yaml.load(file["content"], Loader=SafeLoader)
+            break
+
+    return [
+        (package["title"], package["description"])
+        for package in content.get("packages", [])
+    ]
+
+
 def send_order_email_for(
     order_id,
     subject_tmpl,
@@ -255,6 +295,13 @@ def send_order_email_for(
     to, lang = get_email_for(order_id, kind=to)
     with localized_for(lang):
         context = get_full_context(str(order_id), extra=extra)
+        try:
+            context["order_entries"] = get_dashboard_entries(
+                context["order"]["config_yaml"]
+            )
+        except:
+            context["order_entries"] = context["order"]["config"]["content"]["zims"]
+
         subject = jinja_env.get_template("{}.txt".format(subject_tmpl)).render(
             **context
         )
