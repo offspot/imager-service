@@ -14,9 +14,9 @@ from django.utils.translation import gettext as _
 from manager.decorators import staff_required
 from manager.models import Configuration
 from manager.scheduler import (
-    ACCESS_TOKEN,
     ROLES,
     SchedulerAPIError,
+    Tokens,
     add_autoimage,
     add_channel,
     add_user,
@@ -416,11 +416,11 @@ def user_disable(request, user_id):
 @staff_required
 def refresh_token(request):
     authenticate(force=True)
-    logger.info(f"Re-authenticated against the scheduler: `{ACCESS_TOKEN}`")
+    logger.info(f"Re-authenticated against the scheduler: `{Tokens.access}`")
     messages.info(
         request,
         _("Re-authenticated against the scheduler: <code>%(token)s</code>")
-        % {"token": ACCESS_TOKEN[:20]},
+        % {"token": Tokens.access[:20]},
     )
     return redirect("scheduler")
 

@@ -14,20 +14,26 @@ POST = "POST"
 PATCH = "PATCH"
 PUT = "PUT"
 DELETE = "DELETE"
-# URL = "https://api.demo.plug.kiwix.org"
 URL = settings.CARDSHOP_API_URL
 USERNAME = settings.MANAGER_API_USERNAME
 PASSWORD = settings.MANAGER_API_KEY
-ACCESS_TOKEN = None
-ACCESS_TOKEN_EXPIRY = datetime.datetime(1970, 1, 1)
-REFRESH_TOKEN = None
-REFRESH_TOKEN_EXPIRY = None
 ROLES = {
     "manager": "Manager (WebUI)",
     "creator": "Creator Worker",
     "writer": "Writer Worker",
 }
 logger = logging.getLogger(__name__)
+
+class Tokens:
+    access = ""
+    access_expiry = datetime.datetime(1970, 1, 1)
+    refresh = ""
+    refresh_expiry = datetime.datetime(1970, 1, 1)
+
+    @classmethod
+    def reset(cls):
+        cls.access = cls.refresh = ""
+        cls.access_expiry = cls.refresh_expiry = datetime.datetime(1970, 1, 1)
 
 
 class SchedulerAPIError(Exception):
@@ -53,13 +59,11 @@ def get_token(username, password):
 
 
 def authenticate(*, force=False):
-    global ACCESS_TOKEN, REFRESH_TOKEN, ACCESS_TOKEN_EXPIRY  # noqa: PLW0603
-    global REFRESH_TOKEN_EXPIRY  # noqa: PLW0603
-
     if (
         not force
-        and ACCESS_TOKEN is not None
-        and ACCESS_TOKEN_EXPIRY
+        and Tokens.access
+        and Tokens.access_expiry
+        and Tokens.access_expiry
         > datetime.datetime.now() + datetime.timedelta(minutes=2)
     ):
         return
@@ -68,12 +72,13 @@ def authenticate(*, force=False):
 
     try:
         access_token, refresh_token = get_token(username=USERNAME, password=PASSWORD)
-    except Exception:
-        ACCESS_TOKEN = REFRESH_TOKEN = ACCESS_TOKEN_EXPIRY = None
+    except Exception as exc:
+        Tokens.reset()
     else:
-        ACCESS_TOKEN, REFRESH_TOKEN = access_token, refresh_token
-        ACCESS_TOKEN_EXPIRY = datetime.datetime.now() + datetime.timedelta(minutes=59)
-        REFRESH_TOKEN_EXPIRY = datetime.datetime.now() + datetime.timedelta(days=29)
+        now = datetime.datetime.now()
+        Tokens.access, Tokens.refresh = access_token, refresh_token
+        Tokens.access_expiry = now + datetime.timedelta(minutes=59)
+        Tokens.refresh_expiry = now + datetime.timedelta(days=29)
 
 
 def auth_required(func):
@@ -85,7 +90,7 @@ def auth_required(func):
 
 
 def get_token_headers():
-    return {"token": ACCESS_TOKEN, "Content-type": "application/json"}
+    return {"token": Tokens.access, "Content-type": "application/json"}
 
 
 @auth_required

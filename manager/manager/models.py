@@ -844,18 +844,14 @@ class Configuration(models.Model):
         max_length=32,
         default=settings.DEFAULT_DOMAIN,
         verbose_name=_lz("Domain name"),
-        help_text=_lz(
-            "The landing page will be at http://name.hotspot"
-        ),
+        help_text=_lz("The landing page will be at http://name.hotspot"),
         validators=[validate_project_name],
     )
     ssid = models.CharField(
         max_length=32,
         default=settings.DEFAULT_SSID,
         verbose_name=_lz("WiFi Network name"),
-        help_text=_lz(
-            "Name of network in WiFi list (SSID)"
-        ),
+        help_text=_lz("Name of network in WiFi list (SSID)"),
         validators=[validate_ssid],
     )
     language = models.CharField(
