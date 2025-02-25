@@ -24,6 +24,7 @@
 	</tr></thead>
 	<tbody>
 	{% for organization in organizations %}
+	{% if not organization.is_obsolete %}
 	<tr><th><a href="{% url "admin:manager_organization_change" organization.slug %}"><code>{{ organization.slug }}</code></a></th>
 		<td>{{ organization.name }}</td>
 		<td>{{ organization.channel }}</td>
@@ -37,6 +38,7 @@
 			<button type="submit" class="btn btn-sm btn-secondary">{% blocktrans %}Update Units{% endblocktrans %}</button></form>
 		</td>
 	</tr>
+	{% endif %}
 	{% endfor %}
 	</tbody>
 </table>
@@ -73,6 +75,7 @@
 	</tr></thead>
 	<tbody>
 	{% for profile in profiles %}
+	{% if not profile.is_obsolete %}
 	<tr><th><a href="{% url "admin:auth_user_change" profile.user.id %}"><code>{{ profile.user.username }}</code></a>{% if profile.can_order_physical %} <i class="fas fa-sd-card"></i>{% endif %}{% if profile.user.is_staff %} (admin){% endif %}</th>
 		<td>{{ profile.organization }}</td>
 		<td><a href="mailto:{{ profile.user.email }}">{{ profile.user.email }}</a></td>
@@ -81,6 +84,7 @@
 		<td><a class="btn btn-sm btn-warning" href="{% url "admin_toggle_account" profile.username %}">{{ profile.user.is_active|yesno }}: {% if profile.user.is_active %}{% blocktrans %}disable{% endblocktrans %}{% else %}{% blocktrans %}enable{% endblocktrans %}{% endif %}</a></td>
 		<td><a data-toggle="confirmation" data-title="Delete {{ profile }} ?" class="btn btn-sm btn-danger" href="{% url "admin_delete_account" profile.username %}">{% blocktrans %}delete{% endblocktrans %}</a></td>
 	</tr>
+	{% endif %}
 	{% endfor %}
 	</tbody>
 </table>

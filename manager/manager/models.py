@@ -1203,6 +1203,15 @@ class Organization(models.Model):
     beta_is_active = models.BooleanField(verbose_name="Beta is active", default=False)
 
     @property
+    def is_obsolete(self) -> bool:
+        if self.profile_set.filter(user__is_staff=True).count():
+            return False
+
+        now = datetime.datetime.now(tz=datetime.UTC)
+        amonth_ago = now - datetime.timedelta(days=30)
+        return self.profile_set.filter(expire_on__gte=amonth_ago).count() == 0
+
+    @property
     def is_limited(self):
         return self.units is not None
 
@@ -1260,6 +1269,10 @@ class Profile(models.Model):
     )
 
     @property
+    def is_obsolete(self) -> bool:
+        return self.organization.is_obsolete
+
+    @property
     def is_limited(self):
         if self.user.is_staff:
             return False
@@ -1290,7 +1303,7 @@ class Profile(models.Model):
 
     @property
     def cannot_brand(self):
-        """ useful in templates inline vars """
+        """useful in templates inline vars"""
         return not self.can_brand
 
     @classmethod
