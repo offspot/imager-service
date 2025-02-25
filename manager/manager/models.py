@@ -959,6 +959,12 @@ class Configuration(models.Model):
     @classmethod
     def create_from(cls, config, author):
         kwargs = parse_json_config(cls, config)
+        if not author.can_brand:
+            kwargs["project_name"] = settings.DEFAULT_DOMAIN
+            kwargs["ssid"] = settings.DEFAULT_SSID
+            for key in ("branding_logo", "branding_favicon"):
+                if key in kwargs:
+                    del kwargs[key]
         kwargs.update(
             {
                 "updated_by": author,
