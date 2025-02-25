@@ -291,3 +291,7 @@ BRANDING_FILES_PAYLOADS = {
 
 DEFAULT_DOMAIN = "kiwix"
 DEFAULT_SSID = "Kiwix Hotspot"
+try:
+    BRANDING_ORGS = list(set((os.getenv("BRANDING_ORGS") or "").split("|")))
+except Exception:
+    BRANDING_ORGS = []

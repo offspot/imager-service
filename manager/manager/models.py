@@ -1305,7 +1305,7 @@ class Profile(models.Model):
 
     @property
     def can_brand(self):
-        return self.user.is_staff or self.organization.slug == "orange"
+        return self.user.is_staff or self.organization.slug in settings.BRANDING_ORGS
 
     @property
     def cannot_brand(self):
