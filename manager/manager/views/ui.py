@@ -594,7 +594,7 @@ def order_new(request, kind=Media.VIRTUAL):  # noqa: ARG001
 
 @login_required
 def order_config(request, config_id: int | None = None):
-    context = {}
+    context = {"offspot_tld": settings.OFFSPOT_TLD}
 
     organization = request.user.profile.organization
     if config_id:
