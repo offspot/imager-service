@@ -1,32 +1,27 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
-
-import logging
 import datetime
-from bson import ObjectId
-from flask import Blueprint, request, jsonify, Response, render_template
 
-from utils.mongo import (
-    CreatorTasks,
-    WriterTasks,
-    DownloaderTasks,
-    Users,
-    Tasks,
-    Orders,
-    Acknowlegments,
-)
-from . import authenticate, bson_object_id, errors, only_for_roles
+from bson import ObjectId
 from emailing import (
     send_image_uploaded_email,
     send_image_uploaded_public_email,
-    send_insert_card_email,
     send_image_writing_email,
     send_image_written_email,
+    send_insert_card_email,
     send_order_failed_email,
     send_order_pending_shipment_email,
 )
+from flask import Blueprint, Response, jsonify, render_template, request
+from utils.mongo import (
+    Acknowlegments,
+    CreatorTasks,
+    DownloaderTasks,
+    Orders,
+    Tasks,
+    Users,
+    WriterTasks,
+)
 
+from routes import authenticate, bson_object_id, errors, only_for_roles
 
 blueprint = Blueprint("task", __name__, url_prefix="/tasks")
 

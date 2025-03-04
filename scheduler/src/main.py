@@ -1,29 +1,26 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
 
-import os
 import logging
+import os
 
 from flask import Flask
 from flask_cors import CORS
-
+from prestart import Initializer
 from routes import (
     auth,
-    users,
-    errors,
+    autoimages,
     channels,
-    orders,
-    tasks,
+    errors,
     home,
+    orders,
+    stripe,
+    tasks,
+    users,
     warehouses,
     workers,
-    autoimages,
-    stripe,
 )
 from utils.json import Encoder
 from utils.templates import strftime
-from prestart import Initializer
 
 logging.basicConfig(level=logging.INFO)
 
