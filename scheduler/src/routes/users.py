@@ -1,18 +1,17 @@
 import pymongo
 from bson import ObjectId
-from flask import Blueprint, request, jsonify, Response
-from jsonschema import validate, ValidationError
+from flask import Blueprint, Response, jsonify, request
+from jsonschema import ValidationError, validate
+from utils.mongo import Users
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from utils.mongo import Users
-from . import (
+from routes import (
     authenticate,
     bson_object_id,
-    errors,
     ensure_user_matches_role,
+    errors,
     only_for_roles,
 )
-
 
 blueprint = Blueprint("user", __name__, url_prefix="/users")
 

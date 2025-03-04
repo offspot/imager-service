@@ -1,13 +1,12 @@
-from uuid import UUID, uuid4
 from datetime import datetime, timedelta
+from uuid import UUID, uuid4
 
-from flask import Blueprint, request, Response, jsonify
+from flask import Blueprint, Response, jsonify, request
+from utils.mongo import RefreshTokens, Users
+from utils.token import AccessToken
 from werkzeug.security import check_password_hash
 
-from utils.mongo import Users, RefreshTokens
-from utils.token import AccessToken
-from .errors import BadRequest, Unauthorized
-
+from routes.errors import BadRequest, Unauthorized
 
 blueprint = Blueprint("auth", __name__, url_prefix="/auth")
 

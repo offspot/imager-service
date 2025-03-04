@@ -1,17 +1,14 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
 
+import logging
 import os
 import socket
-import logging
 
-from werkzeug.security import generate_password_hash
 from cerberus import Validator
-from pymongo import ASCENDING
-
-from utils import mongo
 from emailing import send_email
+from pymongo import ASCENDING
+from utils import mongo
+from werkzeug.security import generate_password_hash
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

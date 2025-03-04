@@ -1,30 +1,22 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
-
-import os
+import datetime
 import json
 import logging
-import datetime
+import os
 
-import stripe
-import requests
 import flask
-from flask import Blueprint, request, jsonify
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-
+import requests
+import stripe
 from emailing import send_email
-from utils.mongo import StripeCustomer, AutoImages, StripeSession
+from flask import Blueprint, jsonify, request
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from utils.mongo import AutoImages, StripeCustomer, StripeSession
 from utils.templates import amount_str, strftime
-
 
 # envs & secrets
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
 STRIPE_PUBLIC_API_KEY = os.getenv("STRIPE_PUBLIC_API_KEY")
 CARDSHOP_API_URL = os.getenv("CARDSHOP_API_URL", "https://api.imager.kiwix.org")
-SHOP_PUBLIC_URL = os.getenv(
-    "SHOP_PUBLIC_URL", "https://kiwix.org/en/wifi-hotspot/"
-)
+SHOP_PUBLIC_URL = os.getenv("SHOP_PUBLIC_URL", "https://kiwix.org/en/wifi-hotspot/")
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
 

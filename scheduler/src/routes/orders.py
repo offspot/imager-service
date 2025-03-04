@@ -1,21 +1,20 @@
-import os
 import datetime
+import os
+from distutils.util import strtobool
 
 import pymongo
 from bson import ObjectId
-from distutils.util import strtobool
-from flask import Blueprint, request, jsonify, render_template
-from jsonschema import validate, ValidationError
-
-from utils.mongo import Orders, Users
-from utils.json import ensure_objectid
 from emailing import (
     send_order_created_email,
-    send_order_shipped_email,
     send_order_failed_email,
+    send_order_shipped_email,
 )
-from . import authenticate, bson_object_id, errors, only_for_roles
+from flask import Blueprint, jsonify, render_template, request
+from jsonschema import ValidationError, validate
+from utils.json import ensure_objectid
+from utils.mongo import Orders, Users
 
+from routes import authenticate, bson_object_id, errors, only_for_roles
 
 blueprint = Blueprint("order", __name__, url_prefix="/orders")
 
