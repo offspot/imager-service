@@ -10,17 +10,30 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch,formdata"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <style type="text/css">
+body {
+  font-family: 'Quicksand',Helvetica,Arial,Lucida,sans-serif;
+}
+
 .container {
   position: relative;
 }
 .loader { display: none; color: #ff9933; }
 
-.table-offer { font-family: 'Quicksand',Helvetica,Arial,Lucida,sans-serif; }
+.table-offer {
+  font-family: 'Quicksand',Helvetica,Arial,Lucida,sans-serif;
+  display: none;
+
+  border-spacing: 1em;
+  border-collapse: separate;
+
+  margin-left: calc(-1em + .1em);
+  margin-right: calc(-1em + .1em);
+}
 
 .offer {
-  /*display: table-cell;*/
-  border: 1px solid #bebebe;
-  background-color: #fcfcfc;
+  display: block;
+  border: .01rem solid #cccccc;
+  background-color: #ffffff;
 
   width: 100%;
   max-width: 100%;
@@ -30,72 +43,40 @@
   flex: 1 1 auto;
 }
 
-.offer:last-child { border: 1px solid #bebebe !important; }
-
-.offer:hover { background-color:rgba(0,0,0,.05) }
-
-.offer.splitter {
-  display: none;
-  height: 0;
-  width: 0;
-}
-
 .offer * a {
-  color: #ff9933;
+  color: #333333;
 }
 
-/* display 2 rows of 2 blocks */
+/* from iPad and up, we display as 3 cells */
 @media (min-width:767px) {
   .offer {
-    border-right: 0;
     display: table-cell;
-    width: 45%;
-    max-width: 45%;
+    width: 33%;
+    max-width: 33%;
   }
-  .offer:nth-child(2) {
-    border: 1px solid #bebebe;
-  }
-  .offer.splitter {
-    display: block;
-  }
-}
-@media (min-width:1080px) {
-  .offer {
-    display: table-cell;
-    width: 25%;
-    max-width: 25%;
-  }
-  .offer:nth-child(2) {
-    border-right: 0;
-  }
-  .offer.splitter {
-    display: none;
-  }
-}
-
-/* make sure splitter is never shown */
-.offer.splitter {
-  height: 0;
-  width: 0;
 }
 
 .offer header {
-  background-color: #bebebe;
   padding: 10px 0;
-  color: #fff;
+  color: #444444;
   text-align: center;
+  margin-top: 2em;
+}
+.offer header img {
+  width: 30%;
 }
 .offer header h2 {
   font-size: 150% !important;
   padding-top: 0.5em;
   padding-bottom: 5px;
-  font-weight: 900;
+  font-weight: 600;
   line-height: 1.7em;
 }
 .offer header p {
   font-size: 18px;
   line-height: 20px;
   font-weight: 500;
+  color: #000000;
 }
 
 .offer .price {
@@ -105,51 +86,50 @@
   padding-top: 17px;
   padding-bottom: 30px;
   position: relative;
-  border-bottom: 1px #bebebe;
-  border-bottom-style: solid;
 }
 .offer .price .amount {
   color: #ff9933;
-  font-size: 80px;
+  font-size: 3em;
   line-height: 1.03em;
-  font-weight: 300;
+  font-weight: 500;
+  border: 1px solid white;
+  border-radius: .26em;
+  padding: 0 .4em;
+  box-shadow: 0px 0px .3rem .01rem #c9c9c9
 }
 
 .offer .description {
   padding: 30px;
   text-align: left;
   padding-bottom: 60px;
+  font-size: .9em;
+  margin-bottom: 3em;
 }
 .offer .description ul {
-  list-style: none !important;
-  padding: 0 !important;
+  list-style: initial;
+  padding: 0 0 0 1em !important;
   line-height: inherit !important;
 }
 .offer .description ul li {
-  color: #666;
+  color: #333333;
   line-height: 1.7em;
   font-weight: 500;
   line-height: 1.6em;
-  padding: 0 0 1.6em 14px;
-}
-.offer .description ul li::before {
-  content: "• ";
-  color: #2ea3f2;
+  padding: 0 0 .5em;
 }
 
 
 .download-btn { display: inline-block; }
 @media (max-width:380px) {
   .offer .description { padding-bottom: 120px; }
-  /*.download-btn:first-child { margin-bottom: .5em; }*/
 }
 @media (min-width:1080px) and (max-width: 1400px) {
-  /*.download-btn:first-child { margin-bottom: .5em; }*/
 }
 
 .offer .button-holder {
   text-align: center;
   margin-bottom: 2em;
+  margin-top: 5em;
 
   position: absolute;
   bottom: 0px;
@@ -161,47 +141,188 @@
 
 .offer .button-holder button,
 .offer .button-holder a {
-  color: #ff9933;
-  font-size: 20px;
+  color: #212121;
+  font-size: 1em;
   font-weight: 500;
   padding: .3em 1em;
   line-height: 1.7em !important;
   border: 2px solid;
-  border-radius: 3px;
+  border-radius: .5em;
   -webkit-transition: all .2s;
   transition: all .2s;
 }
+
+.offer .button-holder .btn-demo {
+  color: #adadad;
+}
+
 .offer .button-holder button:hover,
 .offer .button-holder a:hover {
-  padding: .3em 1.5em; border-color: transparent; }
-.offer .button-holder button:after,
-.offer .button-holder button:before,
-.offer .button-holder a:after,
-.offer .button-holder a:before {
-  content:"";
-  opacity:0;
-  position:absolute;
-  -webkit-transition:all .2s;
-  transition:all .2s;
-
-  border: solid #ff9933;
-  border-width: 0 3px 3px 0;
-  display: inline-block;
-  padding: 6px;
-  transform: rotate(-45deg);
-  -webkit-transform: rotate(-45deg);
-  margin-left: 3px;
-  margin-top: 10px;
+  color: #fa9600;
 }
-.offer .button-holder button:hover:after,
-.offer .button-holder a:hover:after {
- -webkit-transition:none!important; transition:none!important }
-.offer .button-holder button:before,
-.offer .button-holder a:before {
-  display:none }
-.offer .button-holder button:hover:after,
-.offer .button-holder a:hover:after {
-  opacity:1; margin-left:0; }
+
+.offer.highlighted {
+  background-color: #fa9600;
+  border: 1px solid #cc6100;
+  color: white;
+}
+
+.offer.highlighted header *,
+.offer.highlighted .price .amount,
+.offer.highlighted .description *,
+.offer.highlighted .button-holder * {
+  color: white;
+}
+
+.offer.highlighted .price .amount {
+  border: 1px solid transparent;
+  box-shadow: 0px 0px .3rem .01rem transparent;
+}
+
+.offer.highlighted .button-holder button:hover,
+.offer.highlighted .button-holder a:hover {
+  color: #212121;
+}
+
+body {
+  background-color: #f9f9f9;
+}
+
+.toggle-offers {
+  padding: .1em;
+  border: 1px solid #cccccc;
+  margin: auto;
+  text-align: center;
+  display: table;
+  margin-bottom: 2em;
+  border-radius: .5em;
+  font-size: 1.1em;
+}
+
+.toggle-btn {
+  padding: .6em 1em;
+  border-radius: .5em;
+  color: #999999;
+  background-color: transparent;
+  border: 0;
+  font-weight: 500;
+}
+
+.toggle-btn.active {
+  color: white;
+  background-color: #bc1142;
+}
+
+.offers-intro {
+  color: #bc1142;
+  font-weight: 400;
+  width: 50%;
+  margin: auto;
+  text-align: center;
+  display: none;
+  font-weight: 500;
+  font-size: 18px;
+  margin-bottom: 2em;
+}
+
+.offers-intro p {
+  margin: 0.4em 0;
+}
+
+.offers-intro a, .offers-intro a:visited, .offers-intro a:active {
+  color: #bc1142;
+  text-decoration: underline;
+}
+
+.table-offer.active {
+  display: table;
+}
+
+.offers-intro.active {
+  display: block;
+}
+
+.hidden, .hidden * {
+  background-color: transparent;
+  color: transparent;
+  border: 0;
+}
+
+.outro {
+  margin-top: 4em;
+}
+
+.outro h2 {
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+.outro p {
+  width: 60%;
+  text-align: center;
+  margin:auto;
+}
+
+.outro p.outro-btns {
+  margin-top: 2em;
+}
+
+.payment-info {
+  width: 80%;
+  margin: auto;
+  margin-top: 4em;
+}
+
+.payment-info .container {
+  display: table;
+}
+
+.payment-info .container .column {
+  display: table-cell;
+}
+
+.payment-info .container .column:last-child {
+  text-align: center;
+}
+
+.outro h2, .payment-info h2 {
+  font: normal 700 28px/normal "Quicksand";
+    line-height: normal;
+  line-height: 1.2;
+  text-transform: capitalize;
+  margin-bottom: 1em;
+}
+
+.payment-info h2 {
+  text-align: left;
+  margin-bottom: 0;
+}
+
+.payment-info p {
+  width: 60%;
+}
+
+@media (max-width:380px) {
+  .payment-info,
+  .payment-info p,
+  .outro p {
+    width: 100%;
+  }
+  .payment-info h2 {
+    margin-bottom: 1em;
+  }
+  .payment-info .container,
+  .payment-info .container .column {
+    display: block;
+  }
+}
+
+@media (max-width:380px) {
+  .toggle-btn {
+    width: 100%;
+  }
+}
+
     </style>
   </head>
   <script type="text/javascript">
@@ -221,28 +342,149 @@ window.onresize = onframeresize;
   <body onload="send_height_to_parent();">
     <section class="no-container">
 
-      <div class="table-offer">
+      <div class="toggle-offers">
+        <button value="hw" class="toggle-btn active">Select your Hotspot</button>
+        <button value="os" class="toggle-btn">Hotspot OS only</button>
+      </div>
+
+      <div value="hw" class="offers-intro active">
+        <p>Receive your fast, fully-featured, plug-and-play Kiwix Hotspot.</p>
+      </div>
+
+      <div value="os" class="offers-intro">
+        <p>Turn your existing Raspberry Pi into a Kiwix Hotspot.</p>
+      </div>
+
+      <div value="hw" class="table-offer active">
         <div class="offer">
           <header>
-            <h2>Test package</h2>
-            <p>Try before you buy</p>
+            <img src="https://files.stripe.com/links/MDB8YWNjdF8xRDZmWXZGd2JlRWtUODUwfGZsX2xpdmVfRFF5T1k4NktEOVVleTRGeUNFUkNMd0x200j5rj1Co5" />
+            <h2>Wikipedia Hotspot</h2>
+            <p>All of Wikipedia, and more</p>
           </header>
-          <section class="price"><span class="amount">Free</span></section>
+          <section class="price"><span class="amount">$300</span></section>
           <section class="description">
             <ul>
-              <li>A selection of Wikipedia’s 50,000 most demanded articles.</li>
-              <li>Fits on a 8GB microSD card</li>
+              <li>The entirety of Wikipedia (6.7 million articles, including images)</li>
+              <li><strong>Plus</strong> the Wiktionary (7.9 million entries in 4,200 languages)</li>
+              <li>You'll receive a preloaded Kiwix Hotspot device with its charger</li>
             </ul>
-            <form class="text-center button-holder">
-              <a class="btn btn-outline-secondary download-btn" href="{{ api_url }}/auto-images/demo/redirect/http">Download</a>
-              <a class="btn btn-outline-secondary download-btn" href="{{ api_url }}/auto-images/demo/redirect/torrent">via torrent</a>
-            </form>
           </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="wikipedia-en-h1">
+            <a class="btn btn-demo" href="https://wikipedia.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
+            <button class="btn ">Purchase</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
         </div>
 
         <div class="offer">
           <header>
-            <h2>Wikipedia package</h2>
+            <img src="https://files.stripe.com/links/MDB8YWNjdF8xRDZmWXZGd2JlRWtUODUwfGZsX2xpdmVfZFM0TW80M0cyV0RpQ1E4ZTRveXVZQnY500lGp469xj" />
+            <h2>Preppers package</h2>
+            <p>For all your SHTF needs</p>
+          </header>
+          <section class="price"><span class="amount">$300</span></section>
+          <section class="description">
+            <ul>
+              <li>Dozens of resources on homesteading, water treatment, military and emergency medicine, <em>etc.</em></li>
+              <li>How-to's and repair resources</li>
+              <li>The entire Wikipedia</li>
+              <li>TrailSense and Survival apps for Android, ready to download</li>
+              <li>You'll receive a preloaded Kiwix Hotspot device with its charger</li>
+            </ul>
+          </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="preppers-h1">
+            <a class="btn btn-demo" href="https://preppers.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
+            <button class="btn ">Purchase</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
+        </div>
+
+        <div class="offer">
+          <header>
+            <img src="https://files.stripe.com/links/MDB8YWNjdF8xRDZmWXZGd2JlRWtUODUwfGZsX2xpdmVfdGRNVXRQQmU4dTZtVGRVaHVONlJIaXZh00YZBtJ481" />
+            <h2>Medical Hotspot</h2>
+            <p>Needed everywhere</p>
+          </header>
+          <section class="price"><span class="amount">$300</span></section>
+          <section class="description">
+            <ul>
+              <li>Emergency and Military Medicine</li>
+              <li>Traveler's Health</li>
+              <li>Common drugs</li>
+              <li>General medicine, and more!</li>
+              <li>You'll receive a preloaded Kiwix Hotspot device with its charger</li>
+            </ul>
+          </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="medical-h1">
+            <a class="btn btn-demo" href="https://medical.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
+            <button class="btn ">Purchase</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
+        </div>
+
+      </div>
+
+      <div value="hw" class="table-offer active">
+        <div class="offer">
+          <header>
+            <img src="https://files.stripe.com/links/MDB8YWNjdF8xRDZmWXZGd2JlRWtUODUwfGZsX2xpdmVfbGd6VUFFaklLQU5FaG5udk9FOWZ6SEhY00Bj6fredC" />
+            <h2>TED Talks Hotspot</h2>
+            <p>Tech, Entertainment & Design</p>
+          </header>
+          <section class="price"><span class="amount">$300</span></section>
+          <section class="description">
+            <ul>
+              <li>More than 6,600 videos sorted by topics</li>
+              <li>From A like Astrobiology or AI to B like Business, M like Medicine... all the way to W like work-life balance</li>
+              <li>About 91 consecutive days of watching!</li>
+              <li>You'll receive a preloaded Kiwix Hotspot device with its charger</li>
+            </ul>
+          </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="ted-h1">
+            <a class="btn btn-demo" href="https://ted.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
+            <button class="btn ">Purchase</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
+        </div>
+
+        <div class="offer">
+          <header>
+            <img src="https://files.stripe.com/links/MDB8YWNjdF8xRDZmWXZGd2JlRWtUODUwfGZsX2xpdmVfS1NOOU9yY01zWFEwYjlmd0gxUzh2d3Vk00OM3rNNqI" />
+            <h2>Computer package</h2>
+            <p>Network down? Not for you</p>
+          </header>
+          <section class="price"><span class="amount">$300</span></section>
+          <section class="description">
+            <ul>
+              <li>Developer documentation for <s>dozens</s> hundreds of programming languages</li>
+              <li>Lecture notes and textbooks on algorithms, code and statistics</li>
+              <li>DevDocs, Linux man pages and distros' wikis</li>
+              <li>You'll receive a preloaded Kiwix Hotspot device with its charger</li>
+            </ul>
+          </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="computers-h1">
+            <a class="btn btn-demo" href="https://compsci.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
+            <button class="btn ">Purchase</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
+        </div>
+
+        <div class="offer hidden"></div>
+      </div>
+
+      <!-- next are OS offers -->
+
+      <div value="os" class="table-offer">
+        <div class="offer">
+          <header>
+            <img src="https://files.stripe.com/links/MDB8YWNjdF8xRDZmWXZGd2JlRWtUODUwfGZsX2xpdmVfdE5EZURoOXkzNWlSdUM0RUxLWUMwaHEw00R4QyTlTH" />
+            <h2>Wikipedia OS</h2>
             <p>All of Wikipedia, and more</p>
           </header>
           <section class="price"><span class="amount">$15</span></section>
@@ -250,89 +492,21 @@ window.onresize = onframeresize;
             <ul>
               <li>The entirety of Wikipedia (6.7 million articles, including images)</li>
               <li><strong>Plus</strong> the Wiktionary (7.9 million entries in 4,200 languages)</li>
-              <li>Fits on a 200 GB microSD card. See demo <a target="_blank" href="https://wikipedia.demo.hotspot.kiwix.org/">here</a>.</li>
+              <li>Fits on a 200 GB microSD card.</li>
             </ul>
           </section>
           <form class="button-holder">
             <input type="hidden" name="product" value="wikipedia-{{ lang }}">
-            <button class="btn btn-outline-secondary">Purchase</button>
-            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
-        </div>
-
-        <div class="offer splitter"></div>
-
-        <div class="offer">
-          <header>
-            <h2>TED Talks</h2>
-            <p>Tech, Entertainment & Design</p>
-          </header>
-          <section class="price"><span class="amount">$25</span></section>
-          <section class="description">
-            <ul>
-              <li>More than 6,600 videos sorted by topics</li>
-              <li>From A like Astrobiology or AI to B like Business, M like Medicine... all the way to W like work-life balance</li>
-              <li>About 91 consecutive days of watching!</li>
-              <li>Requires a 1 TB microSD card. See demo <a target="_blank" href="https://ted.demo.hotspot.kiwix.org/">here</a>.</li>
-            </ul>
-          </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="ted">
-            <button class="btn btn-outline-secondary">Purchase</button>
+            <a class="btn btn-demo" href="https://wikipedia.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
+            <button class="btn ">Purchase</button>
             <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
           </form>
         </div>
 
         <div class="offer">
           <header>
-            <h2>Computer package</h2>
-            <p>Network down? Not for you</p>
-          </header>
-          <section class="price"><span class="amount">$25</span></section>
-          <section class="description">
-            <ul>
-              <li>Developer documentation for <s>dozens</s> hundreds of programming languages</li>
-              <li>Lecture notes and textbooks on algorithms, code and statistics</li>
-              <li>DevDocs, Linux man pages and distros' wikis</li>
-              <li>Fits on a 200 GB microSD card. See demo <a target="_blank" href="https://compsci.demo.hotspot.kiwix.org/">here</a>.</li>
-            </ul>
-          </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="computers">
-            <button class="btn btn-outline-secondary">Purchase</button>
-            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
-        </div>
-
-      </div>
-
-      <div class="table-offer">
-
-        <div class="offer">
-          <header>
-            <h2>Medical package</h2>
-            <p>Needed everywhere</p>
-          </header>
-          <section class="price"><span class="amount">$25</span></section>
-          <section class="description">
-            <ul>
-              <li>Emergency and Military Medicine</li>
-              <li>Traveler's Health</li>
-              <li>Common drugs</li>
-              <li>General medicine, and more!</li>
-              <li>Requires a 64GB microSD card. See demo <a target="_blank" href="https://medical.demo.hotspot.kiwix.org/">here</a>.</li>
-            </ul>
-          </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="medical">
-            <button class="btn btn-outline-secondary">Purchase</button>
-            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
-        </div>
-
-        <div class="offer">
-          <header>
-            <h2>Preppers package</h2>
+            <img src="https://files.stripe.com/links/MDB8YWNjdF8xRDZmWXZGd2JlRWtUODUwfGZsX2xpdmVfOW9Pa2dCdXVzQ2dvWHZsV1UyTEhOT0FK00pidpDHAy" />
+            <h2>Preppers OS</h2>
             <p>For all your SHTF needs</p>
           </header>
           <section class="price"><span class="amount">$25</span></section>
@@ -342,20 +516,95 @@ window.onresize = onframeresize;
               <li>How-to's and repair resources</li>
               <li>The entire Wikipedia</li>
               <li>TrailSense and Survival apps for Android, ready to download</li>
-              <li>Fits on a 256 GB microSD card. See demo <a target="_blank" href="https://preppers.demo.hotspot.kiwix.org/">here</a>.</li>
+              <li>Fits on a 256 GB microSD card.</li>
             </ul>
           </section>
           <form class="button-holder">
             <input type="hidden" name="product" value="preppers">
-            <button class="btn btn-outline-secondary">Purchase</button>
+            <a class="btn btn-demo" href="https://preppers.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
+            <button class="btn ">Purchase</button>
             <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
           </form>
         </div>
 
         <div class="offer">
           <header>
-            <h2>Build your own</h2>
-            <p>Access the full library</p>
+            <img src="https://files.stripe.com/links/MDB8YWNjdF8xRDZmWXZGd2JlRWtUODUwfGZsX2xpdmVfZjgwSXNOYlJNNjhCYjRFQXVraUVRenhx00qyUs3Qrc" />
+            <h2>Medical OS</h2>
+            <p>Needed everywhere</p>
+          </header>
+          <section class="price"><span class="amount">$25</span></section>
+          <section class="description">
+            <ul>
+              <li>Emergency and Military Medicine</li>
+              <li>Traveler's Health</li>
+              <li>Common drugs</li>
+              <li>General medicine, and more!</li>
+              <li>Requires a 64GB microSD card.</li>
+            </ul>
+          </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="medical">
+            <a class="btn btn-demo" href="https://medical.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
+            <button class="btn ">Purchase</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
+        </div>
+      </div>
+
+      <div value="os" class="table-offer">
+
+        <div class="offer">
+          <header>
+            <img src="https://files.stripe.com/links/MDB8YWNjdF8xRDZmWXZGd2JlRWtUODUwfGZsX2xpdmVfSGgwSlJ0R0dBbW1xaTJVcEduT0x0Y3py00thZYx7DC" />
+            <h2>TED Talks OS</h2>
+            <p>Tech, Entertainment & Design</p>
+          </header>
+          <section class="price"><span class="amount">$25</span></section>
+          <section class="description">
+            <ul>
+              <li>More than 6,600 videos sorted by topics</li>
+              <li>From A like Astrobiology or AI to B like Business, M like Medicine... all the way to W like work-life balance</li>
+              <li>About 91 consecutive days of watching!</li>
+              <li>Requires a 1 TB microSD card.</li>
+            </ul>
+          </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="ted">
+            <a class="btn btn-demo" href="https://ted.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
+            <button class="btn ">Purchase</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
+        </div>
+
+        <div class="offer">
+          <header>
+            <img src="https://files.stripe.com/links/MDB8YWNjdF8xRDZmWXZGd2JlRWtUODUwfGZsX2xpdmVfTEhVR0JHV254MlNvdUY4TUZ4YVliQ0Q300ddiXvjnT" />
+            <h2>Computer OS</h2>
+            <p>Network down? Not for you</p>
+          </header>
+          <section class="price"><span class="amount">$25</span></section>
+          <section class="description">
+            <ul>
+              <li>Developer documentation for <s>dozens</s> hundreds of programming languages</li>
+              <li>Lecture notes and textbooks on algorithms, code and statistics</li>
+              <li>DevDocs, Linux man pages and distros' wikis</li>
+              <li>Fits on a 200 GB microSD card.</li>
+            </ul>
+          </section>
+          <form class="button-holder">
+            <input type="hidden" name="product" value="computers">
+            <a class="btn btn-demo" href="https://compsci.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
+            <button class="btn ">Purchase</button>
+            <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+          </form>
+        </div>
+
+        <div class="offer highlighted">
+          <header>
+            <img src="https://files.stripe.com/links/MDB8YWNjdF8xRDZmWXZGd2JlRWtUODUwfGZsX2xpdmVfMUVKbExrbEtwZnNkaEJSRk9ZNktVUnJ100VabXB5sz" />
+            <h2>Imager Service</h2>
+            <p>One month access</p>
           </header>
           <section class="price"><span class="amount">$99</span></section>
           <section class="description">
@@ -368,14 +617,125 @@ window.onresize = onframeresize;
           </section>
           <form class="button-holder">
             <input type="hidden" name="product" value="access-1m">
-            <button class="btn btn-outline-secondary">Purchase</button>
+            <button class="btn ">Purchase</button>
             <div class="loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
           </form>
         </div>
 
       </div>
     </section>
+
+    <section class="outro">
+      <h2>Want to test before buying?</h2>
+      <p>If you already have a Raspberry Pi, you can download our FREE demo image containing a selection of Wikipedia's 50,000 most popular articles. Just flash it onto a microSD card and begin your Kiwix Hotspot experience.</p>
+      <p class="outro-btns">
+        <a class="btn btn-outline-secondary btn-sm" href="{{ api_url }}/auto-images/demo/redirect/http" download>Download</a> <a class="btn btn-outline-secondary btn-sm" title="via torrent" href="{{ api_url }}/auto-images/demo/redirect/torrent" download>via torrent</a></p>
+    </section>
+
+    <section class="payment-info">
+      <h2>Payment information</h2>
+      <div class="container">
+        <div class="column"><p>Your payment information is processed securely. We do not store credit card details nor have access to your credit card information.</p></div>
+        <div class="column"><img style="width: 200px;" title="logo stripe" src="https://kiwix.org/wp-content/uploads/2023/07/logo-stripe-300x95.png" alt="logo stripe" width="200" height="63" /></div>
+    </section>
+
   </body>
+  <script type="text/javascript">
+// matches polyfill
+this.Element && function(ElementPrototype) {
+    ElementPrototype.matches = ElementPrototype.matches ||
+    ElementPrototype.matchesSelector ||
+    ElementPrototype.webkitMatchesSelector ||
+    ElementPrototype.msMatchesSelector ||
+    function(selector) {
+        var node = this, nodes = (node.parentNode || node.document).querySelectorAll(selector), i = -1;
+        while (nodes[++i] && nodes[i] != node);
+        return !!nodes[i];
+    }
+}(Element.prototype);
+// closest polyfill
+this.Element && function(ElementPrototype) {
+    ElementPrototype.closest = ElementPrototype.closest ||
+    function(selector) {
+        var el = this;
+        while (el.matches && !el.matches(selector)) el = el.parentNode;
+        return el.matches ? el : null;
+    }
+}(Element.prototype);
+
+// helper for enabling IE 8 event bindings
+function addEvent(el, type, handler) {
+    if (el.attachEvent) el.attachEvent('on'+type, handler); else el.addEventListener(type, handler);
+}
+
+function hasClass(el, className) {
+  return el.classList ? el.classList.contains(className) : new RegExp('\\b'+ className+'\\b').test(el.className);
+}
+
+function addClass(el, className) {
+  if (el.classList) el.classList.add(className);
+  else if (!hasClass(el, className)) el.className += ' ' + className;
+}
+
+function removeClass(el, className) {
+  if (el.classList) el.classList.remove(className);
+  else el.className = el.className.replace(new RegExp('\\b'+ className+'\\b', 'g'), '');
+}
+
+function toggleClass(el, className) {
+  if (hasClass(el, className))
+    removeClass(el, className);
+  else
+    addClass(el, className);
+}
+
+// live binding helper using matchesSelector
+function live(selector, event, callback, context) {
+    addEvent(context || document, event, function(e) {
+        var found, el = e.target || e.srcElement;
+        while (el && el.matches && el !== context && !(found = el.matches(selector))) el = el.parentElement;
+        if (found) callback.call(undefined, el, e);
+    });
+}
+
+function toggleOffers(el, ev) {
+  console.log('toggleOffers', el, ev);
+  const active = el.value;
+  const className = 'active';
+  offers = ["hw", "os"];
+
+  if (offers.indexOf(active)== -1)
+    return;
+
+  const btns = document.querySelectorAll('.toggle-btn');
+  for (var i=0; i<btns.length; i++) {
+    let funcClass = btns[i].value == active ? addClass : removeClass;
+    funcClass(btns[i], className);
+  }
+
+  const intros = document.querySelectorAll('.offers-intro');
+  for (var i=0; i<intros.length; i++) {
+    let funcClass = intros[i].getAttribute('value') == active ? addClass : removeClass;
+    funcClass(intros[i], className);
+  }
+
+  const tables = document.querySelectorAll('.table-offer');
+  for (var i=0; i<tables.length; i++) {
+    let funcClass = tables[i].getAttribute('value') == active ? addClass : removeClass;
+    funcClass(tables[i], className);
+  }
+
+  send_height_to_parent();
+}
+
+function run() {
+    live('.toggle-btn', 'click', toggleOffers)
+}
+
+if (document.readyState!='loading') run(); // already loaded
+else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run); // modern browsers
+else document.attachEvent('onreadystatechange', function() { if (document.readyState=='complete') run();}); // IE <= 8
+  </script>
   <script type="text/javascript">
     // Stripe public API key
     var stripe = Stripe("{{ stripe_public_key }}");
