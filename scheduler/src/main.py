@@ -20,13 +20,14 @@ from routes import (
     workers,
 )
 from utils.json import Encoder
-from utils.templates import strftime
+from utils.templates import amount_str, strftime
 
 logging.basicConfig(level=logging.INFO)
 
 flask = Flask(__name__)
 flask.json_encoder = Encoder
 flask.jinja_env.filters["date"] = strftime
+flask.jinja_env.filters["amount"] = amount_str
 CORS(flask)
 
 flask.register_blueprint(home.blueprint)
@@ -44,7 +45,7 @@ errors.register_handlers(flask)
 
 
 if __name__ == "__main__":
-    Initializer.start()
+    # Initializer.start()
 
     is_debug = os.getenv("DEBUG", False)
     flask.run(host="0.0.0.0", debug=is_debug, port=80, threaded=True)
