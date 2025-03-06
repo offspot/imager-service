@@ -89,6 +89,9 @@ def handle_uploaded_json(fd):
 def configuration_list(request):
     page = request.GET.get("page")
     config_filter = bool(request.GET.get("all", False) == "yes")
+    sort_field = request.GET.get('sort', 'updated_on')  
+    sort_dir = request.GET.get('dir', 'desc')
+    
     filtered_configurations = Configuration.objects.filter(
         organization=request.user.profile.organization
     )
@@ -98,6 +101,19 @@ def configuration_list(request):
             updated_by=request.user.profile
         )
 
+    order_prefix = '' if sort_dir == 'asc' else '-'
+    
+    if sort_field == 'name':
+        filtered_configurations = filtered_configurations.order_by(f"{order_prefix}name")
+    elif sort_field == 'updated_by':
+        filtered_configurations = filtered_configurations.order_by(f"{order_prefix}updated_by__username")
+    elif sort_field == 'size' or sort_field == 'min_media' or sort_field == 'updated_on':
+
+        filtered_configurations = filtered_configurations.order_by(f"{order_prefix}{sort_field}")
+    else:
+
+        filtered_configurations = filtered_configurations.order_by('-updated_on')
+
     paginator = Paginator(filtered_configurations, NB_CONFIGURATIONS_PER_PAGE)
     configurations_page = paginator.get_page(page)
 
@@ -105,6 +121,8 @@ def configuration_list(request):
         "configurations": configurations_page.object_list,
         "configurations_page": configurations_page,
         "config_filter": config_filter,
+        "sort_field": sort_field,
+        "sort_dir": sort_dir,
     }
 
     if request.method == "POST":
@@ -141,7 +159,6 @@ def configuration_list(request):
     context["form"] = form
 
     return render(request, "configuration_list.html", context)
-
 
 @login_required
 def configuration_edit(request, config_id=None):
