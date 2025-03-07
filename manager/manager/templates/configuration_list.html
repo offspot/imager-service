@@ -6,7 +6,7 @@
 {% url 'configuration_add' as configuration_add_url %}
 <h3>{% blocktrans with user_org=user.profile.organization %}{{ user_org }}'s configurations{% endblocktrans %}</h3>
 <p class="info">{% blocktrans %}This is where your choice of options and contents for your Hotspot images will be stored.{% endblocktrans %}</p>
-<p class="info">{% blocktrans %}You can hello create as many configurations as you want by clicking on New configuration, or modify existing configurations by clicking on their names. You can also import JSON configuration files from the desktop installer.{% endblocktrans %}</p>
+<p class="info">{% blocktrans %}You can create as many configurations as you want by clicking on New configuration, or modify existing configurations by clicking on their names. You can also import JSON configuration files from the desktop installer.{% endblocktrans %}</p>
 
 <a href="?page={{ item }}&sort={{ sort_field }}&dir={{ sort_dir }}{% if filter_value %}&{{ filter_name }}={{ filter_value }}{% endif %}">
 
