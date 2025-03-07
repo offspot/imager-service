@@ -546,10 +546,13 @@ def parse_json_config(cls, config, dont_store_branding: bool = False):
     logo = extract_branding(config, "logo", ["image/png"])
     favicon = extract_branding(config, "favicon", ["image/x-icon", "image/png"])
 
-    # name is used twice
     name = get_if_str(
         get_nested_key(config, "name"),
         cls._meta.get_field("name").default,
+    )
+    ssid = get_if_str(
+        get_nested_key(config, "ssid"),
+        cls._meta.get_field("ssid").default,
     )
     project_name = get_if_str(
         get_nested_key(config, "project_name"),
@@ -585,6 +588,7 @@ def parse_json_config(cls, config, dont_store_branding: bool = False):
     # rebuild clean config from data
     return {
         "name": name,
+        "ssid": ssid,
         "project_name": project_name,
         "language": get_if_str_in(
             get_nested_key(config, "language"),
@@ -1098,6 +1102,7 @@ class Configuration(models.Model):
         return collections.OrderedDict(
             [
                 ("name", self.name),
+                ("ssid", self.ssid),
                 ("project_name", self.project_name),
                 ("language", self.language),
                 ("timezone", self.timezone),
