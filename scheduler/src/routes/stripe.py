@@ -6,6 +6,7 @@ import os
 import flask
 import requests
 import stripe
+from babel.dates import format_datetime
 from emailing import send_email
 from flask import Blueprint, jsonify, request
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -333,6 +334,10 @@ LANG_STRINGS = {
 }
 
 
+def format_dt(date, fmt="d MMMM yyyy, H:m", locale=None):
+    return format_datetime(date, fmt, locale="en")
+
+
 def get_plug_type(country_code):
     for kind, countries in PLUG_TYPES.items():
         if country_code in countries:
@@ -348,7 +353,7 @@ email_env = Environment(
     autoescape=select_autoescape(["html", "txt"]),
 )
 email_env.filters["amount"] = amount_str
-email_env.filters["date"] = strftime
+email_env.filters["date"] = format_dt
 email_env.filters["country"] = country_name
 email_env.filters["plug"] = get_plug_type
 
@@ -818,7 +823,7 @@ def on_checkout_suceeded():
     return jsonify(success=True)
 
 
-# @blueprint.route("/success_email", methods=["GET"])
+@blueprint.route("/success_email", methods=["GET"])
 def success_email():
     """confirmation webpage on payment successful"""
     session_id = request.args.get("session_id")
