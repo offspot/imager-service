@@ -101,45 +101,7 @@ def configuration_list(request):
             updated_by=request.user.profile
         )
 
-    order_prefix = '' if sort_dir == 'asc' else '-'
-    
-    if sort_field == 'min_media':
-        import re
-        configurations_list = list(filtered_configurations)
-        
-        def extract_size_value(config):
-            if not hasattr(config, 'min_media') or not config.min_media:
-                return 0
-            match = re.search(r'(\d+)', str(config.min_media))
-            return int(match.group(1)) if match else 0
-        
-        configurations_list.sort(
-            key=extract_size_value,
-            reverse=(sort_dir == 'desc')
-        )
-        
-        preserved_order = [c.id for c in configurations_list]
-        if preserved_order:
-            from django.db.models import Case, When, Value, IntegerField
-            preserved_order_cases = [
-                When(id=id, then=Value(i)) 
-                for i, id in enumerate(preserved_order)
-            ]
-            filtered_configurations = Configuration.objects.filter(
-                id__in=preserved_order
-            ).order_by(
-                Case(*preserved_order_cases, output_field=IntegerField())
-            )
-        else:
-            filtered_configurations = Configuration.objects.none()
-    elif sort_field == 'name':
-        filtered_configurations = filtered_configurations.order_by(f"{order_prefix}name")
-    elif sort_field == 'updated_by':
-        filtered_configurations = filtered_configurations.order_by(f"{order_prefix}updated_by__username")
-    elif sort_field == 'size' or sort_field == 'updated_on':
-        filtered_configurations = filtered_configurations.order_by(f"{order_prefix}{sort_field}")
-    else:
-        filtered_configurations = filtered_configurations.order_by('-updated_on')
+    filtered_configurations = apply_sorting(filtered_configurations, sort_field, sort_dir)
 
     paginator = Paginator(filtered_configurations, NB_CONFIGURATIONS_PER_PAGE)
     configurations_page = paginator.get_page(page)
@@ -186,6 +148,50 @@ def configuration_list(request):
     context["form"] = form
 
     return render(request, "configuration_list.html", context)
+
+# sorting function for configurations
+def apply_sorting(queryset, sort_field, sort_dir):
+    order_prefix = '' if sort_dir == 'asc' else '-'
+    
+    if sort_field == 'min_media':
+        import re
+        configurations_list = list(queryset)
+        
+        def extract_size_value(config):
+            if not hasattr(config, 'min_media') or not config.min_media:
+                return 0
+            match = re.search(r'(\d+)', str(config.min_media))
+            return int(match.group(1)) if match else 0
+        
+        configurations_list.sort(
+            key=extract_size_value,
+            reverse=(sort_dir == 'desc')
+        )
+        
+        preserved_order = [c.id for c in configurations_list]
+        if preserved_order:
+            from django.db.models import Case, When, Value, IntegerField
+            preserved_order_cases = [
+                When(id=id, then=Value(i)) 
+                for i, id in enumerate(preserved_order)
+            ]
+            return queryset.filter(
+                id__in=preserved_order
+            ).order_by(
+                Case(*preserved_order_cases, output_field=IntegerField())
+            )
+        else:
+            return Configuration.objects.none()
+    
+    elif sort_field == 'name':
+        return queryset.order_by(f"{order_prefix}name")
+    elif sort_field == 'updated_by':
+        return queryset.order_by(f"{order_prefix}updated_by__username")
+    elif sort_field == 'size' or sort_field == 'updated_on':
+        return queryset.order_by(f"{order_prefix}{sort_field}")
+    else:
+        return queryset.order_by('-updated_on')
+    
 
 @login_required
 def configuration_edit(request, config_id=None):
