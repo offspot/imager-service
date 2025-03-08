@@ -37,16 +37,16 @@
     <th style="text-transform: uppercase; color: #ccc; text-align: left;">Item</th>
     <th style="text-transform: uppercase; color: #ccc; text-align: right;">Amount</th></tr>
 <tr>
-    <td style="font-family: monospace;">1 x</td>
+    <td>1 x</td>
     <td style="width: 70%"><strong>{{ product_name }}</strong> ({{ session.shipping_details.address.country|plug }})</td>
     <td style="text-align: right;">{{ session.amount_subtotal|amount }}</td></tr>
 <tr>
-    <td style="font-family: monospace;">1 x</td>
+    <td>1 x</td>
     <td style="width: 70%">Shipping: <em>{{ shipping_option_name }}</em></td>
     <td style="text-align: right;">{{ session.total_details.amount_shipping|amount }}</td></tr>
 {% if session.total_details.amount_tax %}
 <tr>
-    <td style="font-family: monospace;">1 x</td>
+    <td>1 x</td>
     <td style="width: 70%">Tax{% if session.customer_details.tax_exempt != 'none' %} <span style="font-family: monospace;">{{ session.customer_details.tax_exempt }}</span> {% endif %}{% if session.customer_details.tax_ids %} (ID: {{ session.customer_details.tax_ids|join(', ') }}){% endif %}</td>
     <td style="text-align: right;">{{ session.total_details.amount_tax|amount }}</td></tr>
 {% endif %}
@@ -57,10 +57,10 @@
 
 <h2>What's next?</h2>
 <p>We will assemble, test and ship your Kiwix Hotspot in the coming days. All orders are processed within 5 business days.</p>
-{% if shipping_with_tracking %}<p>We will send you another e-mail with tracking details, once we've actually shipped your package.</p>{% else %}
-<p>We will send you another e-mail once we've actually shipped your package. Note that you won't be able to track the shipment.</p>
+{% if shipping_with_tracking %}<p>Once your package has been shipped, you will receive another email with the tracking details.</p>{% else %}
+<p>Once your package has been shipped, you will receive another email.</p>
 {% endif %}
-<p>Based on your destination's country ({{ session.shipping_details.address.country|country }}), your device will be accompagnied by an <strong>{{ session.shipping_details.address.country|plug }}</strong> power-plug. If you'd prefer another one (we only provide EU, UK and US), please reach out as soon as possible.</p>
+<p>Based on your destination country ({{ session.shipping_details.address.country|country }}), your device will be accompagnied by an <strong>{{ session.shipping_details.address.country|plug }}</strong> power-plug.</p>
 
-<p>Stay tuned!</p>
+<p style="padding-bottom: 100px;">Stay tuned!</p>
 {% endblock %}
