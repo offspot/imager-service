@@ -232,3 +232,13 @@ def has_expired(errors) -> bool:
 
 
 register.filter("has_expired", has_expired)
+
+@register.simple_tag
+def url_replace(request, field, value):
+    dict_ = request.GET.copy()
+    
+    if field == 'sort':
+        pass
+    
+    dict_[field] = value
+    return dict_.urlencode()

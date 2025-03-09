@@ -15,13 +15,13 @@
 {% if orders %}
 <table class="table table-striped">
 	<thead><tr>
-		<th>{% blocktrans %}ID{% endblocktrans %}</th>
-		<th>{% blocktrans %}Name{% endblocktrans %}</th>
-		<th>{% blocktrans %}Country{% endblocktrans %}</th>
-		<th>{% blocktrans %}Created By{% endblocktrans %}</th>
-		<th>{% blocktrans %}Created On{% endblocktrans %}</th>
-		<th>{% blocktrans %}Status{% endblocktrans %}</th>
-	</tr></thead>
+        <th><a href="?{% url_replace request 'sort' 'min_id' %}{% if sort_field == 'min_id' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}{% if order_filter %}&only={{ order_filter }}{% endif %}" class="text-dark">{% blocktrans %}ID{% endblocktrans %}{% if sort_field == 'min_id' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
+        <th><a href="?{% url_replace request 'sort' 'config_name' %}{% if sort_field == 'config_name' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}{% if order_filter %}&only={{ order_filter }}{% endif %}" class="text-dark">{% blocktrans %}Name{% endblocktrans %}{% if sort_field == 'config_name' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
+        <th><a href="?{% url_replace request 'sort' 'country' %}{% if sort_field == 'country' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}{% if order_filter %}&only={{ order_filter }}{% endif %}" class="text-dark">{% blocktrans %}Country{% endblocktrans %}{% if sort_field == 'country' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
+        <th><a href="?{% url_replace request 'sort' 'created_by' %}{% if sort_field == 'created_by' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}{% if order_filter %}&only={{ order_filter }}{% endif %}" class="text-dark">{% blocktrans %}Created By{% endblocktrans %}{% if sort_field == 'created_by' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
+        <th><a href="?{% url_replace request 'sort' 'created_on' %}{% if sort_field == 'created_on' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}{% if order_filter %}&only={{ order_filter }}{% endif %}" class="text-dark">{% blocktrans %}Created On{% endblocktrans %}{% if sort_field == 'created_on' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
+        <th><a href="?{% url_replace request 'sort' 'status' %}{% if sort_field == 'status' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}{% if order_filter %}&only={{ order_filter }}{% endif %}" class="text-dark">{% blocktrans %}Status{% endblocktrans %}{% if sort_field == 'status' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
+    </tr></thead>
 	<tbody>
 	{% for order in orders %}
 	<tr><th><a href="{% url 'order_detail' order_min_id=order.min_id %}">{{ order.min_id }}</a></th>
@@ -34,7 +34,7 @@
 	{% endfor %}
 	</tbody>
 </table>
-{% include "_paginator.html" with items_page=orders_page filter_name="only" filter_value=order_filter %}
+{% include "_paginator.html" with items_page=orders_page filter_name="only" filter_value=order_filter sort_field=sort_field sort_dir=sort_dir %}
 {% else %}
 <p class="info">{% blocktrans %}There's no <em>{{ order_filter }}</em> order yet. Place one !{% endblocktrans %}</p>
 {% endif %}
