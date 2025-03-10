@@ -11,6 +11,11 @@ RUN curl -k -O -L https://github.com/wkhtmltopdf/packaging/releases/download/0.1
     apt-get install -y --no-install-recommends ./wkhtmltox_0.12.6-1.buster_amd64.deb && \
     rm ./wkhtmltox_0.12.6-1.buster_amd64.deb
 RUN wkhtmltopdf --version
+RUN mkdir -p /usr/share/fonts/truetype/dmsans \
+    && curl -o /usr/share/fonts/truetype/dmsans/DMSans-Regular.ttf -L https://github.com/googlefonts/dm-fonts/raw/refs/heads/main/Sans/fonts/ttf/DMSans-Regular.ttf \
+    && curl -o /usr/share/fonts/truetype/dmsans/DMSans-Medium.ttf -L https://github.com/googlefonts/dm-fonts/raw/refs/heads/main/Sans/fonts/ttf/DMSans-Medium.ttf \
+    && chmod -R 644 /usr/share/fonts/truetype/dmsans \
+    && fc-cache -r
 
 # connect to DB
 ENV MONGODB_URI mongo
