@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Kiwix Invoice #{{ session.id|shortstripe }}</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="pdfkit-page-size" content="A4"/>
+    <meta name="pdfkit-orientation" content="Portrait"/>
+    <meta name="pdfkit-viewport-size" content="1280x1024"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style type="text/css">
+      body, * { font-family: "DM Sans", system-ui, sans-serif; font-size: 12pt; height: 100vh; background-color:white;}
+      header { padding-top: 15rem; margin-bottom:11rem; }
+      header img { height: 3.5rem; }
+      .dates { margin-bottom: 6rem; }
+      .dates div { display: block; }
+      .dates div div { display: inline-block; }
+      .dates div div:first-child { width: 7em; }
+      .dates div div:last-child { width: 30em; }
+      .addresses { display: block; margin-bottom: 6rem; font-size:11pt; }
+      .addresses div { width: 20em; display: inline-block; }
+      .addresses div p { text-transform: uppercase; font-weight: bold; margin: 0; }
+			table { width: 100%; }
+			table th { text-transform: uppercase; text-align: left; }
+			table th:nth-child(2) { text-align: center; }
+			table th:last-child { text-align: right; }
+      table td { font-size: 11pt; }
+      table tr td:first-child { width: 70%; }
+      table tr td:nth-child(2) { text-align: center; }
+      table tr td:last-child { text-align: right; }
+      tr.last-line { border-bottom: 1pt solid black; }
+      tr.last-line td { padding-bottom: 1rem; }
+      tr:last-child td { padding-top: 1rem; }
+      td strong { font-size: 15pt; }
+      section.hand-written { margin-top: 15rem; }
+      section.hand-written p:last-child { margin-top: 2rem; }
+      section.thanks { margin-top: 7rem; }
+      footer { margin: 0; border-top: 1pt solid black; padding-top: .5em; position:absolute; width: 805px; top: 123rem; }
+      footer p { font-size: 9pt; line-height:11.5pt; }
+      .url { font-weight: bold; font-size: 9pt; }
+      .filling-area { width: 10em; border-bottom: 1px solid black; display: inline-block; }
+      .tax-exempt { font-family: monospace; }
+    </style>
+  </head>
+  <body>
+    <center style="width:100%;">
+      <div style="width:100%; max-width: 800px; text-align: left;">
+
+      	<header>
+      		<img src="https://raw.githubusercontent.com/kiwix/overview/main/branding/kiwix/horizontal-logo-light.png" alt="Kiwix logo" />
+      	</header>
+
+      	<div class="dates">
+	      	<div>
+		      	<div>Date</div><div>{{ session.created|date('d MMMM yyyy') }}</div>
+		      </div>
+		      <div>
+		      	<div>Invoice nº</div><div>{{ session.id|shortstripe }}</div>
+		      </div>
+		     </div>
+
+
+	      <div class="addresses">
+	      	<div>
+		      	<p>Invoice Address</p>
+		      	<address>
+		            {{ session.customer_details.name }}<br />
+		            {% if session.customer_details.address.line1 %}{{ session.customer_details.address.line1 }}<br />{% endif %}
+		            {% if session.customer_details.address.line2 %}{{ session.customer_details.address.line2 }}<br />{% endif %}
+		            {% if session.customer_details.address.postal_code %}{{ session.customer_details.address.postal_code }} {% endif %} {{ session.customer_details.address.city }}<br />
+		            {% if session.customer_details.address.state %}{{ session.customer_details.address.state }}<br />{% endif %}
+		            {% if session.customer_details.address.country|country %}{{ session.customer_details.address.country|country }} ({{ session.customer_details.address.country }}){% else %}{{ session.customer_details.address.country }}{% endif %}
+		        	</address>
+	        </div>
+
+	        <div>
+		      	<p>Shipping Address</p>
+		      	<address>
+			        {{ session.shipping_details.name }}<br />
+			        {% if session.shipping_details.address.line1 %}{{ session.shipping_details.address.line1 }}<br />{% endif %}
+			        {% if session.shipping_details.address.line2 %}{{ session.shipping_details.address.line2 }}<br />{% endif %}
+			        {% if session.shipping_details.address.postal_code %}{{ session.shipping_details.address.postal_code }} {% endif %} {{ session.shipping_details.address.city }}<br />
+			        {% if session.shipping_details.address.state %}{{ session.shipping_details.address.state }}<br />{% endif %}
+			        {% if session.shipping_details.address.country|country %}{{ session.shipping_details.address.country|country }} ({{ session.shipping_details.address.country }}){% else %}{{ session.shipping_details.address.country }}{% endif %}
+			    	</address>
+	        </div>
+	      </div>
+
+      <table border="0" cellpadding="0" cellspacing="4">
+      <tr>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Value</th></tr>
+      <tr>
+          <td>{{ product_name }} ({{ session.shipping_details.address.country|plug }} power-plug)</td>
+          <td>1</td>
+          <td>{{ session.amount_subtotal|amount }}</td></tr>
+      <tr class="{% if not session.total_details.amount_tax %}last-line{% endif %}">
+          <td>Shipping: <em>{{ shipping_option_name }}</em></td>
+          <td>1</td>
+          <td>{{ session.total_details.amount_shipping|amount }}</td></tr>
+      {% if session.total_details.amount_tax %}
+      <tr class="last-line">
+          <td>Tax{% if session.customer_details.tax_exempt != 'none' %} <span class="tax-exempt">{{ session.customer_details.tax_exempt }}</span> {% endif %}{% if session.customer_details.tax_ids %} (ID: {{ session.customer_details.tax_ids|join(', ') }}){% endif %}</td>
+          <td>1</td>
+          <td>{{ session.total_details.amount_tax|amount }}</td></tr>
+      {% endif %}
+      <tr>
+          <td colspan="2"></td>
+          <td><strong>TOTAL USD {{ session.amount_total|amount }}</strong></td></tr>
+      </table>
+
+      <section class="hand-written">
+      	<p>Your Hotspot serial number <span class="filling-area"></span></p>
+      	<p>Shipped on <span class="filling-area"></span></p>
+      </section>
+
+      <section class="thanks">
+      	<p>Thank you for your purchase!</p>
+      </section>
+
+      <footer>
+      	<p>Kiwix Association – Avenue des Acacias 7, 1006 Lausanne, Switzerland – CHE-147.326.656<br />hotspot@kiwix.org – <span class="url">www.kiwix.org</span></p>
+      </footer>
+
+      </div>
+    </center>
+  </body>
+  </html>

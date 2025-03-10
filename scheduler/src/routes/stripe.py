@@ -2,31 +2,42 @@ import datetime
 import json
 import logging
 import os
+import tempfile
+import zlib
+from pathlib import Path
 
 import flask
+import pdfkit
 import requests
 import stripe
 from babel.dates import format_datetime
 from emailing import send_email
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, make_response, request
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from utils.mongo import AutoImages, StripeCustomer, StripeSession
-from utils.templates import amount_str, country_name, strftime
+from utils.templates import amount_str, b64qrcode, country_name, linebreaksbr, yesno
 
 # envs & secrets
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
 STRIPE_PUBLIC_API_KEY = os.getenv("STRIPE_PUBLIC_API_KEY")
 CARDSHOP_API_URL = os.getenv("CARDSHOP_API_URL", "https://api.imager.kiwix.org")
-SHOP_PUBLIC_URL = os.getenv("SHOP_PUBLIC_URL", "https://kiwix.org/en/wifi-hotspot/")
+SHOP_PUBLIC_URL = os.getenv("SHOP_PUBLIC_URL", "https://kiwix.org/en/kiwix-hotspot/")
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
-
+INVOICE_DIR = (
+    Path(os.environ["INVOICE_DIR"])
+    if os.getenv("INVOICE_DIR")
+    else Path(tempfile.mkdtemp(prefix="invoices_"))
+)
+# devel only
 RUN_HANDLER_ON_SUCCESS = bool(os.getenv("RUN_HANDLER_ON_SUCCESS"))
+
 
 SHIPPING_RATES = {
     # order matters ; first one is auto-selected
-    os.environ["SHIPPING_RATE_NOTRACKING"]: "without-tracking",
     os.environ["SHIPPING_RATE_TRACKING"]: "with-tracking",
+    # ATM we are offering a single option
+    # os.environ["SHIPPING_RATE_NOTRACKING"]: "without-tracking",
 }
 
 TAXES_ENABLED = bool(os.getenv("TAXES_ENABLED") or "")
@@ -345,6 +356,10 @@ def get_plug_type(country_code):
     return "EU"
 
 
+def short_stripe_id(session_id) -> str:
+    return str(zlib.adler32(session_id.encode("ASCII")))
+
+
 blueprint = Blueprint("stripe", __name__, url_prefix="/shop/stripe")
 logger = logging.getLogger(__name__)
 stripe.api_key = STRIPE_API_KEY
@@ -356,6 +371,10 @@ email_env.filters["amount"] = amount_str
 email_env.filters["date"] = format_dt
 email_env.filters["country"] = country_name
 email_env.filters["plug"] = get_plug_type
+email_env.filters["yesno"] = yesno
+email_env.filters["qrcode"] = b64qrcode
+email_env.filters["linebreaksbr"] = linebreaksbr
+email_env.filters["shortstripe"] = short_stripe_id
 
 
 def get_paid_email_content_for(
@@ -381,6 +400,8 @@ def send_paid_order_email(
     product,
     product_name,
     price,
+    *,
+    attachments=None,
     **kwargs,
 ):
     """Sends email receipt to customer. Calls `prepare_order`."""
@@ -401,6 +422,7 @@ def send_paid_order_email(
         subject=subject,
         contents=content,
         copy_support=False,
+        attachments=attachments,
     )
 
 
@@ -509,6 +531,7 @@ def handle_device_order(session, customer):
 
     StripeSession.update(
         record_id=session_record["_id"],
+        invoice_num=short_stripe_id(session.id),
         billing={
             "name": session.customer_details.name,
             "phone": session.customer_details.phone,
@@ -555,6 +578,7 @@ def handle_device_order(session, customer):
         shipping_option=shipping_option,
         shipping_option_name=shipping_option_name,
         shipping_with_tracking=shipping_with_tracking,
+        attachments=[build_invoice(session_id=session.id, force=True)],
     )
 
     StripeSession.update(
@@ -935,3 +959,87 @@ def success():
             return jsonify(success=False), 500
 
     return flask.render_template(f"stripe/success_{kind}.html", **context)
+
+
+@blueprint.route("/invoice.pdf", methods=["GET"])
+def get_invoice():
+    """confirmation webpage on payment successful"""
+    session_id = request.args.get("session_id")
+    if not session_id:
+        return flask.Response("No Session ID", 404)
+
+    invoice_path = build_invoice(session_id)
+    resp = make_response(invoice_path.read_bytes(), 200)
+    resp.headers["Content-Type"] = "application/pdf"
+    resp.headers["Content-Disposition"] = f'inline; filename="{invoice_path.name}"'
+    return resp
+
+
+def build_invoice(session_id, *, as_html: bool = False, force: bool = False) -> Path:
+
+    try:
+        session = stripe.checkout.Session.retrieve(session_id)
+        customer = stripe.Customer.retrieve(session["customer"])
+    except Exception as exc:
+        logger.error(f"Unable to retrieve session & customer from Stripe: {exc}")
+        logger.exception(exc)
+        return flask.Response("Invalid Session ID", 400)
+
+    uid = short_stripe_id(session.id)
+    ext = "html" if as_html else "pdf"
+    fname = f"Invoice_{uid}.{ext}"
+    fpath = INVOICE_DIR.joinpath(fname)
+
+    if fpath.exists() and not force:
+        return fpath
+
+    product = session.metadata["product"]
+    product_lang = "en"
+
+    # record device-order specific info into DB
+    shipping_rate = session.shipping_cost.shipping_rate
+    if shipping_rate:
+        shipping_option = SHIPPING_RATES[shipping_rate]
+        shipping_option_name = stripe.ShippingRate.retrieve(shipping_rate).display_name
+        shipping_with_tracking = SHIPPING_RATES[shipping_rate] == "with-tracking"
+    else:
+        shipping_option = shipping_option_name = shipping_with_tracking = None
+
+    context = {
+        "kind": get_order_kind_for(product),
+        "timestamp": datetime.datetime.now(),
+        "product": product,
+        "product_name": LANG_STRINGS[product_lang][f"product_{product}"],
+        "session": session,
+        "shipping_rate": shipping_rate,
+        "shipping_option": shipping_option,
+        "shipping_option_name": shipping_option_name,
+        "shipping_with_tracking": shipping_with_tracking,
+        "shop_url": SHOP_PUBLIC_URL,
+        "order": {
+            "quantity": 1,
+            "units": 1,
+            "statuses": [],
+            "recipient": {},
+            "client": {},
+            "sd_card": {},
+            "config": {"branding": {}, "content": {}, "admin_account": {}},
+        },
+        "channel": {},
+    }
+
+    content = email_env.get_template("invoice.html").render(**context)
+
+    if as_html:
+        fpath.write_text(content)
+        return fpath
+
+    options = {
+        "page-size": "A4",
+        "encoding": "UTF-8",
+        "custom-header": [("Accept-Encoding", "gzip")],
+        "no-outline": None,
+        "viewport-size": "1280x1024",
+    }
+    pdfkit.from_string(content, fpath, options=options)
+    return fpath
