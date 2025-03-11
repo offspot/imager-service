@@ -26,11 +26,12 @@ logging.basicConfig(level=logging.INFO)
 
 flask = Flask(__name__)
 flask.json_encoder = Encoder
-flask.jinja_env.filters["date"] = strftime
+flask.jinja_env.filters["date"] = stripe.format_dt
 flask.jinja_env.filters["amount"] = amount_str
 flask.jinja_env.filters["country"] = stripe.country_name
 flask.jinja_env.filters["nonone"] = stripe.nonone
 flask.jinja_env.filters["tracking_url"] = stripe.get_tracking_url
+flask.jinja_env.filters["product_name"] = stripe.get_product_name
 CORS(flask)
 
 flask.register_blueprint(home.blueprint)

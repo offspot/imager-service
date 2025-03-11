@@ -41,6 +41,7 @@
         <th>Confirmation Email?</th>
         <td>{% if record.email_id %}✅ <code>{{ record.email_id }}</code> (Mailgun){% else %}❌ not sent{% endif %}</td>
     </tr>
+    <tr><th>Product</th><td>{{ record.product|product_name }} (<code>{{ record.product }}</code>)</td></tr>
     <tr>
         <th>Destination</th>
         <td>

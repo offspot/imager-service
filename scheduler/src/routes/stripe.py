@@ -15,8 +15,8 @@ from emailing import send_email
 from flask import Blueprint, jsonify, make_response, request
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from utils.mongo import AutoImages, StripeCustomer, StripeSession
-from utils.templates import amount_str, b64qrcode, country_name, linebreaksbr, yesno
 from utils.serialnumber import is_valid_serial
+from utils.templates import amount_str, b64qrcode, country_name, linebreaksbr, yesno
 
 # envs & secrets
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
@@ -352,10 +352,12 @@ LANG_STRINGS = {
 
 
 def format_dt(date, fmt="d MMMM yyyy, H:m", locale=None):
+    """format datetime using babel. Format optional"""
     return format_datetime(date, fmt, locale="en")
 
 
 def get_plug_type(country_code):
+    """plug type (UK, US, EU) from country code"""
     for kind, countries in PLUG_TYPES.items():
         if country_code in countries:
             return kind
@@ -363,6 +365,7 @@ def get_plug_type(country_code):
 
 
 def short_stripe_id(session_id) -> str:
+    """a short version of the Stripe CheckoutSession ID. Non reversible"""
     return str(zlib.adler32(session_id.encode("ASCII")))
 
 
@@ -372,7 +375,13 @@ def nonone(value, replacement: str = "") -> str:
 
 
 def get_tracking_url(tracking_number: str) -> str:
+    """Tracking URL for a tracking number"""
     return TRACKING_URL_TMPL.replace("{number}", tracking_number)
+
+
+def get_product_name(product: str, lang: str = "en") -> str:
+    """Name of a product from its code"""
+    return LANG_STRINGS.get(lang, {}).get(f"product_{product}", "n/a")
 
 
 blueprint = Blueprint("stripe", __name__, url_prefix="/shop/stripe")
@@ -598,7 +607,7 @@ def handle_device_order(session, customer):
         name=customer.name,
         timestamp=datetime.datetime.now(),
         product=product,
-        product_name=LANG_STRINGS[product_lang][f"product_{product}"],
+        product_name=get_product_name(product, product_lang),
         price=session.amount_total,
         session=session,
         shipping_option=shipping_option,
@@ -915,7 +924,7 @@ def success_email():
         name=customer.name,
         timestamp=datetime.datetime.now(),
         product=product,
-        product_name=LANG_STRINGS[product_lang][f"product_{product}"],
+        product_name=get_product_name(product, product_lang),
         price=session.amount_total,
         session=session,
         shipping_rate=shipping_rate,
@@ -1052,7 +1061,7 @@ def build_invoice(session_id, *, as_html: bool = False, force: bool = False) -> 
         "kind": get_order_kind_for(product),
         "timestamp": datetime.datetime.now(),
         "product": product,
-        "product_name": LANG_STRINGS[product_lang][f"product_{product}"],
+        "product_name": get_product_name(product, product_lang),
         "session": session,
         "shipping_rate": shipping_rate,
         "shipping_option": shipping_option,
