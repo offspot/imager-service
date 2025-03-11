@@ -1,38 +1,33 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
-
-import os
 import logging
+import os
 import pathlib
-from typing import Optional, Sequence
+from collections.abc import Sequence
 from contextlib import contextmanager
+from typing import Optional
 
+import pdfkit
+import requests
+import yagmail
+import yaml
 from babel.dates import format_datetime
 from babel.support import Translations
-import pdfkit
-import yagmail
-import requests
-from werkzeug.datastructures import MultiDict
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-import yaml
-
-from utils.mongo import Orders, Users, Channels, WriterTasks, Acknowlegments
+from utils.mongo import Acknowlegments, Channels, Orders, Users, WriterTasks
 from utils.templates import (
-    get_id,
-    country_name,
-    linebreaksbr,
-    yesno,
-    language_name,
     b64qrcode,
-    get_pub_url,
-    get_insert_card_url,
+    country_name,
     get_add_shipment_url,
-    get_public_download_url,
+    get_id,
+    get_insert_card_url,
+    get_pub_url,
     get_public_download_torrent_url,
+    get_public_download_url,
+    language_name,
+    linebreaksbr,
     public_download_url_has_torrent,
-    strftime,
+    yesno,
 )
+from werkzeug.datastructures import MultiDict
 
 try:
     from yaml import CDumper as Dumper

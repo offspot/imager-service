@@ -1,14 +1,12 @@
 import datetime
 
 import pymongo
-from flask import Blueprint, request, jsonify
-from jsonschema import ValidationError
-
-from . import errors
-from . import authenticate, only_for_roles
 from emailing import send_worker_sos_email
-from utils.mongo import Users, Acknowlegments, CreatorTasks, Orders
+from flask import Blueprint, jsonify, request
+from jsonschema import ValidationError
+from utils.mongo import Acknowlegments, CreatorTasks, Orders, Users
 
+from routes import authenticate, errors, only_for_roles
 
 blueprint = Blueprint("worker", __name__, url_prefix="/workers")
 

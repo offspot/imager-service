@@ -1,0 +1,13 @@
+{% extends "stripe/success_base.html" %}
+    {%block content %}
+    <div class="container intro">
+        <div class="text-center">
+            <h1>Success!</h1>
+            <p>{{ customer.email }}, your <code>USD {{ price|amount }}</code> “{{ product_name }}” order has been received.</p>
+            <p>We are sending a confirmation e-mail right-now and will send another one once we ship the package.</p>
+            <p><strong>Be patient!</strong></p>
+            <p>&nbsp;</p>
+            <p>You may now return to <a href="{{ shop_url }}">kiwix.org</a>.</p>
+        </div>
+    </div>
+    {% endblock %}

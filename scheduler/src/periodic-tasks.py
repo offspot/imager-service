@@ -1,23 +1,19 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
 
-import os
-import logging
 import datetime
-import subprocess
+import logging
+import os
 
-import requests
 import humanfriendly
-
+import requests
 from emailing import send_order_failed_email
-from utils.mongo import Orders, Tasks, AutoImages
-from utils.templates import (
-    get_public_download_url,
-    get_public_download_torrent_url,
-    get_magnet_for_torrent,
-)
 from routes.orders import create_order_from
+from utils.mongo import AutoImages, Orders, Tasks
+from utils.templates import (
+    get_magnet_for_torrent,
+    get_public_download_torrent_url,
+    get_public_download_url,
+)
 
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org/api")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")

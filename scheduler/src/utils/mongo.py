@@ -1,11 +1,11 @@
-import os
 import datetime
+import os
 
 import humanfriendly
 from bson import ObjectId
 from pymongo import MongoClient
-from pymongo.database import Database as BaseDatabase
 from pymongo.collection import Collection as BaseCollection
+from pymongo.database import Database as BaseDatabase
 
 from utils.json import ensure_objectid
 
@@ -922,6 +922,10 @@ class StripeSession(BaseCollection):
     @classmethod
     def get_or_none(cls, session_id):
         return cls().find_one({"session_id": session_id})
+
+    @classmethod
+    def get_or_none_from_inv(cls, invoice_num):
+        return cls().find_one({"invoice_num": invoice_num})
 
     @classmethod
     def get_or_create(cls, customer_id, session_id, product, **extra):

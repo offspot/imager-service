@@ -1,33 +1,37 @@
 {% extends "stripe/email_base.html" %}
 {% block content %}
 <table border="0" cellpadding="0" cellspacing="4" style="width: 100%">
-<tr><th style="text-transform: uppercase; color: #ccc; text-align: left;">Product</th>
-    <th style="text-transform: uppercase; color: #ccc; text-align: center;">Date Range</th>
-    <th style="text-transform: uppercase; color: #ccc; text-align: right;">Amount Billed</th>
+<tr><th style="text-transform: uppercase; color: #ccc; text-align: left; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Product</th>
+    <th style="text-transform: uppercase; color: #ccc; text-align: center; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Date Range</th>
+    <th style="text-transform: uppercase; color: #ccc; text-align: right; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Amount Billed</th>
 </tr>
-    <td>{{ product_name }}</td>
-    <td style="text-align: center;">Until {{ expire_on|date("%Y-%m-%d") }}</td>
-    <td style="text-align: right;"><strong>USD {{ price|amount }}</strong></td></tr>
+    <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">{{ product_name }}</td>
+    <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif; text-align: center;">Until {{ expire_on|date("%Y-%m-%d") }}</td>
+    <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif; text-align: right;"><strong>USD {{ price|amount }}</strong></td></tr>
 </table>
 
-<h2>Using the Imager</h2>
-<p>Access it at <a href="https://imager.kiwix.org/">imager.kiwix.org</a> with your personal credentials.</p>
+<h2 style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Using the Imager</h2>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Access it at <a href="https://imager.kiwix.org/">imager.kiwix.org</a> with your personal credentials.</p>
 {% if username %}
 <table class="table table-sm table-striped">
-    <tr><th>Username</th><td><code>{{ username|default("Unavailable – please contact us", true) }}</code></td></tr>
-    <tr><th>Password</th>
+    <tr>
+        <th style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Username</th>
+        <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;"><code>{{ username|default("Unavailable – please contact us", true) }}</code></td></tr>
+    <tr>
+        <th style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Password</th>
         {% if existing_account %}
-        <td>You already have an account. Password remains unchanged. To reset your password <a href="https://imager.kiwix.org/reset-password">click here</a>.</td>
+        <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">You already have an account. Password remains unchanged. To reset your password <a href="https://imager.kiwix.org/reset-password">click here</a>.</td>
         {% else %}
-        <td><code>{{ password|default("Unavailable – please contact us", true) }}</code></td>{% endif %}
+        <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;"><code>{{ password|default("Unavailable – please contact us", true) }}</code></td>{% endif %}
     </tr>
-    <tr><th>Expires on</th><td>{{ expire_on|date|default("Unavailable – please contact us", true) }} UTC</td></tr>
+    <tr>
+        <th style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Expires on</th><td>{{ expire_on|date|default("Unavailable – please contact us", true) }} UTC</td></tr>
 </table>
 {% else %}
-<p>Hum, your credentials at not ready just yet. We shall email those to you shortly. If you don't receive them, please contact us.</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Hum, your credentials at not ready just yet. We shall email those to you shortly. If you don't receive them, please contact us.</p>
 {% endif %}
 
-<p>Compatibility: the images you will create can run on Raspberry Pi 3B+, 4, 5 and 400 (but NOT Raspberry Pi zero 2W)</p>
-<p>Thank you very much, and enjoy offline access!</p>
-<p>The Kiwix Team</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Compatibility: the images you will create can run on Raspberry Pi 3B+, 4, 5 and 400 (but NOT Raspberry Pi zero 2W)</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Thank you very much, and enjoy offline access!</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">The Kiwix Team</p>
 {% endblock %}
