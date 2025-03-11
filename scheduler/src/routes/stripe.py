@@ -24,6 +24,7 @@ CARDSHOP_API_URL = os.getenv("CARDSHOP_API_URL", "https://api.imager.kiwix.org")
 SHOP_PUBLIC_URL = os.getenv("SHOP_PUBLIC_URL", "https://kiwix.org/en/kiwix-hotspot/")
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
+ASSEMBLY_EMAIL = os.getenv("ASSEMBLY_EMAIL")
 INVOICE_DIR = (
     Path(os.environ["INVOICE_DIR"])
     if os.getenv("INVOICE_DIR")
@@ -360,6 +361,11 @@ def short_stripe_id(session_id) -> str:
     return str(zlib.adler32(session_id.encode("ASCII")))
 
 
+def nonone(value, replacement: str = "") -> str:
+    """a default-like filter that also works with value None"""
+    return value or replacement
+
+
 blueprint = Blueprint("stripe", __name__, url_prefix="/shop/stripe")
 logger = logging.getLogger(__name__)
 stripe.api_key = STRIPE_API_KEY
@@ -375,6 +381,7 @@ email_env.filters["yesno"] = yesno
 email_env.filters["qrcode"] = b64qrcode
 email_env.filters["linebreaksbr"] = linebreaksbr
 email_env.filters["shortstripe"] = short_stripe_id
+email_env.filters["nonone"] = nonone
 
 
 def get_paid_email_content_for(
@@ -401,6 +408,7 @@ def send_paid_order_email(
     product_name,
     price,
     *,
+    cc=None,
     attachments=None,
     **kwargs,
 ):
@@ -419,6 +427,7 @@ def send_paid_order_email(
 
     return send_email(
         to=email,
+        cc=cc or [],
         subject=subject,
         contents=content,
         copy_support=False,
@@ -569,6 +578,7 @@ def handle_device_order(session, customer):
     email_id = send_paid_order_email(
         kind="device",
         email=customer.email,
+        cc=ASSEMBLY_EMAIL,
         name=customer.name,
         timestamp=datetime.datetime.now(),
         product=product,
@@ -804,6 +814,7 @@ def create_checkout_session():
             cancel_url=SHOP_PUBLIC_URL,
             customer=customer,
             customer_email=email if customer is None else None,
+            customer_creation="always",
             metadata={"name": name, "product": product, "mode": mode, "price": price},
             **tax_details,
             **shipping_details,
@@ -828,7 +839,11 @@ def on_checkout_suceeded():
     # Handle the event
     if event and event["type"] == "checkout.session.completed":
         session = stripe.checkout.Session.retrieve(event["data"]["object"]["id"])
-        customer = stripe.Customer.retrieve(session["customer"])
+        customer = (
+            stripe.Customer.retrieve(session.customer)
+            if session.get("customer")
+            else None
+        )
         try:
             update_cutomer(customer=customer, session=session)
         except Exception as exc:
@@ -856,7 +871,11 @@ def success_email():
 
     try:
         session = stripe.checkout.Session.retrieve(session_id)
-        customer = stripe.Customer.retrieve(session.get("customer"))
+        customer = (
+            stripe.Customer.retrieve(session.customer)
+            if session.get("customer")
+            else None
+        )
     except Exception as exc:
         logger.error(f"Unable to retrieve session & customer from Stripe: {exc}")
         logger.exception(exc)
@@ -901,7 +920,11 @@ def success():
 
     try:
         session = stripe.checkout.Session.retrieve(session_id)
-        customer = stripe.Customer.retrieve(session.get("customer"))
+        customer = (
+            stripe.Customer.retrieve(session.customer)
+            if session.get("customer")
+            else None
+        )
     except Exception as exc:
         logger.error(f"Unable to retrieve session & customer from Stripe: {exc}")
         logger.exception(exc)
@@ -979,7 +1002,11 @@ def build_invoice(session_id, *, as_html: bool = False, force: bool = False) -> 
 
     try:
         session = stripe.checkout.Session.retrieve(session_id)
-        customer = stripe.Customer.retrieve(session["customer"])
+        customer = (
+            stripe.Customer.retrieve(session.customer)
+            if session.get("customer")
+            else None
+        )
     except Exception as exc:
         logger.error(f"Unable to retrieve session & customer from Stripe: {exc}")
         logger.exception(exc)

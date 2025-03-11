@@ -19,10 +19,10 @@
       .dates div div:first-child { width: 7em; }
       .dates div div:last-child { width: 30em; }
       .addresses { display: block; margin-bottom: 6rem; font-size:11pt; }
-      .addresses div { width: 20em; display: inline-block; }
-      .addresses div p { text-transform: uppercase; font-weight: bold; margin: 0; }
+      .addresses div { width: 23em; display: inline-block; }
+      .addresses div p { text-transform: uppercase; font-weight: bold; margin: 0; font-family: "DM Sans Medium"; }
 			table { width: 100%; }
-			table th { text-transform: uppercase; text-align: left; }
+			table th { text-transform: uppercase; text-align: left; font-weight: bold; font-family: "DM Sans Medium"; }
 			table th:nth-child(2) { text-align: center; }
 			table th:last-child { text-align: right; }
       table td { font-size: 11pt; }
@@ -38,7 +38,7 @@
       section.thanks { margin-top: 7rem; }
       footer { margin: 0; border-top: 1pt solid black; padding-top: .5em; position:absolute; width: 805px; top: 123rem; }
       footer p { font-size: 9pt; line-height:11.5pt; }
-      .url { font-weight: bold; font-size: 9pt; }
+      .url { font-weight: bold; font-size: 9pt; font-family: "DM Sans Medium" }
       .filling-area { width: 10em; border-bottom: 1px solid black; display: inline-block; }
       .tax-exempt { font-family: monospace; }
     </style>
@@ -66,10 +66,10 @@
 		      	<p>Invoice Address</p>
 		      	<address>
 		            {{ session.customer_details.name }}<br />
-		            {% if session.customer_details.address.line1 %}{{ session.customer_details.address.line1 }}<br />{% endif %}
-		            {% if session.customer_details.address.line2 %}{{ session.customer_details.address.line2 }}<br />{% endif %}
-		            {% if session.customer_details.address.postal_code %}{{ session.customer_details.address.postal_code }} {% endif %} {{ session.customer_details.address.city }}<br />
-		            {% if session.customer_details.address.state %}{{ session.customer_details.address.state }}<br />{% endif %}
+		            {{ session.customer_details.address.line1|nonone }}<br />
+		            {{ session.customer_details.address.line2|nonone }}<br />
+		            {% if session.customer_details.address.postal_code %}{{ session.customer_details.address.postal_code }} {% endif %} {{ session.customer_details.address.city|nonone }}<br />
+		            {{ session.customer_details.address.state|nonone }}<br />
 		            {% if session.customer_details.address.country|country %}{{ session.customer_details.address.country|country }} ({{ session.customer_details.address.country }}){% else %}{{ session.customer_details.address.country }}{% endif %}
 		        	</address>
 	        </div>
@@ -78,10 +78,10 @@
 		      	<p>Shipping Address</p>
 		      	<address>
 			        {{ session.shipping_details.name }}<br />
-			        {% if session.shipping_details.address.line1 %}{{ session.shipping_details.address.line1 }}<br />{% endif %}
-			        {% if session.shipping_details.address.line2 %}{{ session.shipping_details.address.line2 }}<br />{% endif %}
-			        {% if session.shipping_details.address.postal_code %}{{ session.shipping_details.address.postal_code }} {% endif %} {{ session.shipping_details.address.city }}<br />
-			        {% if session.shipping_details.address.state %}{{ session.shipping_details.address.state }}<br />{% endif %}
+			        {{ session.shipping_details.address.line1|nonone }}<br />
+			        {{ session.shipping_details.address.line2|nonone }}<br />
+			        {% if session.shipping_details.address.postal_code %}{{ session.shipping_details.address.postal_code }} {% endif %} {{ session.shipping_details.address.city|nonone }}<br />
+			        {{ session.shipping_details.address.state|nonone }}<br />
 			        {% if session.shipping_details.address.country|country %}{{ session.shipping_details.address.country|country }} ({{ session.shipping_details.address.country }}){% else %}{{ session.shipping_details.address.country }}{% endif %}
 			    	</address>
 	        </div>
@@ -102,7 +102,7 @@
           <td>{{ session.total_details.amount_shipping|amount }}</td></tr>
       {% if session.total_details.amount_tax %}
       <tr class="last-line">
-          <td>Tax{% if session.customer_details.tax_exempt != 'none' %} <span class="tax-exempt">{{ session.customer_details.tax_exempt }}</span> {% endif %}{% if session.customer_details.tax_ids %} (ID: {{ session.customer_details.tax_ids|join(', ') }}){% endif %}</td>
+          <td>Tax{% if session.customer_details.tax_exempt != 'none' %} <span class="tax-exempt">{{ session.customer_details.tax_exempt }}</span> {% endif %}{% if session.customer_details.tax_ids %} {% for taxid in session.customer_details.tax_ids %}{{ taxid.value }} {% endfor %}{% endif %}</td>
           <td>1</td>
           <td>{{ session.total_details.amount_tax|amount }}</td></tr>
       {% endif %}
@@ -121,7 +121,7 @@
       </section>
 
       <footer>
-      	<p>Kiwix Association – Avenue des Acacias 7, 1006 Lausanne, Switzerland – CHE-147.326.656<br />hotspot@kiwix.org – <span class="url">www.kiwix.org</span></p>
+      	<p>Kiwix Association – Avenue des Acacias 7, 1006 Lausanne, Switzerland – CHE-147.326.656 TVA<br />hotspot@kiwix.org – <span class="url">www.kiwix.org</span></p>
       </footer>
 
       </div>
