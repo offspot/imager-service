@@ -20,7 +20,7 @@
         <th><a href="?{% url_replace request 'sort' 'country' %}{% if sort_field == 'country' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}{% if order_filter %}&only={{ order_filter }}{% endif %}" class="text-dark">{% blocktrans %}Country{% endblocktrans %}{% if sort_field == 'country' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
         <th><a href="?{% url_replace request 'sort' 'created_by' %}{% if sort_field == 'created_by' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}{% if order_filter %}&only={{ order_filter }}{% endif %}" class="text-dark">{% blocktrans %}Created By{% endblocktrans %}{% if sort_field == 'created_by' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
         <th><a href="?{% url_replace request 'sort' 'created_on' %}{% if sort_field == 'created_on' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}{% if order_filter %}&only={{ order_filter }}{% endif %}" class="text-dark">{% blocktrans %}Created On{% endblocktrans %}{% if sort_field == 'created_on' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
-        <th><a href="?{% url_replace request 'sort' 'status' %}{% if sort_field == 'status' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}{% if order_filter %}&only={{ order_filter }}{% endif %}" class="text-dark">{% blocktrans %}Status{% endblocktrans %}{% if sort_field == 'status' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
+        <th>{% blocktrans %}Status{% endblocktrans %}</th>
     </tr></thead>
 	<tbody>
 	{% for order in orders %}
