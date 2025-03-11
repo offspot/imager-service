@@ -16,6 +16,7 @@ from flask import Blueprint, jsonify, make_response, request
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from utils.mongo import AutoImages, StripeCustomer, StripeSession
 from utils.templates import amount_str, b64qrcode, country_name, linebreaksbr, yesno
+from utils.serialnumber import is_valid_serial
 
 # envs & secrets
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
@@ -29,6 +30,9 @@ INVOICE_DIR = (
     Path(os.environ["INVOICE_DIR"])
     if os.getenv("INVOICE_DIR")
     else Path(tempfile.mkdtemp(prefix="invoices_"))
+)
+TRACKING_URL_TMPL = (
+    os.getenv("TRACKING_URL_TMPL") or "https://parcelsapp.com/en/tracking/{number}"
 )
 # devel only
 RUN_HANDLER_ON_SUCCESS = bool(os.getenv("RUN_HANDLER_ON_SUCCESS"))
@@ -46,6 +50,7 @@ TAXES_ENABLED = bool(os.getenv("TAXES_ENABLED") or "")
 PLUG_TYPES = {
     "UK": ["GB", "IE", "MT", "CY", "MY", "SG"],
     "US": ["US", "CA", "JP", "MX"],
+    "EU": [],  # all the others
 }
 
 SHIPPING_TO_COUNTRIES = [
@@ -366,6 +371,10 @@ def nonone(value, replacement: str = "") -> str:
     return value or replacement
 
 
+def get_tracking_url(tracking_number: str) -> str:
+    return TRACKING_URL_TMPL.replace("{number}", tracking_number)
+
+
 blueprint = Blueprint("stripe", __name__, url_prefix="/shop/stripe")
 logger = logging.getLogger(__name__)
 stripe.api_key = STRIPE_API_KEY
@@ -382,6 +391,7 @@ email_env.filters["qrcode"] = b64qrcode
 email_env.filters["linebreaksbr"] = linebreaksbr
 email_env.filters["shortstripe"] = short_stripe_id
 email_env.filters["nonone"] = nonone
+email_env.filters["tracking_url"] = get_tracking_url
 
 
 def get_paid_email_content_for(
@@ -414,6 +424,9 @@ def send_paid_order_email(
 ):
     """Sends email receipt to customer. Calls `prepare_order`."""
     subject = "Your Kiwix receipt"
+    session = kwargs.get("session")
+    if session:
+        subject += f" ({short_stripe_id(session.id)})"
     content = get_paid_email_content_for(
         kind=kind,
         email=email,
@@ -540,6 +553,8 @@ def handle_device_order(session, customer):
 
     StripeSession.update(
         record_id=session_record["_id"],
+        received_on=datetime.datetime.now(),
+        email=customer.email,
         invoice_num=short_stripe_id(session.id),
         billing={
             "name": session.customer_details.name,
@@ -565,6 +580,7 @@ def handle_device_order(session, customer):
             "with_tracking": shipping_with_tracking,
             "option": shipping_option,
             "option_name": shipping_option_name,
+            "plug": get_plug_type(session.shipping_details.address.country),
         },
         amount={
             "product": session.amount_subtotal,
@@ -1070,3 +1086,92 @@ def build_invoice(session_id, *, as_html: bool = False, force: bool = False) -> 
     }
     pdfkit.from_string(content, fpath, options=options)
     return fpath
+
+
+@blueprint.route("/shipment", methods=["GET", "POST"])
+def get_shipment():
+    """WebUI to record shipping details"""
+
+    if request.method == "GET":
+        invoice_num = request.args.get("invoice_num")
+        session_id = session = customer = session_record = None
+        if invoice_num:
+            session_record = StripeSession.get_or_none_from_inv(invoice_num)
+            if session_record:
+                session_id = session_record["session_id"]
+
+        return flask.render_template(
+            "assembly_add_shipment.html",
+            invoice_num=invoice_num,
+            session_id=session_id,
+            session=session,
+            customer=customer,
+            url_template=TRACKING_URL_TMPL,
+            record=session_record,
+            plug_types=PLUG_TYPES.keys(),
+        )
+
+    if request.method == "POST":
+        session_id = request.form.get("session_id")
+        tracking_number = request.form.get("tracking_number")
+        power_plug = request.form.get("power_plug")
+        serial_number = request.form.get("serial_number")
+        if not session_id:
+            return flask.Response("No Session ID", 400)
+        if not tracking_number or not tracking_number.strip():
+            return flask.Response("No Tracking number", 400)
+        if not power_plug:
+            return flask.Response("No Power Plug", 400)
+        if not serial_number:
+            return flask.Response("No Serial Number", 400)
+        if not is_valid_serial(serial_number):
+            return flask.Response("Invalid Serial Number", 400)
+
+        session_record = StripeSession.get_or_none(session_id)
+        if not session_record:
+            return flask.Response("Invalid Session ID", 400)
+        if power_plug not in PLUG_TYPES:
+            return flask.Response("Invalid Power Plug", 400)
+
+        tracking_url = get_tracking_url(tracking_number)
+        shipped_on = datetime.datetime.now()
+
+        StripeSession.update(
+            record_id=session_record["_id"],
+            tracking_number=tracking_number,
+            tracking_url=tracking_url,
+            shipped_on=shipped_on,
+            shipped_plug=power_plug,
+            serial_number=serial_number,
+        )
+
+        # refresh record from DB
+        session_record = StripeSession.get_or_none(session_id)
+
+        # send recipient an email
+        product = session_record["product"]
+        subject = f"Your Kiwix Hotspot is on its way! ({session_record['invoice_num']})"
+        content = email_env.get_template("stripe/shipped_device.html").render(
+            record=session_record,
+            product=session_record["product"],
+            product_name=LANG_STRINGS["en"][f"product_{product}"],
+        )
+
+        # dev to work on email design
+        # return flask.Response(content)
+
+        email_id = send_email(
+            to=session_record["email"],
+            subject=subject,
+            contents=content,
+            copy_support=False,
+        )
+
+        StripeSession.update(
+            record_id=session_record["_id"], shipping_email_id=email_id
+        )
+
+        return flask.redirect(
+            f"{flask.url_for('stripe.get_shipment')}"
+            f"?invoice_num={session_record['invoice_num']}"
+        )

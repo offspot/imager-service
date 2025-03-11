@@ -1,0 +1,61 @@
+<html>
+<style type="text/css">body, * { font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif; }</style>
+<body>
+<center style="width:100%; background-color:#ffffff;">
+<div style="background-color: white; width:100%; max-width: 600px; text-align: left;">
+<table border="0" cellpadding="0" cellspacing="4" style="width: 100%">
+    <tr><td colspan="2" class="text-align: left; background-color: white;"><img style="padding-top: 30px; padding-bottom: 50px; height: 26px;" src="https://raw.githubusercontent.com/kiwix/overview/main/branding/kiwix/horizontal-logo-light.png" alt="Kiwix logo" /></td></tr>
+</table>
+
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">{{ record.shipped_on|date }}</p>
+<p>&nbsp;</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">We've shipped your Hotspot!</p>
+
+<p style="height: 3em;">&nbsp;</p>
+
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif; line-height: 1.2em;">Dear {{ record.billing.name}},<br />
+On {{ record.received_on|date }}, you placed a USD {{ record.amount.total|amount }} order for a “<em>{{ product_name }}</em>” (Invoice {{ record.invoice_num }}).</p>
+
+<p>We are happy to inform you that it has been handed to our delivery partner: {{ record.shipping.option_name }}.</p>
+
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">You can follow its journey via its tracking ID: <code style="font-family: monospace;">{{ record.tracking_number }}</code>.</p>
+<p style="text-align: center; margin-top: 2em;">
+    <a style="background-color: #fd8a31; border: 0; color: white; font-weight: 600; font-size: 1.5rem; border-radius: 1.5rem; padding: .5rem 3rem; cursor: pointer; text-decoration: none;" href="{{ record.tracking_number|tracking_url }}">Track Hotspot</a></p>
+
+<p style="height: 3em;">&nbsp;</p>
+
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;  text-transform: uppercase; color: #ccc; font-weight: bold;">Shipping Destination</p>
+<address style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">
+    <strong style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">{{ record.shipping.name }}</strong><br />
+    {% if record.shipping.line1 %}{{ record.shipping.line1 }}<br />{% endif %}
+    {% if record.shipping.line2 %}{{ record.shipping.line2 }}<br />{% endif %}
+    {% if record.shipping.postal_code %}{{ record.shipping.postal_code }} {% endif %} {{ record.shipping.city }}<br />
+    {% if record.shipping.state %}{{ record.shipping.state }}<br />{% endif %}
+    {% if record.shipping.country_code|country %}{{ record.shipping.country_code|country }} ({{ record.shipping.country_code }}){% else %}{{ record.shipping.country_code }}{% endif %}<br />
+</address>
+
+<hr style="border: 0; height: 1px; background: #ccc;" />
+
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">We shipped it with an {{ record.shipped_plug }} power plug{% if record.shipped_plug != record.shipping.plug %} (at your request){% endif %}.</p>
+
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Your Hotspot Serial Number is <code style="font-family: monospace;">{{ record.serial_number }}</code></p>
+
+<hr style="border: 0; height: 1px; background: #ccc;" />
+
+<p style="height: 3em;">&nbsp;</p>
+
+<h2 style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Using your hotspot</h2>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Your Hotspot comes with a Getting Started leaflet but using it is as simple as connecting the power plug to both the device and the power outlet.</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">A “<em>Kiwix Hotspot</em>” WiFi network should be visible once the device has started.</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Connect to it via another device (your phone or laptop for instance) and a captive portal should appear after a few seconds. If not, then open <a href="http://goto.kiwix.hotspot">http://goto.kiwix.hotspot</a> in your favourite browser.</p>
+
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif; padding-bottom: 100px;">Enjoy!</p>
+
+<p style="color:#ccc; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Support requests are to be sent to <a style="color: inherit;" href="mailto:hotspot@kiwix.org">hotspot@kiwix.org</a></p>
+<hr style="border: 0; height: 1px; background: #ccc;" />
+<p style="color:#ccc; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">This is an automated message. Please do not reply.<br />
+Association Kiwix, Avenue des Acacias 7, 1006 Lausanne, Switzerland.</p>
+</div>
+</center>
+</body>
+</html>

@@ -924,6 +924,10 @@ class StripeSession(BaseCollection):
         return cls().find_one({"session_id": session_id})
 
     @classmethod
+    def get_or_none_from_inv(cls, invoice_num):
+        return cls().find_one({"invoice_num": invoice_num})
+
+    @classmethod
     def get_or_create(cls, customer_id, session_id, product, **extra):
         record = cls.get_or_none(session_id)
         if record and extra:

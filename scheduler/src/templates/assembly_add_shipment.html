@@ -1,0 +1,138 @@
+{% extends "pub_base.html" %}
+
+{% block title %}H1 Order Shipment mgmt{% endblock %}
+
+{% block content %}
+<div class="container">
+
+<h1>H1 Order Shipment mgmt</h1>
+
+<hr />
+
+<h2>Retrieve Order</h2>
+<form method="GET" class="form form-check form-check-inline">
+    <div class="form-row visual-group">
+        <div class="form-group col-md-7">
+            <label for="invoiceNumber">Invoice number</label>
+            <input id="invoiceNumber" name="invoice_num" type="text" class="form-control" placeholder="4166456874" required="required" aria-describedby="invoiceHelp" value="{{ invoice_num|nonone }}" />
+            <small id="invoiceHelp" class="form-text text-muted">A 10 chars long number that's printed in the invoice</small></div>
+        <div class="form-group col-md-5"><label>-</label><button class="btn btn-primary form-check-input form-control">Retrieve Order</button></div>
+    </div>
+</form>
+
+{% if record %}
+<table class="table">
+    <tr><th>Invoice number</th><td><code>{{ record.invoice_num }}</code></td></tr>
+    <tr><th>Order Date</th><td>{{ record.received_on|date }}</td></tr>
+    <tr>
+        <th>IDs</th>
+        <td>
+            <code>{{ record.session_id }}</code> (Stripe)<br />
+            <code>{{ record._id }}</code> (Mongo)
+        </td>
+    </tr>
+    <tr>
+        <th>Client</th>
+        <td><strong>{{ record.billing.name }}</strong> {% if record.billing.country_code|country %}{{ record.billing.country_code|country }} ({{ record.billing.country_code }}){% else %}{{ record.billing.country_code }}{% endif %}<br />
+            <a href="mailto:{{ record.email }}">{{ record.email }}</a>
+        </td>
+    </tr>
+    <tr>
+        <th>Confirmation Email?</th>
+        <td>{% if record.email_id %}✅ <code>{{ record.email_id }}</code> (Mailgun){% else %}❌ not sent{% endif %}</td>
+    </tr>
+    <tr>
+        <th>Destination</th>
+        <td>
+            <address style="margin-bottom: 0;">
+            <strong>{{ record.shipping.name }}</strong><br />
+            {{ record.shipping.line1|nonone }}<br />
+            {{ record.shipping.line2|nonone }}<br />
+            {% if record.shipping.postal_code %}{{ record.shipping.postal_code }} {% endif %} {{ record.shipping.city|nonone }}<br />
+            {{ record.shipping.state|nonone }}<br />
+            {% if record.shipping.country_code|country %}{{ record.shipping.country_code|country }} ({{ record.shipping.country_code }}){% else %}{{ record.shipping.country_code }}{% endif %}
+            </address>
+        </td>
+    </tr>
+    <tr><th>Power Plug</th><td>{% if record.shipped_plug and record.shipped_plug != record.shipping.plug %}{{ record.shipped_plug}} instead of {% endif %}{{ record.shipping.plug }}</td></tr>
+    <tr><th>Shipped ?</th><td>{% if record.tracking_number %}✅ {{ record.shipped_on|date }} S/N: <code>{{ record.serial_number }}</code>, Tracking: <a target="_blank" href="{{ record.tracking_number|tracking_url }}"><code>{{ record.tracking_number }}</code></a>{% else %}not yet{% endif %}</td></tr>
+    {% if record.tracking_number %}
+    <tr>
+        <th>Shipment Email?</th>
+        <td>{% if record.shipping_email_id %}✅ <code>{{ record.shipping_email_id }}</code> (Mailgun){% else %}❌ not sent{% endif %}</td>
+    </tr>
+    {% endif %}
+</table>
+
+<hr />
+
+<h2>Add or update shipping details</h2>
+<p>Updating tracking number will trigger another e-mail to customer.</p>
+<form method="POST" class="form form-check form-check-inline">
+    <input type="hidden" name="session_id" value="{{ record.session_id }}">
+    <div class="form-row visual-group">
+        <div class="form-group col-md-4">
+            <label for="trackingNumber">Tracking number</label>
+            <input id="trackingNumber" name="tracking_number" type="text" class="form-control" placeholder="0031234567891234567" required="required" aria-describedby="trackingHelp" value="{{ record.tracking_number|nonone }}" />
+            <small id="trackingHelp" class="form-text text-muted">Post.ch tracking number (usually 19chars digits only)</small><br />
+            <small id="link-preview"></small>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="serialNumber">Serial number</label>
+            <input id="serialNumber" name="serial_number" type="text" class="form-control" placeholder="AACADE" required="required" aria-describedby="serialHelp" value="{{ record.serial_number|nonone }}" />
+            <small id="serialHelp" class="form-text text-muted">Encoded H1 S/N</small><br />
+            <small id="link-preview"></small>
+        </div>
+        <div class="form-group col-md-3">
+            <label for="powerPlug">Power Plug</label>
+            <select id="powerPlug" name="power_plug" class="form-control" required="required" aria-describedby="plugHelp">
+                {% for plug_type in plug_types %}
+                <option value="{{ plug_type }}" label="{{ plug_type|upper }}"{% if record.shipped_plug %}{% if plug_type == record.shipped_plug %} selected{% endif %}{% else %}{% if plug_type == record.shipping.plug %} selected{% endif %}{% endif %}>{{ plug_type|upper }}</option>
+                {% endfor %}
+            </select>
+            <small id="plugHelp" class="form-text text-muted">Use selected unless client requested specific one.</small>
+        </div>
+        <div class="form-group col-md-2"><label>-</label><button class="btn btn-warning form-check-input form-control">Mark Order Shipped</button></div>
+    </div>
+</form>
+{% endif %}
+
+</div>
+
+<script type="text/javascript">
+const url_template = '{{ url_template }}';
+
+// helper for enabling IE 8 event bindings
+function addEvent(el, type, handler) {
+    if (el.attachEvent) el.attachEvent('on'+type, handler); else el.addEventListener(type, handler);
+}
+
+// live binding helper using matchesSelector
+function live(selector, event, callback, context) {
+    addEvent(context || document, event, function(e) {
+        var found, el = e.target || e.srcElement;
+        while (el && el.matches && el !== context && !(found = el.matches(selector))) el = el.parentElement;
+        if (found) callback.call(undefined, el, e);
+    });
+}
+
+function onTrackingNumberChanged(el, ev) {
+    let preview = '';
+    let tracking_number = el.value;
+    if (tracking_number.length) {
+        let url = url_template.replace('{number}', tracking_number);
+        preview = `<a target=_blank" href="${url}">Tracking <code>${tracking_number}</code></a>`
+    }
+    let prev = document.getElementById('link-preview');
+    prev.innerHTML = preview;
+}
+
+function run() {
+    live('#trackingNumber', 'change', onTrackingNumberChanged);
+    onTrackingNumberChanged(document.getElementById('trackingNumber'));
+}
+if (document.readyState!='loading') run(); // already loaded
+else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run); // modern browsers
+</script>
+
+{% endblock %}
