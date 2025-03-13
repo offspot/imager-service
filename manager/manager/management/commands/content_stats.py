@@ -1,10 +1,5 @@
-import copy
-import datetime
-import json
 import logging
-import statistics
 from collections import OrderedDict
-from pprint import pprint
 
 from django.core.management.base import BaseCommand
 
@@ -32,7 +27,7 @@ class Command(BaseCommand):
                     content[zimid] += 1
 
         content = OrderedDict(
-            sorted(list(content.items()), key=lambda item: item[1], reverse=True)
+            sorted(content.items(), key=lambda item: item[1], reverse=True)
         )
 
         top = max(content.values())

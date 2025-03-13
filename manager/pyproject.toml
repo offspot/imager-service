@@ -25,7 +25,7 @@ dependencies = [
   "xmltodict==0.13.0",
   "Babel==2.14.0",
   "phonenumbers==8.13.30",
-  "Pillow==10.2.0",
+  "Pillow==11.1.0",
   "pycountry==23.12.11",
   "python-magic==0.4.27",
   "humanfriendly==10.0",

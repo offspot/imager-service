@@ -112,7 +112,7 @@ def extract_branding(config, key, mimes):
 
 
 def retrieve_branding_file(
-    field, is_virtual: bool = False
+    field, *, is_virtual: bool = False
 ) -> dict[str, str | bytes | int] | None:
     if not field:
         return None

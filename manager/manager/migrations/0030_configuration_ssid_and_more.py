@@ -3,6 +3,7 @@
 import manager.models
 from django.db import migrations, models
 
+
 def set_ssid(apps, schema_editor):
     Configuration = apps.get_model("manager", "Configuration")
     for config in Configuration.objects.all():
