@@ -985,6 +985,13 @@ def success():
                 "existing_account": record.get("existing_account", False),
             }
         )
+    elif kind == "device":
+        context.update(
+            {
+                "plug": get_plug_type(session.shipping_details.address.country),
+                "invoice_num": short_stripe_id(session.id),
+            }
+        )
 
     context.update(
         {
