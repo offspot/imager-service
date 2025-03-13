@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import os
+import sys
 import tempfile
 import zlib
 from pathlib import Path
@@ -56,70 +57,86 @@ PLUG_TYPES = {
 
 SHIPPING_TO_COUNTRIES = sorted([*SWISSPOST_PRIORITYPLUS_SUPPORTED, "CH"])
 
-# i18n
-LANG_STRINGS = {
-    "en": {
-        "product_wikipedia": "Wikipedia Hotspot Image English",
-        "product_ted": "TED Hotspot Image",
-        "product_preppers": "Preppers Hotspot Image",
-        "product_medical": "Medical Hotspot Image",
-        "product_computers": "Computer Hotspot Image",
-        "product_access_1m": "One month Imager Access",
-        "product_access_1y": "Annual Imager Access",
-        "product_wikipedia-h1": "Wikipedia Hotspot English",
-        "product_ted-h1": "TED Hotspot",
-        "product_preppers-h1": "Preppers Hotspot",
-        "product_medical-h1": "Medical Hotspot",
-        "product_computers-h1": "Computer Hotspot",
-    },
-    "de": {
-        "product_wikipedia": "Wikipedia Hotspot auf Deutsch",
-        "product_ted": "TED Hotspot",
-        "product_preppers": "Preppers Hotspot",
-        "product_medical": "Medical Hotspot",
-        "product_computers": "Computer Hotspot",
-        "product_access_1m": "One month Imager Access",
-        "product_access_1y": "Annual Imager Access",
-        "product_wikipedia-h1": "Wikipedia Hotspot English",
-        "product_ted-h1": "TED Hotspot",
-        "product_preppers-h1": "Preppers Hotspot",
-        "product_medical-h1": "Medical Hotspot",
-        "product_computers-h1": "Computer Hotspot",
-    },
-    "es": {
-        "product_wikipedia": "Wikipedia Hotspot en español",
-        "product_ted": "TED Hotspot",
-        "product_preppers": "Preppers Hotspot",
-        "product_medical": "Medical Hotspot",
-        "product_computers": "Computer Hotspot",
-        "product_access_1m": "One month Imager Access",
-        "product_access_1y": "Annual Imager Access",
-        "product_wikipedia-h1": "Wikipedia Hotspot English",
-        "product_ted-h1": "TED Hotspot",
-        "product_preppers-h1": "Preppers Hotspot",
-        "product_medical-h1": "Medical Hotspot",
-        "product_computers-h1": "Computer Hotspot",
-    },
-    "fr": {
-        "product_wikipedia": "Wikipedia Hotspot Français",
-        "product_ted": "TED Hotspot",
-        "product_preppers": "Preppers Hotspot",
-        "product_medical": "Medical Hotspot",
-        "product_computers": "Computer Hotspot",
-        "product_access_1m": "Accès Imager 1 mois",
-        "product_access_1y": "Accès Imager annuel",
-        "product_wikipedia-h1": "Wikipedia Hotspot English",
-        "product_ted-h1": "TED Hotspot",
-        "product_preppers-h1": "Preppers Hotspot",
-        "product_medical-h1": "Medical Hotspot",
-        "product_computers-h1": "Computer Hotspot",
-    },
+PRODUCTS = {
+    # product-id: (stipe-method, stripe-price-id, handler-type, product-name)
+    "wikipedia-en": (
+        os.environ["STRIPE_METHOD_WP"],
+        os.environ["STRIPE_PRICE_WPEN"],
+        "image",
+        "Wikipedia Hotspot OS only",
+    ),
+    "preppers": (
+        os.environ["STRIPE_METHOD_PP"],
+        os.environ["STRIPE_PRICE_PP"],
+        "image",
+        "Preppers Hotspot OS only",
+    ),
+    "medical": (
+        os.environ["STRIPE_METHOD_MD"],
+        os.environ["STRIPE_PRICE_MD"],
+        "image",
+        "Medical Hotspot OS only",
+    ),
+    "ted": (
+        os.environ["STRIPE_METHOD_TED"],
+        os.environ["STRIPE_PRICE_TED"],
+        "image",
+        "TED Hotspot OS only",
+    ),
+    "computers": (
+        os.environ["STRIPE_METHOD_CS"],
+        os.environ["STRIPE_PRICE_CS"],
+        "image",
+        "Computer Hotspot OS only",
+    ),
+    "access-1m": (
+        os.environ["STRIPE_METHOD_ACCESS1M"],
+        os.environ["STRIPE_PRICE_ACCESS1M"],
+        "access",
+        "One month Imager Access",
+    ),
+    # "access-1y": (
+    #     os.environ["STRIPE_METHOD_ACCESS1Y"],
+    #     os.environ["STRIPE_PRICE_ACCESS1Y"],
+    #     "access",
+    #     "Annual Imager Access",
+    # ),
+    "wikipedia-en-h1": (
+        os.environ["STRIPE_METHOD_WPH1"],
+        os.environ["STRIPE_PRICE_WPENH1"],
+        "device",
+        "Wikipedia Hotspot",
+    ),
+    "preppers-h1": (
+        os.environ["STRIPE_METHOD_PPH1"],
+        os.environ["STRIPE_PRICE_PPH1"],
+        "device",
+        "Preppers Hotspot",
+    ),
+    "medical-h1": (
+        os.environ["STRIPE_METHOD_MDH1"],
+        os.environ["STRIPE_PRICE_MDH1"],
+        "device",
+        "Medical Hotspot",
+    ),
+    "ted-h1": (
+        os.environ["STRIPE_METHOD_TEDH1"],
+        os.environ["STRIPE_PRICE_TEDH1"],
+        "device",
+        "TED Hotspot",
+    ),
+    "computers-h1": (
+        os.environ["STRIPE_METHOD_CSH1"],
+        os.environ["STRIPE_PRICE_CSH1"],
+        "device",
+        "Computer Hotspot",
+    ),
 }
 
 
-def format_dt(date, fmt="d MMMM yyyy, H:m", locale=None):
+def format_dt(date, fmt="d MMMM yyyy, H:m", locale="en"):
     """format datetime using babel. Format optional"""
-    return format_datetime(date, fmt, locale="en")
+    return format_datetime(date, fmt, locale=locale)
 
 
 def get_plug_type(country_code):
@@ -145,9 +162,14 @@ def get_tracking_url(tracking_number: str) -> str:
     return TRACKING_URL_TMPL.replace("{number}", tracking_number)
 
 
-def get_product_name(product: str, lang: str = "en") -> str:
+def get_product_name(product: str) -> str:
     """Name of a product from its code"""
-    return LANG_STRINGS.get(lang, {}).get(f"product_{product}", "n/a")
+    return PRODUCTS[product][3]
+
+
+def get_handler(product: str):
+    """the handler (email/post-processing) for a given product)"""
+    return getattr(sys.modules[__name__], f"handle_{PRODUCTS[product][2]}_order")
 
 
 blueprint = Blueprint("stripe", __name__, url_prefix="/shop/stripe")
@@ -313,7 +335,6 @@ def handle_credentials_creation(session, customer):
 
 def handle_device_order(session, customer):
     product = session.metadata.get("product")
-    product_lang = "en"
 
     session_record = StripeSession.get_or_create(
         customer_id=customer.id,
@@ -373,7 +394,7 @@ def handle_device_order(session, customer):
         name=customer.name,
         timestamp=datetime.datetime.now(),
         product=product,
-        product_name=get_product_name(product, product_lang),
+        product_name=get_product_name(product),
         price=session.amount_total,
         session=session,
         shipping_option=shipping_option,
@@ -390,7 +411,6 @@ def handle_device_order(session, customer):
 def handle_image_order(session, customer):
     product = session.metadata.get("product")
     http_url, torrent_url, _ = get_links_for(product)
-    product_lang = product.split("-")[-1]
 
     email_id = send_paid_order_email(
         kind="image",
@@ -398,9 +418,7 @@ def handle_image_order(session, customer):
         name=customer.name,
         timestamp=datetime.datetime.now(),
         product=product,
-        product_name=LANG_STRINGS.get(product_lang, {}).get(
-            "product_wikipedia", "Wikipedia Image"
-        ),
+        product_name=get_product_name(product),
         price=session.amount_total,
         http_url=http_url,
         torrent_url=torrent_url,
@@ -417,7 +435,6 @@ def handle_image_order(session, customer):
 
 def handle_access_order(session, customer):
     now = datetime.datetime.now()
-    product_dc = session.metadata["product"].split("-")[-1]
     record = handle_credentials_creation(session=session, customer=customer)
 
     # send email receipt
@@ -427,9 +444,7 @@ def handle_access_order(session, customer):
         name=customer.name,
         timestamp=now,
         product=session.metadata["product"],
-        product_name=LANG_STRINGS["en"].get(
-            f"product_access_{product_dc}", "Imager Access"
-        ),
+        product_name=get_product_name(session.metadata["product"]),
         price=session.amount_total,
         username=record.get("username", "Unavailable – please contact us"),
         password=record.get("password", "Unavailable – please contact us"),
@@ -438,86 +453,6 @@ def handle_access_order(session, customer):
         recurring=record.get("recurring"),
     )
     StripeSession.update(record_id=record["_id"], receipt_sent=True, email_id=email_id)
-
-
-PRODUCTS = {
-    # product-id: (stipe-method, stripe-price-id, email-handler)
-    "wikipedia-en": (
-        os.getenv("STRIPE_METHOD_WP"),
-        os.getenv("STRIPE_PRICE_WPEN"),
-        handle_image_order,
-    ),
-    "wikipedia-es": (
-        os.getenv("STRIPE_METHOD_WP"),
-        os.getenv("STRIPE_PRICE_WPES"),
-        handle_image_order,
-    ),
-    "wikipedia-de": (
-        os.getenv("STRIPE_METHOD_WP"),
-        os.getenv("STRIPE_PRICE_WPDE"),
-        handle_image_order,
-    ),
-    "wikipedia-fr": (
-        os.getenv("STRIPE_METHOD_WP"),
-        os.getenv("STRIPE_PRICE_WPFR"),
-        handle_image_order,
-    ),
-    "preppers": (
-        os.getenv("STRIPE_METHOD_PP"),
-        os.getenv("STRIPE_PRICE_PP"),
-        handle_image_order,
-    ),
-    "medical": (
-        os.getenv("STRIPE_METHOD_MD"),
-        os.getenv("STRIPE_PRICE_MD"),
-        handle_image_order,
-    ),
-    "ted": (
-        os.getenv("STRIPE_METHOD_TED"),
-        os.getenv("STRIPE_PRICE_TED"),
-        handle_image_order,
-    ),
-    "computers": (
-        os.getenv("STRIPE_METHOD_CS"),
-        os.getenv("STRIPE_PRICE_CS"),
-        handle_image_order,
-    ),
-    "access-1m": (
-        os.getenv("STRIPE_METHOD_ACCESS1M"),
-        os.getenv("STRIPE_PRICE_ACCESS1M"),
-        handle_access_order,
-    ),
-    # "access-1y": (
-    #     os.getenv("STRIPE_METHOD_ACCESS1Y"),
-    #     os.getenv("STRIPE_PRICE_ACCESS1Y"),
-    #     handle_access_order,
-    # ),
-    "wikipedia-en-h1": (
-        os.getenv("STRIPE_METHOD_WPH1"),
-        os.getenv("STRIPE_PRICE_WPENH1"),
-        handle_device_order,
-    ),
-    "preppers-h1": (
-        os.getenv("STRIPE_METHOD_PPH1"),
-        os.getenv("STRIPE_PRICE_PPH1"),
-        handle_device_order,
-    ),
-    "medical-h1": (
-        os.getenv("STRIPE_METHOD_MDH1"),
-        os.getenv("STRIPE_PRICE_MDH1"),
-        handle_device_order,
-    ),
-    "ted-h1": (
-        os.getenv("STRIPE_METHOD_TEDH1"),
-        os.getenv("STRIPE_PRICE_TEDH1"),
-        handle_device_order,
-    ),
-    "computers-h1": (
-        os.getenv("STRIPE_METHOD_CSH1"),
-        os.getenv("STRIPE_PRICE_CSH1"),
-        handle_device_order,
-    ),
-}
 
 
 def involves_shipping(product: str) -> bool:
@@ -556,9 +491,7 @@ def widget(lang="en"):
         return flask.Response("Invalid lang"), 404
 
     context = {
-        "lang": lang,
         "api_url": CARDSHOP_API_URL,
-        "translation": LANG_STRINGS.get(lang),
         "stripe_public_key": STRIPE_PUBLIC_API_KEY,
     }
     return flask.render_template("stripe/shop.html", **context)
@@ -572,7 +505,8 @@ def create_checkout_session():
     product = request.form.get("product")
     if product not in PRODUCTS.keys():
         return jsonify(error="Unknown product"), 404
-    mode, price, _ = PRODUCTS.get(product)
+    mode = PRODUCTS[product][0]
+    price = PRODUCTS[product][1]
 
     customer = StripeCustomer.get_or_none(email)
     shipping_details = {}
@@ -642,7 +576,7 @@ def on_checkout_suceeded():
             logger.exception(exc)
 
         try:
-            handler = PRODUCTS[session["metadata"]["product"]][2]
+            handler = get_handler(session["metadata"]["product"])
             handler(session=session, customer=customer)
         except Exception as exc:
             logger.critical("Unable to process handler")
@@ -672,8 +606,7 @@ def success_email():
         logger.exception(exc)
         return flask.Response("Invalid Session ID", 400)
 
-    product = session.metadata.get("product")
-    product_lang = "en"
+    product = session.metadata["product"]
 
     # record device-order specific info into DB
     shipping_rate = session.shipping_cost.shipping_rate
@@ -690,7 +623,7 @@ def success_email():
         name=customer.name,
         timestamp=datetime.datetime.now(),
         product=product,
-        product_name=get_product_name(product, product_lang),
+        product_name=get_product_name(product),
         price=session.amount_total,
         session=session,
         shipping_rate=shipping_rate,
@@ -732,7 +665,7 @@ def success():
         return flask.Response("ERROR !!! not paid")
 
     context = {"customer": customer, "session": session, "shop_url": SHOP_PUBLIC_URL}
-    product = session.metadata.get("product")
+    product = session.metadata["product"]
     kind = get_order_kind_for(product)
     if kind == "image":
         http_url, torrent_url, _ = get_links_for(product)
@@ -763,7 +696,7 @@ def success():
         {
             "kind": kind,
             "product": session.metadata["product"],
-            "product_name": LANG_STRINGS["en"].get(f"product_{product}", "Unknown"),
+            "product_name": get_product_name(product),
             "price": session.amount_total,
         }
     )
@@ -772,7 +705,7 @@ def success():
     # email testing
     if RUN_HANDLER_ON_SUCCESS:
         try:
-            handler = PRODUCTS[product][2]
+            handler = get_handler(product)
             handler(session=session, customer=customer)
         except Exception as exc:
             logger.critical("Unable to process handler")
@@ -819,7 +752,6 @@ def build_invoice(session_id, *, as_html: bool = False, force: bool = False) -> 
         return fpath
 
     product = session.metadata["product"]
-    product_lang = "en"
 
     # record device-order specific info into DB
     shipping_rate = session.shipping_cost.shipping_rate
@@ -834,7 +766,7 @@ def build_invoice(session_id, *, as_html: bool = False, force: bool = False) -> 
         "kind": get_order_kind_for(product),
         "timestamp": datetime.datetime.now(),
         "product": product,
-        "product_name": get_product_name(product, product_lang),
+        "product_name": get_product_name(product),
         "session": session,
         "shipping_rate": shipping_rate,
         "shipping_option": shipping_option,
@@ -936,7 +868,7 @@ def get_shipment():
         content = email_env.get_template("stripe/shipped_device.html").render(
             record=session_record,
             product=session_record["product"],
-            product_name=LANG_STRINGS["en"][f"product_{product}"],
+            product_name=get_product_name(product),
         )
 
         # dev to work on email design
