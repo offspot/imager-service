@@ -81,7 +81,7 @@ tr.removed {
 		<div class="form-row visual-group">
 			<div class="col-md-7"></div>
 			<div class="col-md-2">{% if config_id %}<a href="{% url 'configuration_order' config_id %}">{% endif %}<button id="order-btn" form="edit-config" class="btn btn-dark btn-sm form-control" {% if not config_id %}disabled="disabled"{% endif %}>{% blocktrans %}Save & Request{% endblocktrans %} <i class="fas fa-rocket" style="color: #FF9933;"></i></button></a></div>
-			<div class="col-md-3"><button form="edit-config" class="btn btn-primary btn-sm form-control" style="margin-bottom: .5em;"><i class="fas fa-save"></i> {% blocktrans %}Save{% endblocktrans %}</button></div>
+			<div class="col-md-3"><button form="edit-config" class="btn btn-primary btn-sm form-control" style="margin-bottom: .5em;"><i class="fas fa-save"></i> {% blocktrans %}Save & Next{% endblocktrans %}</button></div>
 		</div>
 
 	<div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
@@ -554,6 +554,9 @@ tr.removed {
 			refreshSize();
 		});
 
+		// register form submit
+		$('#edit-config').on('submit', handleFormSubmit);
+
 		// register ZIM chooser
 		registerZIMChooser();
 
@@ -578,6 +581,55 @@ tr.removed {
 		// first refresh run
 		onRefresh();
 	}
+	
+	// This custom handle function - prevents default form submission and sends an AJAX request instead to save the form data.
+	function handleFormSubmit(e) {
+		e.preventDefault();
+		
+		const activeTab = $('#configMenuTabHolder .nav-link.active').attr('id').replace('-tab', '');
+		const formData = new FormData(e.target);
+		formData.append('current_tab', activeTab);
+	
+		$.ajax({
+			url: window.location.pathname,
+			type: 'POST',
+			data: formData,
+			processData: false,
+			contentType: false,
+			headers: {
+				'X-Requested-With': 'XMLHttpRequest'
+			},
+			success: function(response) {
+				if (response.success) {
+					// Update the URL for new config
+					if (response.config_id && !window.location.pathname.includes(response.config_id)) {
+						window.location.href = "{% url 'configuration_edit' 0 %}".replace('0', response.config_id);
+						return;
+					}
+	
+					if (response.redirect === "list") {
+						window.location.href = "{% url 'configuration_list' %}";
+						return;
+					}
+					
+					if (response.next_tab) {
+						$(`#${response.next_tab}-tab`).tab('show');
+					}
+	
+					if (response.message) {
+						alert(response.message);
+					}
+				} else {
+					alert(response.message || 'Error saving configuration');
+				}
+			},
+			error: function(xhr, status, error) {
+				console.error('Error:', error);
+				alert('Error saving configuration');
+			}
+		});
+	}
+	
 
 	function refreshSize() {
 		let free_space_template = "{% blocktrans %}__media_size__ <small>(__free_size__ free)</small>{% endblocktrans %}";
