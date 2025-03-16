@@ -89,23 +89,20 @@ def handle_uploaded_json(fd):
 def configuration_list(request):
     page = request.GET.get("page")
     config_filter = bool(request.GET.get("all", False) == "yes")
-    sort_field = request.GET.get('sort', 'updated_on')  
-    sort_dir = request.GET.get('dir', 'desc')
-    
+    sort_field = request.GET.get("sort", "updated_on")
+    sort_dir = request.GET.get("dir", "desc")
     filtered_configurations = Configuration.objects.filter(
         organization=request.user.profile.organization
     )
-
     if not config_filter:
         filtered_configurations = filtered_configurations.filter(
             updated_by=request.user.profile
         )
-
-    filtered_configurations = apply_sorting(filtered_configurations, sort_field, sort_dir)
-
+    filtered_configurations = apply_sorting(
+        filtered_configurations, sort_field, sort_dir
+    )
     paginator = Paginator(filtered_configurations, NB_CONFIGURATIONS_PER_PAGE)
     configurations_page = paginator.get_page(page)
-
     context = {
         "configurations": configurations_page.object_list,
         "configurations_page": configurations_page,
@@ -113,7 +110,6 @@ def configuration_list(request):
         "sort_field": sort_field,
         "sort_dir": sort_dir,
     }
-
     if request.method == "POST":
         form = JSONUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -144,54 +140,24 @@ def configuration_list(request):
             pass
     else:
         form = JSONUploadForm()
-
     context["form"] = form
-
     return render(request, "configuration_list.html", context)
+
 
 # sorting function for configurations
 def apply_sorting(queryset, sort_field, sort_dir):
-    order_prefix = '' if sort_dir == 'asc' else '-'
-    
-    if sort_field == 'min_media':
-        import re
-        configurations_list = list(queryset)
-        
-        def extract_size_value(config):
-            if not hasattr(config, 'min_media') or not config.min_media:
-                return 0
-            match = re.search(r'(\d+)', str(config.min_media))
-            return int(match.group(1)) if match else 0
-        
-        configurations_list.sort(
-            key=extract_size_value,
-            reverse=(sort_dir == 'desc')
-        )
-        
-        preserved_order = [c.id for c in configurations_list]
-        if preserved_order:
-            from django.db.models import Case, When, Value, IntegerField
-            preserved_order_cases = [
-                When(id=id, then=Value(i)) 
-                for i, id in enumerate(preserved_order)
-            ]
-            return queryset.filter(
-                id__in=preserved_order
-            ).order_by(
-                Case(*preserved_order_cases, output_field=IntegerField())
-            )
-        else:
-            return Configuration.objects.none()
-    
-    elif sort_field == 'name':
+    """Apply sorting to configuration queryset."""
+    order_prefix = "" if sort_dir == "asc" else "-"
+    if sort_field == "name":
         return queryset.order_by(f"{order_prefix}name")
-    elif sort_field == 'updated_by':
-        return queryset.order_by(f"{order_prefix}updated_by__username")
-    elif sort_field == 'size' or sort_field == 'updated_on':
+    elif sort_field == "updated_by":
+        return queryset.order_by(f"{order_prefix}updated_by__user__first_name")
+    elif sort_field in ("size", "min_media", "updated_on"):
+        sort_field = "size" if sort_field == "min_media" else sort_field
         return queryset.order_by(f"{order_prefix}{sort_field}")
     else:
-        return queryset.order_by('-updated_on')
-    
+        return queryset.order_by("-updated_on")
+
 
 @login_required
 def configuration_edit(request, config_id=None):

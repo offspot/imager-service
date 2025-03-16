@@ -1,34 +1,31 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load manager %}
-
 {% block content %}
 {% url 'configuration_add' as configuration_add_url %}
 <h3>{% blocktrans with user_org=user.profile.organization %}{{ user_org }}'s configurations{% endblocktrans %}</h3>
 <p class="info">{% blocktrans %}This is where your choice of options and contents for your Hotspot images will be stored.{% endblocktrans %}</p>
 <p class="info">{% blocktrans %}You can create as many configurations as you want by clicking on New configuration, or modify existing configurations by clicking on their names. You can also import JSON configuration files from the desktop installer.{% endblocktrans %}</p>
-
 <a href="?page={{ item }}&sort={{ sort_field }}&dir={{ sort_dir }}{% if filter_value %}&{{ filter_name }}={{ filter_value }}{% endif %}">
-
-
 <p><div class="btn-group" role="group" aria-label="Filter">
     <a class="btn btn-sm {% if not config_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}"  href="?">{% blocktrans %}Updated by me{% endblocktrans %}</a>
     <a class="btn btn-sm {% if config_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?all=yes">{% blocktrans %}All{% endblocktrans %}</a>
 </div>
 <form method="POST" enctype="multipart/form-data" class="float-right form-check form-check-inline">{% csrf_token %}{{ form.file }}<button class="btn btn-sm btn-outline-primary form-check-input">{% blocktrans %}Import file{% endblocktrans %}</button>{% if form.errors %}{{ form.errors }}{% endif %}<a href="{% url 'configuration_add' %}" class="btn btn-sm btn-primary form-check-input">{% blocktrans %}New configuration{% endblocktrans %}</a></form></p>
-
 {% if configurations|length %}
 <table class="table table-striped">
-    <thead><tr>
-		<th><a href="?{% url_replace request 'sort' 'name' %}{% if sort_field == 'name' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}" class="text-dark">{% blocktrans %}Name{% endblocktrans %}{% if sort_field == 'name' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
-		<th><a href="?{% url_replace request 'sort' 'size' %}{% if sort_field == 'size' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}" class="text-dark">{% blocktrans %}Size{% endblocktrans %}{% if sort_field == 'size' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
-		<th><a href="?{% url_replace request 'sort' 'min_media' %}{% if sort_field == 'min_media' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}" class="text-dark">{% blocktrans %}SD Size (min){% endblocktrans %}{% if sort_field == 'min_media' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
-		<th><a href="?{% url_replace request 'sort' 'updated_by' %}{% if sort_field == 'updated_by' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}" class="text-dark">{% blocktrans %}Updated By{% endblocktrans %}{% if sort_field == 'updated_by' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
-		<th><a href="?{% url_replace request 'sort' 'updated_on' %}{% if sort_field == 'updated_on' %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=asc{% endif %}" class="text-dark">{% blocktrans %}Updated On{% endblocktrans %}{% if sort_field == 'updated_on' %} {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a></th>
-		<th>{% blocktrans %}Export{% endblocktrans %}</th>
-		<th>{% blocktrans %}Duplicate{% endblocktrans %}</th>
-		<th>{% blocktrans %}Delete{% endblocktrans %}</th>
-	</tr></thead>
+    <thead>
+        <tr>
+            <th>{% sort_header request 'name' 'Name' sort_field sort_dir %}</th>
+            <th>{% sort_header request 'size' 'Size' sort_field sort_dir %}</th>
+            <th>{% sort_header request 'min_media' 'SD Size (min)' sort_field sort_dir %}</th>
+            <th>{% sort_header request 'updated_by' 'Updated By' sort_field sort_dir %}</th>
+            <th>{% sort_header request 'updated_on' 'Updated On' sort_field sort_dir %}</th>
+            <th>{% blocktrans %}Export{% endblocktrans %}</th>
+            <th>{% blocktrans %}Duplicate{% endblocktrans %}</th>
+            <th>{% blocktrans %}Delete{% endblocktrans %}</th>
+        </tr>
+    </thead>
     <tbody>
     {% for configuration in configurations %}
     <tr><th><a href="{% url 'configuration_edit' configuration.id %}">{{ configuration }}</a>{% if configuration.retrieve_missing_zims %} <span title="{% blocktrans %}At least one ZIM is not available anymore{% endblocktrans %}">⚠️</span>{% endif %}</th>
