@@ -507,45 +507,40 @@ def address_delete(request, address_id=None):
 # order list hlper function -
 def apply_orders_sorting(queryset, sort_field, sort_dir):
     """Apply sorting to orders queryset."""
-    order_prefix = "" if sort_dir == "asc" else "-"
-    if sort_field == "min_id":
+    order_prefix = '' if sort_dir == 'asc' else '-'
+    if sort_field == 'min_id':
         return queryset.order_by(f"{order_prefix}id")
-    elif sort_field == "created_by":
+    elif sort_field == 'created_by':
         return queryset.order_by(f"{order_prefix}created_by__user__first_name")
-    elif sort_field == "created_on" or sort_field == "status":
+    elif sort_field == 'created_on' or sort_field == 'status':
         return queryset.order_by(f"{order_prefix}{sort_field}")
-    elif sort_field in ("config_name", "country"):
+    elif sort_field in ('config_name', 'country'):
         orders_list = list(queryset)
-        if sort_field == "config_name":
+        if sort_field == 'config_name':
             orders_list.sort(
-                key=lambda order: (
-                    order.data.get("config_name", "") if order.data else ""
-                ),
-                reverse=(sort_dir == "desc"),
-            )
-        elif sort_field == "country":
-            orders_list.sort(
-                key=lambda order: (
-                    (order.data.get("recipient", {}) or {}).get("country", "")
-                    if order.data
-                    else ""
-                ),
-                reverse=(sort_dir == "desc"),
-            )
-        preserved_order = [order.id for order in orders_list]
-        if preserved_order:
-            from django.db.models import Case, IntegerField, Value, When
-
-            preserved_order_cases = [
-                When(id=id, then=Value(i)) for i, id in enumerate(preserved_order)
-            ]
-            return Order.objects.filter(id__in=preserved_order).order_by(
-                Case(*preserved_order_cases, output_field=IntegerField())
+                key=lambda order: str(order.data.get('config', {}).get('name', '')).lower() if order.data else '',
+                reverse=(sort_dir == 'desc')
             )
         else:
-            return Order.objects.none()
+            orders_list.sort(
+                key=lambda order: str((order.data.get('recipient', {}) or {}).get('country', '')).lower() if order.data else '',
+                reverse=(sort_dir == 'desc')
+            )
+        if orders_list:
+            from django.db.models import Case, When, Value, IntegerField
+            preserved_order = [order.id for order in orders_list]
+            preserved_order_cases = [
+                When(id=id, then=Value(i)) 
+                for i, id in enumerate(preserved_order)
+            ]
+            return Order.objects.filter(
+                id__in=preserved_order
+            ).order_by(
+                Case(*preserved_order_cases, output_field=IntegerField())
+            )
+        return Order.objects.none()
     else:
-        return queryset.order_by("-created_on")
+        return queryset.order_by('-created_on')
 
 
 @login_required

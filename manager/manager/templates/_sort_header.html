@@ -1,5 +1,5 @@
 {% load manager %}
-<a href="?{% update_query_params request 'sort' field_name %}{% if sort_field == field_name %}{% if sort_dir == 'asc' %}&dir=desc{% else %}&dir=asc{% endif %}{% else %}&dir=desc{% endif %}{% if order_filter %}&only={{ order_filter }}{% endif %}" class="text-dark">
+<a href="?{% update_query_params request 'sort' field_name %}{% if sort_field == field_name %}&dir={% if sort_dir == 'asc' %}desc{% else %}asc{% endif %}{% else %}&dir=desc{% endif %}" class="text-dark">
     {{ display_name }}
     {% if sort_field == field_name %}
         {% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}
