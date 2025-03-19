@@ -232,3 +232,28 @@ def has_expired(errors) -> bool:
 
 
 register.filter("has_expired", has_expired)
+
+
+@register.simple_tag
+def update_query_params(request, field, value):
+    """Updates query parameter in the current URL without duplicating parameters."""
+    query_params = request.GET.copy()
+    query_params[field] = value
+    if field == 'sort':
+        if 'dir' in query_params:
+            query_params['dir'] = 'desc'
+    if 'only' in request.GET:
+        query_params['only'] = request.GET['only']
+    return query_params.urlencode()
+
+@register.inclusion_tag("_sort_header.html")
+def sort_header(request, field_name, display_name, sort_field, sort_dir):
+    """Renders a sortable header with proper sort indicators"""
+    return {
+        "request": request,
+        "field_name": field_name,
+        "display_name": display_name,
+        "sort_field": sort_field,
+        "sort_dir": sort_dir,
+        "order_filter": request.GET.get("only"),
+    }
