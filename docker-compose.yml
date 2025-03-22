@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  mongo:
+    image: mongo:4.4
+    volumes:
+      - ./data/mongo:/data/db
+
+  scheduler:
+    build: ./scheduler
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017
+      - DEBUG=1
+      - MANAGER_ACCOUNT_PASSWORD=manager
+      - PUBLIC_URL=http://localhost:8000
+      - CARDSHOP_API_URL=http://localhost:8000
+      - MANAGER_API_URL=http://manager:80/api
+      - MANAGER_ACCOUNTS_API_TOKEN=dev
+    depends_on:
+      - mongo
+    ports:
+      - "8001:80"
+
+  manager:
+    build: ./manager
+    environment:
+      - DATA_DIR=/data
+      - DEBUG=1
+      - FIRSTRUN=y
+      - ADMIN_PASSWORD=admin
+      - CARDSHOP_API_URL=http://scheduler:80
+      - MANAGER_API_TOKEN=dev
+      - CSRF_TRUSTED_ORIGINS=http://localhost:8000
+    volumes:
+      - ./data:/data
+    ports:
+      - "8000:80"
+    depends_on:
+      - scheduler
