@@ -1,111 +1,138 @@
-# Contributing to Imager-Service Manager
+# Contributing to Imager-Service
 
-Thank you for considering contributing to the Imager-Service Manager! This guide will help you set up the environment and get started with development.
+Thank you for considering contributing to the Imager-Service! This guide will help you set up the environment and get started with development.
 
-## Running the Manager Locally
+## Setting Up the Development Environment
 
-The Manager provides a UI for creating orders and managing users. Follow these steps to run it locally:
+The Imager-Service consists of three main components: Manager (UI), Scheduler (API), and MongoDB. Follow these steps to run them locally:
+
+* Fork the repo - https://github.com/offspot/imager-service
 
 ```bash
-# Navigate to the manager directory
-cd manager
+# Clone the repository
+git clone https://github.com/<your-username>/imager-service.git
+cd imager-service
 
-# Build the Docker image
-docker build -t imager-service-manager .
+# Create required data directories
+mkdir -p data/{media,static,mongo}
 
-# Stop any running container with the same name
-docker stop imager-service-manager
+# Build and start all services
+docker-compose build
+docker-compose up -d
 
-# Remove the container
-docker rm imager-service-manager
-
-# Run the manager on port 80
-docker run -d -p 80:80 --name imager-service-manager imager-service-manager
+# Check if all services are running
+docker-compose ps
 ```
 
-After running these commands, you can access the manager UI at http://localhost:80
+After running these commands, you can access:
+- Manager UI at http://localhost:8000 
 
-## Creating a Test User
+## Default Admin Access
 
-To create a test user for development, follow these steps:
+The system automatically creates an admin user on first run with these credentials:
+```
+Username: admin
+Password: admin
+```
+
+You can use these credentials to log in at http://localhost:8000/login/
+
+## Development Workflow
+
+1. Make changes to the code
+2. To see your changes reflected:
 
 ```bash
-# Connect to the running container
-docker exec -it imager-service-manager /bin/bash
+docker-compose down
+docker-compose build
+docker-compose up -d
+# To view logs
+docker-compose logs -f manager
+```
 
-# Actvate the Virtual env 
+## Common Development Tasks
+
+### Accessing Container Shells
+```bash
+# Manager container
+docker-compose exec manager bash
+
+# Scheduler container
+docker-compose exec scheduler bash
+
+# MongoDB container
+docker-compose exec mongo mongo
+```
+
+### Database Operations
+```bash
+# Make and apply migrations
+docker-compose exec manager bash
 source manager-env/bin/activate
-
 python manage.py makemigrations
 python manage.py migrate
 
-# Start a Django shell to run the Python code
-python manage.py shell
+# Reset database
+docker-compose down -v
+docker-compose up -d
 ```
 
-In the Python shell, paste the following code to create a test user:
-
-```python
-# Quick user creation script
-from django.utils import timezone
-from datetime import timedelta
-from manager.models import Organization, Profile
-
-# Create or get organization
-org, created = Organization.objects.get_or_create(
-    slug="kiwix",
-    defaults={
-        "name": "Kiwix",
-        "email": "info@kiwix.org",
-        "units": 100,
-        "channel": "kiwix",
-        "warehouse": "kiwix",
-        "public_warehouse": "download"
-    }
-)
-
-# Create user with access to configurations
-user = Profile.create(
-    organization=org,
-    first_name="testuser",
-    email="user@example.com",
-    username="testuser",
-    password="password456",
-    is_admin=True,  # Set to True to ensure full access
-    expiry=timezone.now() + timedelta(days=365),
-    can_order_physical=True
-)
-
-print(f"User created successfully!")
-print(f"Username: testuser")
-print(f"Password: password")
-print(f"Organization: {org.name}")
-```
-
-After executing this code, exit the shell by typing `exit()` and then exit the container shell.
-
-## Logging In and Getting Started
-
-1. Open your browser and navigate to http://localhost:80
-2. Login with the credentials you created:
-   - Username: testuser2
-   - Password: password456
-3. You can now explore the UI and create orders, manage settings, etc.
-
-## Making UI Improvements
-
-When making changes to the UI:
-
-1. Locate the relevant templates in the `manager/templates` directory
-2. Make your changes to the HTML/CSS/JavaScript files
-3. For dynamic content, refer to the Django views in `manager/views.py`
-4. Rebuild the Docker image and restart the container to see your changes:
-
+### Rebuilding Services
 ```bash
-docker build -t imager-service-manager .
-docker stop imager-service-manager
-docker rm imager-service-manager
-docker run -d -p 80:80 --name imager-service-manager imager-service-manager
+# Rebuild specific service
+docker-compose build manager #If you want to rebuild scheduler, replace manager with scheduler
+
+# Rebuild all services
+docker-compose build
+
+# Rebuild and restart everything
+docker-compose down
+docker-compose build
+docker-compose up -d
 ```
+
+## Now you can start contributing
+### Quick guide for Manager
+
+The Manager is the web interface component written in Django. Here's how to work with it:
+
+1. **Project Structure**
+```
+manager/
+├── manager/          # Main Django app
+│   ├── models.py     # Database models
+│   ├── views/        # View logic
+│   ├── templates/    # HTML templates
+|   ...
+│   └── migrations/   # Database migrations
+├── tests/            # Test files
+└── manage.py         # Django management script
+```
+
+2. **Making Changes**
+
+- **Templates**: Edit files in `manager/templates/` to modify the UI
+- **Backend Logic**: Edit files in `manager/views/` to modify API endpoints and page handlers
+- **Database Changes**: 
+  ```bash
+  # After modifying models.py
+  docker-compose exec manager bash
+  source manager-env/bin/activate
+  python manage.py makemigrations
+  python manage.py migrate
+  ```
+
+3. **Best Practices**
+- Use `black` for code formatting.
+- Run `ruff` for linting.
+- Add meaningful docstrings to public functions and classes
+
+## Troubleshooting
+
+If you encounter issues:
+1. Check logs: `docker-compose logs -f`
+2. Ensure all containers are running: `docker-compose ps`
+3. Try rebuilding: `docker-compose down && docker-compose up -d --build`
+4. Clear volumes: `docker-compose down -v`
 
 Happy coding!
