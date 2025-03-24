@@ -240,10 +240,14 @@ def update_query_params(request, field, value):
     query_params = request.GET.copy()
     query_params[field] = value
     if field == 'sort':
-        if 'dir' in query_params:
+        query_params.pop('dir', None)
+        if value == request.GET.get('sort'):
+            current_dir = request.GET.get('dir')
+            query_params['dir'] = 'asc' if current_dir == 'desc' else 'desc'
+        else:
             query_params['dir'] = 'desc'
-    if 'only' in request.GET:
-        query_params['only'] = request.GET['only']
+    if 'all' in request.GET:
+        query_params['all'] = request.GET['all']
     return query_params.urlencode()
 
 @register.inclusion_tag("_sort_header.html")
