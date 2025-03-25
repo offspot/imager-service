@@ -238,10 +238,13 @@ register.filter("has_expired", has_expired)
 def update_query_params(request, field, value):
     """Updates query parameter in the current URL without duplicating parameters."""
     query_params = request.GET.copy()
+    current_sort = request.GET.get('sort')
     query_params[field] = value
     if field == 'sort':
         query_params.pop('dir', None)
-        if value == request.GET.get('sort'):
+        if value in ['updated_on', 'created_on'] and not current_sort:
+            query_params['dir'] = 'asc'
+        elif value == current_sort:
             current_dir = request.GET.get('dir')
             query_params['dir'] = 'asc' if current_dir == 'desc' else 'desc'
         else:
