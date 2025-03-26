@@ -49,7 +49,12 @@ errors.register_handlers(flask)
 
 
 if __name__ == "__main__":
-    # Initializer.start()
+    Initializer.start()
 
     is_debug = os.getenv("DEBUG", False)
-    flask.run(host="0.0.0.0", debug=is_debug, port=80, threaded=True)
+    flask.run(
+        host="0.0.0.0",
+        debug=is_debug,
+        port=int(os.getenv("PORT", "80")),
+        threaded=True,
+    )
