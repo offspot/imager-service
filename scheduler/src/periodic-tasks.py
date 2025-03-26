@@ -18,6 +18,7 @@ from utils.templates import (
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org/api")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
 DISABLE_PERIODIC_TASKS = bool(os.getenv("DISABLE_PERIODIC_TASKS", "") == "y")
+RECREATE_AUTO_MONTHLY = bool(os.getenv("RECREATE_AUTO_MONTHLY", "") == "y")
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -121,7 +122,7 @@ def check_autoimages():
                 http_url=get_public_download_url(order),
                 torrent_url=torrent_url,
                 magnet_url=get_magnet_for_torrent(torrent_url),
-                expire_on=get_next_month(),
+                expire_on=get_next_month() if RECREATE_AUTO_MONTHLY else None,
             )
             continue
 
