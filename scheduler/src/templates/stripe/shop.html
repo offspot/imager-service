@@ -189,32 +189,40 @@ body {
 }
 
 .toggle-offers {
-  padding: .1em;
-  border: 1px solid #cccccc;
+  padding: 0;
   margin: auto;
   text-align: center;
   display: table;
   margin-bottom: 2em;
-  border-radius: .5em;
-  font-size: 1.1em;
 }
 
 .toggle-btn {
-  padding: .6em 1em;
-  border-radius: .5em;
-  color: #999999;
-  background-color: transparent;
-  border: 0;
-  font-weight: 500;
+  font: normal 700 24px/normal "Quicksand";
+  background-color: white;
+  border: 2px solid #f93;
+  padding: 15px 24px;
+  color: #444;
 }
 
 .toggle-btn.active {
-  color: white;
-  background-color: #bc1142;
+  background-color: #f93;
+}
+
+/* overwrite bootstrap */
+.toggle-btn:focus {
+  outline: none;
+}
+
+.toggle-btn:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.toggle-btn:last-child {
+  border-radius: 0 8px 8px 0;
 }
 
 .offers-intro {
-  color: #bc1142;
+  color: #f93;
   font-weight: 400;
   width: 50%;
   margin: auto;
@@ -230,7 +238,7 @@ body {
 }
 
 .offers-intro a, .offers-intro a:visited, .offers-intro a:active {
-  color: #bc1142;
+  color: #f93;
   text-decoration: underline;
 }
 
@@ -303,6 +311,17 @@ body {
 }
 
 @media (max-width:767px) {
+  .toggle-btn {
+    width: 100%;
+  }
+  .toggle-btn:first-child {
+    border-radius: 8px 8px 0 0;
+  }
+
+  .toggle-btn:last-child {
+    border-radius: 0 0 8px 8px;
+  }
+
   .payment-info,
   .payment-info p,
   .outro p {
@@ -316,13 +335,6 @@ body {
     display: block;
   }
 }
-
-@media (max-width:380px) {
-  .toggle-btn {
-    width: 100%;
-  }
-}
-
     </style>
   </head>
   <script type="text/javascript">
@@ -343,8 +355,7 @@ window.onresize = onframeresize;
     <section class="no-container">
 
       <div class="toggle-offers">
-        <button value="hw" class="toggle-btn active">Select your Hotspot</button>
-        <button value="os" class="toggle-btn">Hotspot OS only</button>
+        <button value="hw" class="toggle-btn active">Select your Hotspot</button><button value="os" class="toggle-btn">Hotspot OS only</button>
       </div>
 
       <div value="hw" class="offers-intro active">
