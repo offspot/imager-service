@@ -1101,6 +1101,7 @@ class Configuration(models.Model):
     def to_dict(self):
         return collections.OrderedDict(
             [
+                ("id", self.id),
                 ("name", self.name),
                 ("ssid", self.ssid),
                 ("project_name", self.project_name),

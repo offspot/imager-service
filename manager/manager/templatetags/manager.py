@@ -8,7 +8,7 @@ from offspot_config.catalog import app_catalog
 from offspot_config.packages import AppPackage, FilesPackage, Package
 
 from manager.kiwix_library import Book, catalog
-from manager.models import Address, Order, openzim_fixed_ident
+from manager.models import Address, Configuration, Order, openzim_fixed_ident
 from manager.utils import human_readable_size
 
 register = template.Library()
@@ -232,3 +232,13 @@ def has_expired(errors) -> bool:
 
 
 register.filter("has_expired", has_expired)
+
+
+def get_config_name_from(config_id: int) -> str:
+    config = Configuration.get_or_none(config_id)
+    if not config:
+        return "n/a"
+    return config.name
+
+
+register.filter("config_name", get_config_name_from)
