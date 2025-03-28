@@ -30,38 +30,38 @@ urlpatterns = [
     ),
     path("api/json-to-yaml", api.json_to_yaml, name="api_json_to_yaml"),
     # configuration
+    path("configurations/", config.configuration_list, name="configuration_list"),
     path("configurations/new", config.configuration_edit, name="configuration_add"),
     path(
-        "configurations/<int:config_id>/delete",
+        "configurations/<int:config_id>/edit/",  # added trailing slash
+        config.configuration_edit, 
+        name="configuration_edit"
+    ),
+    path(
+        "configurations/<int:config_id>/delete/",
         config.configuration_delete,
-        name="configuration_delete",
+        name="configuration_delete"
     ),
     path(
-        "configurations/<int:config_id>/duplicate",
+        "configurations/<int:config_id>/duplicate/",
         config.configuration_duplicate,
-        name="configuration_duplicate",
-    ),
-    path(
-        "configurations/<int:config_id>",
-        config.configuration_edit,
-        name="configuration_edit",
+        name="configuration_duplicate"
     ),
     path(
         "configurations/<int:config_id>.json",
         config.configuration_export,
-        name="configuration_export",
+        name="configuration_export"
     ),
     path(
         "configurations/<int:config_id>.yaml",
         config.configuration_yaml,
-        name="configuration_yaml",
+        name="configuration_yaml"
     ),
     path(
-        "configurations/<int:config_id>/order",
+        "configurations/<int:config_id>/order/",
         ui.order_config,
-        name="configuration_order",
+        name="configuration_order"
     ),
-    path("configurations/", config.configuration_list, name="configuration_list"),
     # addresses
     path(
         "addresses/<int:address_id>/delete",

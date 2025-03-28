@@ -143,29 +143,32 @@ def configuration_list(request):
     return render(request, "configuration_list.html", context)
 
 
+
 @login_required
 def configuration_edit(request, config_id=None):
     context = {}
+    config = None
 
+    # Get existing config if config_id provided
     if config_id:
         config = Configuration.get_or_none(config_id)
         if config is None:
             raise Http404(_("Configuration not found"))
-
         if config.organization != request.user.profile.organization:
             raise PermissionDenied()
-    else:
-        # new config
-        config = Configuration(
-            organization=request.user.profile.organization,
-            updated_by=request.user.profile,
-        )
-
-    # list of languages availables in all catalogs
-    context["packages_langs"] = catalog.languages
-
+    
+    # For POST requests without config_id, we'll create config during form save
     if request.method == "POST":
+        # If no existing config, create a new instance without saving
+        if not config:
+            config = Configuration(
+                organization=request.user.profile.organization,
+                updated_by=request.user.profile,
+            )
+        
         form = ConfigurationForm(request.POST, request.FILES, instance=config)
+        current_tab = request.POST.get('current_tab', 'general')
+        
         if form.is_valid():
             try:
                 instance = form.save(commit=False)
@@ -176,6 +179,39 @@ def configuration_edit(request, config_id=None):
                     instance.branding_logo = None
                     instance.branding_favicon = None
                 instance.save()
+                config = instance  # Update config reference with saved instance
+
+                if request.POST.get("order-on-success"):
+                    return redirect("configuration_order", config_id=config.id)
+                
+                messages.success(request, _("Configuration Updated successfuly !"))
+                
+                # Handle AJAX requests for tab switching
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    tabs = ['general', 'branding', 'files', 'zims', 'apps']
+                    try:
+                        current_index = tabs.index(current_tab)
+                        if current_index < len(tabs) - 1:
+                            return JsonResponse({
+                                "success": True,
+                                "next_tab": tabs[current_index + 1],
+                                "config_id": config.id
+                            })
+                        else:
+                            return JsonResponse({
+                                "success": True,
+                                "redirect": "list",
+                                "config_id": config.id
+                            })
+                    except ValueError:
+                        return JsonResponse({
+                            "success": True,
+                            "redirect": "list",
+                            "config_id": config.id
+                        })
+                
+                return redirect("configuration_edit", config.id)
+
             except Exception as exp:
                 logger.exception(exp)
                 messages.error(
@@ -187,24 +223,38 @@ def configuration_edit(request, config_id=None):
                     )
                     % {"err": exp},
                 )
-            else:
-                if request.POST.get("order-on-success"):
-                    return redirect("configuration_order", config_id=config.id)
-                messages.success(request, _("Configuration Updated successfuly !"))
-                return redirect("configuration_edit", config.id)
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        "success": False,
+                        "message": str(exp)
+                    })
         else:
-            pass
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    "success": False,
+                    "errors": form.errors
+                })
     else:
+        # For GET requests, create a new unsaved config if none exists
+        if not config:
+            config = Configuration(
+                organization=request.user.profile.organization,
+                updated_by=request.user.profile,
+            )
         form = ConfigurationForm(instance=config)
 
-    context["CATALOG_URL"] = CATALOG_URL
-    context["DEMO_URL"] = "https://library.kiwix.org"
-    context["languages"] = catalog.languages
-    context["app_catalog"] = app_catalog
-    context["form"] = form
-    context["missing_zims"] = config.retrieve_missing_zims()
-    context["config_id"] = config.id
-    context["BETA_FEATURES"] = settings.BETA_FEATURES
+    # Updated the context update format to me more readable
+    context.update({
+        "CATALOG_URL": CATALOG_URL,
+        "DEMO_URL": "https://library.kiwix.org",
+        "languages": catalog.languages,
+        "packages_langs": catalog.languages,
+        "app_catalog": app_catalog,
+        "form": form,
+        "missing_zims": config.retrieve_missing_zims() if config.id else [],
+        "config_id": config.id if config else None,
+        "BETA_FEATURES": settings.BETA_FEATURES,
+    })
 
     return render(request, "configuration_edit.html", context)
 
