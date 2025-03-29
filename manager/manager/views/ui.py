@@ -504,6 +504,45 @@ def address_delete(request, address_id=None):
     return redirect("address_list")
 
 
+# order list hlper function -
+def apply_orders_sorting(queryset, sort_field, sort_dir):
+    """Apply sorting to orders queryset."""
+    order_prefix = '' if sort_dir == 'asc' else '-'
+    if sort_field == 'min_id':
+        return queryset.order_by(f"{order_prefix}id")
+    elif sort_field == 'created_by':
+        return queryset.order_by(f"{order_prefix}created_by__user__first_name")
+    elif sort_field == 'created_on' or sort_field == 'status':
+        return queryset.order_by(f"{order_prefix}{sort_field}")
+    elif sort_field in ('config_name', 'country'):
+        orders_list = list(queryset)
+        if sort_field == 'config_name':
+            orders_list.sort(
+                key=lambda order: str(order.data.get('config', {}).get('name', '')).lower() if order.data else '',
+                reverse=(sort_dir == 'desc')
+            )
+        else:
+            orders_list.sort(
+                key=lambda order: str((order.data.get('recipient', {}) or {}).get('country', '')).lower() if order.data else '',
+                reverse=(sort_dir == 'desc')
+            )
+        if orders_list:
+            from django.db.models import Case, When, Value, IntegerField
+            preserved_order = [order.id for order in orders_list]
+            preserved_order_cases = [
+                When(id=id, then=Value(i)) 
+                for i, id in enumerate(preserved_order)
+            ]
+            return Order.objects.filter(
+                id__in=preserved_order
+            ).order_by(
+                Case(*preserved_order_cases, output_field=IntegerField())
+            )
+        return Order.objects.none()
+    else:
+        return queryset.order_by('-created_on')
+
+
 @login_required
 def order_list(request):
     # query args
@@ -513,19 +552,24 @@ def order_list(request):
         if request.GET.get("only") in Order.STATUSES.keys()
         else Order.IN_PROGRESS
     )
+    # Get sort parameters
+    sort_field = request.GET.get("sort", "created_on")
+    sort_dir = request.GET.get("dir", "desc")
 
     filtered_orders = Order.objects.filter(
         organization=request.user.profile.organization, status=order_filter
     )
+    # Apply sorting using helper function
+    filtered_orders = apply_orders_sorting(filtered_orders, sort_field, sort_dir)
     paginator = Paginator(filtered_orders, NB_ORDERS_PER_PAGE)
     orders_page = paginator.get_page(page)
-
     context = {
         "order_filter": order_filter,
         "orders_page": orders_page,
         "orders": orders_page.object_list,
+        "sort_field": sort_field,
+        "sort_dir": sort_dir,
     }
-
     return render(request, "order_list.html", context)
 
 
