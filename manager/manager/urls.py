@@ -164,6 +164,11 @@ urlpatterns = [
         scheduler.image_delete,
         name="scheduler_delete_image",
     ),
+    path(
+        "scheduler/bulk_recreate_images",
+        scheduler.bulk_recreate_autoimages,
+        name="scheduler_bulk_recreate_images",
+    ),
     path("scheduler/refresh", scheduler.refresh_token, name="scheduler-refresh"),
     path("scheduler/", scheduler.dashboard, name="scheduler"),
     # basics

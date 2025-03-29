@@ -1,15 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
-
-from flask import Blueprint, request, jsonify
-
+from flask import Blueprint, jsonify, request
 from utils.mongo import Users
-from . import (
-    authenticate,
-    ensure_user_matches_role,
-)
 
+from routes import authenticate, ensure_user_matches_role
 
 blueprint = Blueprint("home", __name__, url_prefix="")
 

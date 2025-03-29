@@ -1,27 +1,24 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
 
-import os
-import logging
 import datetime
-import subprocess
+import logging
+import os
 
-import requests
 import humanfriendly
-
+import requests
 from emailing import send_order_failed_email
-from utils.mongo import Orders, Tasks, AutoImages
-from utils.templates import (
-    get_public_download_url,
-    get_public_download_torrent_url,
-    get_magnet_for_torrent,
-)
 from routes.orders import create_order_from
+from utils.mongo import AutoImages, Orders, Tasks
+from utils.templates import (
+    get_magnet_for_torrent,
+    get_public_download_torrent_url,
+    get_public_download_url,
+)
 
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org/api")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
 DISABLE_PERIODIC_TASKS = bool(os.getenv("DISABLE_PERIODIC_TASKS", "") == "y")
+RECREATE_AUTO_MONTHLY = bool(os.getenv("RECREATE_AUTO_MONTHLY", "") == "y")
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -125,7 +122,7 @@ def check_autoimages():
                 http_url=get_public_download_url(order),
                 torrent_url=torrent_url,
                 magnet_url=get_magnet_for_torrent(torrent_url),
-                expire_on=get_next_month(),
+                expire_on=get_next_month() if RECREATE_AUTO_MONTHLY else None,
             )
             continue
 

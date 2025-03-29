@@ -1,17 +1,19 @@
 <html>
+<style type="text/css">body, * { font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif; }</style>
 <body>
 <center style="width:100%; background-color:#ffffff">
 <div style="background-color: white; width:100%; max-width: 600px;text-align: left;">
 <table border="0" cellpadding="0" cellspacing="4" style="width: 100%">
-<tr><td style="width: 120px; background-color: white;"><img src="https://imager.kiwix.org/static/img/kiwix-icon.png" width="120" height="120" alt="Kiwix logo" /></td>
-    <td style="text-align: right;"><h2 style="color:#ccc;">Receipt</h2></td></tr>
+    <tr><td colspan="2" class="text-align: left; background-color: white;"><img style="padding-top: 30px; padding-bottom: 50px; height: 26px;" src="https://raw.githubusercontent.com/kiwix/overview/main/branding/kiwix/horizontal-logo-light.png" alt="Kiwix logo" /></td></tr>
+    <tr><td></td>
+    <td style="text-align: right; vertical-align: middle;"><h2 style="color:#ccc; padding:0; margin: 0; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Receipt</h2></td></tr>
 </table>
-<p>{{ timestamp|date }},</p>
-<p>Thank you for your purchase!</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">{{ timestamp|date }}</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Thank you for your purchase.</p>
 <p>&nbsp;</p>
 {% block content %}{% endblock %}
 <hr style="border: 0; height: 1px; background: #ccc;" />
-<p style="color:#ccc;">This is an automated message. Please do not reply.<br />
+<p style="color:#ccc; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">This is an automated message. Please do not reply.<br />
 Association Kiwix, Avenue des Acacias 7, 1006 Lausanne, Switzerland.</p>
 </div>
 </center>

@@ -1,21 +1,21 @@
 {% extends "stripe/email_base.html" %}
 {% block content %}
 <table border="0" cellpadding="0" cellspacing="4" style="width: 100%">
-<tr><th style="text-transform: uppercase; color: #ccc; text-align: left;">Product</th>
-    <th style="text-transform: uppercase; color: #ccc; text-align: right;">Amount</th></tr>
-    <td style="width: 70%">{{ product_name }}</td>
-    <td style="text-align: right;"><strong>USD {{ price|amount }}</strong></td></tr>
+<tr><th style="text-transform: uppercase; color: #ccc; text-align: left; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Product</th>
+    <th style="text-transform: uppercase; color: #ccc; text-align: right; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Amount</th></tr>
+    <td style="width: 70%; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">{{ product_name }}</td>
+    <td style="text-align: right; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;"><strong>USD {{ price|amount }}</strong></td></tr>
 </table>
 
-<p style="text-align: center;">
-    <a href="{{ http_url }}" alt="Download image file" style="background-color: #fd8a31; border: 0; color: white; font-weight: 600; font-size: 1.5rem; border-radius: 1.5rem; padding: .5rem 3rem; cursor: pointer; text-decoration: none;">Download</a>
+<p style="text-align: center; font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">
+    <a href="{{ http_url }}" alt="Download image file" style="background-color: #fd8a31; border: 0; color: white; font-weight: 600; font-size: 1.5rem; border-radius: 1.5rem; padding: .5rem 3rem; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 1rem;">Download</a>
     <span style="display: inline-block; width: 3rem;">&nbsp;</span>
-    <a href="{{ torrent_url }}" alt="Download image file via torrent" style="background-color: #4cb5e2; border: 0; color: white; font-weight: 600; font-size: 1.5rem; border-radius: 1.5rem; padding: .5rem 3rem; cursor: pointer; text-decoration: none;">Get Torrent</a>
+    <a href="{{ torrent_url }}" alt="Download image file via torrent" style="background-color: #4cb5e2; border: 0; color: white; font-weight: 600; font-size: 1.5rem; border-radius: 1.5rem; padding: .5rem 3rem; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 1rem;">Get Torrent</a>
 </p>
 
-<h2>Using your hotspot</h2>
-<p>Once the image has been downloaded, flash it onto a microSD card (we recommend <a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a>, but any such tool will do).</p>
-<p>Insert the card into your Raspberry Pi (either 3B+, 4, 400, 5 or 500; the zero 2W is not supported yet), plug it in, and wait for approximately 1-2 minutes during the first boot-up process until you see the network status display <em>Kiwix Hotspot</em> in your wifi settings.</p>
-<p>Connect to it and a captive portal should appear after a few seconds. If not, then open <a href="http://goto.kiwix.hotspot">http://goto.kiwix.hotspot</a> in your favourite browser.</p>
-<p>Enjoy!</p>
+<h2 style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Using your hotspot</h2>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Once the image has been downloaded, flash it onto a microSD card (we recommend <a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a>, but any such tool will do).</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Insert the card into your Raspberry Pi (either 3B+, 4, 400, 5 or 500; the zero 2W is not supported yet), plug it in, and wait for approximately 1-2 minutes during the first boot-up process until you see the network status display <em>Kiwix Hotspot</em> in your wifi settings.</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Connect to it and a captive portal should appear after a few seconds. If not, then open <a href="http://goto.kiwix.hotspot">http://goto.kiwix.hotspot</a> in your favourite browser.</p>
+<p style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">Enjoy!</p>
 {% endblock %}

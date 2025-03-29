@@ -24,6 +24,7 @@ ROLES = {
 }
 logger = logging.getLogger(__name__)
 
+
 class Tokens:
     access = ""
     access_expiry = datetime.datetime(1970, 1, 1)
@@ -72,7 +73,7 @@ def authenticate(*, force=False):
 
     try:
         access_token, refresh_token = get_token(username=USERNAME, password=PASSWORD)
-    except Exception as exc:
+    except Exception:
         Tokens.reset()
     else:
         now = datetime.datetime.now()

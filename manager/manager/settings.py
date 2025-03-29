@@ -223,7 +223,7 @@ LANGUAGES = [
     ("fr", _lz("French")),
 ]
 
-BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL", "1.2.1")
+BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL", "1.3.1")
 BASE_IMAGE_ROOTFS_SIZE = int(os.getenv("BASE_IMAGE_ROOTFS_SIZE", "2663383040"))
 OFFSPOT_TLD = os.getenv("OFFSPOT_TLD", "hotspot")
 # should utilmately be supported by offspot-config
@@ -239,7 +239,7 @@ KIWIX_READERS_SOURCES = {
     "windows": "https://download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.4.1.zip",
     "android": "https://mirror.download.kiwix.org/release/kiwix-android/"
     "org.kiwix.kiwixmobile.standalone-3.14.0.apk",
-    "macos": "https://download.kiwix.org/release/kiwix-macos/kiwix-macos_3.7.1.dmg",
+    "macos": "https://download.kiwix.org/release/kiwix-macos/kiwix-macos_3.8.0.dmg",
     "linux": "https://download.kiwix.org/release/kiwix-desktop/"
     + "kiwix-desktop_x86_64_2.3.1-4.appimage",
 }

@@ -160,8 +160,9 @@
 </form>
 
 <h3>{% blocktrans %}Auto Images{% endblocktrans %}</h3>
-<p class="info">{% blocktrans %}Auto Images are automatically recreated monthly{% endblocktrans %}</p>
+<p class="info">{% blocktrans %}Auto Images are now manually triggered{% endblocktrans %}</p>
 {% if images %}
+<form id="bulk-autoimages" class="form-check form-check-inline" action="{% url 'scheduler_bulk_recreate_images' %}" method="POST">{% csrf_token %}<button class="btn btn-primary form-check-input form-control">{% blocktrans %}Re-create all images{% endblocktrans %}</button></form>
 <table class="table table-bordered table-striped">
 	<tr>
 		<th>{% blocktrans %}ID{% endblocktrans %}</th>
@@ -170,7 +171,7 @@
 		<th>{% blocktrans %}Expire On{% endblocktrans %}</th>
 		<th>{% blocktrans %}Private{% endblocktrans %}</th>
 		<th>{% blocktrans %}URL{% endblocktrans %}</th>
-		<th>{% blocktrans %}Order{% endblocktrans %}</th>
+		<th>{% blocktrans %}Config & Order{% endblocktrans %}</th>
 		<th>{% blocktrans %}Delete{% endblocktrans %}</th>
 	</tr>
 	{% for image in images %}
@@ -178,7 +179,7 @@
 		<th><code>{{image.slug }}</code> {{ image.config.size }}</th>
 		<td>{{ image.contact_email }}</td>
 		<td>{{ image.status }}</td>
-		<td>{{ image.expire_on }}</td>
+		<td>{{ image.expire_on|default:"Never" }}</td>
 		<td>{{ image.private|yesno }}</td>
 		<td>{% if image.http_url %}
 			<ul>
@@ -188,7 +189,7 @@
 			{% if not image.private %}<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/redirect/http" target="_blank">{% blocktrans %}redirect{% endblocktrans %}</a></li>{% endif %}
 			</ul>
 			{% else %}{% blocktrans %}n/a{% endblocktrans %}{% endif %}</td>
-		<td>{% if image.order %}<a href="{% url "all-orders-detail" order_id=image.order %}">{{ image.order|short_id }}</a>{% else %}{% blocktrans %}n/a{% endblocktrans %}{% endif %}</td>
+		<td><a href="{% url 'configuration_edit' config_id=image.config.id %}" target="_blank">{{ image.config.id|config_name }}</a><br /><br />{% if image.order %}<a href="{% url "all-orders-detail" order_id=image.order %}">{{ image.order|short_id }}</a>{% else %}{% blocktrans %}n/a{% endblocktrans %}{% endif %}</td>
 		<td><a data-toggle="confirmation" data-title="Delete {{ image.slug }} ?" class="btn btn-sm btn-danger" href="{% url "scheduler_delete_image" image.slug %}">{% blocktrans %}delete{% endblocktrans %}</a></td>
 	</tr>
 	{% endfor %}
@@ -239,5 +240,12 @@
 				return false;
 			}
 			event.currentTarget.submit();
+		});
+		$('#bulk-autoimages').on('submit', function (event) {
+			event.preventDefault();
+			if (confirm(`This will trigger the update all auto-images.\nPlease confirm you want to do it now.`)) {
+				event.currentTarget.submit();
+			}
+			return false;
 		});
 {% endblock %}

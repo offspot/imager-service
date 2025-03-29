@@ -530,7 +530,7 @@ def save_branding_file(branding_file):
     return fname
 
 
-def parse_json_config(cls, config, dont_store_branding: bool = False):
+def parse_json_config(cls, config, *, dont_store_branding: bool = False):
     # only packages IDs which are in the catalogs
     zims_list = get_list_if_values_match(
         get_nested_key(config, ["content", "zims"]), list(catalog.get_all_ids())
@@ -1101,6 +1101,7 @@ class Configuration(models.Model):
     def to_dict(self):
         return collections.OrderedDict(
             [
+                ("id", self.id),
                 ("name", self.name),
                 ("ssid", self.ssid),
                 ("project_name", self.project_name),

@@ -1,20 +1,16 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim: ai ts=4 sts=4 et sw=4 nu
-
-import re
-import os
-import io
 import base64
+import io
 import logging
+import os
+import re
 import tempfile
 import urllib.parse
 
-import torf
-import qrcode
-import requests
 import langcodes
 import pycountry
+import qrcode
+import requests
+import torf
 from jinja2 import Markup
 from qrcode.image.pure import PymagingImage
 

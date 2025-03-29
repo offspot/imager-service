@@ -214,7 +214,6 @@ class ImageForm(SchedulerForm):
     def save(self):
         if not self.is_valid():
             raise ValueError(_("%(class)s is not valid") % {"class": type(self)})
-
         images = as_items_or_none(*get_autoimages_list())
         existing_slugs = [img["slug"] for img in images] if images else []
         self.is_update = self.cleaned_data.get("slug") in existing_slugs
@@ -297,6 +296,49 @@ def dashboard(request):
         )
 
     return render(request, "scheduler.html", context)
+
+
+@staff_required
+def bulk_recreate_autoimages(request):
+    images = as_items_or_none(*get_autoimages_list()) or None
+    if not images:
+        return messages.warning(request, "No auto-image to re-create.")
+    images = list(images)
+
+    forms = {
+        image["slug"]: ImageForm(
+            {
+                "slug": image["slug"],
+                "config": image["config"]["id"],
+                "contact_email": image["contact_email"],
+                "periodicity": image["periodicity"],
+                "warehouse": image["warehouse"],
+                "channel": image["channel"],
+                "private": image["private"],
+            },
+            client=request.user.profile,
+        )
+        for image in images
+    }
+
+    messages.info(
+        request, f"Bulk updating {len(forms)} auto-images: {', '.join(forms.keys())}…"
+    )
+
+    for slug, form in forms.items():
+        if not form.is_valid():
+            messages.error(
+                request, f"{slug} form data is invalid. Update image manually"
+            )
+            continue
+        try:
+            res = form.save()
+        except Exception as exp:
+            logger.error(exp)
+            messages.error(request, _("Error while saving… %(err)s") % {"err": exp})
+        else:
+            messages.success(request, form.success_message(res))
+    return redirect("scheduler")
 
 
 @staff_required

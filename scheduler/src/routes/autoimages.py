@@ -1,13 +1,11 @@
 import pymongo
 from bson import ObjectId
-from flask import Blueprint, request, jsonify, Response, redirect as flask_redirect
-from jsonschema import validate, ValidationError
-
-# from werkzeug.exceptions import NotFound
-
+from flask import Blueprint, Response, jsonify, request
+from flask import redirect as flask_redirect
+from jsonschema import ValidationError, validate
 from utils.mongo import AutoImages, Users
-from . import authenticate, errors, ensure_user_matches_role
 
+from routes import authenticate, ensure_user_matches_role, errors
 
 blueprint = Blueprint("autoimage", __name__, url_prefix="/auto-images")
 
