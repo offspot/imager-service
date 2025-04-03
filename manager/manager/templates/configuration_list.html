@@ -18,9 +18,9 @@
         <tr>
             <th>{% sort_header request 'name' 'Name' sort_field sort_dir %}</th>
             <th>{% sort_header request 'size' 'Size' sort_field sort_dir %}</th>
-            <th class="no-wrap">{% sort_header request 'min_media' 'SD Size (min)' sort_field sort_dir %}</th>
-            <th class="no-wrap">{% sort_header request 'updated_by' 'Updated By' sort_field sort_dir %}</th>
-            <th class="no-wrap">{% sort_header request 'updated_on' 'Updated On' sort_field sort_dir %}</th>
+            <th style="white-space: nowrap;">{% sort_header request 'min_media' 'SD Size (min)' sort_field sort_dir %}</th>
+            <th style="white-space: nowrap;">{% sort_header request 'updated_by' 'Updated By' sort_field sort_dir %}</th>
+            <th style="white-space: nowrap;">{% sort_header request 'updated_on' 'Updated On' sort_field sort_dir %}</th>
             <th>{% blocktrans %}Export{% endblocktrans %}</th>
             <th>{% blocktrans %}Duplicate{% endblocktrans %}</th>
             <th>{% blocktrans %}Delete{% endblocktrans %}</th>
