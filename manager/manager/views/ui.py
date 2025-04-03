@@ -505,20 +505,21 @@ def address_delete(request, address_id=None):
     return redirect("address_list")
 
 
-# get the config name key for sorting
-def get_config_name_key(order):
-    return (
-        str(order.data.get("config", {}).get("name", "")).lower() if order.data else ""
-    )
-
-
-# get the recipient country key for sorting
-def get_recipient_country_key(order):
-    return (
-        str((order.data.get("recipient", {}) or {}).get("country", "")).lower()
-        if order.data
-        else ""
-    )
+# get the sort key for sorting
+def get_sort_key(order, sort_field):
+    if sort_field == "config_name":
+        return (
+            str(order.data.get("config", {}).get("name", "")).lower()
+            if order.data
+            else ""
+        )
+    elif sort_field == "country":
+        return (
+            str(order.data.get("recipient", {}).get("country", "")).lower()
+            if order.data
+            else ""
+        )
+    return ""
 
 
 # Order list helper function
@@ -533,11 +534,10 @@ def apply_orders_sorting(queryset, sort_field, sort_dir):
         return queryset.order_by(f"{order_prefix}{sort_field}")
     elif sort_field in ("config_name", "country"):
         orders_list = list(queryset.only("scheduler_data"))
-        if sort_field == "config_name":
-            key_fn = get_config_name_key
-        else:
-            key_fn = get_recipient_country_key
-        orders_list.sort(key=key_fn, reverse=(sort_dir == "desc"))
+        orders_list.sort(
+            key=lambda order: get_sort_key(order, sort_field),
+            reverse=(sort_dir == "desc"),
+        )
         if orders_list:
             preserved_order_cases = [
                 When(id=order.id, then=Value(order_index))
