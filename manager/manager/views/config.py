@@ -98,7 +98,7 @@ def configuration_list(request):
         filtered_configurations = filtered_configurations.filter(
             updated_by=request.user.profile
         )
-    filtered_configurations = apply_sorting(
+    filtered_configurations = apply_config_sorting(
         filtered_configurations, sort_field, sort_dir
     )
     paginator = Paginator(filtered_configurations, NB_CONFIGURATIONS_PER_PAGE)
@@ -145,7 +145,7 @@ def configuration_list(request):
 
 
 # sorting function for configurations
-def apply_sorting(queryset, sort_field, sort_dir):
+def apply_config_sorting(queryset, sort_field, sort_dir):
     """Apply sorting to configuration queryset."""
     order_prefix = "" if sort_dir == "asc" else "-"
     if sort_field == "name":

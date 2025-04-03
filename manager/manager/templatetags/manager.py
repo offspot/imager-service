@@ -237,20 +237,21 @@ register.filter("has_expired", has_expired)
 def update_query_params(request, field, value):
     """Updates query parameter in the current URL without duplicating parameters."""
     query_params = request.GET.copy()
-    current_sort = request.GET.get('sort')
+    current_sort = request.GET.get("sort")
     query_params[field] = value
-    if field == 'sort':
-        query_params.pop('dir', None)
-        if value in ['updated_on', 'created_on'] and not current_sort:
-            query_params['dir'] = 'asc'
+    if field == "sort":
+        query_params.pop("dir", None)
+        if value in ["updated_on", "created_on"] and not current_sort:
+            query_params["dir"] = "asc"
         elif value == current_sort:
-            current_dir = request.GET.get('dir')
-            query_params['dir'] = 'asc' if current_dir == 'desc' else 'desc'
+            current_dir = request.GET.get("dir")
+            query_params["dir"] = "asc" if current_dir == "desc" else "desc"
         else:
-            query_params['dir'] = 'desc'
-    if 'all' in request.GET:
-        query_params['all'] = request.GET['all']
+            query_params["dir"] = "desc"
+    if "all" in request.GET:
+        query_params["all"] = request.GET["all"]
     return query_params.urlencode()
+
 
 @register.inclusion_tag("_sort_header.html")
 def sort_header(request, field_name, display_name, sort_field, sort_dir):

@@ -15,9 +15,9 @@
 	<thead><tr>
 		<th>{% sort_header request 'min_id' 'ID' sort_field sort_dir %}</th>
 		<th>{% sort_header request 'config_name' 'Name' sort_field sort_dir %}</th>
-		<th>{% sort_header request 'country' 'Country&nbsp;' sort_field sort_dir %}</th>
-		<th>{% sort_header request 'created_by' 'Created&nbsp;By' sort_field sort_dir %}</th>
-		<th>{% sort_header request 'created_on' 'Created&nbsp;On' sort_field sort_dir %}</th>
+		<th>{% sort_header request 'country' 'Country' sort_field sort_dir %}</th>
+		<th class="no-wrap">{% sort_header request 'created_by' 'Created By' sort_field sort_dir %}</th>
+		<th class="no-wrap">{% sort_header request 'created_on' 'Created On' sort_field sort_dir %}</th>
 		<th>{% blocktrans %}Status{% endblocktrans %}</th>
 	</tr></thead>
 	<tbody>

@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
+from django.db.models import Case, When, Value, IntegerField
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.template import loader
@@ -504,43 +505,50 @@ def address_delete(request, address_id=None):
     return redirect("address_list")
 
 
-# order list hlper function -
+# get the config name key for sorting
+def get_config_name_key(order):
+    return (
+        str(order.data.get("config", {}).get("name", "")).lower() if order.data else ""
+    )
+
+
+# get the recipient country key for sorting
+def get_recipient_country_key(order):
+    return (
+        str((order.data.get("recipient", {}) or {}).get("country", "")).lower()
+        if order.data
+        else ""
+    )
+
+
+# Order list helper function
 def apply_orders_sorting(queryset, sort_field, sort_dir):
     """Apply sorting to orders queryset."""
-    order_prefix = '' if sort_dir == 'asc' else '-'
-    if sort_field == 'min_id':
+    order_prefix = "" if sort_dir == "asc" else "-"
+    if sort_field == "min_id":
         return queryset.order_by(f"{order_prefix}id")
-    elif sort_field == 'created_by':
+    elif sort_field == "created_by":
         return queryset.order_by(f"{order_prefix}created_by__user__first_name")
-    elif sort_field == 'created_on' or sort_field == 'status':
+    elif sort_field == "created_on" or sort_field == "status":
         return queryset.order_by(f"{order_prefix}{sort_field}")
-    elif sort_field in ('config_name', 'country'):
-        orders_list = list(queryset)
-        if sort_field == 'config_name':
-            orders_list.sort(
-                key=lambda order: str(order.data.get('config', {}).get('name', '')).lower() if order.data else '',
-                reverse=(sort_dir == 'desc')
-            )
+    elif sort_field in ("config_name", "country"):
+        orders_list = list(queryset.only("scheduler_data"))
+        if sort_field == "config_name":
+            key_fn = get_config_name_key
         else:
-            orders_list.sort(
-                key=lambda order: str((order.data.get('recipient', {}) or {}).get('country', '')).lower() if order.data else '',
-                reverse=(sort_dir == 'desc')
-            )
+            key_fn = get_recipient_country_key
+        orders_list.sort(key=key_fn, reverse=(sort_dir == "desc"))
         if orders_list:
-            from django.db.models import Case, When, Value, IntegerField
-            preserved_order = [order.id for order in orders_list]
             preserved_order_cases = [
-                When(id=id, then=Value(i)) 
-                for i, id in enumerate(preserved_order)
+                When(id=order.id, then=Value(order_index))
+                for order_index, order in enumerate(orders_list)
             ]
-            return Order.objects.filter(
-                id__in=preserved_order
-            ).order_by(
+            return queryset.filter(id__in=[order.id for order in orders_list]).order_by(
                 Case(*preserved_order_cases, output_field=IntegerField())
             )
         return Order.objects.none()
     else:
-        return queryset.order_by('-created_on')
+        return queryset.order_by("-created_on")
 
 
 @login_required
