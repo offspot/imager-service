@@ -89,24 +89,27 @@ def handle_uploaded_json(fd):
 def configuration_list(request):
     page = request.GET.get("page")
     config_filter = bool(request.GET.get("all", False) == "yes")
+    sort_field = request.GET.get("sort", "updated_on")
+    sort_dir = request.GET.get("dir", "desc")
     filtered_configurations = Configuration.objects.filter(
         organization=request.user.profile.organization
     )
-
     if not config_filter:
         filtered_configurations = filtered_configurations.filter(
             updated_by=request.user.profile
         )
-
+    filtered_configurations = apply_config_sorting(
+        filtered_configurations, sort_field, sort_dir
+    )
     paginator = Paginator(filtered_configurations, NB_CONFIGURATIONS_PER_PAGE)
     configurations_page = paginator.get_page(page)
-
     context = {
         "configurations": configurations_page.object_list,
         "configurations_page": configurations_page,
         "config_filter": config_filter,
+        "sort_field": sort_field,
+        "sort_dir": sort_dir,
     }
-
     if request.method == "POST":
         form = JSONUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -137,10 +140,23 @@ def configuration_list(request):
             pass
     else:
         form = JSONUploadForm()
-
     context["form"] = form
-
     return render(request, "configuration_list.html", context)
+
+
+# sorting function for configurations
+def apply_config_sorting(queryset, sort_field, sort_dir):
+    """Apply sorting to configuration queryset."""
+    order_prefix = "" if sort_dir == "asc" else "-"
+    if sort_field == "name":
+        return queryset.order_by(f"{order_prefix}name")
+    elif sort_field == "updated_by":
+        return queryset.order_by(f"{order_prefix}updated_by__user__first_name")
+    elif sort_field in ("size", "min_media", "updated_on"):
+        sort_field = "size" if sort_field == "min_media" else sort_field
+        return queryset.order_by(f"{order_prefix}{sort_field}")
+    else:
+        return queryset.order_by("-updated_on")
 
 
 @login_required

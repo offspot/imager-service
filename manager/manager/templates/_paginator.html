@@ -3,8 +3,8 @@
 <div class="pagination">
     <span class="step-links">
         {% if items_page.has_previous %}
-            <a href="?{{ filter_name }}={{ filter_value }}&page=1">{% blocktrans %}&laquo; first{% endblocktrans %}</a>
-            <a href="?{{ filter_name }}={{ filter_value }}&page={{ items_page.previous_page_number }}">{% blocktrans %}previous{% endblocktrans %}</a>
+            <a href="?{{ filter_name }}={{ filter_value }}&page=1{% include '_sorting_params.html' %}">{% blocktrans %}&laquo; first{% endblocktrans %}</a>
+            <a href="?{{ filter_name }}={{ filter_value }}&page={{ items_page.previous_page_number }}{% include '_sorting_params.html' %}">{% blocktrans %}previous{% endblocktrans %}</a>
         {% endif %}
 
         <span class="current">
@@ -12,8 +12,8 @@
         </span>
 
         {% if items_page.has_next %}
-            <a href="?{{ filter_name }}={{ filter_value }}&page={{ items_page.next_page_number }}">{% blocktrans %}next{% endblocktrans %}</a>
-            <a href="?{{ filter_name }}={{ filter_value }}&page={{ items_page.paginator.num_pages }}">{% blocktrans %}last &raquo;{% endblocktrans %}</a>
+            <a href="?{{ filter_name }}={{ filter_value }}&page={{ items_page.next_page_number }}{% include '_sorting_params.html' %}">{% blocktrans %}next{% endblocktrans %}</a>
+            <a href="?{{ filter_name }}={{ filter_value }}&page={{ items_page.paginator.num_pages }}{% include '_sorting_params.html' %}">{% blocktrans %}last &raquo;{% endblocktrans %}</a>
         {% endif %}
     </span>
 </div>
