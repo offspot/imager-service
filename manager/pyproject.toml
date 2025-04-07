@@ -19,22 +19,22 @@ classifiers = [
 ]
 dependencies = [
   "Django==5.0.14",
-  "requests==2.31.0",
+  "requests==2.32.3",
   "werkzeug>=3.0.1",
-  "iso639-lang==2.2.3",
-  "xmltodict==0.13.0",
-  "Babel==2.14.0",
-  "phonenumbers==8.13.30",
+  "iso639-lang==2.6.0",
+  "xmltodict==0.13.0", # offspot-config blocking 0.14.2
+  "Babel==2.17.0",
+  "phonenumbers==9.0.2",
   "Pillow==11.1.0",
-  "pycountry==23.12.11",
+  "pycountry==24.6.1",
   "python-magic==0.4.27",
   "humanfriendly==10.0",
-  "ansi2html==1.9.1",
-  "mysqlclient==2.2.4",
+  "ansi2html==1.9.2",
+  "mysqlclient==2.2.7",
   "offspot-config==2.5.3",
   # "offspot-config@git+https://github.com/offspot/offspot-config#egg=main",
-  "PyYAML==6.0.1",
-  "python-dateutil==2.8.2",
+  "PyYAML==6.0.1",  # offspot-config blocking 6.0.2
+  "python-dateutil==2.9.0.post0",
 ]
 version = "2.0.0.dev0"
 
@@ -43,20 +43,20 @@ scripts = [
   "invoke==2.2.0",
 ]
 lint = [
-  "black==24.1.1",
-  "ruff==0.1.15",
+  "black==25.1.0",
+  "ruff==0.11.4",
 ]
 check = [
-  "pyright==1.1.349",
+  "pyright==1.1.398",
 ]
 test = [
-  "pytest==8.0.0",
-  "coverage==7.4.1",
+  "pytest==8.3.5",
+  "coverage==7.8.0",
 ]
 dev = [
-  "pre-commit==3.5.0",
-  "debugpy==1.8.0",
-  "ipython==8.20.0",
+  "pre-commit==4.2.0",
+  "debugpy==1.8.13",
+  "ipython==9.1.0",
   "manager[scripts]",
   "manager[lint]",
   "manager[test]",
