@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
+from django.db.models import Case, When, Value, IntegerField
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.template import loader
@@ -504,6 +505,52 @@ def address_delete(request, address_id=None):
     return redirect("address_list")
 
 
+# get the sort key for sorting
+def get_sort_key(order, sort_field):
+    if sort_field == "config_name":
+        return (
+            str(order.data.get("config", {}).get("name", "")).lower()
+            if order.data
+            else ""
+        )
+    elif sort_field == "country":
+        return (
+            str(order.data.get("recipient", {}).get("country", "")).lower()
+            if order.data
+            else ""
+        )
+    return ""
+
+
+# Order list helper function
+def apply_orders_sorting(queryset, sort_field, sort_dir):
+    """Apply sorting to orders queryset."""
+    order_prefix = "" if sort_dir == "asc" else "-"
+    if sort_field == "min_id":
+        return queryset.order_by(f"{order_prefix}id")
+    elif sort_field == "created_by":
+        return queryset.order_by(f"{order_prefix}created_by__user__first_name")
+    elif sort_field == "created_on" or sort_field == "status":
+        return queryset.order_by(f"{order_prefix}{sort_field}")
+    elif sort_field in ("config_name", "country"):
+        orders_list = list(queryset.only("scheduler_data"))
+        orders_list.sort(
+            key=lambda order: get_sort_key(order, sort_field),
+            reverse=(sort_dir == "desc"),
+        )
+        if orders_list:
+            preserved_order_cases = [
+                When(id=order.id, then=Value(order_index))
+                for order_index, order in enumerate(orders_list)
+            ]
+            return queryset.filter(id__in=[order.id for order in orders_list]).order_by(
+                Case(*preserved_order_cases, output_field=IntegerField())
+            )
+        return Order.objects.none()
+    else:
+        return queryset.order_by("-created_on")
+
+
 @login_required
 def order_list(request):
     # query args
@@ -513,19 +560,24 @@ def order_list(request):
         if request.GET.get("only") in Order.STATUSES.keys()
         else Order.IN_PROGRESS
     )
+    # Get sort parameters
+    sort_field = request.GET.get("sort", "created_on")
+    sort_dir = request.GET.get("dir", "desc")
 
     filtered_orders = Order.objects.filter(
         organization=request.user.profile.organization, status=order_filter
     )
+    # Apply sorting using helper function
+    filtered_orders = apply_orders_sorting(filtered_orders, sort_field, sort_dir)
     paginator = Paginator(filtered_orders, NB_ORDERS_PER_PAGE)
     orders_page = paginator.get_page(page)
-
     context = {
         "order_filter": order_filter,
         "orders_page": orders_page,
         "orders": orders_page.object_list,
+        "sort_field": sort_field,
+        "sort_dir": sort_dir,
     }
-
     return render(request, "order_list.html", context)
 
 

@@ -1,0 +1,7 @@
+{% load manager %}
+<a href="?{% update_query_params request 'sort' field_name %}" class="text-dark d-flex align-items-center">
+    <span>{{ display_name }} </span>
+    {% if sort_field == field_name %}
+        <small style="margin-left: 0.25rem;">{% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}</small>
+    {% endif %}
+</a>
