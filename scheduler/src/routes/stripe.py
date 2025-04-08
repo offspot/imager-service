@@ -541,6 +541,7 @@ def create_checkout_session():
             customer_email=email if customer is None else None,
             customer_creation="always",
             metadata={"name": name, "product": product, "mode": mode, "price": price},
+            allow_promotion_codes=True,
             **tax_details,
             **shipping_details,
         )
