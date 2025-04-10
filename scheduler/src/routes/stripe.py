@@ -246,7 +246,9 @@ def send_paid_order_email(
 
 
 def get_order_kind_for(product):
-    if product.startswith("wikipedia-") or product in (
+    if product.endswith("-h1"):
+        return "device"
+    elif product.startswith("wikipedia-") or product in (
         "preppers",
         "computers",
         "ted",
@@ -255,8 +257,6 @@ def get_order_kind_for(product):
         return "image"
     elif product.startswith("access"):
         return "access"
-    elif product.endswith("-h1"):
-        return "device"
 
     return "unknown"
 
