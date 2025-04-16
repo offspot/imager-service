@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
     <link rel='stylesheet' id='et-builder-googlefonts-cached-css'  href='https://fonts.googleapis.com/css?family=Quicksand:300,regular,500,600,700&#038;subset=latin,latin-ext&#038;display=swap' type='text/css' media='all' />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.7.0/css/all.css" crossorigin="anonymous">
     <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch,formdata"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <style type="text/css">
@@ -19,9 +20,18 @@ body {
 }
 .loader { display: none; color: #ff9933; }
 
+a.external {
+  color: #ff9933 !important;
+  font-weight: 600;
+  padding-right: 1.1rem;
+  background-size: .8rem;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtMzIwIDBjLTE3LjcgMC0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJoODIuN2wtMjAxLjMgMjAxLjRjLTEyLjUgMTIuNS0xMi41IDMyLjggMCA0NS4zczMyLjggMTIuNSA0NS4zIDBsMjAxLjMtMjAxLjR2ODIuN2MwIDE3LjcgMTQuMyAzMiAzMiAzMnMzMi0xNC4zIDMyLTMydi0xNjBjMC0xNy43LTE0LjMtMzItMzItMzJ6bS0yNDAgMzJjLTQ0LjIgMC04MCAzNS44LTgwIDgwdjMyMGMwIDQ0LjIgMzUuOCA4MCA4MCA4MGgzMjBjNDQuMiAwIDgwLTM1LjggODAtODB2LTExMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMnYxMTJjMCA4LjgtNy4yIDE2LTE2IDE2aC0zMjBjLTguOCAwLTE2LTcuMi0xNi0xNnYtMzIwYzAtOC44IDcuMi0xNiAxNi0xNmgxMTJjMTcuNyAwIDMyLTE0LjMgMzItMzJzLTE0LjMtMzItMzItMzJ6IiBmaWxsPSIjZjkzIi8+PC9zdmc+");
+  background-position: center right;
+  background-repeat: no-repeat;
+}
+
 .table-offer {
   font-family: 'Quicksand',Helvetica,Arial,Lucida,sans-serif;
-  display: none;
 
   border-spacing: 1em;
   border-collapse: separate;
@@ -32,7 +42,6 @@ body {
 
 .offer {
   display: block;
-  border: .01rem solid #cccccc;
   background-color: #ffffff;
 
   width: 100%;
@@ -41,18 +50,36 @@ body {
 
   -webkit-box-flex: 1;
   flex: 1 1 auto;
+
+  /* actions-block that is bottom-anchored */
+  padding-bottom: 12em;
+
+  margin-bottom: 3em;
 }
 
 .offer * a {
   color: #333333;
 }
 
-/* from iPad and up, we display as 3 cells */
-@media (min-width:767px) {
+/* from 900px and up, we display as 3 cells
+  we had some margin/border before as this is quite a step */
+@media (min-width:545px) {
+  .offer {
+    border: .1rem solid #e3e8ef;
+    border-radius: .5rem;
+    margin-left: 1rem;
+    width: calc(100% - 2rem);
+  }
+}
+
+@media (min-width:900px) {
   .offer {
     display: table-cell;
     width: 33%;
+    border:0;
     max-width: 33%;
+    margin-bottom: 0;
+    box-shadow: 1px 2px 8px #ccc;
   }
 }
 
@@ -73,49 +100,137 @@ body {
   line-height: 1.7em;
 }
 .offer header p {
-  font-size: 18px;
-  line-height: 20px;
-  font-weight: 500;
-  color: #000000;
+  font-size: .9em;
+  line-height: 1.1em;
+  color: #666666;
 }
 
-.offer .price {
-  text-align: center;
-  color: #999;
-  font-size: 16px;
-  padding-top: 17px;
-  padding-bottom: 30px;
-  position: relative;
+.offer .actions-block {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
 }
-.offer .price .amount {
-  color: #ff9933;
-  font-size: 3em;
-  line-height: 1.03em;
+
+.offer .purchase-options {
+  border: 1px solid #e3e8ef;
+  margin: 2em;
+  margin-bottom: 1em;
+  border-radius: .5em;
+  padding: .5em;
+}
+
+.offer .purchase-options p {
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.1em;
+  margin-bottom: 0;
+}
+
+.offer .purchase-options hr {
+  margin: 0;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+.offer .purchase-option {
+  display: table-row;
+}
+
+.offer .purchase-option .text {
+  display: table-cell;
+  width: 100%;
+  font-size: .8em;
+  font-weight: 600;
+}
+
+.offer .purchase-option label {
+  display: block;
+}
+.offer .purchase-option .amount {
+  color: #fa9600;
+}
+
+.offer .purchase-option .purchase-button {
+  display: table-cell;
+  width: 100%;
+  vertical-align: middle;
+}
+
+.offer .purchase-option .purchase-button button {
+  color: #fa9600;
+  font-size: 1em;
   font-weight: 500;
-  border: 1px solid white;
-  border-radius: .26em;
-  padding: 0 .4em;
-  box-shadow: 0px 0px .3rem .01rem #c9c9c9
+  padding: .3em .2em; 
+  line-height: 1.7em !important;
+  border: 2px solid;
+  border-radius: .5em;
+  -webkit-transition: all .2s;
+  transition: all .2s;
+  width: 6em;
+  vertical-align: middle;
+  text-wrap: nowrap;
+}
+
+.offer .purchase-option .purchase-button button:hover {
+  color: white;
+  background-color: #fa9600;
+  border-color: #ff9933;
+}
+
+.offer .purchase-options.single-option p {
+  display: none;
+}
+
+.offer .purchase-options.single-option label {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.offer .purchase-options.single-option br {
+  display: none;
+}
+
+.offer .purchase-options.single-option .amount {
+  float: right;
+}
+
+.offer .purchase-options.single-option .purchase-option {
+  display: table;
+  width: 100%;
+}
+
+.offer .purchase-options.single-option .purchase-option .text,
+.offer .purchase-options.single-option .purchase-option .purchase-button {
+  display: table-row;
+}
+
+.offer .purchase-options.single-option .purchase-option .purchase-button button {
+  width: 100%;
+  background-color: #fa9600;
+  border: 1px solid #cc6100;
+  color: white;
 }
 
 .offer .description {
-  padding: 30px;
+  padding: 0 30px;
   text-align: left;
   padding-bottom: 60px;
   font-size: .9em;
   margin-bottom: 3em;
 }
 .offer .description ul {
-  list-style: initial;
+  list-style: none;
   padding: 0 0 0 1em !important;
   line-height: inherit !important;
+
 }
 .offer .description ul li {
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABfElEQVR4AWMYEDAKQg6n1IceTj3kdySJl/qGH0qtDD2U+h+EgZbsorLhKQUgg2E47HBqOTVdngs09B/McKBlTVQzHOjSJJjhUDyZeoYfTIsHGvgXyeULGv43MFEptaSFAg39g4jUtLUO+xtYMBSGHkrrAoUhaS5PDYMZDsWb086ksWIafji1CKrgX8ihtBS8piL0BALV/0IyfG/C/gQOXLG/DEnh37BDKTH4gyXVB6juJ1zPwdTjofuzeHC7ZlUoc9ih1FVIlvwBWhqBVe2BFFeg/HcktRdCjyULEfby1VA2oOItSBp/hR1O9kVRcyTNBij+BaEm7UbknhRxoiMt9FghJzBs9yFZ8jPsYIoXOFgOploB+Z+R5G5HHEmSIjnZgcISqPkokkFfodn/E5LYA6Bv5MhO29EncvmAhpxCLlOQIvRF6JEkdYozUMD+BAGggWfRLHgVeihdi2LDEZkvURRo6FWo4e/DD6UZMVAbgFIJKLjCD6SaMtAKjAIAxzUkKMnMFhQAAAAASUVORK5CYII=") no-repeat left .3rem;
   color: #333333;
   line-height: 1.7em;
   font-weight: 500;
   line-height: 1.6em;
-  padding: 0 0 .5em;
+  padding: 0 0 .5em 2rem;
 }
 
 
@@ -127,14 +242,6 @@ body {
 }
 
 .offer .button-holder {
-  text-align: center;
-  margin-bottom: 2em;
-  margin-top: 5em;
-
-  position: absolute;
-  bottom: 0px;
-  left: 0;
-  right: 0;
   margin-left: auto;
   margin-right: auto;
 }
@@ -156,78 +263,27 @@ body {
   color: #adadad;
 }
 
-.offer .button-holder button:hover,
+/*.offer .button-holder button:hover,*/
 .offer .button-holder a:hover {
   color: #fa9600;
 }
 
-.offer.highlighted {
-  background-color: #fa9600;
-  border: 1px solid #cc6100;
-  color: white;
-}
-
-.offer.highlighted header *,
-.offer.highlighted .price .amount,
-.offer.highlighted .description *,
-.offer.highlighted .button-holder * {
-  color: white;
-}
-
-.offer.highlighted .price .amount {
-  border: 1px solid transparent;
-  box-shadow: 0px 0px .3rem .01rem transparent;
-}
-
-.offer.highlighted .button-holder button:hover,
-.offer.highlighted .button-holder a:hover {
-  color: #212121;
+.demo-link {
+  text-align: center;
+  margin-bottom: 2em;
 }
 
 body {
   background-color: #f9f9f9;
 }
 
-.toggle-offers {
-  padding: 0;
-  margin: auto;
-  text-align: center;
-  display: table;
-  margin-bottom: 2em;
-}
-
-.toggle-btn {
-  font: normal 700 24px/normal "Quicksand";
-  background-color: white;
-  border: 2px solid #f93;
-  padding: 15px 24px;
-  color: #444;
-}
-
-.toggle-btn.active {
-  background-color: #f93;
-}
-
-/* overwrite bootstrap */
-.toggle-btn:focus {
-  outline: none;
-}
-
-.toggle-btn:first-child {
-  border-radius: 8px 0 0 8px;
-}
-
-.toggle-btn:last-child {
-  border-radius: 0 8px 8px 0;
-}
 
 .offers-intro {
-  color: #f93;
+  color: #232323;
   font-weight: 400;
   width: 50%;
   margin: auto;
   text-align: center;
-  display: none;
   font-weight: 500;
   font-size: 18px;
   margin-bottom: 2em;
@@ -235,44 +291,17 @@ body {
 
 .offers-intro p {
   margin: 0.4em 0;
-}
-
-.offers-intro a, .offers-intro a:visited, .offers-intro a:active {
-  color: #f93;
-  text-decoration: underline;
+  color: #444444;
 }
 
 .table-offer.active {
   display: table;
 }
 
-.offers-intro.active {
-  display: block;
-}
-
 .hidden, .hidden * {
   background-color: transparent;
   color: transparent;
   border: 0;
-}
-
-.outro {
-  margin-top: 4em;
-}
-
-.outro h2 {
-  text-align: center;
-  margin-bottom: 1em;
-}
-
-.outro p {
-  width: 60%;
-  text-align: center;
-  margin:auto;
-}
-
-.outro p.outro-btns {
-  margin-top: 2em;
 }
 
 .payment-info {
@@ -293,15 +322,11 @@ body {
   text-align: center;
 }
 
-.outro h2, .payment-info h2 {
+.payment-info h2 {
   font: normal 700 28px/normal "Quicksand";
     line-height: normal;
   line-height: 1.2;
   text-transform: capitalize;
-  margin-bottom: 1em;
-}
-
-.payment-info h2 {
   text-align: left;
   margin-bottom: 0;
 }
@@ -311,20 +336,8 @@ body {
 }
 
 @media (max-width:767px) {
-  .toggle-btn {
-    width: 100%;
-  }
-  .toggle-btn:first-child {
-    border-radius: 8px 8px 0 0;
-  }
-
-  .toggle-btn:last-child {
-    border-radius: 0 0 8px 8px;
-  }
-
   .payment-info,
-  .payment-info p,
-  .outro p {
+  .payment-info p {
     width: 100%;
   }
   .payment-info h2 {
@@ -354,173 +367,66 @@ window.onresize = onframeresize;
   <body onload="send_height_to_parent();">
     <section class="no-container">
 
-      <div class="toggle-offers">
-        <button value="hw" class="toggle-btn active">Select your Hotspot</button><button value="os" class="toggle-btn">Hotspot OS only</button>
+      <div class="offers-intro">
+        <h2>Content Packages</h2>
+        <p>Choose a package that fits your needs. Each is available as a complete hotspot device or as software only if you already have compatible hardware.</p>
       </div>
 
-      <div value="hw" class="offers-intro active">
-        <p>Receive your fast, fully-featured, plug-and-play Kiwix Hotspot.</p>
-      </div>
-
-      <div value="os" class="offers-intro">
-        <p>Turn your existing Raspberry Pi into a Kiwix Hotspot.</p>
-      </div>
-
-      <div value="hw" class="table-offer active">
+      <div class="table-offer">
         <div class="offer">
           <header>
             <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/HW/wikipedia-512.png?raw=true" />
-            <h2>Wikipedia Hotspot</h2>
+            <h2>Wikipedia</h2>
             <p>All of Wikipedia, and more</p>
           </header>
-          <section class="price"><span class="amount">$319</span></section>
           <section class="description">
             <ul>
               <li>The entirety of Wikipedia (6.7 million articles, including images)</li>
-              <li><strong>Plus</strong> the Wiktionary (7.9 million entries in 4,200 languages)</li>
-              <li>You'll receive a preloaded Kiwix Hotspot device with its charger</li>
+              <li>Plus the Wiktionary (7.9 million entries in 4,200 languages)</li>
+              <li>Fits on a 200 GB microSD card.</li>
             </ul>
           </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="wikipedia-en-h1">
-            <a class="btn btn-demo" href="https://wikipedia.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
-            <button class="btn ">Purchase</button>
-            <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
+          <div class="actions-block">
+            <section class="purchase-options">
+              <p>Purchase options</p>
+              <div class="purchase-option">
+                <div class="text">
+                  <label>Wikipedia Hotspot<br /><span class="amount">$319</span></label>
+                </div>
+                <div class="purchase-button">
+                  <form class="button-holder">
+                    <input type="hidden" name="product" value="wikipedia-en-h1">
+                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+                  </form>
+                </div>
+              </div>
+              <hr />
+              <div class="purchase-option">
+                <div class="text">
+                  <label>OS only<br /><span class="amount">$15</span></label>
+                </div>
+                <div class="purchase-button">
+                  <form class="button-holder">
+                    <input type="hidden" name="product" value="wikipedia-en">
+                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+                  </form>
+                </div>
+              </div>
+            </section>
+            <p class="demo-link">
+              <a class="external" href="https://wikipedia.demo.hotspot.kiwix.org/" target="_blank">Try Demo</a>
+            </p>
+          </div>
         </div>
 
         <div class="offer">
           <header>
             <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/HW/preppers-512.png?raw=true" />
-            <h2>Preppers package</h2>
+            <h2>Preppers</h2>
             <p>For all your SHTF needs</p>
           </header>
-          <section class="price"><span class="amount">$319</span></section>
-          <section class="description">
-            <ul>
-              <li>Dozens of resources on homesteading, water treatment, military and emergency medicine, <em>etc.</em></li>
-              <li>How-to's and repair resources</li>
-              <li>The entire Wikipedia</li>
-              <li>TrailSense and Survival apps for Android, ready to download</li>
-              <li>You'll receive a preloaded Kiwix Hotspot device with its charger</li>
-            </ul>
-          </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="preppers-h1">
-            <a class="btn btn-demo" href="https://preppers.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
-            <button class="btn ">Purchase</button>
-            <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
-        </div>
-
-        <div class="offer">
-          <header>
-            <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/HW/medical-512.png?raw=true" />
-            <h2>Medical Hotspot</h2>
-            <p>Needed everywhere</p>
-          </header>
-          <section class="price"><span class="amount">$319</span></section>
-          <section class="description">
-            <ul>
-              <li>Emergency and Military Medicine</li>
-              <li>Traveler's Health</li>
-              <li>Common drugs</li>
-              <li>General medicine, and more!</li>
-              <li>You'll receive a preloaded Kiwix Hotspot device with its charger</li>
-            </ul>
-          </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="medical-h1">
-            <a class="btn btn-demo" href="https://medical.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
-            <button class="btn ">Purchase</button>
-            <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
-        </div>
-
-      </div>
-
-      <div value="hw" class="table-offer active">
-        <div class="offer">
-          <header>
-            <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/HW/ted-512.png?raw=true" />
-            <h2>TED Talks Hotspot</h2>
-            <p>Tech, Entertainment & Design</p>
-          </header>
-          <section class="price"><span class="amount">$319</span></section>
-          <section class="description">
-            <ul>
-              <li>More than 6,600 videos sorted by topics</li>
-              <li>From A like Astrobiology or AI to B like Business, M like Medicine... all the way to W like work-life balance</li>
-              <li>About 91 consecutive days of watching!</li>
-              <li>You'll receive a preloaded Kiwix Hotspot device with its charger</li>
-            </ul>
-          </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="ted-h1">
-            <a class="btn btn-demo" href="https://ted.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
-            <button class="btn ">Purchase</button>
-            <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
-        </div>
-
-        <div class="offer">
-          <header>
-            <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/HW/computer-512.png?raw=true" />
-            <h2>Computer package</h2>
-            <p>Network down? Not for you</p>
-          </header>
-          <section class="price"><span class="amount">$319</span></section>
-          <section class="description">
-            <ul>
-              <li>Developer documentation for <s>dozens</s> hundreds of programming languages</li>
-              <li>Lecture notes and textbooks on algorithms, code and statistics</li>
-              <li>DevDocs, Linux man pages and distros' wikis</li>
-              <li>You'll receive a preloaded Kiwix Hotspot device with its charger</li>
-            </ul>
-          </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="computers-h1">
-            <a class="btn btn-demo" href="https://compsci.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
-            <button class="btn ">Purchase</button>
-            <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
-        </div>
-
-        <div class="offer hidden"></div>
-      </div>
-
-      <!-- next are OS offers -->
-
-      <div value="os" class="table-offer">
-        <div class="offer">
-          <header>
-            <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/OS/wikipedia-512.png?raw=true" />
-            <h2>Wikipedia OS</h2>
-            <p>All of Wikipedia, and more</p>
-          </header>
-          <section class="price"><span class="amount">$15</span></section>
-          <section class="description">
-            <ul>
-              <li>The entirety of Wikipedia (6.7 million articles, including images)</li>
-              <li><strong>Plus</strong> the Wiktionary (7.9 million entries in 4,200 languages)</li>
-              <li>Fits on a 200 GB microSD card.</li>
-            </ul>
-          </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="wikipedia-en">
-            <a class="btn btn-demo" href="https://wikipedia.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
-            <button class="btn ">Purchase</button>
-            <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
-        </div>
-
-        <div class="offer">
-          <header>
-            <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/OS/preppers-512.png?raw=true" />
-            <h2>Preppers OS</h2>
-            <p>For all your SHTF needs</p>
-          </header>
-          <section class="price"><span class="amount">$25</span></section>
           <section class="description">
             <ul>
               <li>Dozens of resources on homesteading, water treatment, military and emergency medicine, <em>etc.</em></li>
@@ -530,21 +436,47 @@ window.onresize = onframeresize;
               <li>Fits on a 256 GB microSD card.</li>
             </ul>
           </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="preppers">
-            <a class="btn btn-demo" href="https://preppers.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
-            <button class="btn ">Purchase</button>
-            <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
+          <div class="actions-block">
+            <section class="purchase-options">
+              <p>Purchase options</p>
+              <div class="purchase-option">
+                <div class="text">
+                  <label>Preppers Hotspot<br /><span class="amount">$319</span></label>
+                </div>
+                <div class="purchase-button">
+                  <form class="button-holder">
+                    <input type="hidden" name="product" value="preppers-h1">
+                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+                  </form>
+                </div>
+              </div>
+              <hr />
+              <div class="purchase-option">
+                <div class="text">
+                  <label>OS only<br /><span class="amount">$25</span></label>
+                </div>
+                <div class="purchase-button">
+                  <form class="button-holder">
+                    <input type="hidden" name="product" value="preppers">
+                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+                  </form>
+                </div>
+              </div>
+            </section>
+            <p class="demo-link">
+              <a class="external" href="https://wikipedia.demo.hotspot.kiwix.org/" target="_blank">Try Demo</a>
+            </p>
+          </div>
         </div>
 
         <div class="offer">
           <header>
-            <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/OS/medical-512.png?raw=true" />
-            <h2>Medical OS</h2>
+            <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/HW/medical-512.png?raw=true" />
+            <h2>Medical</h2>
             <p>Needed everywhere</p>
           </header>
-          <section class="price"><span class="amount">$25</span></section>
           <section class="description">
             <ul>
               <li>Emergency and Military Medicine</li>
@@ -554,24 +486,50 @@ window.onresize = onframeresize;
               <li>Requires a 64GB microSD card.</li>
             </ul>
           </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="medical">
-            <a class="btn btn-demo" href="https://medical.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
-            <button class="btn ">Purchase</button>
-            <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
+          <div class="actions-block">
+            <section class="purchase-options">
+              <p>Purchase options</p>
+              <div class="purchase-option">
+                <div class="text">
+                  <label>Medical Hotspot<br /><span class="amount">$319</span></label>
+                </div>
+                <div class="purchase-button">
+                  <form class="button-holder">
+                    <input type="hidden" name="product" value="medical-h1">
+                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+                  </form>
+                </div>
+              </div>
+              <hr />
+              <div class="purchase-option">
+                <div class="text">
+                  <label>OS only<br /><span class="amount">$25</span></label>
+                </div>
+                <div class="purchase-button">
+                  <form class="button-holder">
+                    <input type="hidden" name="product" value="medical">
+                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+                  </form>
+                </div>
+              </div>
+            </section>
+            <p class="demo-link">
+              <a class="external" href="https://wikipedia.demo.hotspot.kiwix.org/" target="_blank">Try Demo</a>
+            </p>
+          </div>
         </div>
       </div>
 
-      <div value="os" class="table-offer">
+      <div class="table-offer">
 
         <div class="offer">
           <header>
-            <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/OS/ted-512.png?raw=true" />
-            <h2>TED Talks OS</h2>
+            <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/HW/ted-512.png?raw=true" />
+            <h2>TED Talks</h2>
             <p>Tech, Entertainment & Design</p>
           </header>
-          <section class="price"><span class="amount">$25</span></section>
           <section class="description">
             <ul>
               <li>More than 6,600 videos sorted by topics</li>
@@ -580,21 +538,47 @@ window.onresize = onframeresize;
               <li>Requires a 1 TB microSD card.</li>
             </ul>
           </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="ted">
-            <a class="btn btn-demo" href="https://ted.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
-            <button class="btn ">Purchase</button>
-            <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
+          <div class="actions-block">
+            <section class="purchase-options">
+              <p>Purchase options</p>
+              <div class="purchase-option">
+                <div class="text">
+                  <label>TED Talks Hotspot<br /><span class="amount">$319</span></label>
+                </div>
+                <div class="purchase-button">
+                  <form class="button-holder">
+                    <input type="hidden" name="product" value="ted-h1">
+                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+                  </form>
+                </div>
+              </div>
+              <hr />
+              <div class="purchase-option">
+                <div class="text">
+                  <label>OS only<br /><span class="amount">$25</span></label>
+                </div>
+                <div class="purchase-button">
+                  <form class="button-holder">
+                    <input type="hidden" name="product" value="ted">
+                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+                  </form>
+                </div>
+              </div>
+            </section>
+            <p class="demo-link">
+              <a class="external" href="https://wikipedia.demo.hotspot.kiwix.org/" target="_blank">Try Demo</a>
+            </p>
+          </div>
         </div>
 
         <div class="offer">
           <header>
-            <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/OS/computer-512.png?raw=true" />
-            <h2>Computer OS</h2>
+            <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/HW/computer-512.png?raw=true" />
+            <h2>Computer</h2>
             <p>Network down? Not for you</p>
           </header>
-          <section class="price"><span class="amount">$25</span></section>
           <section class="description">
             <ul>
               <li>Developer documentation for <s>dozens</s> hundreds of programming languages</li>
@@ -603,44 +587,78 @@ window.onresize = onframeresize;
               <li>Fits on a 200 GB microSD card.</li>
             </ul>
           </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="computers">
-            <a class="btn btn-demo" href="https://compsci.demo.hotspot.kiwix.org/" target="_blank">Demo</a>
-            <button class="btn ">Purchase</button>
-            <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
+          <div class="actions-block">
+            <section class="purchase-options">
+              <p>Purchase options</p>
+              <div class="purchase-option">
+                <div class="text">
+                  <label>Computer Hotspot<br /><span class="amount">$319</span></label>
+                </div>
+                <div class="purchase-button">
+                  <form class="button-holder">
+                    <input type="hidden" name="product" value="computers-h1">
+                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+                  </form>
+                </div>
+              </div>
+              <hr />
+              <div class="purchase-option">
+                <div class="text">
+                  <label>OS only<br /><span class="amount">$25</span></label>
+                </div>
+                <div class="purchase-button">
+                  <form class="button-holder">
+                    <input type="hidden" name="product" value="computers">
+                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+                  </form>
+                </div>
+              </div>
+            </section>
+            <p class="demo-link">
+              <a class="external" href="https://wikipedia.demo.hotspot.kiwix.org/" target="_blank">Try Demo</a>
+            </p>
+          </div>
         </div>
 
-        <div class="offer highlighted">
+        <div class="offer">
           <header>
             <img src="https://github.com/offspot/imager-service/blob/main/manager/manager/static/img/stripe/OS/imager-service-512.png?raw=true" />
             <h2>Imager Service</h2>
             <p>One month access</p>
           </header>
-          <section class="price"><span class="amount">$99</span></section>
           <section class="description">
             <ul>
-              <li><strong>Unlimited imager access - one month</strong></li>
+              <li>Unlimited imager access - one month</li>
               <li>Choose from thousands of websites and apps, and build your own Hotspot with Wikipedia, TED videos, the Gutenberg library, and more!</li>
               <li>Create as many configurations as you need.</li>
               <li>Up to 1 TB on a single microSD card</li>
             </ul>
           </section>
-          <form class="button-holder">
-            <input type="hidden" name="product" value="access-1m">
-            <button class="btn ">Purchase</button>
-            <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
-          </form>
+          <div class="actions-block">
+            <section class="purchase-options single-option">
+              <p>Purchase options</p>
+              <div class="purchase-option">
+                <div class="text">
+                  <label>One month access<br /><span class="amount">$99</span></label>
+                </div>
+                <div class="purchase-button">
+                  <form class="button-holder">
+                    <input type="hidden" name="product" value="access-1m">
+                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
+                  </form>
+                </div>
+              </div>
+            </section>
+            <p class="demo-link">
+              &nbsp;
+            </p>
+          </div>
         </div>
 
       </div>
-    </section>
-
-    <section class="outro">
-      <h2>Want to test before buying?</h2>
-      <p>If you already have a Raspberry Pi, you can download our FREE demo image containing a selection of Wikipedia's 50,000 most popular articles. Just flash it onto a microSD card and begin your Kiwix Hotspot experience.</p>
-      <p class="outro-btns">
-        <a class="btn btn-outline-secondary btn-sm" href="{{ api_url }}/auto-images/demo/redirect/http" download>Download</a> <a class="btn btn-outline-secondary btn-sm" title="via torrent" href="{{ api_url }}/auto-images/demo/redirect/torrent" download>via torrent</a></p>
     </section>
 
     <section class="payment-info">
@@ -709,38 +727,7 @@ function live(selector, event, callback, context) {
     });
 }
 
-function toggleOffers(el, ev) {
-  console.log('toggleOffers', el, ev);
-  const active = el.value;
-  const className = 'active';
-  offers = ["hw", "os"];
-
-  if (offers.indexOf(active)== -1)
-    return;
-
-  const btns = document.querySelectorAll('.toggle-btn');
-  for (var i=0; i<btns.length; i++) {
-    let funcClass = btns[i].value == active ? addClass : removeClass;
-    funcClass(btns[i], className);
-  }
-
-  const intros = document.querySelectorAll('.offers-intro');
-  for (var i=0; i<intros.length; i++) {
-    let funcClass = intros[i].getAttribute('value') == active ? addClass : removeClass;
-    funcClass(intros[i], className);
-  }
-
-  const tables = document.querySelectorAll('.table-offer');
-  for (var i=0; i<tables.length; i++) {
-    let funcClass = tables[i].getAttribute('value') == active ? addClass : removeClass;
-    funcClass(tables[i], className);
-  }
-
-  send_height_to_parent();
-}
-
 function run() {
-    live('.toggle-btn', 'click', toggleOffers)
 }
 
 if (document.readyState!='loading') run(); // already loaded
