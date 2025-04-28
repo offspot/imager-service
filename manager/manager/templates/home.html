@@ -3,19 +3,24 @@
 {% load manager %}
 
 {% block content %}
+{% url 'delete_account' as delete_account_url %}
 <div class="">
 
-<h2>{% blocktrans with name=user.profile.name %}Welcome!{% endblocktrans %}</h2>
+<h2>{% blocktrans %}Welcome to Kiwix Imager Service!{% endblocktrans %}</h2>
 
-<p>{% blocktrans %}This is an online shop where you can prepare custom images to run on your RaspberryPi as a local WiFi hotspot.{% endblocktrans %}</p>
+<p>{% blocktrans %}Here's how to get started with creating your custom Raspberry Pi hotspot image:{% endblocktrans %}</p>
 
-{% url 'configuration_list'  as config_list_url %}
-{% url 'delete_account' as delete_account_url %}
+<ol>
+	<li>{% blocktrans %}<strong>Go to the Configuration tab</strong> at the top of the page.{% endblocktrans %}</li>
+	<li>{% blocktrans %}On the Configuration page, <strong>select the content</strong> you want to include on your local WiFi hotspot.{% endblocktrans %}</li>
+	<li>{% blocktrans %}<strong>Customise your hotspot settings</strong>, such as the WiFi name and language.{% endblocktrans %}</li>
+	<li>{% blocktrans %}Once you've configured everything, <strong>submit your request</strong> from the Save & Request button.<br />Processing the request may take a few minutes to a few hours.{% endblocktrans %}</li>
+	<li>{% blocktrans with email=user.profile.email %}When your image is ready, <strong>a download link</strong> will be sent to your email address: {{ email }}.{% endblocktrans %}</li>
+</ol>
 
-<p>{% blocktrans %}The <a href="{{ config_list_url }}">Configuration</a> tab at the top lets you select the content that will be available on your hotspot, as well as a decide on a few features (WiFi name, language, etc.).{% endblocktrans %}</p>
-<p>{% blocktrans with user_email=user.profile.email %}Image creation may take from a few minutes to a few hours. Once the image is ready, a download link will be sent to <code>{{ user_email }}</code>.{% endblocktrans %}</p>
-<p>{% blocktrans %}If you run into problems, please contact <a href="mailto:{{ support_email }}">{{ support_email }}</a>.{% endblocktrans %}</p>
-<p>{% blocktrans %}If you are through with the Imager, you also have the ability to <a href="{{ delete_account_url }}">delete your account</a>.{% endblocktrans %}</p>
+<p>{% blocktrans %}If you encounter any issues, please don't hesitate to contact us at <a href="mailto:{{ support_email }}">{{ support_email }}</a>.{% endblocktrans %}</p>
+<p>{% blocktrans %}You also have the option to <a href="{{ delete_account_url }}">delete your account</a> if you no longer need the Imager service.{% endblocktrans %}</p>
+
 </div>
 {% endblock %}
 

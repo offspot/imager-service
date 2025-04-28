@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cardshop\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-18 15:53+0000\n"
-"PO-Revision-Date: 2025-02-18 15:56+0000\n"
+"POT-Creation-Date: 2025-04-28 16:17+0000\n"
+"PO-Revision-Date: 2025-04-28 16:28+0000\n"
 "Last-Translator: reg <rgaudin@gmail.com>\n"
 "Language-Team: French <reg@kiwix.org>\n"
 "Language: fr\n"
@@ -16,134 +16,133 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.1\n"
+"X-Generator: Poedit 3.5\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: manager/models.py:628
+#: manager/models.py:632
 #, python-format
 msgid "%(value)s is not a valid Hotspot name (%(reason)s)"
 msgstr "%(value)s n’est pas un nom de Hotspot valide (%(reason)s)"
 
-#: manager/models.py:640
+#: manager/models.py:644
 #, python-format
 msgid "%(value)s is not a valid Hotspot SSID (%(reason)s)"
 msgstr "%(value)s n’est pas un SSID valide (%(reason)s)"
 
-#: manager/models.py:649
+#: manager/models.py:653
 #, python-format
 msgid "%(value)s is not a valid language code"
 msgstr "%(value)s n’est pas un code de langue valide"
 
-#: manager/models.py:658
+#: manager/models.py:662
 #, python-format
 msgid "%(value)s is not a valid timezone"
 msgstr "%(value)s n’est pas un fuseau horaire valide"
 
-#: manager/models.py:667
+#: manager/models.py:671
 #, python-format
 msgid "%(value)s is not a valid WiFi password (8-63 chars basic latin chars)"
 msgstr ""
 "%(value)s n’est pas un mot de passe WiFi valide (8-63 caractères latin)"
 
-#: manager/models.py:676
+#: manager/models.py:680
 #, python-format
 msgid "%(value)s is not a valid Admin login (31 chars max, A-Z,a-z,0-9,-,_)"
 msgstr ""
 "%(value)s n’est pas un identifiant Admin valide (31 caractères max, A-Z,a-"
 "z,0-9,-,_)"
 
-#: manager/models.py:686
+#: manager/models.py:690
 #, python-format
 msgid "%(value)s is not a valid Admin password (31 chars max, A-Z,a-z,0-9,-,_)"
 msgstr ""
 "%(value)s n’est pas un mot de passe Admin valide (31 caractères max, A-Z,a-"
 "z,0-9,-,_)"
 
-#: manager/models.py:699
+#: manager/models.py:703
 #, python-format
 msgid "%(value)s is not a reachable URL"
 msgstr "%(value)s n’est pas une URL accessible"
 
-#: manager/models.py:705
+#: manager/models.py:709
 #, python-format
 msgid "%(value)s is not a working URL (HTTP %(code)s)"
 msgstr "%(value)s n’est pas une URL fonctionnelle (HTTP %(code)s)"
 
-#: manager/models.py:712
+#: manager/models.py:716
 #, python-format
 msgid "%(value)s is not a ZIP file (%(ct)s)"
 msgstr "%(value)s n’est pas un fichier ZIP (%(ct)s)"
 
-#: manager/models.py:718
+#: manager/models.py:722
 #, python-format
 msgid "Size of %(value)s cannot be determinded (Content-Length)"
 msgstr "Impossible de déterminier la taille du fichier à %(value)s"
 
-#: manager/models.py:750
+#: manager/models.py:754
 #, python-format
 msgid "File size is too large: %(value)s. Keep it under %(max)s"
 msgstr "Le fichier est trop lourd : %(value)s. Restez vous %(max)s"
 
-#: manager/models.py:767
+#: manager/models.py:771
 msgid "File cannot be converted to PNG"
 msgstr "Le fichier n’a pas pu être converti au format PNG"
 
-#: manager/models.py:774
+#: manager/models.py:778
 #, python-format
 msgid ""
 "File (converted to PNG) size is too large: %(value)s. Keep it under %(max)s"
 msgstr ""
 "Le fichier (converti en PNG) est trop lourd : %(value)s. Restez sous %(max)s"
 
-#: manager/models.py:814
+#: manager/models.py:818
 msgid "configuration"
 msgstr "configuration"
 
-#: manager/models.py:815 manager/models.py:821 manager/models.py:831
+#: manager/models.py:819 manager/models.py:825 manager/models.py:835
 msgid "configurations"
 msgstr "configurations"
 
-#: manager/models.py:825
+#: manager/models.py:829
 msgid "updated on"
 msgstr "mis à jour le"
 
-#: manager/models.py:835 manager/models.py:1528
-#: manager/templates/admin.html:112
+#: manager/models.py:839 manager/models.py:1549
+#: manager/templates/admin.html:116
 #: manager/templates/configuration_edit.html:211
 #: manager/templates/configuration_edit.html:223
 #: manager/templates/configuration_edit.html:241
 #: manager/templates/configuration_edit.html:253
 #: manager/templates/configuration_edit.html:278
 #: manager/templates/configuration_edit.html:290
-#: manager/templates/configuration_list.html:21
 msgid "Size"
 msgstr "Taille"
 
-#: manager/models.py:839
+#: manager/models.py:843
 msgid "Config Name"
 msgstr "Config"
 
-#: manager/models.py:841
+#: manager/models.py:845
 msgid "Used <strong>only within the Imager</strong>"
 msgstr "Utilisé <strong>uniquement dans l’Imager</strong>"
 
-#: manager/models.py:846
+#: manager/models.py:850
 msgid "Domain name"
 msgstr "Nom de domaine"
 
-#: manager/models.py:848
+#: manager/models.py:851
 msgid "The landing page will be at http://name.hotspot"
 msgstr "La page d’accueil sera accessible depuis http://nom.hotspot"
 
-#: manager/models.py:855
+#: manager/models.py:857
 msgid "WiFi Network name"
 msgstr "Nom du réseau WiFi"
 
-#: manager/models.py:857
+#: manager/models.py:858
 msgid "Name of network in WiFi list (SSID)"
 msgstr "Nom du réseau dans la liste des WiFi (SSID)"
 
-#: manager/models.py:865 manager/models.py:1180 manager/models.py:1251
+#: manager/models.py:865 manager/models.py:1188 manager/models.py:1268
 msgid "Language"
 msgstr "Langue"
 
@@ -224,281 +223,280 @@ msgstr ""
 msgid "List of beta features you want to test"
 msgstr "Liste des fonctionnalités Beta que vous voulez tester"
 
-#: manager/models.py:1173
+#: manager/models.py:1181
 msgid "organization"
 msgstr "organisation"
 
-#: manager/models.py:1174
+#: manager/models.py:1182
 msgid "organizations"
 msgstr "organisations"
 
-#: manager/models.py:1176 manager/templates/admin.html:17
+#: manager/models.py:1184 manager/templates/admin.html:17
 #: manager/templates/scheduler.html:44 manager/templates/scheduler.html:88
 msgid "Slug"
 msgstr "Slug"
 
-#: manager/models.py:1177 manager/models.py:1524
+#: manager/models.py:1185 manager/models.py:1545
 #: manager/templates/address_list.html:18 manager/templates/admin.html:18
-#: manager/templates/admin.html:69 manager/templates/admin.html:110
+#: manager/templates/admin.html:71 manager/templates/admin.html:114
 #: manager/templates/configuration_edit.html:210
 #: manager/templates/configuration_edit.html:223
 #: manager/templates/configuration_edit.html:240
 #: manager/templates/configuration_edit.html:253
 #: manager/templates/configuration_edit.html:277
 #: manager/templates/configuration_edit.html:290
-#: manager/templates/configuration_list.html:20
-#: manager/templates/order_list.html:19 manager/templates/scheduler.html:45
+#: manager/templates/scheduler.html:45
 msgid "Name"
 msgstr "Nom"
 
-#: manager/models.py:1189 manager/models.py:1712
+#: manager/models.py:1197 manager/models.py:1733
 #: manager/templates/admin.html:19 manager/templates/order_detail.html:14
 #: manager/templates/scheduler.html:129
 msgid "Channel"
 msgstr "Channel"
 
-#: manager/models.py:1195 manager/templates/order_detail.html:14
+#: manager/models.py:1203 manager/templates/order_detail.html:14
 msgid "Warehouse"
 msgstr "Warehouse"
 
-#: manager/models.py:1201 manager/templates/admin.html:21
+#: manager/models.py:1209 manager/templates/admin.html:21
 msgid "Pub WH"
 msgstr "Pub WH"
 
-#: manager/models.py:1203 manager/models.py:1415
-#: manager/templates/admin.html:22 manager/templates/admin.html:68
-#: manager/templates/scheduler.html:130 manager/templates/scheduler.html:168
+#: manager/models.py:1211 manager/models.py:1436
+#: manager/templates/admin.html:22 manager/templates/admin.html:70
+#: manager/templates/scheduler.html:130 manager/templates/scheduler.html:169
 msgid "Email"
 msgstr "E-mail"
 
-#: manager/models.py:1205 manager/models.py:1535 manager/models.py:1735
+#: manager/models.py:1213 manager/models.py:1556 manager/models.py:1756
 #: manager/templates/admin.html:23
 msgid "Units"
 msgstr "Unités"
 
-#: manager/models.py:1243
+#: manager/models.py:1260
 msgid "profile"
 msgstr "profil"
 
-#: manager/models.py:1244
+#: manager/models.py:1261
 msgid "profiles"
 msgstr "profils"
 
-#: manager/models.py:1247
+#: manager/models.py:1264
 msgid "User"
 msgstr "Utilisateur"
 
-#: manager/models.py:1257 manager/models.py:1401 manager/models.py:1686
-#: manager/templates/admin.html:67
+#: manager/models.py:1274 manager/models.py:1422 manager/models.py:1707
+#: manager/templates/admin.html:69
 msgid "Organization"
 msgstr "Organisation"
 
-#: manager/models.py:1260
+#: manager/models.py:1277
 msgid "Can order physical?"
 msgstr "Peut commander une carte physique ?"
 
-#: manager/models.py:1263
+#: manager/models.py:1280
 msgid "Expire on"
 msgstr "Expire le"
 
-#: manager/models.py:1342
+#: manager/models.py:1363
 msgid "Profile parameters non unique"
 msgstr "Paramètres de profil non uniques"
 
-#: manager/models.py:1393
+#: manager/models.py:1414
 msgid "address"
 msgstr "adresse"
 
-#: manager/models.py:1394
+#: manager/models.py:1415
 msgid "addresss"
 msgstr "adresses"
 
-#: manager/models.py:1407
+#: manager/models.py:1428
 msgid "Created addrresses"
 msgstr "Adresses créées"
 
-#: manager/models.py:1411
+#: manager/models.py:1432
 msgid "Address Name"
 msgstr "Nom de l’adresse"
 
-#: manager/models.py:1412
+#: manager/models.py:1433
 msgid "Used only within the Imager"
 msgstr "Utilisé uniquement dans l’Imager"
 
-#: manager/models.py:1414
+#: manager/models.py:1435
 msgid "Recipient Name"
 msgstr "Nom du destinataire"
 
-#: manager/models.py:1420
+#: manager/models.py:1441
 msgid "In international “+” format"
 msgstr "Au format international « + »"
 
-#: manager/models.py:1421
+#: manager/models.py:1442
 msgid "Phone"
 msgstr "Téléphone"
 
-#: manager/models.py:1426
+#: manager/models.py:1447
 msgid "Complete address without name and country"
 msgstr "Adresse complète sans nom ni pays"
 
-#: manager/models.py:1427 manager/templates/address_list.html:20
+#: manager/models.py:1448 manager/templates/address_list.html:20
 msgid "Address"
 msgstr "Adresse"
 
-#: manager/models.py:1434 manager/templates/address_list.html:21
-#: manager/templates/all_orders.html:13 manager/templates/order_list.html:20
+#: manager/models.py:1455 manager/templates/address_list.html:21
+#: manager/templates/all_orders.html:13
 msgid "Country"
 msgstr "Pays"
 
-#: manager/models.py:1521
+#: manager/models.py:1542
 msgid "media"
 msgstr "support"
 
-#: manager/models.py:1522
+#: manager/models.py:1543
 msgid "medias"
 msgstr "supports"
 
-#: manager/models.py:1526 manager/templates/admin.html:111
+#: manager/models.py:1547 manager/templates/admin.html:115
 msgid "Kind"
 msgstr "Type"
 
-#: manager/models.py:1528
+#: manager/models.py:1549
 msgid "In GB"
 msgstr "En Go"
 
-#: manager/models.py:1530
+#: manager/models.py:1551
 msgid "In bytes (auto calc)"
 msgstr "En octets (calcul auto)"
 
-#: manager/models.py:1532
+#: manager/models.py:1553
 msgid "Actual size"
 msgstr "Taille réelle"
 
-#: manager/models.py:1535
+#: manager/models.py:1556
 msgid "How much units per GB"
 msgstr "Combien d’unités par Go"
 
-#: manager/models.py:1682
+#: manager/models.py:1703
 msgid "order"
 msgstr "commande"
 
-#: manager/models.py:1683
+#: manager/models.py:1704
 msgid "orders"
 msgstr "commandes"
 
-#: manager/models.py:1688
+#: manager/models.py:1709
 msgid "Created on"
 msgstr "Créé le"
 
-#: manager/models.py:1690
+#: manager/models.py:1711
 msgid "Created by"
 msgstr "Créé par"
 
-#: manager/models.py:1694 manager/templates/order.html:10
+#: manager/models.py:1715 manager/templates/order.html:10
 msgid "Scheduler ID"
 msgstr "Scheduler ID"
 
-#: manager/models.py:1699
+#: manager/models.py:1720
 msgid "Scheduler Data"
 msgstr "Scheduler Data"
 
-#: manager/models.py:1702
+#: manager/models.py:1723
 msgid "Scheduler Data On"
 msgstr "Scheduler Data le"
 
-#: manager/models.py:1708 manager/templates/all_orders.html:15
-#: manager/templates/order_list.html:23 manager/templates/scheduler.html:16
-#: manager/templates/scheduler.html:169
+#: manager/models.py:1729 manager/templates/all_orders.html:15
+#: manager/templates/order_list.html:21 manager/templates/scheduler.html:16
+#: manager/templates/scheduler.html:170
 msgid "Status"
 msgstr "Statut"
 
-#: manager/models.py:1713
+#: manager/models.py:1734
 msgid "Client name"
 msgstr "Nom du client"
 
-#: manager/models.py:1714
+#: manager/models.py:1735
 msgid "Client Email"
 msgstr "Courriel du client"
 
-#: manager/models.py:1716
+#: manager/models.py:1737
 msgid "Client is limited"
 msgstr "Le client est limité"
 
-#: manager/models.py:1720
+#: manager/models.py:1741
 msgid "Client language"
 msgstr "Langue du client"
 
-#: manager/models.py:1725 manager/templates/order_detail.html:5
+#: manager/models.py:1746 manager/templates/order_detail.html:5
 msgid "Config"
 msgstr "Config"
 
-#: manager/models.py:1727
+#: manager/models.py:1748
 msgid "YAML Config"
 msgstr "Config YAML"
 
-#: manager/models.py:1728
+#: manager/models.py:1749
 msgid "Media name"
 msgstr "Nom du média"
 
-#: manager/models.py:1729
+#: manager/models.py:1750
 msgid "Media type"
 msgstr "Type de support"
 
-#: manager/models.py:1731
+#: manager/models.py:1752
 msgid "Media duration"
 msgstr "Expiration du support"
 
-#: manager/models.py:1733
+#: manager/models.py:1754
 msgid "Media size"
 msgstr "Taille du support"
 
-#: manager/models.py:1734 manager/templates/order_detail.html:13
+#: manager/models.py:1755 manager/templates/order_detail.html:13
 #: manager/templates/order_new.html:35
 msgid "Quantity"
 msgstr "Quantité"
 
-#: manager/models.py:1737
+#: manager/models.py:1758
 msgid "Recipient name"
 msgstr "Nom du destinataire"
 
-#: manager/models.py:1739
+#: manager/models.py:1760
 msgid "Recipient Email"
 msgstr "E-mail du destinataire"
 
-#: manager/models.py:1742
+#: manager/models.py:1763
 msgid "Recipient language"
 msgstr "Langue du destinataire"
 
-#: manager/models.py:1747
+#: manager/models.py:1768
 msgid "Recipient phone"
 msgstr "Téléphone du destinataire"
 
-#: manager/models.py:1749 manager/templates/order_detail.html:17
+#: manager/models.py:1770 manager/templates/order_detail.html:17
 msgid "Recipient Address"
 msgstr "Adresse du destinataire"
 
-#: manager/models.py:1751
+#: manager/models.py:1772
 msgid "Recipient Country Code"
 msgstr "Code du pays destinataire"
 
-#: manager/models.py:1754
+#: manager/models.py:1775
 msgid "Warehouse Upload URI"
 msgstr "Warehouse Upload URI"
 
-#: manager/models.py:1757
+#: manager/models.py:1778
 msgid "Warehouse Download URI"
 msgstr "Warehouse Download URI"
 
-#: manager/models.py:1817
+#: manager/models.py:1838
 #, python-format
 msgid "Order requires %(req_u)dU but %(org)s has only %(avail_u)d"
 msgstr "La commande nécessite %(req_u)dU mais %(org)s n’en a que %(avail_u)d"
 
-#: manager/models.py:1847
+#: manager/models.py:1868
 msgid "Non-virtual order requires an address"
 msgstr "Les commande non virtuelles nécessitent une adresse"
 
-#: manager/models.py:1892
+#: manager/models.py:1913
 msgid "Unable to recreate order (cancel first?)."
 msgstr "Impossible de recréer la commande (l’annuler d’abord ?)."
 
@@ -577,7 +575,7 @@ msgid "Created by me"
 msgstr "Créé par moi"
 
 #: manager/templates/address_list.html:12
-#: manager/templates/configuration_list.html:13
+#: manager/templates/configuration_list.html:12
 msgid "All"
 msgstr "Toutes"
 
@@ -586,12 +584,11 @@ msgid "Create New"
 msgstr "Nouvelle adresse"
 
 #: manager/templates/address_list.html:19
-#: manager/templates/order_detail.html:16 manager/views/ui.py:135
+#: manager/templates/order_detail.html:16 manager/views/ui.py:136
 msgid "Recipient"
 msgstr "Destinataire"
 
 #: manager/templates/address_list.html:22 manager/templates/order.html:11
-#: manager/templates/order_list.html:21
 msgid "Created By"
 msgstr "Créée par"
 
@@ -601,11 +598,11 @@ msgid "Edit"
 msgstr "Modifier"
 
 #: manager/templates/address_list.html:24
-#: manager/templates/address_list.html:34 manager/templates/admin.html:72
+#: manager/templates/address_list.html:34 manager/templates/admin.html:74
 #: manager/templates/all_orders.html:16
-#: manager/templates/configuration_list.html:27
-#: manager/templates/configuration_list.html:37
-#: manager/templates/scheduler.html:174
+#: manager/templates/configuration_list.html:26
+#: manager/templates/configuration_list.html:38
+#: manager/templates/scheduler.html:175
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -631,73 +628,73 @@ msgstr ""
 msgid "WH"
 msgstr "WH"
 
-#: manager/templates/admin.html:37
+#: manager/templates/admin.html:38
 msgid "Update Units"
 msgstr "M-à-j unités"
 
-#: manager/templates/admin.html:44
+#: manager/templates/admin.html:46
 msgid "hum, there's no Organization. That's weird."
 msgstr "hum, il n’y a pas d’organisation. C’est bizarre."
 
-#: manager/templates/admin.html:58
+#: manager/templates/admin.html:60
 msgid "Create Organization"
 msgstr "Créer une organisation"
 
-#: manager/templates/admin.html:62
+#: manager/templates/admin.html:64
 msgid "Manager Users"
 msgstr "Utilisateurs du Manager"
 
-#: manager/templates/admin.html:66
+#: manager/templates/admin.html:68
 #: manager/templates/password_reset_email.html:11
 #: manager/templates/scheduler.html:13 manager/templates/scheduler.html:127
 msgid "Username"
 msgstr "Nom d’utilisateur"
 
-#: manager/templates/admin.html:70
+#: manager/templates/admin.html:72
 msgid "Expiry"
 msgstr "Expiration"
 
-#: manager/templates/admin.html:71 manager/templates/scheduler.html:46
+#: manager/templates/admin.html:73 manager/templates/scheduler.html:46
 #: manager/templates/scheduler.html:91 manager/templates/scheduler.html:131
 msgid "Active"
 msgstr "Actif"
 
-#: manager/templates/admin.html:81 manager/templates/scheduler.html:54
+#: manager/templates/admin.html:84 manager/templates/scheduler.html:54
 #: manager/templates/scheduler.html:98 manager/templates/scheduler.html:139
 msgid "disable"
 msgstr "désactiver"
 
-#: manager/templates/admin.html:81 manager/templates/scheduler.html:54
+#: manager/templates/admin.html:84 manager/templates/scheduler.html:54
 #: manager/templates/scheduler.html:98 manager/templates/scheduler.html:139
 msgid "enable"
 msgstr "activer"
 
-#: manager/templates/admin.html:82 manager/templates/all_orders.html:27
-#: manager/templates/scheduler.html:192
+#: manager/templates/admin.html:85 manager/templates/all_orders.html:27
+#: manager/templates/scheduler.html:193
 msgid "delete"
 msgstr "supprimer"
 
-#: manager/templates/admin.html:88
+#: manager/templates/admin.html:92
 msgid "hum, there's no User. That's weird."
 msgstr "hum, il n’y a pas d’utilisateur. C’est bizarre."
 
-#: manager/templates/admin.html:102 manager/templates/scheduler.html:212
+#: manager/templates/admin.html:106 manager/templates/scheduler.html:213
 msgid "Create"
 msgstr "Créer"
 
-#: manager/templates/admin.html:106
+#: manager/templates/admin.html:110
 msgid "Media Sizes"
 msgstr "Tailles des supports"
 
-#: manager/templates/admin.html:113
+#: manager/templates/admin.html:117
 msgid "Units Coef"
 msgstr "Coef unités"
 
-#: manager/templates/admin.html:126
+#: manager/templates/admin.html:130
 msgid "hum, there's no Media. That's weird."
 msgstr "hum, il n’y a pas de support. C’est bizarre."
 
-#: manager/templates/admin.html:137
+#: manager/templates/admin.html:141
 msgid "Add Media"
 msgstr "Ajouter support"
 
@@ -714,8 +711,7 @@ msgstr "Commande #<code>%(id)s</code>"
 msgid "Orders"
 msgstr "Commandes"
 
-#: manager/templates/all_orders.html:10 manager/templates/order_list.html:18
-#: manager/templates/scheduler.html:167
+#: manager/templates/all_orders.html:10 manager/templates/scheduler.html:168
 msgid "ID"
 msgstr "ID"
 
@@ -727,7 +723,7 @@ msgstr "Résumé"
 msgid "Client"
 msgstr "Client"
 
-#: manager/templates/all_orders.html:14 manager/templates/order_list.html:22
+#: manager/templates/all_orders.html:14
 msgid "Created On"
 msgstr "Créé le"
 
@@ -1004,16 +1000,16 @@ msgstr "ZIM disponibles"
 msgid "Select a language to filter"
 msgstr "Sélectionnez une langue pour filtrer"
 
-#: manager/templates/configuration_edit.html:588
+#: manager/templates/configuration_edit.html:583
 msgid "__media_size__ <small>(__free_size__ free)</small>"
 msgstr "__media_size__ <small>(__free_size__ dispo)</small>"
 
-#: manager/templates/configuration_list.html:7
+#: manager/templates/configuration_list.html:6
 #, python-format
 msgid "%(user_org)s's configurations"
 msgstr "Configurations de %(user_org)s"
 
-#: manager/templates/configuration_list.html:8
+#: manager/templates/configuration_list.html:7
 msgid ""
 "This is where your choice of options and contents for your Hotspot images "
 "will be stored."
@@ -1021,7 +1017,7 @@ msgstr ""
 "C’est là que vos choix de paramètres et de contenus pour vos images Hotspot "
 "seront stockés."
 
-#: manager/templates/configuration_list.html:9
+#: manager/templates/configuration_list.html:8
 msgid ""
 "You can create as many configurations as you want by clicking on New "
 "configuration, or modify existing configurations by clicking on their names. "
@@ -1032,52 +1028,40 @@ msgstr ""
 "cliquant sur leurs noms. Vous pouvez également importer des fichiers de "
 "configuration JSON à partir du logiciel Kiwix Hotspot."
 
-#: manager/templates/configuration_list.html:12
+#: manager/templates/configuration_list.html:11
 msgid "Updated by me"
 msgstr "Mises à jour par moi"
 
-#: manager/templates/configuration_list.html:15
+#: manager/templates/configuration_list.html:14
 msgid "Import file"
 msgstr "Importer le fichier"
 
-#: manager/templates/configuration_list.html:15
+#: manager/templates/configuration_list.html:14
 msgid "New configuration"
 msgstr "Nouvelle configuration"
 
-#: manager/templates/configuration_list.html:22
-msgid "SD Size (min)"
-msgstr "Taille SD (min)"
-
-#: manager/templates/configuration_list.html:23
-msgid "Updated By"
-msgstr "Mis à jour par"
-
 #: manager/templates/configuration_list.html:24
-msgid "Updated On"
-msgstr "Mis à jour le"
-
-#: manager/templates/configuration_list.html:25
-#: manager/templates/configuration_list.html:35
+#: manager/templates/configuration_list.html:36
 msgid "Export"
 msgstr "Exporter"
 
-#: manager/templates/configuration_list.html:26
-#: manager/templates/configuration_list.html:36
+#: manager/templates/configuration_list.html:25
+#: manager/templates/configuration_list.html:37
 msgid "Duplicate"
 msgstr "Dupliquer"
 
-#: manager/templates/configuration_list.html:30
+#: manager/templates/configuration_list.html:31
 msgid "At least one ZIM is not available anymore"
 msgstr "Au moins un ZIM n’est plus disponible"
 
-#: manager/templates/configuration_list.html:44
+#: manager/templates/configuration_list.html:45
 #, python-format
 msgid ""
-"hum, there's no existing configuration. Why don't you <a href="
-"\"%(configuration_add_url)s\">create one</a>?"
+"hum, there's no existing configuration. Why don't you <a "
+"href=\"%(configuration_add_url)s\">create one</a>?"
 msgstr ""
-"hum, il n’y a pas de configuration. Pourquoi ne pas <a href="
-"\"%(configuration_add_url)s\">en créer une</a> ?"
+"hum, il n’y a pas de configuration. Pourquoi ne pas <a "
+"href=\"%(configuration_add_url)s\">en créer une</a> ?"
 
 #: manager/templates/delete_account.html:6
 msgid "Deleting your account"
@@ -1126,57 +1110,76 @@ msgstr ""
 msgid "Delete my account permanently"
 msgstr "Supprimer mon compte définitivement"
 
-#: manager/templates/home.html:8
-msgid "Welcome!"
-msgstr "Bienvenue !"
+#: manager/templates/home.html:9
+msgid "Welcome to Kiwix Imager Service!"
+msgstr "Bienvenue au Kiwix Imager Service !"
 
-#: manager/templates/home.html:10
+#: manager/templates/home.html:11
 msgid ""
-"This is an online shop where you can prepare custom images to run on your "
-"RaspberryPi as a local WiFi hotspot."
+"Here's how to get started with creating your custom Raspberry Pi hotspot "
+"image:"
 msgstr ""
-"Ceci est une boutique en ligne dans laquelle vous pouvez préparer des images "
-"personnalisées à exécuter sur votre RaspberryPi en tant que point d’accès "
-"WiFi local."
+"Voici comment commencer à créer votre image hotspot Raspberry Pi "
+"personnalisée :"
+
+#: manager/templates/home.html:14
+msgid "<strong>Go to the Configuration tab</strong> at the top of the page."
+msgstr "<strong>Allez dans l'onglet Configuration</strong> en haut de la page."
 
 #: manager/templates/home.html:15
-#, python-format
 msgid ""
-"The <a href=\"%(config_list_url)s\">Configuration</a> tab at the top lets "
-"you select the content that will be available on your hotspot, as well as a "
-"decide on a few features (WiFi name, language, etc.)."
+"On the Configuration page, <strong>select the content</strong> you want to "
+"include on your local WiFi hotspot."
 msgstr ""
-"La page <a href=\"%(config_list_url)s\">Configuration</a> vous permets de "
-"sélectionner le contenu qui sera disponible sur votre hotspot, ainsi que "
-"quelques paramètres (nom du WiFi, langue, etc.)."
+"Sur la page Configuration, <strong>sélectionnez le contenu</strong> que vous "
+"souhaitez inclure dans votre Hotspot WiFi."
 
 #: manager/templates/home.html:16
-#, python-format
 msgid ""
-"Image creation may take from a few minutes to a few hours. Once the image is "
-"ready, a download link will be sent to <code>%(user_email)s</code>."
+"<strong>Customise your hotspot settings</strong>, such as the WiFi name and "
+"language."
 msgstr ""
-"La création d’images peut prendre de quelques minutes à quelques heures. Une "
-"fois l’image prête, un lien de téléchargement sera envoyé à <code>"
-"%(user_email)s</code>."
+"<strong>Personnalisez les paramètres de votre hotspot</strong>, tels que le "
+"nom du réseau WiFi et la langue."
 
 #: manager/templates/home.html:17
-#, python-format
 msgid ""
-"If you run into problems, please contact <a href=\"mailto:%(support_email)s"
-"\">%(support_email)s</a>."
+"Once you've configured everything, <strong>submit your request</strong> from "
+"the Save & Request button.<br />Processing the request may take a few "
+"minutes to a few hours."
 msgstr ""
-"Si vous avez besoin d’aide, veuillez contacter <a href=\"mailto:"
-"%(support_email)s\">%(support_email)s</a>."
+"Une fois que vous avez tout configuré, <strong>soumettez votre demande</"
+"strong> depuis le bouton Sauver & commander.<br />Le traitement de la "
+"demande peut prendre de quelques minutes à quelques heures."
 
 #: manager/templates/home.html:18
 #, python-format
 msgid ""
-"If you are through with the Imager, you also have the ability to <a href="
-"\"%(delete_account_url)s\">delete your account</a>."
+"When your image is ready, <strong>a download link</strong> will be sent to "
+"your email address: %(email)s."
 msgstr ""
-"Si vous en avez terminé avec l’Imager, vous avez également la possibilité "
-"de  <a href=\"%(delete_account_url)s\">supprimer votre compte</a>."
+"Lorsque votre image est prête, <strong>un lien de téléchargement</strong> "
+"est envoyé à votre adresse électronique : %(email)s."
+
+#: manager/templates/home.html:21
+#, python-format
+msgid ""
+"If you encounter any issues, please don't hesitate to contact us at <a "
+"href=\"mailto:%(support_email)s\">%(support_email)s</a>."
+msgstr ""
+"Si vous rencontrez des difficultés, n'hésitez pas à nous contacter à "
+"l'adresse suivante <a href=\"mailto:%(support_email)s\">%(support_email)s</"
+"a>."
+
+#: manager/templates/home.html:22
+#, python-format
+msgid ""
+"You also have the option to <a href=\"%(delete_account_url)s\">delete your "
+"account</a> if you no longer need the Imager service."
+msgstr ""
+"Vous avez également la possibilité de <a "
+"href=\"%(delete_account_url)s\">supprimer votre compte</a> si vous n'avez "
+"plus besoin de l’Imager Service."
 
 #: manager/templates/login.html:41
 msgid "Please sign in"
@@ -1250,35 +1253,40 @@ msgstr "Configuration"
 
 #: manager/templates/order_config.html:16
 msgctxt "Order confirmation Summary"
+msgid "Hotspot homepage URL"
+msgstr "URL de la page d'accueil du hotspot"
+
+#: manager/templates/order_config.html:17
+msgctxt "Order confirmation Summary"
 msgid "Hotspot WiFi SSID"
 msgstr "SSID du réseau WiFi"
 
-#: manager/templates/order_config.html:17
+#: manager/templates/order_config.html:18
 msgctxt "Order confirmation Summary"
 msgid "Image Size"
 msgstr "Taille de l’image"
 
-#: manager/templates/order_config.html:18
+#: manager/templates/order_config.html:19
 msgctxt "Order confirmation Summary"
 msgid "Send Download Link to"
 msgstr "Envoyer le lien de téléchargement à"
 
-#: manager/templates/order_config.html:19
+#: manager/templates/order_config.html:20
 msgctxt "Order confirmation Summary"
 msgid "Apps"
 msgstr "Apps"
 
-#: manager/templates/order_config.html:22
+#: manager/templates/order_config.html:23
 msgctxt "Order confirmation Summary"
 msgid "Content"
 msgstr "Contenus"
 
-#: manager/templates/order_config.html:25
+#: manager/templates/order_config.html:26
 msgctxt "Order confirmation Summary"
 msgid "Learning Tools"
 msgstr "Outils d’apprentissage"
 
-#: manager/templates/order_config.html:29
+#: manager/templates/order_config.html:30
 msgctxt "Order confirmation Summary"
 msgid "Beta Features"
 msgstr "Fonctionnalités Beta"
@@ -1340,12 +1348,12 @@ msgstr "Journal d’écriture"
 msgid "Shipment"
 msgstr "Expédition"
 
-#: manager/templates/order_list.html:6
+#: manager/templates/order_list.html:5
 #, python-format
 msgid "%(org)s's Orders"
 msgstr "Commandes de %(org)s"
 
-#: manager/templates/order_list.html:7
+#: manager/templates/order_list.html:6
 msgid ""
 "Requests for creation of an actual Hotspot Image, either prepared for "
 "Download or physical sent by mail as a micro-SD card."
@@ -1353,27 +1361,27 @@ msgstr ""
 "Demandes de création d’image Hotspot, pour le téléchargement, ou pour envoi "
 "de carte micro-SD par courrier."
 
-#: manager/templates/order_list.html:9
+#: manager/templates/order_list.html:8
 msgid "In Progress"
 msgstr "En cours"
 
-#: manager/templates/order_list.html:10
+#: manager/templates/order_list.html:9
 msgid "Canceled"
 msgstr "Annulée"
 
-#: manager/templates/order_list.html:11
+#: manager/templates/order_list.html:10
 msgid "Failed"
 msgstr "Échouée"
 
-#: manager/templates/order_list.html:12
+#: manager/templates/order_list.html:11
 msgid "Completed"
 msgstr "Terminée"
 
-#: manager/templates/order_list.html:13
+#: manager/templates/order_list.html:12
 msgid "Place An Order"
 msgstr "Commander"
 
-#: manager/templates/order_list.html:39
+#: manager/templates/order_list.html:37
 #, python-format
 msgid "There's no <em>%(order_filter)s</em> order yet. Place one !"
 msgstr "Il n’y a pas encore de commande <em>%(order_filter)s</em>. Commandez !"
@@ -1385,20 +1393,20 @@ msgstr "Commander"
 #: manager/templates/order_new.html:9
 #, python-format
 msgid ""
-"You'll need to provide a <a href=\"%(configuration_list_url)s"
-"\">Configuration</a> and an <a href=\"%(address_list_url)s\">Address</a> for "
-"that. Are you ready?"
+"You'll need to provide a <a "
+"href=\"%(configuration_list_url)s\">Configuration</a> and an <a "
+"href=\"%(address_list_url)s\">Address</a> for that. Are you ready?"
 msgstr ""
-"Vous devrez fournir une <a href=\"%(configuration_list_url)s"
-"\">configuration</a> et une <a href=\"%(address_list_url)s\">adresse</a> "
-"pour cela. Prêt?"
+"Vous devrez fournir une <a "
+"href=\"%(configuration_list_url)s\">configuration</a> et une <a "
+"href=\"%(address_list_url)s\">adresse</a> pour cela. Prêt?"
 
 #: manager/templates/order_new.html:15
 msgid "New Order"
 msgstr "Nouvelle commande"
 
 #: manager/templates/order_new.html:33 manager/templates/order_new.html:34
-#: manager/templates/scheduler.html:190 manager/templates/scheduler.html:191
+#: manager/templates/scheduler.html:191 manager/templates/scheduler.html:192
 msgid "n/a"
 msgstr "n/a"
 
@@ -1412,11 +1420,11 @@ msgstr "À: "
 
 #: manager/templates/order_new.html:38
 msgid ""
-"Cost: <strong class=\"cost\">n/a</strong> (balance: <span class=\"balance"
-"\"></span>)"
+"Cost: <strong class=\"cost\">n/a</strong> (balance: <span "
+"class=\"balance\"></span>)"
 msgstr ""
-"Coût : <strong class=\"cost\">n/a</strong> (solde : <span class=\"balance"
-"\"></span>)"
+"Coût : <strong class=\"cost\">n/a</strong> (solde : <span "
+"class=\"balance\"></span>)"
 
 #: manager/templates/order_new.html:39
 msgid "Order now"
@@ -1545,7 +1553,7 @@ msgstr ""
 "Les channels garantissent que les workers spécifiques à l’organisation "
 "produisent leurs propres cartes."
 
-#: manager/templates/scheduler.html:47 manager/templates/scheduler.html:171
+#: manager/templates/scheduler.html:47 manager/templates/scheduler.html:172
 msgid "Private"
 msgstr "Privé"
 
@@ -1628,38 +1636,42 @@ msgid "Auto Images"
 msgstr "Images automatiques"
 
 #: manager/templates/scheduler.html:163
-msgid "Auto Images are automatically recreated monthly"
-msgstr "Les images automatiques sont automatiquement recréées chaque mois"
+msgid "Auto Images are now manually triggered"
+msgstr "Les images auto sont désormais déclenchées manuellement"
 
-#: manager/templates/scheduler.html:170
+#: manager/templates/scheduler.html:165
+msgid "Re-create all images"
+msgstr "Recréer toutes les images"
+
+#: manager/templates/scheduler.html:171
 msgid "Expire On"
 msgstr "Expire le"
 
-#: manager/templates/scheduler.html:172
+#: manager/templates/scheduler.html:173
 msgid "URL"
 msgstr "URL"
 
-#: manager/templates/scheduler.html:173
-msgid "Order"
-msgstr "Commande"
+#: manager/templates/scheduler.html:174
+msgid "Config & Order"
+msgstr "Config & Commandes"
 
-#: manager/templates/scheduler.html:186
+#: manager/templates/scheduler.html:187
 msgid "torrent"
 msgstr "torrent"
 
-#: manager/templates/scheduler.html:187
+#: manager/templates/scheduler.html:188
 msgid "JSON"
 msgstr "JSON"
 
-#: manager/templates/scheduler.html:188
+#: manager/templates/scheduler.html:189
 msgid "redirect"
 msgstr "redirection"
 
-#: manager/templates/scheduler.html:197
+#: manager/templates/scheduler.html:198
 msgid "Could not retrieve images list…"
 msgstr "Impossible de récupérer la liste des images…"
 
-#: manager/templates/scheduler.html:200
+#: manager/templates/scheduler.html:201
 msgid "hum, there's no existing image…"
 msgstr "hum, il n’y a pas d’image existante…"
 
@@ -1710,8 +1722,9 @@ msgstr "%(class)s n’est pas valide"
 msgid "Successfuly created Media <em>%(media)s</em>"
 msgstr "Support <em>%(media)s</em> créé avec succès"
 
-#: manager/views/admin.py:156 manager/views/scheduler.py:286
-#: manager/views/ui.py:469 manager/views/ui.py:584
+#: manager/views/admin.py:156 manager/views/scheduler.py:285
+#: manager/views/scheduler.py:338 manager/views/ui.py:470
+#: manager/views/ui.py:636
 #, python-format
 msgid "Error while saving… %(err)s"
 msgstr "Erreur lors de l’enregistrement… %(err)s"
@@ -1745,15 +1758,15 @@ msgid "User Account for %(user)s has been successfuly deleted."
 msgstr "Compte d’utilisateur pour %(user)s a été supprimé avec succès."
 
 #: manager/views/all_orders.py:37 manager/views/all_orders.py:119
-#: manager/views/all_orders.py:147 manager/views/scheduler.py:244
+#: manager/views/all_orders.py:147 manager/views/scheduler.py:243
 #, python-format
 msgid "Unable to connect (HTTP %(code)s) to API at <code>%(url)s</code>%(msg)s"
 msgstr ""
-"Impossible de se connecter (HTTP %(code)s) à l’API à <code>%(url)s</code>"
-"%(msg)s"
+"Impossible de se connecter (HTTP %(code)s) à l’API à <code>%(url)s</"
+"code>%(msg)s"
 
 #: manager/views/all_orders.py:60 manager/views/all_orders.py:135
-#: manager/views/scheduler.py:295
+#: manager/views/scheduler.py:294
 #, python-format
 msgid "Connected to Scheduler API at <code>%(url)s</code>"
 msgstr "Connecté au Scheduler API via <code>%(url)s</code>"
@@ -1803,11 +1816,11 @@ msgstr ""
 msgid "Enable File Manager to use a preloading file URL"
 msgstr "Activer le Gestionnaire de fichiers pour pré-charger des fichiers"
 
-#: manager/views/config.py:117
+#: manager/views/config.py:120
 msgid "Your file is not a valid JSON. Can't import it."
 msgstr "Votre fichier n’est pas un JSON valide. Impossible de l’importer."
 
-#: manager/views/config.py:129
+#: manager/views/config.py:132
 #, python-format
 msgid ""
 "An error occured while trying to import your config file. Please retry or "
@@ -1817,12 +1830,12 @@ msgstr ""
 "fichier de configuration. Veuillez réessayer ou contacter l’assistance. "
 "(réf : %(err)s)"
 
-#: manager/views/config.py:153 manager/views/config.py:216
-#: manager/views/config.py:234 manager/views/config.py:273
+#: manager/views/config.py:169 manager/views/config.py:232
+#: manager/views/config.py:250 manager/views/config.py:289
 msgid "Configuration not found"
 msgstr "Configuration introuvable"
 
-#: manager/views/config.py:184
+#: manager/views/config.py:200
 #, python-format
 msgid ""
 "Failed to save your configuration (although it looks good). Try again and "
@@ -1832,31 +1845,31 @@ msgstr ""
 "correct). Réessayez et contactez l’assistance si cela se reproduit (réf : "
 "%(err)s)"
 
-#: manager/views/config.py:193
+#: manager/views/config.py:209
 msgid "Configuration Updated successfuly !"
 msgstr "Configuration mise à jour avec succès !"
 
-#: manager/views/config.py:255
+#: manager/views/config.py:271
 #, python-format
 msgid "Successfuly deleted Configuration <em>%(config)s</em>"
 msgstr "Configuration supprimée avec succès <em>%(config)s</em>"
 
-#: manager/views/config.py:262
+#: manager/views/config.py:278
 #, python-format
 msgid "Unable to delete Configuration <em>%(config)s</em>: -- ref %(err)s"
 msgstr ""
 "Impossible de supprimer la configuration <em>%(config)s</em> : — ref %(err)s"
 
-#: manager/views/config.py:283
+#: manager/views/config.py:299
 #, python-format
 msgid ""
-"Successfuly duplicated Configuration <em>%(config)s</em> into <em>"
-"%(new_config)s</em>"
+"Successfuly duplicated Configuration <em>%(config)s</em> into "
+"<em>%(new_config)s</em>"
 msgstr ""
-"Configuration <em>%(config)s</em> répliquée avec succès dans <em>"
-"%(new_config)s</em>"
+"Configuration <em>%(config)s</em> répliquée avec succès dans "
+"<em>%(new_config)s</em>"
 
-#: manager/views/config.py:292
+#: manager/views/config.py:308
 #, python-format
 msgid "Unable to duplicate Configuration <em>%(config)s</em>: -- ref %(err)s"
 msgstr ""
@@ -1900,122 +1913,122 @@ msgstr ""
 msgid "Successfuly created Auto Image <em>%(img)s</em>"
 msgstr "Image automatique <in>%(img)s</em> créée avec succès"
 
-#: manager/views/scheduler.py:211 manager/views/ui.py:152
+#: manager/views/scheduler.py:211 manager/views/ui.py:153
 msgid "Not your configuration"
 msgstr "Pas votre configuration"
 
-#: manager/views/scheduler.py:309
+#: manager/views/scheduler.py:351
 #, python-format
 msgid "Unable to enable Channel: -- ref: %(channel_id)s"
 msgstr "Impossible d’activer le channel : - ref : %(channel_id)s"
 
-#: manager/views/scheduler.py:315
+#: manager/views/scheduler.py:357
 #, python-format
 msgid "Successfuly enabled channel: %(channel_id)s"
 msgstr "Channel activé avec succès : %(channel_id)s"
 
-#: manager/views/scheduler.py:329
+#: manager/views/scheduler.py:371
 #, python-format
 msgid "Unable to disable Channel: -- ref: %(channel_id)s"
 msgstr "Impossible de désactiver le channel : - ref : %(channel_id)s"
 
-#: manager/views/scheduler.py:335
+#: manager/views/scheduler.py:377
 #, python-format
 msgid "Successfuly disabled channel: %(channel_id)s"
 msgstr "Channel désactivé avec succès : %(channel_id)s"
 
-#: manager/views/scheduler.py:349
+#: manager/views/scheduler.py:391
 #, python-format
 msgid "Unable to enable warehouse: -- ref: %(warehouse_id)s"
 msgstr "Impossible d’activer le warehouse : - ref : %(warehouse_id)s"
 
-#: manager/views/scheduler.py:355
+#: manager/views/scheduler.py:397
 #, python-format
 msgid "Successfuly enabled warehouse: %(warehouse_id)s"
 msgstr "Warehouse activé avec succès : %(warehouse_id)s"
 
-#: manager/views/scheduler.py:369
+#: manager/views/scheduler.py:411
 #, python-format
 msgid "Unable to disable warehouse: -- ref: %(warehouse_id)s"
 msgstr "Impossible de désactiver le warehouse : - ref : %(warehouse_id)s"
 
-#: manager/views/scheduler.py:375
+#: manager/views/scheduler.py:417
 #, python-format
 msgid "Successfuly disabled warehouse: %(warehouse_id)s"
 msgstr "Warehouse désactivé : %(warehouse_id)s"
 
-#: manager/views/scheduler.py:389
+#: manager/views/scheduler.py:431
 #, python-format
 msgid "Unable to enable user: -- ref: %(user_id)s"
 msgstr "Impossible d’activer l’utilisateur : - ref : %(user_id)s"
 
-#: manager/views/scheduler.py:393
+#: manager/views/scheduler.py:435
 #, python-format
 msgid "Successfuly enabled user: %(user_id)s"
 msgstr "Utilisateur activé avec succès : %(user_id)s"
 
-#: manager/views/scheduler.py:406
+#: manager/views/scheduler.py:448
 #, python-format
 msgid "Unable to disable user: -- ref: %(user_id)s"
 msgstr "Impossible de désactiver l’utilisateur : - ref : %(user_id)s"
 
-#: manager/views/scheduler.py:410
+#: manager/views/scheduler.py:452
 #, python-format
 msgid "Successfuly disabled user: %(user_id)s"
 msgstr "Utilisateur désactivé avec succès : %(user_id)s"
 
-#: manager/views/scheduler.py:422
+#: manager/views/scheduler.py:464
 #, python-format
 msgid "Re-authenticated against the scheduler: <code>%(token)s</code>"
 msgstr "Ré-authentifié sur le Scheduler : <code>%(token)s</code>"
 
-#: manager/views/scheduler.py:435
+#: manager/views/scheduler.py:477
 #, python-format
 msgid "Unable to delete image: -- ref: %(slug)s"
 msgstr "Impossible de supprimer l’image : - ref : %(slug)s"
 
-#: manager/views/scheduler.py:439
+#: manager/views/scheduler.py:481
 #, python-format
 msgid "Successfuly deleted image: %(slug)s"
 msgstr "Image supprimée avec succès : %(slug)s"
 
-#: manager/views/ui.py:71
+#: manager/views/ui.py:72
 msgid "Invalid Phone Number"
 msgstr "Numéro de téléphone invalide"
 
-#: manager/views/ui.py:89
+#: manager/views/ui.py:90
 #, python-format
 msgid "Successfuly created Address <em>%(address)s</em>"
 msgstr "Adresse <em>%(address)s</em> créée avec succès"
 
-#: manager/views/ui.py:92
+#: manager/views/ui.py:93
 #, python-format
 msgid "Successfuly updated Address <em>%(address)s</em>"
 msgstr "Adresse <em>%(address)s</em> créée avec succès"
 
-#: manager/views/ui.py:97
+#: manager/views/ui.py:98
 msgid "Download Link"
 msgstr "Lien de téléchargement"
 
-#: manager/views/ui.py:98
+#: manager/views/ui.py:99
 msgid "Physical micro-SD Card(s)"
 msgstr "Carte(s) micro-SD physique(s)"
 
-#: manager/views/ui.py:124
+#: manager/views/ui.py:125
 msgid "Order Type"
 msgstr "Type de commande"
 
-#: manager/views/ui.py:125
+#: manager/views/ui.py:126
 msgid "Either download link sent via email or micro-SD card shipment"
 msgstr ""
 "Soit un lien de téléchargement envoyé par e-mail ou un envoi de carte micro-"
 "SD"
 
-#: manager/views/ui.py:129
+#: manager/views/ui.py:130
 msgid "Configuration"
 msgstr "Configuration"
 
-#: manager/views/ui.py:131
+#: manager/views/ui.py:132
 msgid ""
 "Missing your configuration? Go check your configurations list for any "
 "warning."
@@ -2023,88 +2036,88 @@ msgstr ""
 "Votre configuration n’apparaît pas ? Allez vérifier votre liste de "
 "configurations."
 
-#: manager/views/ui.py:139
+#: manager/views/ui.py:140
 msgid "You can choose larger media size to add free space to your hotspot"
 msgstr ""
 "Vous pouvez choisir une taille de carte plus grande pour ajouter de l’espace "
 "libre à votre Hotspot"
 
-#: manager/views/ui.py:146
+#: manager/views/ui.py:147
 msgid "Number of physical micro-SD cards you want"
 msgstr "Nombre de cartes micro-SD physiques souhaitées"
 
-#: manager/views/ui.py:160
+#: manager/views/ui.py:161
 msgid "Not your address"
 msgstr "Pas votre adresse"
 
-#: manager/views/ui.py:166
+#: manager/views/ui.py:167
 msgid "Incorrect Media"
 msgstr "Média incorrect"
 
-#: manager/views/ui.py:169
+#: manager/views/ui.py:170
 msgid "Not allowed to order physical"
 msgstr "Pas autorisé à commander une carte physique"
 
-#: manager/views/ui.py:180
+#: manager/views/ui.py:181
 msgid "Incorrect quantity"
 msgstr "Quantité incorrecte"
 
-#: manager/views/ui.py:193
+#: manager/views/ui.py:194
 msgid "This address can't be used as it misses postal details"
 msgstr ""
 "Cette adresse ne peut pas être utilisée car il manque des coordonnées "
 "postales"
 
-#: manager/views/ui.py:204
+#: manager/views/ui.py:205
 msgid "There is no large enough Media for this config."
 msgstr "Il n’y a pas de média assez grand pour cette config."
 
-#: manager/views/ui.py:208
+#: manager/views/ui.py:209
 #, python-format
 msgid "Media not large enough for config (use at least %(media)s)"
 msgstr ""
 "Média pas assez grand pour la configuration (utilisez au moins %(media)s)"
 
-#: manager/views/ui.py:225
+#: manager/views/ui.py:226
 #, python-format
 msgid "Successfuly created Order <em>%(order)s</em>"
 msgstr "Commande <em>%(order)s</em> créée avec succès"
 
-#: manager/views/ui.py:234
+#: manager/views/ui.py:235
 msgid "Shipment tracking details or similar"
 msgstr "Détails de suivi"
 
-#: manager/views/ui.py:264
+#: manager/views/ui.py:265
 #, python-format
 msgid "Failed to update your password although it looks OK. ref: %(err)s"
 msgstr ""
 "Échec de la mise à jour de votre mot de passe ; bien qu’il semble correct. "
 "réf : %(err)s"
 
-#: manager/views/ui.py:270 manager/views/ui.py:377
+#: manager/views/ui.py:271 manager/views/ui.py:378
 msgid "Password Updated successfuly!"
 msgstr "Mot de passe mis à jour avec succès!"
 
-#: manager/views/ui.py:280
+#: manager/views/ui.py:281
 msgid "E-mail address"
 msgstr "Adresse e-mail"
 
-#: manager/views/ui.py:287
+#: manager/views/ui.py:288
 msgid "No account for e-mail"
 msgstr "Pas de compte pour l’ e-mail"
 
-#: manager/views/ui.py:302
+#: manager/views/ui.py:303
 msgid "Imager Password Reset"
 msgstr "Réinitialisation du mot de passe"
 
-#: manager/views/ui.py:315
+#: manager/views/ui.py:316
 #, python-format
 msgid "Password reset validation code sent to <code>%(email)s</code>"
 msgstr ""
-"Code de validation de réinitialisation de mot de passe envoyé à <code>"
-"%(email)s</code>"
+"Code de validation de réinitialisation de mot de passe envoyé à "
+"<code>%(email)s</code>"
 
-#: manager/views/ui.py:329
+#: manager/views/ui.py:330
 #, python-format
 msgid ""
 "An error has occured trying to reset your password. Please try again later: "
@@ -2113,57 +2126,57 @@ msgstr ""
 "Une erreur s’est produite lors de la tentative de réinitialisation de votre "
 "mot de passe. Veuillez réessayer plus tard : %(err)s"
 
-#: manager/views/ui.py:342
+#: manager/views/ui.py:343
 msgid "Validation Code"
 msgstr "Code de validation"
 
-#: manager/views/ui.py:343
+#: manager/views/ui.py:344
 msgid "New Password"
 msgstr "Nouveau mot de passe"
 
-#: manager/views/ui.py:348
+#: manager/views/ui.py:349
 msgid "Invalid validation code"
 msgstr "Code de validation invalide"
 
-#: manager/views/ui.py:352
+#: manager/views/ui.py:353
 msgid "Expired validation code"
 msgstr "Code de validation expiré"
 
-#: manager/views/ui.py:369
+#: manager/views/ui.py:370
 #, python-format
 msgid "Error updating your password: %(err)s"
 msgstr "Erreur lors de la mise à jour de votre mot de passe : %(err)s"
 
-#: manager/views/ui.py:414
+#: manager/views/ui.py:415
 #, python-format
 msgid "Failed to delete your account. (ref: %(err)s)"
 msgstr "Échec de la suppression de votre compte. (réf : %(err)s)"
 
-#: manager/views/ui.py:417
+#: manager/views/ui.py:418
 msgid "Account deleted successfuly!"
 msgstr "Compte supprimé avec succès !"
 
-#: manager/views/ui.py:452 manager/views/ui.py:484
+#: manager/views/ui.py:453 manager/views/ui.py:485
 msgid "Address not found"
 msgstr "Adresse introuvable"
 
-#: manager/views/ui.py:493
+#: manager/views/ui.py:494
 #, python-format
 msgid "Successfuly deleted Address <em>%(address)s</em>"
 msgstr "Adresse <em>%(address)s</em> supprimée avec succès"
 
-#: manager/views/ui.py:500
+#: manager/views/ui.py:501
 #, python-format
 msgid "Unable to delete Address <em>%(address)s</em>: -- ref %(err)s"
 msgstr "Impossible de supprimer l’adresse <em>%(address)s</em> : — ref %(err)s"
 
-#: manager/views/ui.py:548
+#: manager/views/ui.py:600
 msgid "You need a Configuration to place an Order. Add one first!"
 msgstr ""
 "Vous avez besoin d’une configuration pour passer une commande. Ajoutez-en "
 "une d’abord !"
 
-#: manager/views/ui.py:569 manager/views/ui.py:646
+#: manager/views/ui.py:621 manager/views/ui.py:698
 #, python-format
 msgid ""
 "Your previous Order (#%(order_id)s) must complete before you're allowed to "
@@ -2172,77 +2185,116 @@ msgstr ""
 "Votre commande précédente (#%(order_id)s) doit être terminée avant que vous "
 "ne puissiez en demander une nouvelle."
 
-#: manager/views/ui.py:605
+#: manager/views/ui.py:657
 #, python-format
 msgid "Configuration #%(id)s is not a valid configuration for you"
 msgstr "La configuration #%(id)s ne vous est pas accessible"
 
-#: manager/views/ui.py:613
+#: manager/views/ui.py:665
 msgid "You need at least one saved Configuration to order"
 msgstr ""
 "Vous avez besoin d’au moins une configuration enregistrée pour passer "
 "commande"
 
-#: manager/views/ui.py:625
+#: manager/views/ui.py:677
 msgid "Configuration size it too large and cannot be ordered"
 msgstr "La configuration est trop large et ne peut pas être commandée"
 
-#: manager/views/ui.py:664
+#: manager/views/ui.py:716
 #, python-format
 msgid "Error placing Order… %(err)s"
 msgstr "Erreur lors de l’enregistrement de la commande… %(err)s"
 
-#: manager/views/ui.py:679 manager/views/ui.py:703
+#: manager/views/ui.py:731 manager/views/ui.py:755
 #, python-format
 msgid "Order with ID `%(order_id)s` not found"
 msgstr "Commande avec l’ID `%(order_id)s` introuvable"
 
-#: manager/views/ui.py:691
+#: manager/views/ui.py:743
 #, python-format
 msgid "Order with Scheduler ID `%(order_id)s` not found"
 msgstr "Commande avec Scheduler ID `%(order_id)s` introuvable"
 
-#: manager/views/ui.py:709
+#: manager/views/ui.py:761
 #, python-format
 msgid "Successfuly canceled order #%(order_id)s"
 msgstr "Commande #%(order_id)s annulée avec succès"
 
-#: manager/views/ui.py:714
+#: manager/views/ui.py:766
 #, python-format
 msgid "Unable to cancel order #%(order_id)s"
 msgstr "Impossible d’annuler la commande #%(order_id)s"
 
-#: manager/views/ui.py:725
+#: manager/views/ui.py:777
 #, python-format
 msgid "Order %(order_id)s is not pending_shipment"
 msgstr "La commande %(order_id)s n’est pas en attente d’expédition"
 
-#: manager/views/ui.py:739
+#: manager/views/ui.py:791
 #, python-format
 msgid "Failed to record shipping informations.. (ref: %(err)s)"
 msgstr ""
 "Échec de l’enregistrement des informations d’expédition.. (réf : %(err)s)"
 
-#: manager/views/ui.py:743
+#: manager/views/ui.py:795
 msgid "Order Shipping informations recorded!"
 msgstr "Informations de livraison enregistrées !"
 
-#: manager/views/ui.py:770
+#: manager/views/ui.py:822
 msgid "Beta features enabled! Don't forget to report feedback."
 msgstr "Mode Beta activé. Pensez à envoyer vos retours."
 
-#: manager/views/ui.py:772
+#: manager/views/ui.py:824
 msgid "Beta features disabled! Back to regular mode"
 msgstr "Mode Beta désactivé ! Retour à la normale"
 
-#: manager/views/ui.py:782
+#: manager/views/ui.py:834
 #, python-format
 msgid "Failed to toggle Beta Features. Please try again later: %(err)s"
 msgstr ""
 "Échec du basculement du mode Beta. Veuillez réessayer plus tard : %(err)s"
 
-#~ msgid "Hotspot name"
-#~ msgstr "Nom du Hotspot"
+#~ msgid "SD Size (min)"
+#~ msgstr "Taille SD (min)"
+
+#~ msgid "Updated By"
+#~ msgstr "Mis à jour par"
+
+#~ msgid "Updated On"
+#~ msgstr "Mis à jour le"
+
+#~ msgid "Welcome!"
+#~ msgstr "Bienvenue !"
+
+#~ msgid ""
+#~ "This is an online shop where you can prepare custom images to run on your "
+#~ "RaspberryPi as a local WiFi hotspot."
+#~ msgstr ""
+#~ "Ceci est une boutique en ligne dans laquelle vous pouvez préparer des "
+#~ "images personnalisées à exécuter sur votre RaspberryPi en tant que point "
+#~ "d’accès WiFi local."
+
+#, python-format
+#~ msgid ""
+#~ "The <a href=\"%(config_list_url)s\">Configuration</a> tab at the top lets "
+#~ "you select the content that will be available on your hotspot, as well as "
+#~ "a decide on a few features (WiFi name, language, etc.)."
+#~ msgstr ""
+#~ "La page <a href=\"%(config_list_url)s\">Configuration</a> vous permets de "
+#~ "sélectionner le contenu qui sera disponible sur votre hotspot, ainsi que "
+#~ "quelques paramètres (nom du WiFi, langue, etc.)."
+
+#, python-format
+#~ msgid ""
+#~ "Image creation may take from a few minutes to a few hours. Once the image "
+#~ "is ready, a download link will be sent to <code>%(user_email)s</code>."
+#~ msgstr ""
+#~ "La création d’images peut prendre de quelques minutes à quelques heures. "
+#~ "Une fois l’image prête, un lien de téléchargement sera envoyé à "
+#~ "<code>%(user_email)s</code>."
+
+#~ msgid "Order"
+#~ msgstr "Commande"
 
 #~ msgid "My Hotspot"
 #~ msgstr "Mon Hotspot"
