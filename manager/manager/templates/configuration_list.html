@@ -33,9 +33,9 @@
         <td>{{ configuration.min_media }}</td>
         <td>{{ configuration.updated_by.name }}</td>
         <td>{{ configuration.updated_on }}</td>
-        <td><a href="{% url 'configuration_export' configuration.id %}" class="btn btn-sm btn-secondary">{% blocktrans %}Export{% endblocktrans %}</a></td>
-        <td><a href="{% url 'configuration_duplicate' configuration.id %}" class="btn btn-sm btn-secondary">{% blocktrans %}Duplicate{% endblocktrans %}</a></td>
-        <td><a href="{% url 'configuration_delete' configuration.id %}" class="btn btn-sm btn-warning" data-toggle="confirmation" data-title="Delete this configuration?">{% blocktrans %}Delete{% endblocktrans %}</a></td>
+        <td><a href="{% url 'configuration_export' configuration.id %}" class="btn btn-sm btn-export">{% blocktrans %}Export{% endblocktrans %}</a></td>
+        <td><a href="{% url 'configuration_duplicate' configuration.id %}" class="btn btn-sm btn-duplicate">{% blocktrans %}Duplicate{% endblocktrans %}</a></td>
+        <td><a href="{% url 'configuration_delete' configuration.id %}" class="btn btn-sm btn-danger" data-toggle="confirmation" data-title="Delete this configuration?">{% blocktrans %}Delete{% endblocktrans %}</a></td>
     </tr>
     {% endfor %}
     </tbody>
