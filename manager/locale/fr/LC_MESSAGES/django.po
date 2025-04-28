@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cardshop\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-28 16:17+0000\n"
-"PO-Revision-Date: 2025-04-28 16:28+0000\n"
+"POT-Creation-Date: 2025-04-28 16:52+0000\n"
+"PO-Revision-Date: 2025-04-28 16:56+0000\n"
 "Last-Translator: reg <rgaudin@gmail.com>\n"
 "Language-Team: French <reg@kiwix.org>\n"
 "Language: fr\n"
@@ -707,7 +707,7 @@ msgstr "re-créer"
 msgid "Order #<code>%(id)s</code>"
 msgstr "Commande #<code>%(id)s</code>"
 
-#: manager/templates/all_orders.html:6 manager/templates/base.html:86
+#: manager/templates/all_orders.html:6 manager/templates/base.html:88
 msgid "Orders"
 msgstr "Commandes"
 
@@ -735,56 +735,56 @@ msgstr "Supprimer cette commande ?"
 msgid "No orders."
 msgstr "Aucune commande."
 
-#: manager/templates/base.html:6 manager/templates/base.html:81
+#: manager/templates/base.html:6 manager/templates/base.html:83
 msgid "Kiwix Imager"
 msgstr "Kiwix Imager"
 
-#: manager/templates/base.html:84
+#: manager/templates/base.html:86
 msgid "Home"
 msgstr "Accueil"
 
-#: manager/templates/base.html:85
+#: manager/templates/base.html:87
 msgid "Configurations"
 msgstr "Configurations"
 
-#: manager/templates/base.html:91
+#: manager/templates/base.html:93
 msgid "Admin"
 msgstr "Admin"
 
-#: manager/templates/base.html:93
+#: manager/templates/base.html:95
 msgid "Manager"
 msgstr "Manager"
 
-#: manager/templates/base.html:94
+#: manager/templates/base.html:96
 msgid "Scheduler"
 msgstr "Scheduler"
 
-#: manager/templates/base.html:95
+#: manager/templates/base.html:97
 msgid "All Orders"
 msgstr "Toutes les commandes"
 
 #. Translators: User name in top menu
-#: manager/templates/base.html:102
+#: manager/templates/base.html:104
 #, python-format
 msgid "%(user_name)s (%(org_slug)s)"
 msgstr "%(user_name)s (%(org_slug)s)"
 
-#: manager/templates/base.html:104
+#: manager/templates/base.html:106
 msgctxt "Menu link"
 msgid "Change Password"
 msgstr "Mot de passe"
 
-#: manager/templates/base.html:106
+#: manager/templates/base.html:108
 msgctxt "Menu link"
 msgid "Beta features"
 msgstr "Mode Beta"
 
-#: manager/templates/base.html:108
+#: manager/templates/base.html:110
 msgctxt "Menu link"
 msgid "Sign out"
 msgstr "Déconnexion"
 
-#: manager/templates/base.html:110
+#: manager/templates/base.html:112
 msgctxt "Menu link"
 msgid "Sign in"
 msgstr "Connexion"
@@ -1005,28 +1005,28 @@ msgid "__media_size__ <small>(__free_size__ free)</small>"
 msgstr "__media_size__ <small>(__free_size__ dispo)</small>"
 
 #: manager/templates/configuration_list.html:6
-#, python-format
-msgid "%(user_org)s's configurations"
-msgstr "Configurations de %(user_org)s"
+msgid "Your Configurations"
+msgstr "Vos configurations"
 
 #: manager/templates/configuration_list.html:7
 msgid ""
-"This is where your choice of options and contents for your Hotspot images "
-"will be stored."
+"To create a new one, simply click on <strong>New configuration</strong>. If "
+"you want to edit an existing configuration, <strong>just click on its name</"
+"strong>."
 msgstr ""
-"C’est là que vos choix de paramètres et de contenus pour vos images Hotspot "
-"seront stockés."
+"Pour en créer une nouvelle, il suffit de cliquer sur <strong>Nouvelle "
+"configuration</strong>. Si vous souhaitez modifier une configuration "
+"existante, il vous <strong>suffit de cliquer sur son nom</strong>."
 
 #: manager/templates/configuration_list.html:8
 msgid ""
-"You can create as many configurations as you want by clicking on New "
-"configuration, or modify existing configurations by clicking on their names. "
-"You can also import JSON configuration files from the desktop installer."
+"You can also <strong>import JSON configuration files</strong> that you might "
+"have created with the desktop installer. Feel free to create and modify as "
+"many configurations as you need."
 msgstr ""
-"Vous pouvez créer autant de configurations que vous le souhaitez en cliquant "
-"sur Nouvelle configuration, ou modifier des configurations existantes en "
-"cliquant sur leurs noms. Vous pouvez également importer des fichiers de "
-"configuration JSON à partir du logiciel Kiwix Hotspot."
+"Vous pouvez également <strong>importer des fichiers de configuration JSON</"
+"strong> que vous auriez créés avec la version Desktop. Vous pouvez créer et "
+"modifier autant de configurations que vous le souhaitez."
 
 #: manager/templates/configuration_list.html:11
 msgid "Updated by me"
@@ -2253,6 +2253,28 @@ msgstr "Mode Beta désactivé ! Retour à la normale"
 msgid "Failed to toggle Beta Features. Please try again later: %(err)s"
 msgstr ""
 "Échec du basculement du mode Beta. Veuillez réessayer plus tard : %(err)s"
+
+#, python-format
+#~ msgid "%(user_org)s's configurations"
+#~ msgstr "Configurations de %(user_org)s"
+
+#~ msgid ""
+#~ "This is where your choice of options and contents for your Hotspot images "
+#~ "will be stored."
+#~ msgstr ""
+#~ "C’est là que vos choix de paramètres et de contenus pour vos images "
+#~ "Hotspot seront stockés."
+
+#~ msgid ""
+#~ "You can create as many configurations as you want by clicking on New "
+#~ "configuration, or modify existing configurations by clicking on their "
+#~ "names. You can also import JSON configuration files from the desktop "
+#~ "installer."
+#~ msgstr ""
+#~ "Vous pouvez créer autant de configurations que vous le souhaitez en "
+#~ "cliquant sur Nouvelle configuration, ou modifier des configurations "
+#~ "existantes en cliquant sur leurs noms. Vous pouvez également importer des "
+#~ "fichiers de configuration JSON à partir du logiciel Kiwix Hotspot."
 
 #~ msgid "SD Size (min)"
 #~ msgstr "Taille SD (min)"

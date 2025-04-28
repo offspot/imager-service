@@ -3,9 +3,9 @@
 {% load manager %}
 {% block content %}
 {% url 'configuration_add' as configuration_add_url %}
-<h3>{% blocktrans with user_org=user.profile.organization %}{{ user_org }}'s configurations{% endblocktrans %}</h3>
-<p class="info">{% blocktrans %}This is where your choice of options and contents for your Hotspot images will be stored.{% endblocktrans %}</p>
-<p class="info">{% blocktrans %}You can create as many configurations as you want by clicking on New configuration, or modify existing configurations by clicking on their names. You can also import JSON configuration files from the desktop installer.{% endblocktrans %}</p>
+<h3>{% blocktrans %}Your Configurations{% endblocktrans %}</h3>
+<p class="info">{% blocktrans %}To create a new one, simply click on <strong>New configuration</strong>. If you want to edit an existing configuration, <strong>just click on its name</strong>.{% endblocktrans %}</p>
+<p class="info">{% blocktrans %}You can also <strong>import JSON configuration files</strong> that you might have created with the desktop installer. Feel free to create and modify as many configurations as you need.{% endblocktrans %}</p>
 <a href="?page={{ item }}&sort={{ sort_field }}&dir={{ sort_dir }}{% if filter_value %}&{{ filter_name }}={{ filter_value }}{% endif %}">
 <p><div class="btn-group" role="group" aria-label="Filter">
     <a class="btn btn-sm {% if not config_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}"  href="?">{% blocktrans %}Updated by me{% endblocktrans %}</a>
