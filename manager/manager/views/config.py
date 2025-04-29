@@ -177,6 +177,8 @@ def configuration_edit(request, config_id=None):
             updated_by=request.user.profile,
         )
 
+    context["is_new"] = config_id is None
+
     # list of languages availables in all catalogs
     context["packages_langs"] = catalog.languages
 
