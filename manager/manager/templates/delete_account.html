@@ -4,12 +4,12 @@
 
 {% block content %}
 <h2>{% blocktrans %}Delete Your Account{% endblocktrans %}</h2>
-<p class="info">{% blocktrans %}Remove all your personal information from our servers. We don't want to keep your data longer than necessary. If you're finished using the Imager, you can trigger account deletion here.{% endblocktrans %}</p>
+<p class="info">{% blocktrans %}Remove all your personal information from our servers. We don't want to keep your data longer than necessary. If you're finished using the Imager, you can trigger your account deletion here.{% endblocktrans %}</p>
 <p>{% blocktrans %}Please note:{% endblocktrans %}</p>
 <ul>
-    <li>{% blocktrans with profile=user.profile %}You are currently logged in as {{ profile }}, and this action will delete this account.{% endblocktrans %}</li>
+    <li>{% blocktrans with profile=user.profile.name %}You are currently logged in as {{ profile }}, and this action will delete this account.{% endblocktrans %}</li>
     <li>{% blocktrans %}This process is irreversible. Export your configurations manually if you want to keep them.{% endblocktrans %}</li>
-    <li>{% blocktrans %}We will keep an anonymized record of your orders for accounting and statistical purposes.{% endblocktrans %}</li>
+    <li>{% blocktrans %}We will keep an anonymised record of your orders for accounting and statistical purposes.{% endblocktrans %}</li>
 </ul>
 <form method="POST" class="form-check form-check-inline">
 {% csrf_token %}
