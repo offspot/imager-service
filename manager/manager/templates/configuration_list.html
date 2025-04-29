@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load manager %}
+{% block css %}
+.not-visible {
+    visibility: hidden;
+}
+{% endblock %}
 {% block content %}
 {% url 'configuration_add' as configuration_add_url %}
 <h3>{% blocktrans %}Your Configurations{% endblocktrans %}</h3>
@@ -21,9 +26,9 @@
             <th>{% sort_header request 'min_media' 'SD Size (min)' sort_field sort_dir %}</th>
             <th>{% sort_header request 'updated_by' 'Updated By' sort_field sort_dir %}</th>
             <th>{% sort_header request 'updated_on' 'Updated On' sort_field sort_dir %}</th>
-            <th>{% blocktrans %}Export{% endblocktrans %}</th>
-            <th>{% blocktrans %}Duplicate{% endblocktrans %}</th>
-            <th>{% blocktrans %}Delete{% endblocktrans %}</th>
+            <th class="not-visible">{% blocktrans %}Export{% endblocktrans %}</th>
+            <th class="not-visible">{% blocktrans %}Duplicate{% endblocktrans %}</th>
+            <th class="not-visible">{% blocktrans %}Delete{% endblocktrans %}</th>
         </tr>
     </thead>
     <tbody>
