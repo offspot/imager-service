@@ -216,7 +216,7 @@ def configuration_edit(request, config_id=None):
         form = ConfigurationForm(instance=config)
 
     context["CATALOG_URL"] = CATALOG_URL
-    context["DEMO_URL"] = "https://library.kiwix.org"
+    context["DEMO_URL"] = "https://demo.library.kiwix.org"
     context["languages"] = catalog.languages
     context["app_catalog"] = app_catalog
     context["form"] = form
