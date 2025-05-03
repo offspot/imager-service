@@ -19,7 +19,7 @@ import xmltodict
 from offspot_config.inputs.checksum import Checksum
 from offspot_config.zim import ZimPackage
 
-CATALOG_URL = os.getenv("CATALOG_URL", "https://library.kiwix.org")
+CATALOG_URL = os.getenv("CATALOG_URL", "https://opds.library.kiwix.org")
 UPDATE_EVERY_SECONDS: int = int(os.getenv("UPDATE_EVERY_SECONDS", "3600"))
 
 logger = logging.getLogger(__name__)
@@ -217,7 +217,10 @@ class Catalog:
         langs: dict[str, list[str]] = {}
         try:
             resp = requests.get(
-                f"{CATALOG_URL}/catalog/v2/entries", params={"count": "-1"}, timeout=30
+                f"{CATALOG_URL}/v2/entries",
+                params={"count": "-1"},
+                timeout=30,
+                allow_redirects=True,
             )
             resp.raise_for_status()
             catalog = xmltodict.parse(resp.content)
@@ -255,7 +258,9 @@ class Catalog:
                     url=re.sub(r".meta4$", "", links["application/x-zim"]["@href"]),
                     illustration_relpath=links.get(
                         "image/png;width=48;height=48;scale=1", {}
-                    ).get("@href", ""),
+                    )
+                    .get("@href", "")
+                    .replace("/catalog/", "/"),
                     version=version,
                 )
         except Exception as exc:
