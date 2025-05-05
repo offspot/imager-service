@@ -371,7 +371,7 @@ table.package-table td:last-child {
 			  	<tbody>
 			  		{% for book in form.content_zims.value|books_from_json %}
 			  		<tr id="selected-zim-row-{{ book.ident }}" data-order="{{ forloop.counter0 }}" data-name="{{ book.title }}" data-size="{{ book.size }}">
-			  			<td><img src="{{ CATALOG_URL }}{{ book.illustration_relpath }}" loading="lazy" /></td>
+			  			<td><img src="{{ book.illustration_url }}" loading="lazy" /></td>
 			  			<td><strong>{{ book.title }}</strong><p><em>{{ book.description }}</em>{% if book.flavour %}<br /><span class="badge badge-pill badge-secondary package-tag">{{ book.flavour }}</span>{% endif %}</p></td>
 			  			<td class="v-middle">{{ book.size|human_size:True }}</td>
 			  			<td class="v-middle"><a href="#" class="remove-zim" data-book-ident="{{ book.ident }}"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ book.ident }}" class="fa-solid fa-xmark danger"></i></a></td>
@@ -459,8 +459,12 @@ table.package-table td:last-child {
     return Math.max(sizeInBytes, 0.1).toFixed(1) + ' ' + units[i];
   }
 
+  function getIllustrationUrl(illus_uuid){
+  	return new URL(`/catalog/v2/illustration/${illus_uuid}/?size=48`, catalogUrl).toString();
+  }
+
   function getIllusUrl(book) {
-  	return catalogUrl + book.illustration_relpath;
+  	return getIllustrationUrl(book.illustration_uuid);
   }
 
   function getCategory(book) {

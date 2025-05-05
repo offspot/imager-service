@@ -12,6 +12,7 @@ from collections.abc import Generator
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
+from urllib.parse import urljoin
 
 import iso639
 import requests
@@ -21,6 +22,9 @@ from offspot_config.zim import ZimPackage
 
 CATALOG_URL = os.getenv("CATALOG_URL", "https://opds.library.kiwix.org")
 UPDATE_EVERY_SECONDS: int = int(os.getenv("UPDATE_EVERY_SECONDS", "3600"))
+RE_ILLUS_UUID = re.compile(
+    r"/catalog/v2/illustration/(?P<uuid>[a-z0-9\-]{36})/\?size=48"
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +34,13 @@ def to_human_id(name: str, publisher: str | None = "", flavour: str | None = "")
     publisher = publisher or "openZIM"
     flavour = flavour or ""
     return f"{publisher}:{name}:{flavour}"
+
+
+def get_illustration_url(illus_uuid: str) -> str:
+    return urljoin(
+        catalog.final_catalog_url,
+        f"/catalog/v2/illustration/{illus_uuid}/?size=48",
+    )
 
 
 @dataclass(kw_only=True)
@@ -44,7 +55,7 @@ class Book:
     flavour: str
     size: int
     url: str
-    illustration_relpath: str
+    illustration_uuid: str
     version: str
 
     def __post_init__(self):
@@ -88,7 +99,7 @@ class Book:
 
     @property
     def illustration_url(self) -> str:
-        return f"{CATALOG_URL}{self.illustration_relpath}"
+        return get_illustration_url(self.illustration_uuid)
 
     @property
     def lang_codes(self) -> list[str]:
@@ -141,6 +152,8 @@ class Book:
 
 
 class Catalog:
+    final_catalog_url: str
+
     def __init__(self):
         self.updated_on: datetime.datetime = datetime.datetime(1970, 1, 1)
         # list of Book by ident
@@ -223,6 +236,8 @@ class Catalog:
                 allow_redirects=True,
             )
             resp.raise_for_status()
+            self.final_catalog_url = resp.url
+
             catalog = xmltodict.parse(resp.content)
             if "feed" not in catalog:
                 raise ValueError("Malformed OPDS response")
@@ -246,6 +261,14 @@ class Catalog:
                 )
                 if not links.get("image/png;width=48;height=48;scale=1"):
                     logger.warning(f"Book has no illustration: {ident}")
+                else:
+                    illustration_relpath = links.get(
+                        "image/png;width=48;height=48;scale=1", {}
+                    ).get("@href", "")
+                    if m := RE_ILLUS_UUID.match(illustration_relpath):
+                        illustration_uuid = m.groupdict()["uuid"]
+                    else:
+                        raise OSError("Unexpected mismatch with illustration pattern")
                 books[ident] = Book(
                     ident=ident,
                     name=entry["name"],
@@ -256,11 +279,7 @@ class Catalog:
                     flavour=flavour,
                     size=int(links["application/x-zim"]["@length"]),
                     url=re.sub(r".meta4$", "", links["application/x-zim"]["@href"]),
-                    illustration_relpath=links.get(
-                        "image/png;width=48;height=48;scale=1", {}
-                    )
-                    .get("@href", "")
-                    .replace("/catalog/", "/"),
+                    illustration_uuid=illustration_uuid,
                     version=version,
                 )
         except Exception as exc:

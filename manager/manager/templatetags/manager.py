@@ -7,7 +7,7 @@ from django import template
 from offspot_config.catalog import app_catalog
 from offspot_config.packages import AppPackage, FilesPackage, Package
 
-from manager.kiwix_library import Book, catalog
+from manager.kiwix_library import Book, catalog, get_illustration_url
 from manager.models import Address, Configuration, Order, openzim_fixed_ident
 from manager.utils import human_readable_size
 
@@ -233,6 +233,7 @@ def has_expired(errors) -> bool:
 
 register.filter("has_expired", has_expired)
 
+
 @register.simple_tag
 def update_query_params(request, field, value):
     """Updates query parameter in the current URL without duplicating parameters."""
@@ -264,7 +265,8 @@ def sort_header(request, field_name, display_name, sort_field, sort_dir):
         "sort_dir": sort_dir,
         "order_filter": request.GET.get("only"),
     }
-  
+
+
 def get_config_name_from(config_id: int) -> str:
     config = Configuration.get_or_none(config_id)
     if not config:
@@ -273,3 +275,8 @@ def get_config_name_from(config_id: int) -> str:
 
 
 register.filter("config_name", get_config_name_from)
+
+
+@register.filter("illus_url")
+def illustration_url_from(uuid: str):
+    return get_illustration_url(uuid)

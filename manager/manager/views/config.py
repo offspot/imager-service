@@ -15,7 +15,7 @@ from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
 from offspot_config.catalog import app_catalog
 
-from manager.kiwix_library import CATALOG_URL, catalog
+from manager.kiwix_library import catalog
 from manager.models import Configuration
 
 logger = logging.getLogger(__name__)
@@ -215,7 +215,7 @@ def configuration_edit(request, config_id=None):
     else:
         form = ConfigurationForm(instance=config)
 
-    context["CATALOG_URL"] = CATALOG_URL
+    context["CATALOG_URL"] = catalog.final_catalog_url
     context["DEMO_URL"] = "https://browse.library.kiwix.org"
     context["languages"] = catalog.languages
     context["app_catalog"] = app_catalog
