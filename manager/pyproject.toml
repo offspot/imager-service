@@ -119,7 +119,7 @@ target-version = ['py311']
 target-version = "py311"
 line-length = 88
 src = ["manager/"]
-select = [
+lint.select = [
   "A",  # flake8-builtins
   # "ANN",  # flake8-annotations
   "ARG",  # flake8-unused-arguments
@@ -176,7 +176,7 @@ select = [
   "W",  # pycodestyle
   "YTT",  # flake8-2020
 ]
-ignore = [
+lint.ignore = [
   # Allow non-abstract empty methods in abstract base classes
   "B027",
   # Remove flake8-errmsg since we consider they bloat the code and provide limited value
@@ -190,26 +190,27 @@ ignore = [
   # Ignore complexity
   "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
 ]
-unfixable = [
+lint.unfixable = [
   # Don't touch unused imports
   "F401",
 ]
-exclude = ["manager/migrations/*", "manager/management/commands/convertdata.py"]
+lint.exclude = ["manager/migrations/*", "manager/management/commands/convertdata.py"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["manager"]
 
-[tool.ruff.flake8-bugbear]
+[tool.ruff.lint.flake8-bugbear]
 # add exceptions to B008 for fastapi.
 extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
 
-[tool.ruff.flake8-tidy-imports]
+[tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 # Tests can use magic values, assertions, and relative imports
 "tests/**/*" = ["PLR2004", "S101", "TID252"]
 "**/management/commands/*.py" = ["E501", "T201"]
+"**/email.py" = ["A005"]
 
 [tool.pytest.ini_options]
 minversion = "7.3"

@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import Case, When, Value, IntegerField
+from django.db.models import Case, IntegerField, Value, When
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.template import loader
@@ -530,7 +530,7 @@ def apply_orders_sorting(queryset, sort_field, sort_dir):
         return queryset.order_by(f"{order_prefix}id")
     elif sort_field == "created_by":
         return queryset.order_by(f"{order_prefix}created_by__user__first_name")
-    elif sort_field == "created_on" or sort_field == "status":
+    elif sort_field in ("created_on", "status"):
         return queryset.order_by(f"{order_prefix}{sort_field}")
     elif sort_field in ("config_name", "country"):
         orders_list = list(queryset.only("scheduler_data"))

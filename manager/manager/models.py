@@ -1588,7 +1588,7 @@ class Media(models.Model):
             for media in cls.objects.filter(kind=cls.VIRTUAL)  # assume virtual
             if media.bytes >= size
         ]
-        return matching[0] if len(matching) else None
+        return matching[0] if matching else None
 
     def __str__(self):
         return self.name
