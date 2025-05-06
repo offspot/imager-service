@@ -40,6 +40,12 @@
     <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">1</td>
     <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif; width: 70%;"><strong>{{ product_name }}</strong> ({{ session.shipping_details.address.country|plug }})</td>
     <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif; text-align: right;">{{ session.amount_subtotal|amount }}</td></tr>
+{% if session.total_details.amount_discount %}
+<tr>
+    <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">1</td>
+    <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif; width: 70%;">Discount</td>
+    <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif; text-align: right;">-{{ session.total_details.amount_discount|amount }}</td></tr>
+{% endif %}
 <tr>
     <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;">1</td>
     <td style="font-family: system-ui, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif; width: 70%;">Shipping: <em>{{ shipping_option_name }}</em></td>

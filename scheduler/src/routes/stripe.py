@@ -380,6 +380,7 @@ def handle_device_order(session, customer):
         },
         amount={
             "product": session.amount_subtotal,
+            "discount": session.amount_discount,
             "shipping": session.total_details.amount_shipping,
             "tax": session.total_details.amount_tax,
             "total": session.amount_total,

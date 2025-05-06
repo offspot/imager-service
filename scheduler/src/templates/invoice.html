@@ -96,6 +96,12 @@
           <td>{{ product_name }} ({{ session.shipping_details.address.country|plug }} power-plug)</td>
           <td>1</td>
           <td>{{ session.amount_subtotal|amount }}</td></tr>
+      {% if session.total_details.amount_discount %}
+      <tr>
+          <td>Discount</td>
+          <td>1</td>
+          <td>-{{ session.total_details.amount_discount|amount }}</td></tr>
+      {% endif %}
       <tr class="{% if not session.total_details.amount_tax %}last-line{% endif %}">
           <td>Shipping: <em>{{ shipping_option_name }}</em></td>
           <td>1</td>
