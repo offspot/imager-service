@@ -10,6 +10,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`. Current
 ## [Unreleased]
 
 ### Added
+
 - CHANGELOG
 - Ability to close the shop via `SHOP_IS_DISABLED` environ
 - Versioning.
@@ -18,6 +19,10 @@ https://[api.]imager.kiwix.org are auto-deploying `main`. Current
   - `manager.__about__.get_version()` to return that version
   - Also accepts `extended` param to return git commit SHA (short)
   - [manager] Version (extended) is shown on Admin page
+
+### Changed
+
+- [manager] Using offspot-config 2.6.0
 
 ## [Unnamed] - 2025-05-06
 
