@@ -23,6 +23,7 @@ from utils.templates import amount_str, b64qrcode, country_name, linebreaksbr, y
 # envs & secrets
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
 STRIPE_PUBLIC_API_KEY = os.getenv("STRIPE_PUBLIC_API_KEY")
+SHOP_IS_DISABLED = bool(os.getenv("SHOP_IS_DISABLED"))
 CARDSHOP_API_URL = os.getenv("CARDSHOP_API_URL", "https://api.imager.kiwix.org")
 SHOP_PUBLIC_URL = os.getenv("SHOP_PUBLIC_URL", "https://kiwix.org/en/kiwix-hotspot/")
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org")
@@ -488,6 +489,7 @@ def home():
 @blueprint.route("/widget/<string:lang>", methods=["GET"])
 def widget(lang="en"):
     """iframe-able shop UI to select product and be redirected to Stripe"""
+
     if lang not in ["en", "de", "es", "fr"]:
         return flask.Response("Invalid lang"), 404
 
@@ -495,6 +497,8 @@ def widget(lang="en"):
         "api_url": CARDSHOP_API_URL,
         "stripe_public_key": STRIPE_PUBLIC_API_KEY,
     }
+    if SHOP_IS_DISABLED:
+        return flask.render_template("stripe/disabled_shop.html", **context)
     return flask.render_template("stripe/shop.html", **context)
 
 
