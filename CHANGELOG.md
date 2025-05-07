@@ -7,7 +7,7 @@ but this project **does not adhere** to Semantic Versioning.
 
 https://[api.]imager.kiwix.org are auto-deploying `main`. Current 
 
-## [Unreleased]
+## [2025-05] - 2025-05-07
 
 ### Added
 
