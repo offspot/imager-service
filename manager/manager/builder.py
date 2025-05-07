@@ -14,6 +14,7 @@ from offspot_config.oci_images import OCIImage
 from offspot_config.utils.dashboard import Link
 from offspot_config.utils.download import get_online_rsc_size
 
+from manager.__about__ import get_version
 from manager.kiwix_library import catalog
 from manager.models import Configuration
 from manager.utils import retrieve_branding_file
@@ -120,6 +121,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
         },
         write_config=True,
         kiwix_zim_mirror="https://mirror.download.kiwix.org/zim/",
+        public_version=get_version(extended=False)
     )
 
     # add branding

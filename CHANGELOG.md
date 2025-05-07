@@ -23,6 +23,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`. Current
 ### Changed
 
 - [manager] Using offspot-config 2.6.0
+- [manager.builder] Now setting Hotspot version as imager-service version
 
 ## [Unnamed] - 2025-05-06
 
