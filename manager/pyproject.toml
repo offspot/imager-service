@@ -36,7 +36,7 @@ dependencies = [
   "PyYAML==6.0.1",  # offspot-config blocking 6.0.2
   "python-dateutil==2.9.0.post0",
 ]
-version = "2.0.0.dev0"
+dynamic = ["version"]
 
 [project.optional-dependencies]
 scripts = [
@@ -66,6 +66,9 @@ dev = [
 [project.urls]
 Homepage = "https://github.com/offspot/cardshop"
 Donate = "https://www.kiwix.org/en/support-us/"
+
+[tool.hatch.version]
+path = "manager/__about__.py"
 
 [tool.hatch.metadata]
 allow-direct-references = true

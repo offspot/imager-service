@@ -1,11 +1,13 @@
 FROM docker.io/library/python:3.11-slim-bookworm
 LABEL org.opencontainers.image.source https://github.com/offspot/imager-service
 
+ARG GIT_REV
+
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone
 RUN apt-get update -y \
     && apt-get -y --no-install-recommends install \
-        curl \
+        curl git-core \
         python3-dev default-libmysqlclient-dev build-essential pkg-config \
         cron libmagic1 \
         supervisor \
@@ -44,6 +46,10 @@ COPY manager /app/manager
 COPY locale /app/locale
 COPY contents.json /app/contents.json
 COPY uwsgi-manager.ini /etc/uwsgi/apps/manager.ini
+RUN mkdir -p /app/.git/refs/heads \
+    && mkdir -p /app/.git/objects/info \
+    && echo "ref: refs/heads/main" > /app/.git/HEAD \
+    && echo $GIT_REV > /app/.git/refs/heads/main
 RUN /app/manager-env/bin/pip install /app
 
 # install health-check app code (in its own env)

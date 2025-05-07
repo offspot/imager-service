@@ -12,6 +12,12 @@ https://[api.]imager.kiwix.org are auto-deploying `main`. Current
 ### Added
 - CHANGELOG
 - Ability to close the shop via `SHOP_IS_DISABLED` environ
+- Versioning.
+  - Imager-Service is now *versioned*: we still deploy continuously from main
+    but we have a roughly-dated changelog that is tagged about monthly.
+  - `manager.__about__.get_version()` to return that version
+  - Also accepts `extended` param to return git commit SHA (short)
+  - [manager] Version (extended) is shown on Admin page
 
 ## [Unnamed] - 2025-05-06
 

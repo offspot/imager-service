@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _lz
 
 from manager.decorators import staff_required
+from manager.__about__ import get_version
 from manager.models import Media, Organization, Profile
 from manager.views.ui import do_delete_account
 
@@ -130,6 +131,7 @@ def dashboard(request):
             "url": settings.BASE_IMAGE_URL,
             "rootfs_size": settings.BASE_IMAGE_ROOTFS_SIZE,
         },
+        "version": get_version(extended=True)
     }
 
     forms_map = {
