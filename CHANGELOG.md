@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 but this project **does not adhere** to Semantic Versioning.
 
-https://[api.]imager.kiwix.org are auto-deploying `main`. Current 
+https://[api.]imager.kiwix.org are auto-deploying `main`.
 
 ## [2025-05] - 2025-05-07
 
@@ -22,7 +22,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`. Current
 
 ### Changed
 
-- [manager] Using offspot-config 2.6.0
+- [manager] Using offspot-config 2.6.1
 - [manager.builder] Now setting Hotspot version as imager-service version
 
 ## [Unnamed] - 2025-05-06
