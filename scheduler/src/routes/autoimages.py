@@ -25,11 +25,19 @@ def collection(user: dict):
         # unpack url parameters
         skip = request.args.get("skip", default=0, type=int)
         limit = request.args.get("limit", default=20, type=int)
+        with_config = request.args.get("with_config", default=False, type=bool)
+        with_yaml = request.args.get("with_yaml", default=False, type=bool)
         skip = 0 if skip < 0 else skip
         limit = 20 if limit <= 0 else limit
 
         query = {}
         projection = {"config_yaml": 0, "config": 0}
+        if with_config and with_yaml:
+            projection = None
+        elif with_config:
+            projection = {"config_yaml": 0}
+        elif with_yaml:
+            projection = {"config": 0}
         cursor = (
             AutoImages()
             .find(query, projection)

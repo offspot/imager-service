@@ -212,6 +212,7 @@ def get_autoimages_list(access_token: str) -> list[dict[str, Any]]:
                 "token": access_token,
                 "Content-type": "application/json",
             },
+            params={"with_config": 1},
             timeout=CREATOR_HTTP_TIMEOUT,
         )
         return resp.json()["items"]
@@ -354,7 +355,7 @@ def get_images_exists_status(autoimages: list[dict[str, Any]]) -> bool:
                 return False
 
     except Exception as exc:
-        logger.debug(f"Unable to get auto-image: {exc}")
+        logger.debug(f"Unable to verify existence of auto-image: {exc}")
         return False
 
     return True
@@ -382,12 +383,13 @@ def get_images_deletion_status(
                 },
                 timeout=WASABI_HTTP_TIMEOUT,
             )
+            resp.raise_for_status()
             delete_on = datetime.datetime.fromisoformat(resp.json()["autodelete_on"])
             if delete_on <= fail_from:
                 return False
 
     except Exception as exc:
-        logger.debug(f"Unable to get auto-image: {exc}")
+        logger.debug(f"Unable to get autodelete_on of auto-image: {exc}")
         return False
 
     return True
