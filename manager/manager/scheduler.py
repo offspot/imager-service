@@ -231,7 +231,11 @@ def get_channels_list():
 
 @auth_required
 def get_autoimages_list():
-    success, code, response = query_api(GET, "/auto-images/")
+    success, code, response = query_api(
+        GET,
+        "/auto-images/",
+        params={"with_config": "1"},
+    )
     return success, response
 
 

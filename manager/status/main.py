@@ -212,7 +212,6 @@ def get_autoimages_list(access_token: str) -> list[dict[str, Any]]:
                 "token": access_token,
                 "Content-type": "application/json",
             },
-            params={"with_config": 1},
             timeout=CREATOR_HTTP_TIMEOUT,
         )
         return resp.json()["items"]
