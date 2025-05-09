@@ -4,6 +4,7 @@ from flask import Blueprint, Response, jsonify, request
 from flask import redirect as flask_redirect
 from jsonschema import ValidationError, validate
 from utils.mongo import AutoImages, Users
+from utils.wasabi import get_autodelete_date_for
 
 from routes import authenticate, ensure_user_matches_role, errors
 
@@ -28,7 +29,7 @@ def collection(user: dict):
         limit = 20 if limit <= 0 else limit
 
         query = {}
-        projection = None
+        projection = {"config_yaml": 0, "config": 0}
         cursor = (
             AutoImages()
             .find(query, projection)
@@ -69,9 +70,14 @@ def document(autoimage_slug: ObjectId, user: dict):
         # check user permission when not querying current user
         ensure_user_matches_role(user, Users.MANAGER_ROLE)
 
+        # /!\ this returns nothing but the _id
+        # seems like an error but it's useful at the moment since that endpoint
+        # is called frequently to get autodelete_on so leaving as is.
         autoimage = AutoImages().find_one({"slug": autoimage_slug}, {})
         if autoimage is None:
             raise errors.NotFound()
+
+        autoimage["autodelete_on"] = get_autodelete_date_for(autoimage_slug).isoformat()
 
         return jsonify(autoimage)
 

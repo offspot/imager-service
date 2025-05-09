@@ -23,6 +23,9 @@ app = Flask(__name__)
 HTTP_TIMEOUT = 10  # seconds
 CREATOR_HTTP_TIMEOUT = HTTP_TIMEOUT * 2.5  # seconds
 WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 2.5  # seconds
+FAIL_AUTOIMAGES_IF_DELETING_IN_DAYS = int(
+    os.getenv("FAIL_AUTOIMAGES_IF_DELETING_IN_DAYS") or "4"
+)
 
 
 @app.template_filter("status_text")
@@ -61,6 +64,7 @@ async def collect_statuses():
     """gather all status checks in a single dict"""
     scheduler_token = get_scheduler_token()
     scheduler_workers_list = get_scheduler_workers_list(scheduler_token)
+    autoimages_list = get_autoimages_list(scheduler_token)
     loop = asyncio.get_event_loop()
     context = {}
 
@@ -87,6 +91,17 @@ async def collect_statuses():
         loop.run_in_executor(None, wrap, "images_status", get_images_status),
         loop.run_in_executor(None, wrap, "wasabi_status", get_wasabi_status),
         loop.run_in_executor(
+            None, wrap, "images_exists", get_images_exists_status, autoimages_list
+        ),
+        loop.run_in_executor(
+            None,
+            wrap,
+            "images_deletion",
+            get_images_deletion_status,
+            autoimages_list,
+            scheduler_token,
+        ),
+        loop.run_in_executor(
             None, wrap, "creatorload_status", get_creatorload_status, scheduler_token
         ),
     ]
@@ -101,12 +116,15 @@ async def collect_statuses():
 def collect_statuses_sequential() -> dict[str, str | bool]:
     scheduler_token = get_scheduler_token()
     scheduler_workers_list = get_scheduler_workers_list(scheduler_token)
+    autoimages_list = get_autoimages_list(scheduler_token)
     scheduler_status = get_scheduler_status(scheduler_workers_list)
     worker_status = get_worker_status(scheduler_workers_list)
     manager_status = get_manager_status()
     database_status = get_database_status()
     images_status = get_images_status()
     wasabi_status = get_wasabi_status()
+    images_exists = get_images_exists_status(autoimages_list)
+    images_deletion = get_images_deletion_status(autoimages_list, scheduler_token)
     creatorload_status = get_creatorload_status(scheduler_token)
     global_status = all(
         [
@@ -116,6 +134,8 @@ def collect_statuses_sequential() -> dict[str, str | bool]:
             database_status,
             images_status,
             wasabi_status,
+            images_exists,
+            images_deletion,
             creatorload_status,
         ]
     )
@@ -126,6 +146,8 @@ def collect_statuses_sequential() -> dict[str, str | bool]:
         "database_status": database_status,
         "images_status": images_status,
         "wasabi_status": wasabi_status,
+        "images_exists": images_exists,
+        "images_deletion": images_deletion,
         "creatorload_status": creatorload_status,
         "global_status": global_status,
     }
@@ -160,7 +182,7 @@ def get_scheduler_token() -> str:
     return access_token
 
 
-def get_scheduler_workers_list(access_token: str) -> list[dict[str, Any]] | None:
+def get_scheduler_workers_list(access_token: str) -> list[dict[str, Any]]:
     """Retrieve workers list from scheduler API to test scheduler and workers"""
 
     # fetch our urls
@@ -178,10 +200,27 @@ def get_scheduler_workers_list(access_token: str) -> list[dict[str, Any]] | None
         return resp.json().get("items")
     except Exception as exc:
         logger.debug(f"Unable to get workers list: {exc}")
-        return None
+        return []
 
 
-def get_scheduler_status(workers_list: list[str]) -> bool:
+def get_autoimages_list(access_token: str) -> list[dict[str, Any]]:
+    url = os.getenv("STATUS_CARDSHOP_API_URL", "")
+    try:
+        resp = requests.get(
+            f"{url}/auto-images",
+            headers={
+                "token": access_token,
+                "Content-type": "application/json",
+            },
+            timeout=CREATOR_HTTP_TIMEOUT,
+        )
+        return resp.json()["items"]
+    except Exception as exc:
+        logger.debug(f"Unable to get autoimages list: {exc}")
+        return []
+
+
+def get_scheduler_status(workers_list: list[dict[str, Any]]) -> bool:
     """Verify that we can connect to and retrieve data from scheduler API"""
     if not workers_list:
         return False
@@ -290,6 +329,68 @@ def get_wasabi_status() -> bool:
     except Exception as exc:
         logger.debug(f"Unable to get Wasabi status: {exc}")
         return False
+
+
+def url_exists(url: str) -> bool:
+    """Whether URL leads to 200"""
+    return (
+        requests.head(
+            url,
+            allow_redirects=True,
+            timeout=HTTP_TIMEOUT,
+        ).status_code
+        == http.HTTPStatus.OK
+    )
+
+
+def get_images_exists_status(autoimages: list[dict[str, Any]]) -> bool:
+
+    if not autoimages:
+        return False
+
+    try:
+        for image in autoimages:
+            if not url_exists(image["http_url"]):
+                return False
+
+    except Exception as exc:
+        logger.debug(f"Unable to get auto-image: {exc}")
+        return False
+
+    return True
+
+
+def get_images_deletion_status(
+    autoimages: list[dict[str, Any]], access_token: str
+) -> bool:
+
+    if not autoimages:
+        return False
+
+    url = os.getenv("STATUS_CARDSHOP_API_URL", "")
+
+    try:
+        fail_from = datetime.datetime.now() + datetime.timedelta(
+            days=FAIL_AUTOIMAGES_IF_DELETING_IN_DAYS
+        )
+        for image in autoimages:
+            resp = requests.get(
+                f"{url}/auto-images/{image['slug']}",
+                headers={
+                    "token": access_token,
+                    "Content-type": "application/json",
+                },
+                timeout=WASABI_HTTP_TIMEOUT,
+            )
+            delete_on = datetime.datetime.fromisoformat(resp.json()["autodelete_on"])
+            if delete_on <= fail_from:
+                return False
+
+    except Exception as exc:
+        logger.debug(f"Unable to get auto-image: {exc}")
+        return False
+
+    return True
 
 
 def get_creatorload_status(access_token: str) -> bool:

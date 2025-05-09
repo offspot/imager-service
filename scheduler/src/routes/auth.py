@@ -19,7 +19,7 @@ def authorize():
     """
 
     # get username and password from request header
-    if "application/x-www-form-urlencoded" in request.content_type:
+    if request.content_type and "application/x-www-form-urlencoded" in request.content_type:
         username = request.form.get("username")
         password = request.form.get("password")
     else:

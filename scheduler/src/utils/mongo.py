@@ -813,6 +813,10 @@ class AutoImages(BaseCollection):
         cls().update_one({"slug": slug}, {"$set": update})
 
     @classmethod
+    def all_ready(cls):
+        return cls().find({"status": "ready"})
+
+    @classmethod
     def create_order_payload(cls, slug):
         image = cls.get(slug)
         warehouse = Warehouses.get(image["warehouse"])

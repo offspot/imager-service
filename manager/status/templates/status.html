@@ -43,6 +43,12 @@
         <tr><th>Auto-image URL</th>
             <td>Can redirect to a a standard image and access it</td>
             <td class="text-right {{ images_status|status_class }}">{{ images_status|status_text }}</td></tr>
+        <tr><th>Auto-image exists</th>
+            <td>All auto-images are present and reachable on Wasabi</td>
+            <td class="text-right {{ images_exists|status_class }}">{{ images_exists|status_text }}</td></tr>
+        <tr><th>Auto-image auto-deletion</th>
+            <td>Auto-images are not about to be auto-deleted</td>
+            <td class="text-right {{ images_deletion|status_class }}">{{ images_deletion|status_text }}</td></tr>
         <tr><th>Wasabi S3</th>
             <td>Can download a specific public file from Wasabi</td>
             <td class="text-right {{ wasabi_status|status_class }}">{{ wasabi_status|status_text }}</td></tr>

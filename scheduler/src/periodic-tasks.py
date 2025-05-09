@@ -6,6 +6,7 @@ import os
 
 import humanfriendly
 import requests
+
 from emailing import send_order_failed_email
 from routes.orders import create_order_from
 from utils.mongo import AutoImages, Orders, Tasks
@@ -14,11 +15,14 @@ from utils.templates import (
     get_public_download_torrent_url,
     get_public_download_url,
 )
+from utils.wasabi import get_autodelete_date_for, update_autodelete_for
 
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org/api")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
 DISABLE_PERIODIC_TASKS = bool(os.getenv("DISABLE_PERIODIC_TASKS", "") == "y")
 RECREATE_AUTO_MONTHLY = bool(os.getenv("RECREATE_AUTO_MONTHLY", "") == "y")
+AUTO_IMAGES_EXTEND_BEFORE_DAYS = int(os.getenv("AUTO_IMAGES_EXTEND_BEFORE_DAYS") or 5)
+AUTO_IMAGES_EXTEND_FOR_DAYS = int(os.getenv("AUTO_IMAGES_EXTEND_FOR_DAYS") or 10)
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -154,6 +158,24 @@ def check_autoimages():
 
         # update with order ID and status: building
         AutoImages.update_status(image["slug"], status="building", order=order_id)
+
+    # find images that needs auto-delete grace
+    logger.info("Looking for images needing auto-delete date bump")
+    now = datetime.datetime.now()
+    max_renewal_date = now + datetime.timedelta(days=AUTO_IMAGES_EXTEND_BEFORE_DAYS)
+    for image in AutoImages.all_ready():
+        auto_delete_on = get_autodelete_date_for(image["slug"])
+        if auto_delete_on <= max_renewal_date:
+            new_autodelete_on = auto_delete_on + datetime.timedelta(
+                days=AUTO_IMAGES_EXTEND_FOR_DAYS
+            )
+            logger.info(
+                f".. extending from {auto_delete_on.isoformat()} "
+                f"to {new_autodelete_on.isoformat()}"
+            )
+            update_autodelete_for(slug=image["slug"], on=new_autodelete_on)
+        else:
+            logger.debug(f".. deletion scheduled for {auto_delete_on}")
 
 
 if __name__ == "__main__":
