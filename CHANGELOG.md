@@ -7,6 +7,18 @@ but this project **does not adhere** to Semantic Versioning.
 
 https://[api.]imager.kiwix.org are auto-deploying `main`.
 
+## [Current]
+
+### Added
+
+- [health-check] New existence check for all auto-iamges's HTTP URL (200 OK)
+- [health-check] New S3 auto-delete date check for all auto-images (fail if less than 4d)
+- [scheduler.periodic-tasks] auto-extending S3 deletion dates for auto-images under 5d
+
+### Changed
+
+- [scheduler] Endpoint `/auto-images/:slug` now includes `autodelete_on` (ISO date)
+
 ## [2025-05] - 2025-05-07
 
 ### Added
