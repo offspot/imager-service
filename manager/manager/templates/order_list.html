@@ -1,21 +1,19 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load manager %}
+{% block css %}
+
+{% endblock %}
 {% block content %}
-<h2>{% blocktrans with org=user.profile.organization %}{{ org }}'s Orders{% endblocktrans %}</h2>
-<p class="info">{% blocktrans %}Requests for creation of an actual Hotspot Image, either prepared for Download or physical sent by mail as a micro-SD card.{% endblocktrans %}</p>
-<p><div class="btn-group" role="group" aria-label="Filter">
-	<a class="btn btn-sm {% if order_filter == "in-progress" %} btn-secondary{% else %}btn-outline-secondary{% endif %}"  href="?only=in-progress">{% blocktrans %}In Progress{% endblocktrans %}</a>
-	<a class="btn btn-sm {% if order_filter == "canceled" %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?only=canceled">{% blocktrans %}Canceled{% endblocktrans %}</a>
-	<a class="btn btn-sm {% if order_filter == "failed" %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?only=failed">{% blocktrans %}Failed{% endblocktrans %}</a>
-	<a class="btn btn-sm {% if order_filter == "completed" %} btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?only=completed">{% blocktrans %}Completed{% endblocktrans %}</a>
-</div><a href="{% url 'order_new' %}" class="btn btn-sm btn-primary float-right">{% blocktrans %}Place An Order{% endblocktrans %}</a></p>
+<h3>{% blocktrans %}Your Orders{% endblocktrans %}</h3>
+<p class="subtext">{% blocktrans %}Requests for creation of an actual Hotspot Image{% endblocktrans %}<br />
+{% blocktrans %}You can track the status of your orders here. Place a new order by clicking the {{ place_an_order_button }} button.{% endblocktrans %}</p>
+<p> <a href="{% url 'order_new' %}" class="btn btn btn-primary float-right mb-3"><i class="fa-solid fa-sm fa-file-circle-plus"></i> {% blocktrans %}Place An Order{% endblocktrans %}</a></p>
 {% if orders %}
-<table class="table table-striped">
+<table class="table table-hover listing-table">
 	<thead><tr>
 		<th>{% sort_header request 'min_id' 'ID' sort_field sort_dir %}</th>
 		<th>{% sort_header request 'config_name' 'Name' sort_field sort_dir %}</th>
-		<th>{% sort_header request 'country' 'Country' sort_field sort_dir %}</th>
 		<th>{% sort_header request 'created_by' 'Created By' sort_field sort_dir %}</th>
 		<th>{% sort_header request 'created_on' 'Created On' sort_field sort_dir %}</th>
 		<th>{% blocktrans %}Status{% endblocktrans %}</th>
@@ -24,10 +22,9 @@
 	{% for order in orders %}
 	<tr><th><a href="{% url 'order_detail' order_min_id=order.min_id %}">{{ order.min_id }}</a></th>
 		<td>{{ order.data.config_name }}</td>
-		<td>{{ order.data.recipient.country|country|default_if_none:"-" }}</td>
 		<td>{{ order.created_by.name }}</td>
-		<td>{{ order.created_on }}</td>
-		<td class="{{ order.status|status_color }}">{{ order.verbose_status }}</td>
+		<td>{{ order.created_on|human_date }}</td>
+		<td><span class="badge rounded-pill {{ order.status|status_color }}">{{ order.verbose_status }}</td>
 	</tr>
 	{% endfor %}
 	</tbody>

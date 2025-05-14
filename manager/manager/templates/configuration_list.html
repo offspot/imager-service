@@ -2,15 +2,24 @@
 {% load i18n %}
 {% load manager %}
 {% block css %}
-.not-visible {
-    visibility: hidden;
+.icon-column {
+    text-align: center;
+    max-width: 3.1rem !important;
+}
+@media (max-width: 1250px) {
+    thead th.icon-column {
+        visibility: hidden;
+    }
+}
+.icon-column a:hover {
+    color: transparent;
 }
 {% endblock %}
 {% block content %}
 {% url 'configuration_add' as configuration_add_url %}
 <h3>{% blocktrans %}Your Configurations{% endblocktrans %}</h3>
-<p class="info">{% blocktrans %}To create a new one, simply click on <strong>New configuration</strong>. If you want to edit an existing configuration, <strong>just click on its name</strong>.{% endblocktrans %}</p>
-<p class="info">{% blocktrans %}You can also <strong>import JSON configuration files</strong> that you might have created with the desktop installer. Feel free to create and modify as many configurations as you need.{% endblocktrans %}</p>
+<p class="subtext">{% blocktrans %}To create a new one, simply click on <strong>New configuration</strong>. If you want to edit an existing configuration, <strong>just click on its name</strong>.{% endblocktrans %}<br />
+{% blocktrans %}You can also <strong>import JSON configuration files</strong> that you might have created with the desktop installer. Feel free to create and modify as many configurations as you need.{% endblocktrans %}</p>
 <a href="?page={{ item }}&sort={{ sort_field }}&dir={{ sort_dir }}{% if filter_value %}&{{ filter_name }}={{ filter_value }}{% endif %}">
 <p><div class="btn-group" role="group" aria-label="Filter">
     <a class="btn btn-sm {% if not config_filter %} btn-secondary{% else %}btn-outline-secondary{% endif %}"  href="?">{% blocktrans %}Updated by me{% endblocktrans %}</a>
@@ -18,29 +27,27 @@
 </div>
 <form method="POST" enctype="multipart/form-data" class="float-right form-check form-check-inline">{% csrf_token %}{{ form.file }}<button class="btn btn-sm btn-outline-primary form-check-input">{% blocktrans %}Import file{% endblocktrans %}</button>{% if form.errors %}{{ form.errors }}{% endif %}<a href="{% url 'configuration_add' %}" class="btn btn-sm btn-primary form-check-input">{% blocktrans %}New configuration{% endblocktrans %}</a></form></p>
 {% if configurations|length %}
-<table class="table table-striped">
+<table class="table table-hover listing-table">
     <thead>
         <tr>
             <th>{% sort_header request 'name' 'Name' sort_field sort_dir %}</th>
             <th>{% sort_header request 'size' 'Size' sort_field sort_dir %}</th>
-            <th>{% sort_header request 'min_media' 'SD Size (min)' sort_field sort_dir %}</th>
             <th>{% sort_header request 'updated_by' 'Updated By' sort_field sort_dir %}</th>
             <th>{% sort_header request 'updated_on' 'Updated On' sort_field sort_dir %}</th>
-            <th class="not-visible">{% blocktrans %}Export{% endblocktrans %}</th>
-            <th class="not-visible">{% blocktrans %}Duplicate{% endblocktrans %}</th>
-            <th class="not-visible">{% blocktrans %}Delete{% endblocktrans %}</th>
+            <th class="icon-column">{% blocktrans %}Export{% endblocktrans %}</th>
+            <th class="icon-column">{% blocktrans %}Clone{% endblocktrans %}</th>
+            <th class="icon-column">{% blocktrans %}Delete{% endblocktrans %}</th>
         </tr>
     </thead>
     <tbody>
     {% for configuration in configurations %}
     <tr><th><a href="{% url 'configuration_edit' configuration.id %}">{{ configuration }}</a>{% if configuration.retrieve_missing_zims %} <span title="{% blocktrans %}At least one ZIM is not available anymore{% endblocktrans %}">⚠️</span>{% endif %}</th>
-        <td>{{ configuration.size|human_size:True }}</td>
-        <td>{{ configuration.min_media }}</td>
+        <td class="{% if not configuration.min_media.size %}text-danger{% endif %}">{{ configuration.size|human_size:True }}</td>
         <td>{{ configuration.updated_by.name }}</td>
-        <td>{{ configuration.updated_on }}</td>
-        <td><a href="{% url 'configuration_export' configuration.id %}" class="btn btn-sm btn-export">{% blocktrans %}Export{% endblocktrans %}</a></td>
-        <td><a href="{% url 'configuration_duplicate' configuration.id %}" class="btn btn-sm btn-duplicate">{% blocktrans %}Duplicate{% endblocktrans %}</a></td>
-        <td><a href="{% url 'configuration_delete' configuration.id %}" class="btn btn-sm btn-danger" data-toggle="confirmation" data-title="Delete this configuration?">{% blocktrans %}Delete{% endblocktrans %}</a></td>
+        <td>{{ configuration.updated_on|human_date }}</td>
+        <td class="icon-column"><a href="{% url 'configuration_export' configuration.id %}" class="btn btn-sm btn-export" title="{% blocktrans %}Export{% endblocktrans %}"><i class="fa-solid fa-file-export"></i></a></td>
+        <td class="icon-column"><a href="{% url 'configuration_duplicate' configuration.id %}" class="btn btn-sm btn-duplicate" title="{% blocktrans %}Duplicate{% endblocktrans %}"><i class="fa-solid fa-clone"></i></a></td>
+        <td class="icon-column"><a href="{% url 'configuration_delete' configuration.id %}" class="btn btn-sm btn-danger" data-toggle="confirmation" data-title="Delete this configuration?" title="{% blocktrans %}Delete{% endblocktrans %}"><i class="fa-regular fa-trash-can"></i></a></td>
     </tr>
     {% endfor %}
     </tbody>

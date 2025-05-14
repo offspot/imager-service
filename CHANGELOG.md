@@ -18,6 +18,22 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 ### Changed
 
 - [scheduler] Endpoint `/auto-images/:slug` now includes `autodelete_on` (ISO date)
+- [manager] Orders and config listings:
+  - Common
+    - harmonized look of both config and orders list
+    - 20 items per page (should be enough for most users to skip pagination)
+    - Lighter table design
+    - using purple as link and button color
+    - Better formatting of dates with new `human_date` filter
+  - Orders listing
+    - Using “Your xx” wording
+    - Simplified subtext
+    - Removed filters (not that useful)
+    - Order status now in colored badge
+  - Configs listing
+    - Reduced Export/Clone/Delete buttons to icon-only
+    - Removed Media size column
+    - Config size now red if it cannot fit on any media
 
 ## [2025-05] - 2025-05-07
 

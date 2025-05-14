@@ -10,18 +10,25 @@
 	<link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.7.2/css/all.css" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<link href="{% static 'css/primary.css' %}" rel="stylesheet" >
 	<style type="text/css">
+		:root, [data-bs-theme=light] {
+		  --highlight-color: #7732ec;
+		  --subtext-color: #545d6a;;
+		}
 		.success { color: #155724; }
 		.warning { color: #856404; }
 		.danger { color: #721c24; }
 		.info { color: #0c5460; }
 		.primary { color: #004085; }
+		.subtext { color: var(--subtext-color); }
+
 		.package-tag { margin-right: 0.25em; }
-		.message-debug, .messages .debug { color:#818182;background-color:#fefefe;border-color:#fdfdfe; }
-		.message-info, .messages .info { color:#0c5460;background-color:#d1ecf1;border-color:#bee5eb; }
-		.message-success, .messages .success { color:#155724;background-color:#d4edda;border-color:#c3e6cb; }
-		.message-warning, .messages .warning { color:#856404;background-color:#fff3cd;border-color:#ffeeba; }
-		.message-error, .messages .error { color:#721c24;background-color:#f8d7da;border-color:#f5c6cb; }
+		.message-debug, .messages .debug {color: white;background-color:#fefefe;border-color:#fdfdfe; }  /*  color:#818182; */
+		.message-info, .messages .info {color: white;background-color:#d1ecf1;border-color:#bee5eb; }  /*  color:#0c5460; */
+		.message-success, .messages .success {color: white;background-color:#d4edda;border-color:#c3e6cb; }  /*  color:#155724; */
+		.message-warning, .messages .warning {color: white;background-color:#fff3cd;border-color:#ffeeba; }  /*  color:#856404; */
+		.message-error, .messages .error {color: white;background-color:#f8d7da;border-color:#f5c6cb; }  /*  color:#721c24; */
 		.show { display: block !important; }
 		.hidden { display: none !important; }
 		header {
@@ -61,6 +68,22 @@
 		.ordering.selected i, .selected-ordering.selected i { display: inline; color: black; }
 		.btn-export { color: #fff; background-color: #4a5568; border-color: #4a5568; }
 		.btn-duplicate { color: #fff; background-color: #718096; border-color: #718096; }
+
+		h3 { color: black; font-weight: 600; }
+
+		.listing-table {
+	    border-radius: .5em;
+	    box-shadow: 0 1.2em 1em .1em rgba(200,200,200,0.5);
+	    margin-bottom: 2rem;
+		}
+		.listing-table tbody th a { color: var(--highlight-color); font-weight: 500; }
+		.listing-table thead th { border-bottom: unset; font-weight: 500; padding-top: 1em }
+		.listing-table thead th, .listing-table thead th a {
+			color: var(--subtext-color) !important;
+			border-top: 0;
+		}
+		.step-links a { color: var(--highlight-color); }
+
 		{% block css %}{% endblock %}
 	</style>
     <script type="text/javascript">

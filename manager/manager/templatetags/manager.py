@@ -1,8 +1,10 @@
+import datetime
 import json
 from collections.abc import Iterable
 from pathlib import Path
 
 import dateutil.parser
+from babel.dates import format_datetime
 from django import template
 from offspot_config.catalog import app_catalog
 from offspot_config.packages import AppPackage, FilesPackage, Package
@@ -35,6 +37,12 @@ def human_size(value, binary: bool = True):  # noqa: FBT001 FBT002
 
 
 register.filter("human_size", human_size)
+
+def human_date(value: datetime.datetime, fmt: str = "d MMMM YY HH:mm"):
+    return format_datetime(value, fmt)
+
+
+register.filter("human_date", human_date)
 
 
 def raw_number(value):
@@ -146,9 +154,9 @@ register.filter("plus_one", plus_one)
 
 def status_color(status):
     return {
-        Order.COMPLETED: "message-success",
-        Order.FAILED: "message-error",
-        Order.NOT_CREATED: "message-error",
+        Order.COMPLETED: "badge-success",
+        Order.FAILED: "badge-danger",
+        Order.NOT_CREATED: "badge-danger",
     }.get(status, "")
 
 

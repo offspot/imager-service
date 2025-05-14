@@ -20,7 +20,7 @@ from manager.models import Configuration
 
 logger = logging.getLogger(__name__)
 
-NB_CONFIGURATIONS_PER_PAGE = 10
+NB_CONFIGURATIONS_PER_PAGE = 20
 
 
 class JSONUploadForm(forms.Form):

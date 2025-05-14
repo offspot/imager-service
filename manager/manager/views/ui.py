@@ -38,7 +38,7 @@ from manager.models import (
 from manager.scheduler import SchedulerAPIError, add_order_shipment, anonymize_orders
 
 logger = logging.getLogger(__name__)
-NB_ORDERS_PER_PAGE = 10
+NB_ORDERS_PER_PAGE = 20
 NB_ADDRESSES_PER_PAGE = 10
 
 
@@ -565,7 +565,7 @@ def order_list(request):
     sort_dir = request.GET.get("dir", "desc")
 
     filtered_orders = Order.objects.filter(
-        organization=request.user.profile.organization, status=order_filter
+        organization=request.user.profile.organization  #, status=order_filter
     )
     # Apply sorting using helper function
     filtered_orders = apply_orders_sorting(filtered_orders, sort_field, sort_dir)
