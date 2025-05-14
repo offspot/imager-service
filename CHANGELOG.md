@@ -34,6 +34,8 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
     - Reduced Export/Clone/Delete buttons to icon-only
     - Removed Media size column
     - Config size now red if it cannot fit on any media
+- [manager] Current Tab (and ZIM language) now preserved upon save
+
 
 ## [2025-05] - 2025-05-07
 
