@@ -157,6 +157,7 @@ def status_color(status):
         Order.COMPLETED: "badge-success",
         Order.FAILED: "badge-danger",
         Order.NOT_CREATED: "badge-danger",
+        Order.IN_PROGRESS: "badge-light",
     }.get(status, "")
 
 
