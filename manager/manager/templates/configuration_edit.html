@@ -115,7 +115,8 @@ table.package-table td:last-child {
 	<form method="POST" enctype="multipart/form-data" class="edit-config" id="edit-config">
 		{% csrf_token %}
 
-		<input type="hidden" id="order-btn-field" class="form-control" value="" name="order-on-success"/>
+		<input type="hidden" id="order-btn-field" value="" name="order-on-success"/>
+		<input type="hidden" id="tab-field" value="{{ tab }}" name="tab"/>
 		{{ form.updated_by.as_hidden }}
 
 
@@ -129,11 +130,11 @@ table.package-table td:last-child {
 		<p></p>
 
 		<ul class="nav nav-tabs" id="configMenuTabHolder" role="tablist">
-			<li class="nav-item"><a class="nav-link active" id="general-tab" data-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="true">{% blocktrans %}General{% endblocktrans %}</a></li>
-			{% if user.profile.can_brand %}<li class="nav-item"><a class="nav-link" id="branding-tab" data-toggle="tab" href="#branding" role="tab" aria-controls="branding" aria-selected="false">{% blocktrans %}Branding{% endblocktrans %} {% include "_locked_badge.html" %}</a></li>{% endif %}
-			<li class="nav-item"><a class="nav-link" id="files-tab" data-toggle="tab" href="#files" role="tab" aria-controls="files" aria-selected="false">{% blocktrans %}Apps{% endblocktrans %}</a></li>
-			<li class="nav-item"><a class="nav-link" id="zims-tab" data-toggle="tab" href="#zims" role="tab" aria-controls="zims" aria-selected="false">{% blocktrans %}Content{% endblocktrans %}</a></li>
-			<li class="nav-item"><a class="nav-link" id="apps-tab" data-toggle="tab" href="#apps" role="tab" aria-controls="apps" aria-selected="false">{% blocktrans %}Learning Tools{% endblocktrans %}</a></li>
+			<li class="nav-item"><a class="nav-link {% if tab == 'general' %}active{% endif %}" id="general-tab" data-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="{% if tab == 'general' %}true{% else %}false{% endif %}">{% blocktrans %}General{% endblocktrans %}</a></li>
+			{% if user.profile.can_brand %}<li class="nav-item"><a class="nav-link {% if tab == 'branding' %}active{% endif %}" id="branding-tab" data-toggle="tab" href="#branding" role="tab" aria-controls="branding" aria-selected="{% if tab == 'branding' %}true{% else %}false{% endif %}">{% blocktrans %}Branding{% endblocktrans %} {% include "_locked_badge.html" %}</a></li>{% endif %}
+			<li class="nav-item"><a class="nav-link {% if tab == 'files' %}active{% endif %}" id="files-tab" data-toggle="tab" href="#files" role="tab" aria-controls="files" aria-selected="{% if tab == 'files' %}true{% else %}false{% endif %}">{% blocktrans %}Apps{% endblocktrans %}</a></li>
+			<li class="nav-item"><a class="nav-link {% if tab == 'zims' %}active{% endif %}" id="zims-tab" data-toggle="tab" href="#zims" role="tab" aria-controls="zims" aria-selected="{% if tab == 'zims' %}true{% else %}false{% endif %}">{% blocktrans %}Content{% endblocktrans %}</a></li>
+			<li class="nav-item"><a class="nav-link {% if tab == 'apps' %}active{% endif %}" id="apps-tab" data-toggle="tab" href="#apps" role="tab" aria-controls="apps" aria-selected="{% if tab == 'apps' %}true{% else %}false{% endif %}">{% blocktrans %}Learning Tools{% endblocktrans %}</a></li>
 			<li class="nav-item"><a class="nav-link disabled">
 				<span id="img_size_holder" data-container="body" data-toggle="popover" data-trigger="hover" data-content="{% blocktrans %}Size of Selected Contents{% endblocktrans %}"><i class="fa-regular fa-hard-drive"></i> <span id="image_req_size">?</span></span> –
 				<span id="sd_size_holder" class="warning" data-container="body" data-toggle="popover" data-trigger="hover" data-content="{% blocktrans %}Minimum SD-card Size required for Selected Contents{% endblocktrans %}"><span id="sd_size">?</span></span>
@@ -144,9 +145,7 @@ table.package-table td:last-child {
 
 	<div class="tab-content" id="configMenuTabHolderContent">
 
-		
-
-	<div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+	<div class="tab-pane fade {% if tab == 'general' %}show active{% endif %}" id="general" role="tabpanel" aria-labelledby="general-tab">
 		<div class="form-row visual-group">
 			<div class="form-group col-md-4 {% if not user.profile.can_brand %}hidden{% endif %}">
 				{% include "_input_field.html" with field=form.project_name placeholder=hotspot_placeholder disabled=user.profile.cannot_brand locked=True %}
@@ -229,7 +228,7 @@ table.package-table td:last-child {
 
 	</div>
 
-	<div class="tab-pane fade" id="branding" role="tabpanel" aria-labelledby="branding-tab">
+	<div class="tab-pane fade {% if tab == 'branding' %}show active{% endif %}" id="branding" role="tabpanel" aria-labelledby="branding-tab">
 		<h3>{% blocktrans %}Branding{% endblocktrans %}</h3>
 		<p>{% blocktrans %}This section allows you to replace some visual elements with your own branding.{% endblocktrans %}</p>
 		<div class="form-row visual-group">
@@ -260,7 +259,7 @@ table.package-table td:last-child {
 	<input type="hidden" id="catalog_order" value="" />
 	<input type="hidden" id="selected_order" value="" />
 
-	<div class="tab-pane fade" id="apps" role="tabpanel" aria-labelledby="apps-tab">
+	<div class="tab-pane fade {% if tab == 'apps' %}show active{% endif %}" id="apps" role="tabpanel" aria-labelledby="apps-tab">
 		{% if form.content_packages.errors %}<div class="alert alert-danger">{% blocktrans with errors=form.content_packages.errors %}Your selection has errors: {{ errors }}{% endblocktrans %}</div>{% endif %}
 
 		<div class="form-row visual-group">
@@ -296,7 +295,7 @@ table.package-table td:last-child {
 		</div>
 	</div>
 
-	<div class="tab-pane fade" id="files" role="tabpanel" aria-labelledby="files-tab">
+	<div class="tab-pane fade {% if tab == 'files' %}show active{% endif %}" id="files" role="tabpanel" aria-labelledby="files-tab">
 		{% if form.content_packages.errors %}<div class="alert alert-danger">{% blocktrans with errors=form.content_packages.errors %}Your selection has errors: {{ errors }}{% endblocktrans %}</div>{% endif %}
 
 		<div class="form-row visual-group">
@@ -327,7 +326,7 @@ table.package-table td:last-child {
 		</div>
 	</div>
 
-	<div class="tab-pane fade" id="zims" role="tabpanel" aria-labelledby="zims-tab">
+	<div class="tab-pane fade {% if tab == 'zims' %}show active{% endif %}" id="zims" role="tabpanel" aria-labelledby="zims-tab">
 		{% if form.content_zims.errors %}<div class="alert alert-danger">{% blocktrans with errors=form.content_zims.errors %}Your selection has errors: {{ errors }}{% endblocktrans %}</div>{% endif %}
 
 		<div class="form-row visual-group" style="padding-bottom: 1em;">
@@ -336,7 +335,7 @@ table.package-table td:last-child {
 				<select name="lang_filter" id="lang_filter" class="form-control" style="width: auto; height: auto;">
 			  	<option value="">{% blocktrans %}Select a language to filter{% endblocktrans %}</option>
 			  	{% for lang_code, lang_name in languages.items %}
-			  	<option value="{{ lang_code }}">{{ lang_name }}</option>
+			  	<option value="{{ lang_code }}" {% if lang_filter == lang_code %}selected="selected"{% endif %}>{{ lang_name }}</option>
 			  	{% endfor %}
 		  	</select>
 		  </div>
@@ -711,6 +710,8 @@ table.package-table td:last-child {
 		// register tab behavior
 		$('#configMenuTabHolder a').on('click', function (e) {
 		  e.preventDefault()
+		  // update current tab field for post-save restore
+		  $("#tab-field").val($(this).attr('aria-controls'));
 		  $(this).tab('show');
 		});
 

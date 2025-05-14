@@ -182,7 +182,22 @@ def configuration_edit(request, config_id=None):
     # list of languages availables in all catalogs
     context["packages_langs"] = catalog.languages
 
+    context["tab"] = "general"  # default
+    context["lang_filter"] = None
+
     if request.method == "POST":
+        if request.POST.get("tab", "").strip() in (
+            "general",
+            "branding",
+            "files",
+            "zims",
+            "apps",
+        ):
+            context["tab"] = request.POST["tab"].strip()
+
+        if request.POST.get("lang_filter", "").strip():
+            context["lang_filter"] = request.POST["lang_filter"].strip()[:3]
+
         form = ConfigurationForm(request.POST, request.FILES, instance=config)
         if form.is_valid():
             try:
@@ -209,7 +224,6 @@ def configuration_edit(request, config_id=None):
                 if request.POST.get("order-on-success"):
                     return redirect("configuration_order", config_id=config.id)
                 messages.success(request, _("Configuration Updated successfuly !"))
-                return redirect("configuration_edit", config.id)
         else:
             pass
     else:
