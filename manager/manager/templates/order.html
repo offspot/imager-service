@@ -2,29 +2,199 @@
 {% load i18n %}
 {% load manager %}
 
+{% block css %}
+code {
+	color: var(--highlight-color);
+}
+
+h3>span {
+	font-size: .6em;
+	vertical-align: middle;
+}
+
+h3>span .badge {
+	font-weight: 500;
+}
+
+section {
+	padding: 1em;
+	border: 1px solid var(--light-grey);
+	border-radius: .5em;
+	margin-bottom: 2em;
+}
+
+section h4 {
+	font-weight: 600;
+}
+
+.packages-list {
+	width: 100%;
+}
+
+.packages-list tr td:last-child, .packages-list tr th:last-child {
+	text-align: right;
+	vertical-align: middle;
+	padding-right: 0;
+}
+
+.packages-list thead {
+	display: none;
+}
+
+.packages-list tbody tr:first-child td {
+	border-top: 0;
+}
+
+.packages-list tr td:first-child {
+	padding-left: 0;
+}
+
+.packages-list td {
+	line-height: 1.3em;
+}
+
+.packages-list .title {
+	color: black;
+	font-weight: 600;
+}
+
+.packages-list .description {
+	color: var(--subtext-color);
+	font-size: .8em;
+}
+
+.badge-light {
+	background-color: transparent;
+	border: 1px solid var(--light-grey);
+}
+
+.statuses thead {
+	display: none;
+}
+
+.statuses tr td:first-child {
+	padding-left: 0;
+}
+.statuses tr td:last-child {
+	padding-right: 0;
+}
+.statuses tr td:last-child, .statuses tr th:last-child {
+	text-align: right;
+}
+
+
+.btn.float-right {
+	margin-left: 1em;
+}
+
+.summary .entry label {
+	font-weight: 600;
+}
+
+.summary .entry * {
+	display: block;
+}
+
+section.statuses {
+	padding-bottom: 0;
+}
+
+#toggle {
+	cursor: pointer;
+	padding: .7em 0 .7em .7em;
+}
+{% endblock %}
+
 {% block content %}
-<h3>{% blocktrans with order_min_id=order.min_id %}Order <code>{{ order_min_id }}</code>{% endblocktrans %}</h3>
+<p><a class="back-link" href="{% url 'order_list' %}"><i class="fa-solid fa-arrow-left"></i> Back to Orders</a></p>
 
-<table class="table table-striped">
-<tr>
-	<th>{% blocktrans %}Scheduler ID{% endblocktrans %}</th><td colspan="2">{{ order.scheduler_id }}</td><td class="text-right">{% if order.active %}<a  data-toggle="confirmation" data-title="Are you sure you want to cancel this Order?" href="{% url "order_cancel" order_min_id=order.min_id %}" class="btn-sm btn btn-danger">{% blocktrans %}Cancel Order{% endblocktrans %}</a>{% endif %}</td></tr>
-<tr><th>{% blocktrans %}Created By{% endblocktrans %}</th><td>{{ order.created_by }}</td><td colspan="2">{{ order.created_on }}</td></tr>
-<tr><th>{% blocktrans %}General Status{% endblocktrans %}</th><td colspan="3"><strong>{{ order.verbose_status }}</strong></td></tr>
-</table>
+<h3>{% blocktrans with order_min_id=order.min_id %}Order <code>{{ order_min_id }}</code>{% endblocktrans %} <span><span class="badge badge-pill {{ order.status|status_color }}">{{ order.verbose_status }}</span></span></h3>
+<p class="subtext">Created on {{ order.created_on|human_date:"at" }} by {{ order.created_by.name }}</p>
 
-{% if not order.retrieved %}
-<p class="alert alert-warning">{% blocktrans with status=order.scheduler_data_on|default:"creation" %}Unable to retrieve {{ order }} from scheduler. Displaying archive version ({{ status }}).{% endblocktrans %}</p>
-{% else %}
-<p class="alert alert-info">{% blocktrans with data_date=order.scheduler_data_on %}Scheduler data retrieved on ({{ data_date }}).{% endblocktrans %}</p>
-{% endif %}
+<section class="summary">
+	{% if order.active %}<a data-toggle="confirmation" data-title="Are you sure you want to cancel this Order?" href="{% url "order_cancel" order_min_id=order.min_id %}" class="btn-sm btn btn-danger float-right">{% blocktrans %}Cancel Order{% endblocktrans %}</a>{% endif %}
+	{% if order.can_download %}
+	<a href="{{ order.http_download_url }}" download class="btn-sm btn btn-secondary float-right" title="Download via HTTP"><i class="fa-brands fa-internet-explorer"></i> {% blocktrans %}Download{% endblocktrans %}</a>
+	<a href="{{ order.torrent_download_url }}" download class="btn-sm btn btn-primary float-right" title="Download via Torrent"><i class="fa-solid fa-magnet"></i> {% blocktrans %}Download{% endblocktrans %}</a>
+	{% endif %}
 
-{% include "order_detail.html" with orderdata=order.data %}
+	<h4>Order Summary</h4>
+	<p class="subtext">Details of your order configuration</p>
+	<div class="row">
+    <div class="col-sm entry">
+    	<label>Configuration</label>
+    	<span>{{ orderdata.config.name }}</span>
+    </div>
+    <div class="col-sm entry">
+    	<label>Size</label>
+    	<span>{% if order.config_yaml %}{{ orderdata.config.size }}GB{% else %}{{ orderdata.config.size }}{% endif %}</span>
+    </div>
+    <div class="col-sm entry">
+    	<label>Scheduler ID</label>
+    	<code>{{ order.scheduler_id }}</code>
+    </div>
+	</div>
+</section>
+
+<section>
+	<h4>Content Packages</h4>
+	<p class="subtext">The content included in this order</p>
+
+	<table class="table packages-list">
+		<thead>
+			<tr><th>Package</th><th>Size</th></tr>
+		</thead>
+		<tbody>
+		{% for entry in order.dashboard_entries %}
+		<tr>
+			<td>
+				<span class="title">{{ entry.title }}</span>
+				<br />
+				<span class="description">{{ entry.description }}</span>
+			</td>
+			<td>{% if entry.size %}<span class="badge badge-pill badge-light">{{ entry.size|human_size }}</span>{% endif %}</td>
+		</tr>
+		{% empty %}
+			{% for entry in order.config_json.content.zims %}
+			<tr>
+				<td><span class="title">{{ entry }}</span></td>
+				<td></td>
+			</tr>
+			{% endfor %}
+		{% endfor %}
+	</table>
+
+</section>
+
+<section class="statuses">
+	<p><strong><i class="fa-regular fa-file-lines"></i> History</strong><span id="toggle" class="float-right"><i class="fa-solid fa-lg fa-caret-down"></i></span></p>
+	<table class="table statuses" style="display: none;">
+		<thead>
+			<tr><th>Status</th><th>On</th><th>Comment</th></tr>
+		</thead>
+		<tbody>
+			{% for status in order.merged_statuses %}
+			<tr><td>{% if forloop.first %}<strong>{{ status.status }}</strong>{% else %}{{ status.status }}{% endif %}</td>
+				<td>{{ status.on|human_date:"long" }}</td>
+				<td>{{ status.payload|default_if_none:"" }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</section>
 {% endblock %}
 
 {% block javascript %}
 	$('[data-toggle="popover"]').popover();
 	$('.toggle').on("click", function (e) {
-		console.log("togglllle");
 		$(".pretty-config").toggleClass("hidden");
+	});
+	$('#toggle').on('click', function() {
+		$('table.statuses').toggle();
+		let caret = ($('table.statuses:visible').length) ? 'up': 'down';
+		$('#toggle i').removeClass('fa-caret-down');
+		$('#toggle i').removeClass('fa-caret-up');
+		$('#toggle i').addClass(`fa-caret-${caret}`);
+
 	});
 {% endblock %}

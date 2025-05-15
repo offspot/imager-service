@@ -35,7 +35,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
     - Removed Media size column
     - Config size now red if it cannot fit on any media
 - [manager] Current Tab (and ZIM language) now preserved upon save
-
+- [manager] New simpler order detail page with download buttons
 
 ## [2025-05] - 2025-05-07
 

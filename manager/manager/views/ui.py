@@ -731,7 +731,7 @@ def order_detail(request, order_min_id):
             _("Order with ID `%(order_id)s` not found") % {"order_id": order_min_id}
         )
 
-    context = {"order": order}
+    context = {"order": order, "orderdata": order.data}
     return render(request, "order.html", context)
 
 

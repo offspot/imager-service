@@ -38,8 +38,14 @@ def human_size(value, binary: bool = True):  # noqa: FBT001 FBT002
 
 register.filter("human_size", human_size)
 
+
 def human_date(value: datetime.datetime, fmt: str = "d MMMM YY HH:mm"):
-    return format_datetime(value, fmt)
+    if fmt == "at":
+        return (
+            f'{format_datetime(value, "d MMMM YYYY")} '
+            f'at {format_datetime(value, "HH:mm")}'
+        )
+    return format_datetime(value, fmt, locale="en_GB")
 
 
 register.filter("human_date", human_date)

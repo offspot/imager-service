@@ -4,10 +4,11 @@ import io
 import json
 import logging
 import re
+import urllib.parse
 import uuid
 import zoneinfo
 from pathlib import Path
-from typing import ClassVar
+from typing import ClassVar, NamedTuple
 
 import babel.languages
 import dateutil.parser
@@ -15,6 +16,7 @@ import phonenumbers
 import PIL
 import pycountry
 import requests
+import yaml
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -37,6 +39,12 @@ from offspot_runtime.checks import (
     is_valid_timezone,
     is_valid_wpa2_passphrase,
 )
+
+try:
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    # we don't NEED cython ext but it's faster so use it if avail.
+    from yaml import SafeLoader
 
 from manager.kiwix_library import catalog
 from manager.scheduler import (
@@ -507,6 +515,21 @@ KH_TIMEZONES = [
     "UTC",
 ]
 KH_TIMEZONES_CHOICES = [(tz, tz) for tz in KH_TIMEZONES]
+
+
+def get_clean_statuses(statuses):
+    return sorted(
+        [
+            {
+                "status": item.get("status"),
+                "on": dateutil.parser.parse(item.get("on")),
+                "payload": item.get("payload"),
+            }
+            for item in statuses
+        ],
+        key=lambda x: x["on"],
+        reverse=True,
+    )
 
 
 def openzim_fixed_ident(ident: str) -> str:
@@ -1643,18 +1666,7 @@ class OrderData(dict):
         return Order.STATUSES.get(self.status)
 
     def clean_statuses(self):
-        return sorted(
-            [
-                {
-                    "status": item.get("status"),
-                    "on": dateutil.parser.parse(item.get("on")),
-                    "payload": item.get("payload"),
-                }
-                for item in self.get("statuses", [])
-            ],
-            key=lambda x: x["on"],
-            reverse=True,
-        )
+        return get_clean_statuses(self.get("statuses", []))
 
     def pretty_config(self):
         config = self.get("config", {})
@@ -1682,6 +1694,12 @@ class OrderData(dict):
             Order.FAILED,
             Order.COMPLETED,
         )
+
+
+class DashboardEntry(NamedTuple):
+    title: str
+    description: str
+    size: int
 
 
 class Order(models.Model):
@@ -1778,6 +1796,63 @@ class Order(models.Model):
         max_length=255, verbose_name=_lz("Warehouse Download URI")
     )
 
+    @property
+    def dashboard_entries(self):
+        try:
+            payload = yaml.load(self.config_yaml, Loader=SafeLoader)
+            content = {}
+            for file in payload.get("files", []):
+                if not isinstance(file, dict):
+                    continue
+                if file.get("to", "") == "/data/contents/dashboard.yaml":
+                    content = yaml.load(file["content"], Loader=SafeLoader)
+                    break
+
+            return [
+                DashboardEntry(
+                    package["title"],
+                    package["description"],
+                    package.get("download", {}).get("size", 0),
+                )
+                for package in content.get("packages", [])
+            ]
+        except Exception:
+            return []
+
+    @property
+    def merged_statuses(self):
+        return get_clean_statuses(
+            list(self.data.get("statuses", []))
+            + list(self.data.get("tasks", {}).get("create", {}).get("statuses", []))
+        )
+
+    @property
+    def can_download(self) -> bool:
+        try:
+            for entry in get_clean_statuses(
+                self.data.get("tasks", {}).get("create", {}).get("statuses", [])
+            ):
+                if entry["status"] == "uploaded_public":
+                    return datetime.datetime.now(tz=datetime.UTC) < entry[
+                        "on"
+                    ] + datetime.timedelta(days=14)
+            return False
+        except Exception:
+            raise
+
+    @property
+    def http_download_url(self):
+        url = urllib.parse.urlparse(self.data["warehouse"]["download_uri"])
+        if "torrent" in url.scheme:
+            parts = list(urllib.parse.urlsplit(url.geturl()))
+            parts[0] = parts[0].replace("+torrent", "")
+            url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
+        return urllib.parse.urljoin(url.geturl(), self.data["fname"])
+
+    @property
+    def torrent_download_url(self):
+        return f"{self.http_download_url}.torrent"
+
     @classmethod
     def fetch_and_get(cls, order_id):
         order = cls.objects.get(id=order_id)
@@ -1804,7 +1879,7 @@ class Order(models.Model):
             return Order.FAILED
         if status in ("canceled", "timedout"):
             return Order.FAILED
-        if status in ("shipped", "pending_expiry"):
+        if status in ("shipped", "pending_expiry", "expired"):
             return Order.COMPLETED
 
         return Order.IN_PROGRESS
