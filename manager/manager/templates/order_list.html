@@ -24,7 +24,7 @@
 		<td>{{ order.data.config_name }}</td>
 		<td>{{ order.created_by.name }}</td>
 		<td>{{ order.created_on|human_date }}</td>
-		<td><span class="badge rounded-pill {{ order.status|status_color }}">{{ order.verbose_status }}</td>
+		<td><span class="badge badge-pill {{ order.status|status_color }}">{{ order.verbose_status }}</span></td>
 	</tr>
 	{% endfor %}
 	</tbody>

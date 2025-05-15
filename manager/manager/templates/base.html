@@ -14,7 +14,8 @@
 	<style type="text/css">
 		:root, [data-bs-theme=light] {
 		  --highlight-color: #7732ec;
-		  --subtext-color: #545d6a;;
+		  --subtext-color: #545d6a;
+		  --light-grey: #e9eef4;
 		}
 		.success { color: #155724; }
 		.warning { color: #856404; }
@@ -71,9 +72,13 @@
 
 		h3 { color: black; font-weight: 600; }
 
+		a.back-link, a.add-zim {
+			color: black;
+			text-decoration: none;
+		}
+
 		.listing-table {
 	    border-radius: .5em;
-	    box-shadow: 0 1.2em 1em .1em rgba(200,200,200,0.5);
 	    margin-bottom: 2rem;
 		}
 		.listing-table tbody th a { color: var(--highlight-color); font-weight: 500; }

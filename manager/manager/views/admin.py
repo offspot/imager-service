@@ -11,8 +11,8 @@ from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _lz
 
-from manager.decorators import staff_required
 from manager.__about__ import get_version
+from manager.decorators import staff_required
 from manager.models import Media, Organization, Profile
 from manager.views.ui import do_delete_account
 
