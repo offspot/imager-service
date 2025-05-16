@@ -15,9 +15,15 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 - [health-check] New S3 auto-delete date check for all auto-images (fail if less than 4d)
 - [scheduler.periodic-tasks] auto-extending S3 deletion dates for auto-images under 5d
 
+### Fixed
+
+- [scheduler.stripe] Webhook failing if no discount on device order
+- [scheduler.stripe] Email dates zero-padded hours and minutes
+
 ### Changed
 
-- [scheduler] Endpoint `/auto-images/:slug` now includes `autodelete_on` (ISO date)
+- [scheduler.api] Endpoint `/auto-images/:slug` now includes `autodelete_on` (ISO date)
+- [scheduler.stripe] Email date now aligned with order time if webhook runs late
 - [manager] Orders and config listings:
   - Common
     - harmonized look of both config and orders list
