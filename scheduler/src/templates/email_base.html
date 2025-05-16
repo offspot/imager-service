@@ -1,5 +1,6 @@
 <html>
 <head>
+  <meta charset="utf-8">
   <style type="text/css">
     html, body, * { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif, Oxygen, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial; }
 </style>
@@ -9,11 +10,12 @@
   html, body, * { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif, Oxygen, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial; }
 </style>
 <div style="padding: 0 1rem; width: fit-content; max-width: 60em;">
-{% block content %}{% endblock %}
+  <div style="background-color: white;">
+    {% block content %}{% endblock %}
+  </div>
+  <p style="margin-top: 1rem; color:#6c757d; max-width:60em;width: fit-content; text-align: center; width: 100%; background-color: #f8f9fa; border-radius: .5rem; padding: 1.5rem 1rem; box-sizing: border-box; margin-top: 1rem; font-weight: 500;">
+    <strong>{{ _("Enjoy going offline!")|safe }}<br /><span style="color: #707980; font-weight: normal;">{{ _("The Kiwix team")|safe }}</strong>
+  </p>
 </div>
-<p style="margin-top: 2rem; color:#5a5a5a; max-width:60em;width: fit-content;"><strong>
-{{ _("Enjoy going offline!")|safe }}<br />
-{{ _("The Kiwix team")|safe }}
-</strong></p>
 </body>
 </html>

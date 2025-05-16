@@ -3,36 +3,52 @@
 {% block content %}
 {% set config_name_span %}<span style="color: #fd8a31;">{{ order.config.name }}</span>{% endset %}
 
-<h2 style="margin-bottom: 2rem; color:#5a5a5a;">{{ _("Your Hotspot order for %(config_name)s is being processed")|format(config_name=config_name_span)|safe }}</h2>
+<h2 style="margin-bottom: 1rem; color:#212529;">{{ _("Your Hotspot order for %(config_name)s is being processed")|format(config_name=config_name_span)|safe }}</h2>
 
-<div style="background-color: #fcfcfc; border: 2px solid #efefef; border-radius: 1rem; padding: 1rem;">
-  <table style="border-collapse: separate; border-spacing: 1rem .3rem; font-size: .8rem;">
+<div style="background-color: #fcfcfc; border: 1px solid #edf1f3; border-radius: 1rem; padding: 1rem; color: #404040;">
+  <table style="font-size: 1rem; width: 100%;">
     <thead>
       <tr>
-        <th style="color: #5c5c5b; text-align: left; background-color: transparent;">{{ _("Your Order") }}</th>
-        <th style=" background-color: transparent;"></th>
-        <th style="color: #5c5c5b; text-align: left; background-color: transparent;">{{ _("%(sdcard_size)sGB")|format(sdcard_size=order.sd_card.size) }}</th>
+        <th style="border-bottom: 1px solid #ebeff2; padding-bottom: 1rem; text-align: left; ">{{ _("Your Order") }}</th>
+        <th style="border-bottom: 1px solid #ebeff2; padding-bottom: 1rem; "></th>
+        <th style="border-bottom: 1px solid #ebeff2; padding-bottom: 1rem; text-align: left; ">Description</th>
       </tr>
-    <tr><th colspan="3" style="height: 1rem; background-color: transparent;"></th></tr>
+      <tr>
+        <th colspan="3" style="height: 1rem; "></th>
+      </tr>
     </thead>
     <tbody>
-      <tr><td style="color: #9b9b9b;">Kiwix Hotspot OS</td><th style="background-color: transparent;"></th><td style="color: #9b9b9b;">Software required to run the Hotspot</td></tr>
+      <tr>
+        <td><span style="border: 1.5px solid #f38a58; background-color: #f8f1e7; color: #f26522; font-weight: 600; padding: .5rem; border-radius: .4rem; line-height: 4rem; font-size: .8rem;">Total Package Size: {{ _("%(sdcard_size)sGB")|format(sdcard_size=order.sd_card.size) }}</span></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td style="border-bottom: 1px solid #ebeff2; padding: 0 1em 1em 0;">Kiwix Hotspot OS</td>
+        <td style="border-bottom: 1px solid #ebeff2; padding: 0 1em 1em 0;"></td>
+        <td style="border-bottom: 1px solid #ebeff2; padding: 0 1em 1em 0;">Software required to run the Hotspot</td>
+      </tr>
       {% for content_title, content_desc in order_entries %}
-      <tr><td style="color: #4e4e4e;">{{ content_title }}</td><th style="background-color: transparent;"></th><td style="color: #4e4e4e;">{{ content_desc }}</td></tr>
+      <tr>
+        <td style="{% if not loop.last %}border-bottom: 1px solid #ebeff2; padding: 1em 1em 1em 0;{% else %}padding: 1em 1em 0 0;{% endif %} ">{{ content_title }}</td>
+        <td style="{% if not loop.last %}border-bottom: 1px solid #ebeff2; padding: 1em 1em 1em 0;{% else %}padding: 1em 1em 0 0;{% endif %}"></td>
+        <td style="{% if not loop.last %}border-bottom: 1px solid #ebeff2; padding: 1em 1em 1em 0;{% else %}padding: 1em 1em 0 0;{% endif %} ">{{ content_desc }}</td></tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
 
-<p style="display: block; height: 1em;"></p>
+<div style="background-color: #e8f4fc; border-left: 5px solid #0d6efd; border-radius: 1rem; padding: 1rem; color: #4d545c; margin-top: 2rem;">
 
-<div style="background-color: #fcfcfc; border: 2px solid #efefef; border-radius: 1rem; padding: 0 1rem;">
   {% if order.sd_card.type == "physical" %}
-  <p style="color: #4c4c4c;">{{ _("Your order of <strong>%(quantity)s x %(sd_name)s</strong> with the <strong>%(config_name)s</strong> configuration on it has been accepted by the system.")|format(quantity=order.quantity, sd_name=order.sd_card.name, config_name=order.config.name)|safe }}</p>
-  <p style="color: #4c4c4c;">{{ _("You will be notified when it is shipped to your address.") }}</p>.
+  <h3 style="margin-top: 0;">{{ _("Your %(quantity)s x %(sd_name)s with the <strong>%(config_name)s</strong> configuration")|format(quantity=order.quantity, sd_name=order.sd_card.name, config_name=config_name_span)|safe }}</h3>
+  <p>{{ _("Your order has been accepted by the system.") }}</p>
+  <p style="margin-bottom: 0;">{{ _("You will be notified when it is shipped to your address.") }}</p>.
   {% else %}
-  <p style="color: #4c4c4c;">{{ _("Your <strong>%(sd_size)sGB</strong> download order with the <strong>%(config_name)s</strong> configuration on it has been accepted by the system. Work duration depends on current server load, but your image should be ready within 24 hours at most.")|format(sd_size=order.sd_card.size, config_name=order.config.name)|safe }}</p>
-  <p style="color: #4c4c4c;">{{ _("You will be notified when it is ready for download.") }}</p>
+  <h3 style="margin-top: 0;">{{ _("Your download order with the <strong>%(config_name)s</strong> configuration")|format(config_name=config_name_span)|safe }}</h3>
+  <p>{{ _("Your order has been accepted by the system. Work duration depends on current server load, but your image should be ready within 24 hours at most.")|format(sd_size=order.sd_card.size, config_name=order.config.name)|safe }}</p>
+  <p>{{ _("You will be notified when it is ready for download.") }}</p>
+  <p style="padding: 1em 0 .5em 0;"><a style="background-color: #f26522; border-radius: .25rem; padding: 1rem; color: white; text-decoration: none; font-weight: 600;" href="{{ order|pub_url }}" download>Check Order Status</a>
   {% endif %}
 </div>
 {% endblock %}
