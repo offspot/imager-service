@@ -135,7 +135,7 @@ PRODUCTS = {
 }
 
 
-def format_dt(date, fmt="d MMMM yyyy, H:m", locale="en"):
+def format_dt(date, fmt="d MMMM yyyy, HH:mm", locale="en_GB"):
     """format datetime using babel. Format optional"""
     return format_datetime(date, fmt, locale=locale)
 
@@ -388,13 +388,24 @@ def handle_device_order(session, customer):
         },
     )
 
+    # sould this now be ran exactly at payment time, we need the date to be
+    # close to the payment time. We assume session + 5mn in this case.
+    # this is only applied if running 24h+ after the session creation
+    now = datetime.datetime.now()
+    session_on = datetime.datetime.fromtimestamp(session.created)
+    invoice_date = (
+        session_on + datetime.timedelta(minutes=5)
+        if (now - session_on).days >= 1
+        else now
+    )
+
     # send receipt email
     email_id = send_paid_order_email(
         kind="device",
         email=customer.email,
         cc=ASSEMBLY_EMAIL,
         name=customer.name,
-        timestamp=datetime.datetime.now(),
+        timestamp=invoice_date,
         product=product,
         product_name=get_product_name(product),
         price=session.amount_total,
