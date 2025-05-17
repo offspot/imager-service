@@ -49,7 +49,7 @@ jinja_env = Environment(
 
 def format_dt(date, fmt="long", locale=None):
     return format_datetime(
-        date, fmt, locale=locale or getattr(jinja_env, "_locale", "en")
+        date, fmt, locale=locale or getattr(jinja_env, "_locale", "en_GB")
     )
 
 
@@ -87,12 +87,14 @@ FAILED_ORDER_EMAIL = os.getenv("FAILED_ORDER_EMAIL")
 @contextmanager
 def localized_for(lang, *args, **kwargs):
     translations = Translations.load(locale_dir, [lang])
+    if lang == "en":
+        lang == "en_GB"
     try:
         jinja_env._locale = lang
         yield jinja_env.install_gettext_translations(translations)
     finally:
         jinja_env.uninstall_gettext_translations(translations)
-        jinja_env._locale = "en"
+        jinja_env._locale = "en_GB"
 
 
 def get_sender():
@@ -236,10 +238,10 @@ def get_email_for(order_id, kind, formatted=True):
         return "{name} <{email}>".format(name=name, email=email)
 
     if kind not in ("client", "recipient", "operator", "error-manager"):
-        return None, "en"
+        return None, "en_GB"
 
     if kind == "error-manager" and FAILED_ORDER_EMAIL:
-        return _fmt("Imager Error Manager", FAILED_ORDER_EMAIL), "en"
+        return _fmt("Imager Error Manager", FAILED_ORDER_EMAIL), "en_GB"
 
     order = Orders.get_with_tasks(order_id, {"logs": 0})
     if kind == "client":
@@ -256,8 +258,8 @@ def get_email_for(order_id, kind, formatted=True):
 
     if kind == "operator":
         worker = Users().by_username(order["tasks"]["download"]["worker"])
-        return worker["email"], "en"
-    return None, "en"
+        return worker["email"], "en_GB"
+    return None, "en_GB"
 
 
 def get_dashboard_entries(yaml_text):

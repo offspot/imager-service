@@ -3,56 +3,68 @@
 
 {% block content %}
 {% set config_name_span %}<span style="color: #fd8a31;">{{ order.config.name }}</span>{% endset %}
-{% set transmission_link %}<a style="color: #4cb5e2; text-decoration: none; font-weight: bold;" href="https://transmissionbt.com/download/">Transmission</a>{% endset %}
-{% set faq_link %}<a style="color: #4cb5e2; text-decoration: none; font-weight: bold;" href="https://kiwix.org/en/hotspot-checklist-and-troubleshooting/">{{ _("troubleshooting checklist") }}</a>{% endset %}
-{% set rpi_imager_link %}<a style="color: #4cb5e2; text-decoration: none; font-weight: bold;" href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a>{% endset %}
-{% set hotspot_link %}<a href="http://{{ order.config.project_name }}.hotspot/" style="color: #4cb5e2; text-decoration: none; font-weight: bold; font-family: monospace; white-space:nowrap;">http://{{ order.config.project_name }}.hotspot/</a>{% endset %}
+{% set transmission_link %}<a style="color: #3a87fc; text-decoration: none; font-weight: bold;" href="https://transmissionbt.com/download/">Transmission</a>{% endset %}
+{% set faq_link %}<a style="color: #3a87fc; text-decoration: none; font-weight: bold;" href="https://kiwix.org/en/hotspot-checklist-and-troubleshooting/">{{ _("troubleshooting checklist") }}</a>{% endset %}
+{% set rpi_imager_link %}<a style="color: #3a87fc; text-decoration: none; font-weight: bold;" href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a>{% endset %}
+{% set hotspot_link %}<a href="http://{{ order.config.project_name }}.hotspot/" style="color: #696969; text-decoration: none; font-weight: bold; font-family: monospace; white-space:nowrap;">http://{{ order.config.project_name }}.hotspot/</a>{% endset %}
+{% set important_strong %}<strong style="color: #fd8a31;">{{ _("IMPORTANT") }}</strong>{% endset %}
+{% set date_strong %}<strong style="color: #fd8a31;">{{ _("%(expiration_date)s")|format(expiration_date=order.sd_card.expiration|date)|safe }}</strong>{% endset %}
 
-<h2 style="margin-bottom: 2rem; color:#5a5a5a;">{{ _("Your Hotspot image %(config_name)s is now ready for download!")|format(config_name=config_name_span)|safe }}</h2>
+<h2 style="margin-bottom: 1rem; color:#212529;">{{ _("Your Hotspot image %(config_name)s is now ready for download")|format(config_name=config_name_span)|safe }}</h2>
 
-<p style="color:#5a5a5a;">{{ _("<strong>IMPORTANT</strong>: The link will be available until <strong>%(expiration_date)s</strong> and will be permanently deleted after this date.")|format(expiration_date=order.sd_card.expiration|date())|safe }}
+<div style="background-color: #fff4e4; border-left: 5px solid #ff9800; border-radius: .25rem; padding: 1rem; color:#3b3b3a; margin-top: 2rem; margin-bottom: 2rem;">
+  {{ _("%(important_strong)s: The link will be available until %(date_strong)s and will be permanently deleted after this date.")|format(important_strong=important_strong, date_strong=date_strong)|safe }}
+</div>
 
-<p style="display: block; height: 3rem;"></p>
+<div style="margin:0; padding: 0; box-sizing: border-box; margin-bottom: 2rem; flex-direction: row; display: flex;">{{ button_download(order) }}</div>
 
-<p>{{ button_download(order) }}</p>
-
-<p style="display: block; height: 3rem;"></p>
-
-<div style="background-color: #fcfcfc; border: 2px solid #efefef; border-radius: 1rem; padding: 1rem;">
-  <table style="border-collapse: separate; border-spacing: 1rem .3rem; font-size: .8rem;">
+<div style="background-color: #fcfcfc; border: 1px solid #edf1f3; border-radius: 1rem; padding: 1rem; color: #404040;">
+  <table style="font-size: 1rem; width: 100%;">
     <thead>
       <tr>
-        <th style="color: #5c5c5b; text-align: left; background-color: transparent;">{{ _("Your Order") }}</th>
-        <th style=" background-color: transparent;"></th>
-        <th style="color: #5c5c5b; text-align: left; background-color: transparent;">{{ _("%(sdcard_size)sGB")|format(sdcard_size=order.sd_card.size) }}</th>
+        <th style="border-bottom: 1px solid #ebeff2; padding-bottom: 1rem; text-align: left; ">{{ _("Your Order") }}</th>
+        <th style="border-bottom: 1px solid #ebeff2; padding-bottom: 1rem; "></th>
+        <th style="border-bottom: 1px solid #ebeff2; padding-bottom: 1rem; text-align: left; ">Description</th>
       </tr>
-    <tr><th colspan="3" style="height: 1rem; background-color: transparent;"></th></tr>
+      <tr>
+        <th colspan="3" style="height: 1rem; "></th>
+      </tr>
     </thead>
     <tbody>
-      <tr><td style="color: #9b9b9b;">Kiwix Hotspot OS</td><th style="background-color: transparent;"></th><td style="color: #9b9b9b;">Software required to run the Hotspot</td></tr>
+      <tr>
+        <td><span style="border: 1.5px solid #f38a58; background-color: #f8f1e7; color: #f26522; font-weight: 600; padding: .5rem; border-radius: .4rem; line-height: 4rem; font-size: .8rem;">Total Package Size: {{ _("%(sdcard_size)sGB")|format(sdcard_size=order.sd_card.size) }}</span></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td style="border-bottom: 1px solid #ebeff2; padding: 0 1em 1em 0;">Kiwix Hotspot OS</td>
+        <td style="border-bottom: 1px solid #ebeff2; padding: 0 1em 1em 0;"></td>
+        <td style="border-bottom: 1px solid #ebeff2; padding: 0 1em 1em 0;">Software required to run the Hotspot</td>
+      </tr>
       {% for content_title, content_desc in order_entries %}
-      <tr><td style="color: #4e4e4e;">{{ content_title }}</td><th style="background-color: transparent;"></th><td style="color: #4e4e4e;">{{ content_desc }}</td></tr>
+      <tr>
+        <td style="{% if not loop.last %}border-bottom: 1px solid #ebeff2; padding: 1em 1em 1em 0;{% else %}padding: 1em 1em 0 0;{% endif %} ">{{ content_title }}</td>
+        <td style="{% if not loop.last %}border-bottom: 1px solid #ebeff2; padding: 1em 1em 1em 0;{% else %}padding: 1em 1em 0 0;{% endif %}"></td>
+        <td style="{% if not loop.last %}border-bottom: 1px solid #ebeff2; padding: 1em 1em 1em 0;{% else %}padding: 1em 1em 0 0;{% endif %} ">{{ content_desc }}</td></tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
 
-<p style="display: block; height: 1em;"></p>
-
-<div style="background-color: #fcfcfc; border: 2px solid #efefef; border-radius: 1rem; padding: 0 1rem;">
-  <h3 style="color: #5c5c5b;">{{ _("A little help just in case") }}</h3>
+<div style="margin-top: 2rem; background-color: #fcfcfc; border: 1px solid #edf1f3; border-radius: 1rem; padding: 1rem; color: #585858;">
+  <h3 style="color: #333333;">{{ _("A little help just in case") }}</h3>
 
   {% if order|public_download_url_has_torrent %}
-  <h4 style="color: #5c5c5b;">{{ _("Torrent") }}</h4>
-  <p style="color: #4c4c4c;">{{ _("Your image is also available as a <em>torrent</em>. You need a BitTorrent client (software) to retrieve the actual <em>img</em> file.")|safe }}</p>
-  <p style="color: #4c4c4c;">{{ _("We recommend you use %(transmission_link)s if you don't already have one. It will allow you to easily pause and resume your download and ensure that your file is not corrupt.")|format(transmission_link=transmission_link)|safe }}</p>
+  <h4 style="color: #333333;">{{ _("Torrent") }}</h4>
+  <p style="">{{ _("Your image is also available as a <strong>torrent</strong>. You need a BitTorrent client (software) to retrieve the actual <strong>img</strong> file.")|safe }}</p>
+  <p style="">{{ _("We recommend you use %(transmission_link)s if you don't already have one. It will allow you to easily pause and resume your download and ensure that your file is not corrupt.")|format(transmission_link=transmission_link)|safe }}</p>
   {% endif %}
 
-  <h4 style="color: #5c5c5b;">{{ _("SD-card file installation") }}</h4>
-  <p style="color: #4c4c4c;">{{ _("To install the file onto a microSD card, we recommend using %(rpi_imager_link)s.")|format(rpi_imager_link=rpi_imager_link)|safe }} {{ _("When asked about <em>OS customisation</em>, answer <strong>no</strong> (it's not compatible).")|safe }}</p>
+  <h4 style="color: #333333;">{{ _("SD-card file installation") }}</h4>
+  <p style="">{{ _("To install the file onto a microSD card, we recommend using %(rpi_imager_link)s.")|format(rpi_imager_link=rpi_imager_link)|safe }} {{ _("When asked about OS customisation, answer <strong>no</strong> (it's not compatible).")|safe }}</p>
 
-  <h4 style="color: #5c5c5b;">{{ _("Raspberry Pi installation") }}</h4>
-  <p style="color: #4c4c4c;">{{ _("You do not need to connect your Raspberry to a screen. Simply connect to the Hotspot by typing %(hotspot_url)s in your browser's address bar (be mindful to use <em>http</em> and not https).")|format(hotspot_url=hotspot_link)|safe }}</p>
-  <p style="color: #4c4c4c;">{{ _("If you encounter any issue, check out our %(faq_link)s before reaching out by responding to this email.")|format(faq_link=faq_link)|safe }}</p>
+  <h4 style="color: #333333;">{{ _("Raspberry Pi installation") }}</h4>
+  <p style="">{{ _("You do not need to connect your Raspberry to a screen. Simply connect to the Hotspot by typing %(hotspot_url)s in your browser's address bar (be mindful to use <strong>http</strong> and not https).")|format(hotspot_url=hotspot_link)|safe }}</p>
+  <p style="">{{ _("If you encounter any issue, check out our %(faq_link)s before reaching out by responding to this email.")|format(faq_link=faq_link)|safe }}</p>
 </div>
 {% endblock %}

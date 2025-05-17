@@ -25,6 +25,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 - [scheduler.api] Endpoint `/auto-images/:slug` now includes `autodelete_on` (ISO date)
 - [scheduler.stripe] Email date now aligned with order time if webhook runs late
 - [scheduler.email] Image order creation design improved for clarity (button, size, wording)
+- [scheduler.email] Image ready design improved for clarity (button, size, highlight important)
 - [manager] Orders and config listings:
   - Common
     - harmonized look of both config and orders list

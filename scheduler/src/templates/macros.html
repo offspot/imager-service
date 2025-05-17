@@ -15,9 +15,8 @@
 </p>{%- endmacro %}
 
 {% macro button_download(order) -%}
-	<a href="{{ order|public_download_url }}" alt="{{ _('Download %(config_name)s (%(sdcard_size)sGB)')|format(config_name=order.config.name, sdcard_size=order.sd_card.size) }}" style="background-color: #fd8a31; border: 0; color: white; font-weight: 600; font-size: 1.5rem; border-radius: 1.5rem; padding: .5rem 3rem; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 1rem;">Download</a>
+	<a href="{{ order|public_download_url }}" alt="{{ _('Download %(config_name)s (%(sdcard_size)sGB)')|format(config_name=order.config.name, sdcard_size=order.sd_card.size) }}" style="background-color: #f26522; border: 0; color: white; font-weight: 600; font-size: 1rem; border-radius: .35rem; padding: .8rem 3rem; cursor: pointer; text-decoration: none; width: calc(50% - 1rem); text-align: center; box-sizing: border-box;">Download</a>
     {% if order|public_download_url_has_torrent %}
-    <span style="display: inline-block; width: 3rem;">&nbsp;</span>
-    <a href="{{ order|public_download_torrent_url }}" style="background-color: #4cb5e2; border: 0; color: white; font-weight: 600; font-size: 1.5rem; border-radius: 1.5rem; padding: .5rem 3rem; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 1rem;">Get Torrent</a>
+    <a href="{{ order|public_download_torrent_url }}" style="background-color: #4ca6ff; border: 0; color: white; font-weight: 600; font-size: 1rem; border-radius: .35rem; padding: .8rem 3rem; cursor: pointer; text-decoration: none; width: calc(50% - 1rem); text-align: center; box-sizing: border-box; margin-left: 2rem;">Get Torrent</a>
     {% endif %}
 {%- endmacro %}
