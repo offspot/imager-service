@@ -44,6 +44,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
     - Config size now red if it cannot fit on any media
 - [manager] Current Tab (and ZIM language) now preserved upon save
 - [manager] New simpler order detail page with download buttons
+- [manager.builder] Including Kiwix macOS 3.9.0
 
 ## [2025-05] - 2025-05-07
 
