@@ -348,6 +348,148 @@ body {
     display: block;
   }
 }
+
+
+
+.comparison, .comparison * {
+  box-sizing: border-box;
+}
+
+.comparison {
+  color: black;
+  display: flex;
+  flex-direction: row;
+}
+
+.comparison .column {
+  background-color: white;
+  box-shadow: 1px 2px 8px #ccc;
+  border-radius: .5rem;
+  padding: 2em;
+  width: 50%;
+}
+
+.comparison .column:first-child {
+  margin-right: 1em;
+}
+.comparison .column:last-child {
+  margin-left: 1em;
+}
+
+.comparison .header {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  margin-bottom: 1em;
+}
+
+.comparison .header .icon {
+  width: 2.5em;
+  height: 2.5em;
+  position: absolute;
+  bottom: 0;
+}
+
+.comparison .header .icon svg {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.comparison .header .text {
+  margin: auto;
+  margin-left: 4em;
+}
+
+.comparison h4 {
+  font-weight: bold;
+  margin-bottom: 0;
+  font-size: 1.6rem;
+}
+
+.comparison h5 {
+  font-size: .9em;
+  color: #b2b6bc;
+  margin-bottom: 0;
+}
+
+h3.comparison-header {
+  text-align: center;
+}
+
+.comparison-cta {
+  margin-top: 3rem;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 3em;
+  display: flex;
+  flex-direction: row;
+}
+
+.comparison-cta .comparison-link a {
+  color: #ff9926;
+  border-radius: .35rem;
+  border: 2px solid #ff9926;
+  padding: .5em 1.5em;
+  font-weight: 600;
+}
+
+.comparison-cta .comparison-link a, .comparison-cta .comparison-link a:hover {
+  text-decoration: none;
+}
+
+.comparison-cta .column {
+  width: 50%;
+}
+
+.comparison-cta .column:first-child {
+  text-align: right;
+  font-weight: 600;
+  margin-right: .5em;
+}
+
+.comparison-cta .column:last-child {
+  text-align: left;
+  margin-left: .5em;
+}
+
+@media(max-width: 750px) {
+  .comparison {
+    flex-direction: column;
+  }
+  .comparison .column {
+    width: 100%;
+  }
+  .comparison .column:first-child {
+    margin-right: 0;
+    margin-bottom: .6em;
+  }
+  .comparison .column:last-child {
+    margin-left: 0;
+    margin-top: .6em;
+  }
+
+  .comparison-cta {
+    flex-direction: column;
+  }
+  .comparison-cta .column {
+    width: 100%;
+  }
+  .comparison-cta .column:first-child {
+    margin-right: 0;
+    margin-bottom: .6em;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: 500;
+  }
+  .comparison-cta .column:last-child {
+    margin-left: 0;
+    margin-top: .6em;
+    text-align: center;
+  }
+}
+
     </style>
   </head>
   <script type="text/javascript">
@@ -370,6 +512,38 @@ window.onresize = onframeresize;
       <div class="offers-intro">
         <h2>Content Packages</h2>
         <p>Choose a package that fits your needs. Each is available as a complete hotspot device or as software only if you already have compatible hardware.</p>
+      </div>
+
+      <div class="comparison">
+        <div class="column">
+          <div class="header">
+            <div class="icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 242.7-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7 288 32zM64 352c-35.3 0-64 28.7-64 64l0 32c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-32c0-35.3-28.7-64-64-64l-101.5 0-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352 64 352zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/></svg>
+            </div>
+            <div class="text">
+              <h4>OS only</h4>
+              <h5>Software only packages</h5>
+            </div>
+          </div>
+          <p>Requires technical knowledge to set up and configure on own compatible hardware.</p>
+        </div>
+        <div class="column">
+          <div class="header">
+            <div class="icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 184.4c-17-15.2-39.4-24.4-64-24.4L64 256c-24.6 0-47 9.2-64 24.4L0 96zM64 288l384 0c35.3 0 64 28.7 64 64l0 64c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64l0-64c0-35.3 28.7-64 64-64zM320 416a32 32 0 1 0 0-64 32 32 0 1 0 0 64zm128-32a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>
+            </div>
+            <div class="text">
+              <h4>Kiwix Hotspot</h4>
+              <h5>Plug and play solution</h5>
+            </div>
+          </div>
+          <p>Ready to use right away with no technical setup required. Perfect for non-technical users who want a complete solution.</p>
+        </div>
+      </div>
+
+      <div class="comparison-cta">
+        <p class="comparison-header column">Which Hotspot is right for you?</p>
+        <p class="comparison-link column"><a href="/en/hotspot-comparison/">Compare Hotspot vs. OS only</a></p>
       </div>
 
       <div class="table-offer">
