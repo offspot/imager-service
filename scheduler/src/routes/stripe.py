@@ -896,6 +896,8 @@ def get_shipment():
             subject=subject,
             contents=content,
             copy_support=False,
+            on=datetime.datetime.now(tz=datetime.timezone.utc)
+            + datetime.timedelta(days=1),
         )
 
         StripeSession.update(
