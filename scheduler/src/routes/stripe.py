@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import datetime
+from http import HTTPStatus
 import json
 import logging
 import os
@@ -15,6 +18,7 @@ from babel.dates import format_datetime
 from emailing import send_email
 from flask import Blueprint, jsonify, make_response, request
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from requests.auth import HTTPBasicAuth
 from utils.countries import SWISSPOST_PRIORITYPLUS_SUPPORTED
 from utils.mongo import AutoImages, StripeCustomer, StripeSession
 from utils.serialnumber import is_valid_serial
@@ -39,6 +43,9 @@ TRACKING_URL_TMPL = (
 )
 # devel only
 RUN_HANDLER_ON_SUCCESS = bool(os.getenv("RUN_HANDLER_ON_SUCCESS"))
+
+CRM_USERNAME = os.getenv("CRM_USERNAME") or ""
+CRM_PASSWORD = os.getenv("CRM_PASSWORD") or ""
 
 
 SHIPPING_RATES = {
@@ -567,6 +574,91 @@ def create_checkout_session():
         return jsonify(error=str(exc)), 403
 
 
+def register_user_on_crm(
+    email: str, first_name: str | None, last_name: str | None, product: str
+):
+    auth = HTTPBasicAuth(CRM_USERNAME, CRM_PASSWORD)
+    crm_url = "https://kiwix.org/wp-json/fluent-crm/v2/subscribers"
+
+    def get_user_id(email: str) -> int | None:
+        resp = requests.get(
+            f"{crm_url}/0",
+            auth=auth,
+            params={"get_by_email": email},
+            timeout=3,
+            allow_redirects=True,
+        )
+        if resp.status_code != HTTPStatus.OK:
+            return None
+        try:
+            return int(resp.json()["subscriber"]["id"])
+        except Exception as exc:
+            logger.error(f"Failed to query CRM status for {email}")
+            logger.exception(exc)
+            return None
+
+    def create_user(email: str, first_name: str | None, last_name: str | None) -> int:
+        payload: dict[str, str | list[str]] = {"email": email, "status": "subscribed"}
+        if first_name:
+            payload["first_name"] = first_name
+        if last_name:
+            payload["last_name"] = last_name
+        resp = requests.post(f"{crm_url}", auth=auth, json=payload, timeout=3)
+        resp.raise_for_status()
+        return resp.json()["contact"]["id"]
+
+    def update_user(
+        user_id: int,
+        first_name: str | None,
+        last_name: str | None,
+        lists: list[str],
+        tags: list[str],
+    ):
+        payload: dict[str, str | list[str]] = {
+            "attach_lists": lists,
+            "attach_tags": tags,
+        }
+        if first_name:
+            payload["first_name"] = first_name
+        if last_name:
+            payload["last_name"] = last_name
+        resp = requests.put(
+            f"{crm_url}/{user_id!s}", auth=auth, json=payload, timeout=3
+        )
+        resp.raise_for_status()
+
+    lists = ["customers"]
+    tags = []
+
+    if product.endswith("-h1"):
+        tags.append("h1-customer")
+    elif "access" in product:
+        tags.append("imager-customer")
+    else:
+        tags.append("os-only-customer")
+
+    for tag in ("wikipedia", "prepper", "medical", "ted", "computer"):
+        if tag in product:
+            tags.append(tag)
+
+    user_id = get_user_id(email)
+    if not user_id:
+        user_id = create_user(
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+        )
+        logger.debug(f"Created CRM UID={user_id} for {email}")
+    update_user(
+        user_id=user_id,
+        first_name=first_name,
+        last_name=last_name,
+        lists=lists,
+        tags=tags,
+    )
+    logger.debug(f"Updated {email} with {lists[0]} and {', '.join(tags)}")
+
+
 @blueprint.route("/webhook/checkout_succeeded", methods=["POST"])
 def on_checkout_suceeded():
     """webhook inited on payment completed"""
@@ -599,6 +691,17 @@ def on_checkout_suceeded():
             logger.critical("Unable to process handler")
             logger.exception(exc)
             return jsonify(success=False), 500
+
+        try:
+            register_user_on_crm(
+                email=customer.email,
+                first_name=customer.name,
+                last_name=None,
+                product=session["metadata"]["product"],
+            )
+        except Exception as exc:
+            logger.error("Failed to add client to CRM")
+            logger.exception(exc)
     else:
         print("Unhandled event type {}".format(event["type"]))
     return jsonify(success=True)
