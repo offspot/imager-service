@@ -27,6 +27,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 - [scheduler.stripe] Email date now aligned with order time if webhook runs late
 - [scheduler.email] Image order creation design improved for clarity (button, size, wording)
 - [scheduler.email] Image ready design improved for clarity (button, size, highlight important)
+- [scheduler.assembly] Shipment tracking number delays its email to client by 24h
 - [manager] Orders and config listings:
   - Common
     - harmonized look of both config and orders list
