@@ -14,6 +14,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 - [health-check] New existence check for all auto-iamges's HTTP URL (200 OK)
 - [health-check] New S3 auto-delete date check for all auto-images (fail if less than 4d)
 - [scheduler.periodic-tasks] auto-extending S3 deletion dates for auto-images under 5d
+- [scheduler.emailing] Added support for requested-delivery time in emails (max 3d)
 
 ### Fixed
 

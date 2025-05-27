@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 import pathlib
@@ -120,6 +121,7 @@ def send_email_via_smtp(
     bcc: Optional[Sequence] = None,
     headers: Optional[dict] = None,
     attachments: Optional[Sequence] = None,
+    on: Optional[datetime.datetime] = None,
 ):
     yag = get_sender()
     if attachments:
@@ -137,6 +139,7 @@ def send_email_via_api(
     bcc: Optional[Sequence] = None,
     headers: Optional[dict] = None,
     attachments: Optional[Sequence] = None,
+    on: Optional[datetime.datetime] = None,
 ):
     values = [
         ("from", os.getenv("MAIL_FROM", "imager@kiwix.org")),
@@ -152,6 +155,8 @@ def send_email_via_api(
     values += [
         ("bcc", value) for value in (bcc if isinstance(bcc, (list, tuple)) else [bcc])
     ]
+    if on:
+        values += [("o:deliverytime", on.strftime("%a, %d %b %Y %H:%M:%S -0000"))]
     data = MultiDict(values)
 
     resp = requests.post(
@@ -179,6 +184,7 @@ def send_email(
     bcc: Optional[Sequence] = None,
     headers: Optional[dict] = None,
     attachments: Optional[Sequence] = None,
+    on: Optional[datetime.datetime] = None,
     copy_support=True,
 ):
 
@@ -208,6 +214,7 @@ def send_email(
             bcc=bcc,
             headers=headers or {},
             attachments=attachments or [],
+            on=on,
         )
     except Exception as exp:
         logger.error("Unable to send email: {}".format(exp))
@@ -288,6 +295,7 @@ def send_order_email_for(
     bcc: Optional[Sequence] = None,
     attachments: Optional[Sequence] = None,
     extra: Optional[dict] = None,
+    on: Optional[datetime.datetime] = None,
 ):
     to, lang = get_email_for(order_id, kind=to)
     with localized_for(lang):
@@ -315,6 +323,7 @@ def send_order_email_for(
         cc=[get_email_for(order_id, kind=item)[0] for item in cc],
         bcc=[get_email_for(order_id, kind=item)[0] for item in bcc],
         attachments=attachments or {},
+        on=on,
     )
 
 
