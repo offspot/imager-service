@@ -21,13 +21,17 @@ body {
 .loader { display: none; color: #ff9933; }
 
 a.external {
-  color: #ff9933 !important;
-  font-weight: 600;
+  color: #f87719 !important;
+  font-weight: 500;
   padding-right: 1.1rem;
-  background-size: .8rem;
+  background-size: .7rem;
   background-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtMzIwIDBjLTE3LjcgMC0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJoODIuN2wtMjAxLjMgMjAxLjRjLTEyLjUgMTIuNS0xMi41IDMyLjggMCA0NS4zczMyLjggMTIuNSA0NS4zIDBsMjAxLjMtMjAxLjR2ODIuN2MwIDE3LjcgMTQuMyAzMiAzMiAzMnMzMi0xNC4zIDMyLTMydi0xNjBjMC0xNy43LTE0LjMtMzItMzItMzJ6bS0yNDAgMzJjLTQ0LjIgMC04MCAzNS44LTgwIDgwdjMyMGMwIDQ0LjIgMzUuOCA4MCA4MCA4MGgzMjBjNDQuMiAwIDgwLTM1LjggODAtODB2LTExMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMnYxMTJjMCA4LjgtNy4yIDE2LTE2IDE2aC0zMjBjLTguOCAwLTE2LTcuMi0xNi0xNnYtMzIwYzAtOC44IDcuMi0xNiAxNi0xNmgxMTJjMTcuNyAwIDMyLTE0LjMgMzItMzJzLTE0LjMtMzItMzItMzJ6IiBmaWxsPSIjZjkzIi8+PC9zdmc+");
   background-position: center right;
   background-repeat: no-repeat;
+}
+
+.table-offer, .table-offer * {
+  box-sizing: border-box;
 }
 
 .table-offer {
@@ -38,10 +42,15 @@ a.external {
 
   margin-left: calc(-1em + .1em);
   margin-right: calc(-1em + .1em);
+
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
 }
 
 .offer {
   display: block;
+
   background-color: #ffffff;
 
   width: 100%;
@@ -72,10 +81,22 @@ a.external {
   }
 }
 
+@media (min-width:680px) {
+  .offer {
+    display: block;
+    width: calc(50% - 1em);
+    border:0;
+    max-width: 50%;
+    margin-bottom: 0;
+    box-shadow: 1px 2px 8px #ccc;
+    margin-top: 2em;
+  }
+}
+
 @media (min-width:900px) {
   .offer {
-    display: table-cell;
-    width: 33%;
+    display: block;
+    width: calc(33% - 1em);
     border:0;
     max-width: 33%;
     margin-bottom: 0;
@@ -90,19 +111,23 @@ a.external {
   margin-top: 2em;
 }
 .offer header img {
-  width: 30%;
+  width: 22%;
 }
 .offer header h2 {
-  font-size: 150% !important;
+  font-size: 130% !important;
   padding-top: 0.5em;
-  padding-bottom: 5px;
+  padding-bottom: 0;
+  margin-bottom: 0;
   font-weight: 600;
-  line-height: 1.7em;
+  line-height: 1.5em;
+  color: #020817;
+  font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+  letter-spacing: -.05rem;
 }
 .offer header p {
   font-size: .9em;
   line-height: 1.1em;
-  color: #666666;
+  color: #4b5462;
 }
 
 .offer .actions-block {
@@ -112,7 +137,6 @@ a.external {
 }
 
 .offer .purchase-options {
-  border: 1px solid #e3e8ef;
   margin: 2em;
   margin-bottom: 1em;
   border-radius: .5em;
@@ -120,24 +144,31 @@ a.external {
 }
 
 .offer .purchase-options p {
-  text-align: center;
+  display: none;
+  /*text-align: center;
   font-weight: 600;
   font-size: 1.1em;
-  margin-bottom: 0;
+  margin-bottom: 0;*/
 }
 
 .offer .purchase-options hr {
-  margin: 0;
+  display: none;
+  /*margin: 0;
   margin-left: 1em;
-  margin-right: 1em;
+  margin-right: 1em;*/
 }
 
 .offer .purchase-option {
-  display: table-row;
+  display: block;
+  width: 100%;
+}
+
+.offer .purchase-option:last-child {
+  margin-top: 2rem;
 }
 
 .offer .purchase-option .text {
-  display: table-cell;
+  display: block;
   width: 100%;
   font-size: .8em;
   font-weight: 600;
@@ -145,36 +176,52 @@ a.external {
 
 .offer .purchase-option label {
   display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  position: relative;
+}
+.offer .purchase-option.os-only label {
+  line-height: 1rem;
+}
+.offer .purchase-option .size {
+  font-size: .7em;
+  color: #6c7180;
 }
 .offer .purchase-option .amount {
-  color: #fa9600;
+  color: #f87216;
+  /*float: right;*/
+  font-weight: bold;
+  position: absolute;
+  right: 0;
+}
+.offer .purchase-option.os-only .amount {
+  top: .55rem;
 }
 
 .offer .purchase-option .purchase-button {
-  display: table-cell;
+  display: block;
   width: 100%;
-  vertical-align: middle;
 }
 
 .offer .purchase-option .purchase-button button {
-  color: #fa9600;
+  color: #f87216;
   font-size: 1em;
   font-weight: 500;
   padding: .3em .2em; 
   line-height: 1.7em !important;
-  border: 2px solid;
+  border: 1px solid;
   border-radius: .5em;
   -webkit-transition: all .2s;
   transition: all .2s;
-  width: 6em;
+  width: 100%;
   vertical-align: middle;
   text-wrap: nowrap;
 }
 
 .offer .purchase-option .purchase-button button:hover {
   color: white;
-  background-color: #fa9600;
-  border-color: #ff9933;
+  background-color: #f78546;
+  border-color: #f87216;
 }
 
 .offer .purchase-options.single-option p {
@@ -195,13 +242,13 @@ a.external {
 }
 
 .offer .purchase-options.single-option .purchase-option {
-  display: table;
+  display: block;
   width: 100%;
 }
 
 .offer .purchase-options.single-option .purchase-option .text,
 .offer .purchase-options.single-option .purchase-option .purchase-button {
-  display: table-row;
+  display: block;
 }
 
 .offer .purchase-options.single-option .purchase-option .purchase-button button {
@@ -226,11 +273,12 @@ a.external {
 }
 .offer .description ul li {
   background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABfElEQVR4AWMYEDAKQg6n1IceTj3kdySJl/qGH0qtDD2U+h+EgZbsorLhKQUgg2E47HBqOTVdngs09B/McKBlTVQzHOjSJJjhUDyZeoYfTIsHGvgXyeULGv43MFEptaSFAg39g4jUtLUO+xtYMBSGHkrrAoUhaS5PDYMZDsWb086ksWIafji1CKrgX8ihtBS8piL0BALV/0IyfG/C/gQOXLG/DEnh37BDKTH4gyXVB6juJ1zPwdTjofuzeHC7ZlUoc9ih1FVIlvwBWhqBVe2BFFeg/HcktRdCjyULEfby1VA2oOItSBp/hR1O9kVRcyTNBij+BaEm7UbknhRxoiMt9FghJzBs9yFZ8jPsYIoXOFgOploB+Z+R5G5HHEmSIjnZgcISqPkokkFfodn/E5LYA6Bv5MhO29EncvmAhpxCLlOQIvRF6JEkdYozUMD+BAGggWfRLHgVeihdi2LDEZkvURRo6FWo4e/DD6UZMVAbgFIJKLjCD6SaMtAKjAIAxzUkKMnMFhQAAAAASUVORK5CYII=") no-repeat left .3rem;
-  color: #333333;
+  color: #4e5765;
   line-height: 1.7em;
   font-weight: 500;
   line-height: 1.6em;
   padding: 0 0 .5em 2rem;
+  background-size: 1.2em;
 }
 
 
@@ -557,7 +605,6 @@ window.onresize = onframeresize;
             <ul>
               <li>The entirety of Wikipedia (6.7 million articles, including images)</li>
               <li>Plus the Wiktionary (7.9 million entries in 4,200 languages)</li>
-              <li>Fits on a 200 GB microSD card.</li>
             </ul>
           </section>
           <div class="actions-block">
@@ -565,25 +612,25 @@ window.onresize = onframeresize;
               <p>Purchase options</p>
               <div class="purchase-option">
                 <div class="text">
-                  <label>Wikipedia Hotspot<br /><span class="amount">$319</span></label>
+                  <label>Wikipedia Hotspot<span class="amount">$319</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
                     <input type="hidden" name="product" value="wikipedia-en-h1">
-                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
                 </div>
               </div>
               <hr />
-              <div class="purchase-option">
+              <div class="purchase-option os-only">
                 <div class="text">
-                  <label>OS only<br /><span class="amount">$15</span></label>
+                  <label>OS only<br /><span class="size">Requires 200GB microSD card</span><span class="amount">$15</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
                     <input type="hidden" name="product" value="wikipedia-en">
-                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
                 </div>
@@ -607,7 +654,6 @@ window.onresize = onframeresize;
               <li>How-to's and repair resources</li>
               <li>The entire Wikipedia</li>
               <li>TrailSense and Survival apps for Android, ready to download</li>
-              <li>Fits on a 256 GB microSD card.</li>
             </ul>
           </section>
           <div class="actions-block">
@@ -615,25 +661,25 @@ window.onresize = onframeresize;
               <p>Purchase options</p>
               <div class="purchase-option">
                 <div class="text">
-                  <label>Preppers Hotspot<br /><span class="amount">$319</span></label>
+                  <label>Preppers Hotspot<span class="amount">$319</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
                     <input type="hidden" name="product" value="preppers-h1">
-                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
                 </div>
               </div>
               <hr />
-              <div class="purchase-option">
+              <div class="purchase-option os-only">
                 <div class="text">
-                  <label>OS only<br /><span class="amount">$25</span></label>
+                  <label>OS only<br /><span class="size">Requires 256GB microSD card</span><span class="amount">$25</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
                     <input type="hidden" name="product" value="preppers">
-                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
                 </div>
@@ -657,7 +703,6 @@ window.onresize = onframeresize;
               <li>Traveler's Health</li>
               <li>Common drugs</li>
               <li>General medicine, and more!</li>
-              <li>Requires a 64GB microSD card.</li>
             </ul>
           </section>
           <div class="actions-block">
@@ -665,25 +710,25 @@ window.onresize = onframeresize;
               <p>Purchase options</p>
               <div class="purchase-option">
                 <div class="text">
-                  <label>Medical Hotspot<br /><span class="amount">$319</span></label>
+                  <label>Medical Hotspot<span class="amount">$319</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
                     <input type="hidden" name="product" value="medical-h1">
-                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
                 </div>
               </div>
               <hr />
-              <div class="purchase-option">
+              <div class="purchase-option os-only">
                 <div class="text">
-                  <label>OS only<br /><span class="amount">$25</span></label>
+                  <label>OS only<br /><span class="size">Requires 64GB microSD card</span><span class="amount">$25</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
                     <input type="hidden" name="product" value="medical">
-                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
                 </div>
@@ -694,9 +739,6 @@ window.onresize = onframeresize;
             </p>
           </div>
         </div>
-      </div>
-
-      <div class="table-offer">
 
         <div class="offer">
           <header>
@@ -709,7 +751,6 @@ window.onresize = onframeresize;
               <li>More than 6,600 videos sorted by topics</li>
               <li>From A like Astrobiology or AI to B like Business, M like Medicine... all the way to W like work-life balance</li>
               <li>About 91 consecutive days of watching!</li>
-              <li>Requires a 1 TB microSD card.</li>
             </ul>
           </section>
           <div class="actions-block">
@@ -717,25 +758,25 @@ window.onresize = onframeresize;
               <p>Purchase options</p>
               <div class="purchase-option">
                 <div class="text">
-                  <label>TED Talks Hotspot<br /><span class="amount">$319</span></label>
+                  <label>TED Talks Hotspot<span class="amount">$319</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
                     <input type="hidden" name="product" value="ted-h1">
-                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
                 </div>
               </div>
               <hr />
-              <div class="purchase-option">
+              <div class="purchase-option os-only">
                 <div class="text">
-                  <label>OS only<br /><span class="amount">$25</span></label>
+                  <label>OS only<br /><span class="size">Requires 1TB microSD card</span><span class="amount">$25</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
                     <input type="hidden" name="product" value="ted">
-                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
                 </div>
@@ -758,7 +799,6 @@ window.onresize = onframeresize;
               <li>Developer documentation for <s>dozens</s> hundreds of programming languages</li>
               <li>Lecture notes and textbooks on algorithms, code and statistics</li>
               <li>DevDocs, Linux man pages and distros' wikis</li>
-              <li>Fits on a 200 GB microSD card.</li>
             </ul>
           </section>
           <div class="actions-block">
@@ -766,25 +806,25 @@ window.onresize = onframeresize;
               <p>Purchase options</p>
               <div class="purchase-option">
                 <div class="text">
-                  <label>Computer Hotspot<br /><span class="amount">$319</span></label>
+                  <label>Computer Hotspot<span class="amount">$319</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
                     <input type="hidden" name="product" value="computers-h1">
-                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
                 </div>
               </div>
               <hr />
-              <div class="purchase-option">
+              <div class="purchase-option os-only">
                 <div class="text">
-                  <label>OS only<br /><span class="amount">$25</span></label>
+                  <label>OS only<br /><span class="size">Requires 200GB microSD card</span><span class="amount">$25</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
                     <input type="hidden" name="product" value="computers">
-                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
                 </div>
@@ -815,12 +855,12 @@ window.onresize = onframeresize;
               <p>Purchase options</p>
               <div class="purchase-option">
                 <div class="text">
-                  <label>One month access<br /><span class="amount">$99</span></label>
+                  <label>One month access<span class="amount">$99</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
                     <input type="hidden" name="product" value="access-1m">
-                    <button class="btn">Purchase <i class="fa-xs fa-solid fa-chevron-right"></i></button>
+                    <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
                 </div>
