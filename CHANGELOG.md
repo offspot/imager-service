@@ -16,6 +16,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 - [scheduler.periodic-tasks] auto-extending S3 deletion dates for auto-images under 5d
 - [scheduler.emailing] Added support for requested-delivery time in emails (max 3d)
 - [scheduler.stripe] Customer now added to CRM upon Strip webhook
+- [scheduler.stripe] New Sales CSV export endpoint.
 
 ### Fixed
 
@@ -26,6 +27,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 
 - [scheduler.api] Endpoint `/auto-images/:slug` now includes `autodelete_on` (ISO date)
 - [scheduler.stripe] Email date now aligned with order time if webhook runs late
+- [scheduler.stripe] Update Shop card design 1 / 2 / 3 columns. SD size req moved next to OS-only
 - [scheduler.email] Image order creation design improved for clarity (button, size, wording)
 - [scheduler.email] Image ready design improved for clarity (button, size, highlight important)
 - [scheduler.assembly] Shipment tracking number delays its email to client by 24h

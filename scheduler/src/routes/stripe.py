@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import datetime
-from http import HTTPStatus
+import csv
+import io
 import json
 import logging
 import os
 import sys
 import tempfile
 import zlib
+from http import HTTPStatus
 from pathlib import Path
 
 import flask
@@ -1011,3 +1013,71 @@ def get_shipment():
             f"{flask.url_for('stripe.get_shipment')}"
             f"?invoice_num={session_record['invoice_num']}"
         )
+
+
+@blueprint.route("/sales.csv", methods=["GET"])
+def sales_export():
+
+    def numfmt(amount: int) -> str:
+        famount = amount / 100
+        return f"{famount:4.2f}"
+
+    buffer = io.StringIO()
+    writer = csv.DictWriter(
+        buffer,
+        fieldnames=[
+            "date",
+            "product",
+            "imager",
+            "hardware",
+            "os-only",
+            "usd_amount",
+            "currency",
+            "country",
+            "discount",
+            "invoice_num",
+        ],
+    )
+    writer.writeheader()
+
+    for local_session in StripeSession().find(
+        filter={"stripe_object": {"$exists": True}},
+        projection={
+            "session_id": 1,
+            "customer_id": 1,
+            "product": 1,
+            "stripe_object": 1,
+            "invoice_num": 1,
+        },
+    ):
+        so = local_session.get("stripe_object")
+        created_on = datetime.datetime.fromtimestamp(so["created"])
+        is_imager = local_session["product"].startswith("access-")
+        is_hardware = local_session["product"].endswith("-h1")
+        is_os_only = not is_imager and not is_hardware
+        try:
+            country = so["customer_details"]["address"]["country"]
+        except (KeyError, TypeError):
+            country = ""
+
+        writer.writerow(
+            {
+                "date": created_on.strftime("%Y-%m-%d"),
+                "product": local_session["product"],
+                "imager": is_imager,
+                "hardware": is_hardware,
+                "os-only": is_os_only,
+                "usd_amount": numfmt(so["amount_subtotal"]),
+                "currency": so["currency"],
+                "country": country,
+                "discount": numfmt(
+                    so.get("total_details", {}).get("amount_discount", 0)
+                ),
+                "invoice_num": local_session.get("invoice_num"),
+            }
+        )
+    buffer.seek(0)
+
+    return flask.Response(
+        response=buffer.getvalue(), headers={"Content-Type": "text/csv"}
+    )
