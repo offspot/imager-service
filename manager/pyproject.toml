@@ -18,7 +18,7 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
 ]
 dependencies = [
-  "Django==5.0.14",
+  "Django==5.1.10",
   "requests==2.32.3",
   "werkzeug>=3.0.1",
   "iso639-lang==2.6.0",
