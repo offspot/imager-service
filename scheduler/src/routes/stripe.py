@@ -81,6 +81,12 @@ PRODUCTS = {
         "image",
         "Preppers Hotspot OS only",
     ),
+    "premium-preppers": (
+        os.environ["STRIPE_METHOD_PPP"],
+        os.environ["STRIPE_PRICE_PPP"],
+        "image",
+        "Preppers Premium Hotspot OS only",
+    ),
     "medical": (
         os.environ["STRIPE_METHOD_MD"],
         os.environ["STRIPE_PRICE_MD"],
@@ -122,6 +128,12 @@ PRODUCTS = {
         os.environ["STRIPE_PRICE_PPH1"],
         "device",
         "Preppers Hotspot",
+    ),
+    "premium-preppers-h1": (
+        os.environ["STRIPE_METHOD_PPPH1"],
+        os.environ["STRIPE_PRICE_PPPH1"],
+        "device",
+        "Preppers Premium Hotspot",
     ),
     "medical-h1": (
         os.environ["STRIPE_METHOD_MDH1"],
@@ -260,6 +272,7 @@ def get_order_kind_for(product):
         return "device"
     elif product.startswith("wikipedia-") or product in (
         "preppers",
+        "premium-preppers",
         "computers",
         "ted",
         "medical",
@@ -639,7 +652,7 @@ def register_user_on_crm(
     else:
         tags.append("os-only-customer")
 
-    for tag in ("wikipedia", "prepper", "medical", "ted", "computer"):
+    for tag in ("wikipedia", "prepper", "medical", "ted", "computer", "premium"):
         if tag in product:
             tags.append(tag)
 

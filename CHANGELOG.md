@@ -17,6 +17,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 - [scheduler.emailing] Added support for requested-delivery time in emails (max 3d)
 - [scheduler.stripe] Customer now added to CRM upon Strip webhook
 - [scheduler.stripe] New Sales CSV export endpoint.
+- [scheduler.stripe] Preppers Premium Package (H1 and OS-only)
 
 ### Fixed
 
@@ -50,6 +51,10 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 - [manager] Current Tab (and ZIM language) now preserved upon save
 - [manager] New simpler order detail page with download buttons
 - [manager.builder] Including Kiwix macOS 3.9.0
+
+### Removed
+
+- [scheduler.stripe] TED Talks Package
 
 ## [2025-05] - 2025-05-07
 
