@@ -742,15 +742,15 @@ window.onresize = onframeresize;
 
         <div class="offer">
           <header>
-            <img src="https://imager.kiwix.org/static/img/stripe/HW/ted-512.png" />
-            <h2>TED Talks</h2>
-            <p>Tech, Entertainment & Design</p>
+            <img src="https://imager.kiwix.org/static/img/stripe/HW/premium-preppers-512.png" />
+            <h2>Preppers Premium</h2>
+            <p>Ultimate survival and healthcare</p>
           </header>
           <section class="description">
             <ul>
-              <li>More than 6,600 videos sorted by topics</li>
-              <li>From A like Astrobiology or AI to B like Business, M like Medicine... all the way to W like work-life balance</li>
-              <li>About 91 consecutive days of watching!</li>
+              <li>Everything in the regular Preppers package (the entire Wikipedia, homesteading, water treatment, repair resources, etc.)</li>
+              <li>Everything in the Medical package (emergency and military medicine, anatomy guides, drugs database)</li>
+              <li>BONUS: Comprehensive survival library you won't find in any of the other packages!</li>
             </ul>
           </section>
           <div class="actions-block">
@@ -758,11 +758,11 @@ window.onresize = onframeresize;
               <p>Purchase options</p>
               <div class="purchase-option">
                 <div class="text">
-                  <label>TED Talks Hotspot<span class="amount">$319</span></label>
+                  <label>Preppers Premium Hotspot<span class="amount">$399</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
-                    <input type="hidden" name="product" value="ted-h1">
+                    <input type="hidden" name="product" value="premium-preppers-h1">
                     <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
@@ -771,11 +771,11 @@ window.onresize = onframeresize;
               <hr />
               <div class="purchase-option os-only">
                 <div class="text">
-                  <label>OS only<br /><span class="size">Requires 1TB microSD card</span><span class="amount">$25</span></label>
+                  <label>OS only<br /><span class="size">Requires 512GB microSD card</span><span class="amount">$49</span></label>
                 </div>
                 <div class="purchase-button">
                   <form class="button-holder">
-                    <input type="hidden" name="product" value="ted">
+                    <input type="hidden" name="product" value="premium-preppers">
                     <button class="btn">Purchase</button>
                     <div class="btn loader"><i class="spinner-border spinner-border-xl" role="status"></i></div>
                   </form>
@@ -783,7 +783,7 @@ window.onresize = onframeresize;
               </div>
             </section>
             <p class="demo-link">
-              <a class="external" href="https://ted.demo.hotspot.kiwix.org/" target="_blank">Try Demo</a>
+              <a class="external" href="https://premium-preppers.demo.hotspot.kiwix.org/" target="_blank">Try Demo</a>
             </p>
           </div>
         </div>
@@ -896,6 +896,8 @@ var matomoGoals = {
   'ted': 9,
   'computers': 10,
   'access-1m': 11,
+  'premium-preppers-h1': 12,
+  'premium-preppers': 13,
 }
 // matches polyfill
 this.Element && function(ElementPrototype) {
