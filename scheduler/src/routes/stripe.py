@@ -688,6 +688,11 @@ def on_checkout_suceeded():
     # Handle the event
     if event and event["type"] == "checkout.session.completed":
         session = stripe.checkout.Session.retrieve(event["data"]["object"]["id"])
+
+        StripeSession().update_one(
+            {"session_id": session.id}, {"$set": {"stripe_object": session}}
+        )
+
         customer = (
             stripe.Customer.retrieve(session.customer)
             if session.get("customer")
