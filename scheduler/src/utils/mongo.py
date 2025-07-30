@@ -678,9 +678,9 @@ class Tasks(BaseCollection):
     @classmethod
     def get_size(cls, task_id):
         task = cls.get(task_id)
-        if isinstance(task, CreatorTasks):
-            return humanfriendly.parse_size(task["config"]["size"])
-        if isinstance(task, (DownloaderTasks, WriterTasks)):
+        if cls in (CreatorTasks, ):
+            return humanfriendly.parse_size(task["config"]["human_size"])
+        if cls in ((DownloaderTasks, WriterTasks)):
             return task["image_size"]
 
 
