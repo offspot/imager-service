@@ -30,6 +30,7 @@ class ConfigLike:
     wifi_password: str | None = None
     admin_account: str = "admin"
     admin_password: str = "admin-password"
+    variant: str = ""
     branding_logo: str = ""
     branding_favicon: str = ""
     content_zims: list[str] = field(default_factory=list)  # parsed json

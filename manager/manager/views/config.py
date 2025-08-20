@@ -43,6 +43,7 @@ class ConfigurationForm(forms.ModelForm):
             "project_name",
             "language",
             "timezone",
+            "variant",
             "wifi_password",
             "admin_account",
             "admin_password",

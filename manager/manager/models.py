@@ -516,6 +516,17 @@ KH_TIMEZONES = [
 ]
 KH_TIMEZONES_CHOICES = [(tz, tz) for tz in KH_TIMEZONES]
 
+VARIANTS = [
+    "",
+    "Demo",
+    "Preppers",
+    "Preppers Premium",
+    "Computer",
+    "Medical",
+    "Wikipedia EN",
+]
+VARIANTS_CHOICES = [(variant, variant) for variant in VARIANTS]
+
 
 def get_clean_statuses(statuses):
     return sorted(
@@ -922,6 +933,16 @@ class Configuration(models.Model):
         verbose_name=_lz("Admin password"),
         help_text=_lz("To manage Clock, EduPi and Wikifundi"),
         validators=[validate_admin_pwd],
+    )
+
+    variant = models.CharField(
+        max_length=24,
+        default="",
+        verbose_name=_lz("Variant"),
+        help_text=_lz("Declared Hotspot Variant (informational)"),
+        choices=VARIANTS_CHOICES,
+        blank=True,
+        null=False,
     )
 
     branding_logo = ConvertedImageFileField(

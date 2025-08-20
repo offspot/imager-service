@@ -142,15 +142,20 @@ table.package-table td:last-child {
 
 	<div class="tab-pane fade {% if tab == 'general' %}show active{% endif %}" id="general" role="tabpanel" aria-labelledby="general-tab">
 		<div class="form-row visual-group">
-			<div class="form-group col-md-4 {% if not user.profile.can_brand %}hidden{% endif %}">
+			<div class="form-group col-md-3 {% if not user.profile.can_brand %}hidden{% endif %}">
 				{% include "_input_field.html" with field=form.project_name placeholder=hotspot_placeholder disabled=user.profile.cannot_brand locked=True %}
 			</div>
-			<div class="form-group col-md-4 {% if not user.profile.can_brand %}hidden{% endif %}">
+			<div class="form-group col-md-3 {% if not user.profile.can_brand %}hidden{% endif %}">
 				{% include "_input_field.html" with field=form.ssid disabled=user.profile.cannot_brand locked=True %}
 			</div>
-			<div class="form-group col-md-4">
+			<div class="form-group col-md-3">
 				{% blocktrans asvar config_placeholder %}My Project Config{% endblocktrans %}
 				{% include "_input_field.html" with field=form.name placeholder=config_placeholder %}
+			</div>
+			<div class="form-group col-md-3 {% if not user.profile.can_brand %}hidden{% endif %}">
+				{% include "_label_for.html" with field=form.variant %}
+			  {{ form.variant|as_widget }}
+			  {% if form.variant.help_text %}<small id="{{ form.variant.id_for_label }}Help" class="form-text text-muted">{{ form.variant.help_text|safe }}</small>{% endif %}
 			</div>
 		</div>
 
