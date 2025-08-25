@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass, field
 
 from django.conf import settings
@@ -9,6 +10,7 @@ from offspot_config.builder import (
     get_internal_image,
 )
 from offspot_config.catalog import app_catalog
+from offspot_config.constants import DATA_PART_PATH
 from offspot_config.inputs.base import BaseConfig
 from offspot_config.oci_images import OCIImage
 from offspot_config.utils.dashboard import Link
@@ -85,6 +87,24 @@ def gen_css_from_dashboard_options(logo_url: str, colors) -> str:
 """
 
 
+def gen_offspot_json(variant: str, version: str) -> str:
+    version = get_version(extended=False)
+    human = "Kiwix Hotspot"
+    if variant.strip():
+        human += f" “{variant}”"
+    if version.strip():
+        human += f" {version}"
+    return json.dumps(
+        {
+            "name": "Kiwix Hotspot",
+            "variant": variant,
+            "version": version,
+            "human": human,
+        },
+        indent=4,
+    )
+
+
 def prepare_builder_for_collection(
     *,
     edupi_resources: str | None,
@@ -104,6 +124,8 @@ def prepare_builder_for_collection(
 
 
 def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
+    version = get_version(extended=False)
+    version = "2025-08"
     builder = ConfigBuilder(
         base=BaseConfig(
             source=settings.BASE_IMAGE_URL,
@@ -122,7 +144,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
         },
         write_config=True,
         kiwix_zim_mirror="https://mirror.download.kiwix.org/zim/",
-        public_version=get_version(extended=False)
+        public_version=version,
     )
 
     # add branding
@@ -157,6 +179,16 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     else:
         builder.add_file(**settings.BRANDING_FILES_PAYLOADS["square-logo-light.png"])
     del square
+
+    # add offspot.json file (until offspot-config handles it directly)
+    offspot_json_text = gen_offspot_json(variant=str(config.variant), version=version)
+    builder.add_file(
+        url_or_content=offspot_json_text,
+        to=str(DATA_PART_PATH / "etc/offspot.json"),
+        via="direct",
+        size=len(offspot_json_text),
+        is_url=False,
+    )
 
     # dashboard links
     links = []
