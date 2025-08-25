@@ -460,7 +460,8 @@ SWISSPOST_SUPPORTED = [
     "TZ",
     "UA",
     "UG",
-    "US",
+    # temporary suspended (2025-08-25)
+    # "US",
     "UY",
     "UZ",
     "VA",
@@ -537,5 +538,6 @@ SWISSPOST_PRIORITYPLUS_SUPPORTED = [
     "TH",
     "TR",
     "UA",
-    "US",
+    # temporary suspended (2025-08-25)
+    # "US",
 ]
