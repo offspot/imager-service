@@ -207,6 +207,7 @@ def configuration_edit(request, config_id=None):
                 if not request.user.profile.can_brand:
                     instance.project_name = settings.DEFAULT_DOMAIN
                     instance.ssid = settings.DEFAULT_SSID
+                    instance.variant = settings.DEFAULT_VARIANT
                     instance.branding_logo = None
                     instance.branding_favicon = None
                 instance.save()

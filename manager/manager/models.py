@@ -592,6 +592,10 @@ def parse_json_config(cls, config, *, dont_store_branding: bool = False):
         get_nested_key(config, "project_name"),
         cls._meta.get_field("project_name").default,
     )
+    variant = get_if_str(
+        get_nested_key(config, "variant"),
+        cls._meta.get_field("variant").default,
+    )
 
     # options
     name = get_if_str(
@@ -624,6 +628,7 @@ def parse_json_config(cls, config, *, dont_store_branding: bool = False):
         "name": name,
         "ssid": ssid,
         "project_name": project_name,
+        "variant": variant,
         "language": get_if_str_in(
             get_nested_key(config, "language"),
             dict(cls._meta.get_field("language").choices).keys(),
@@ -666,6 +671,15 @@ def validate_project_name(value):
             _("%(value)s is not a valid Hotspot name (%(reason)s)"),
             code="invalid_name",
             params={"value": value, "reason": reason},
+        )
+
+
+def validate_variant(value):
+    if value not in VARIANTS:
+        raise ValidationError(
+            _("%(value)s is not a valid Hotspot variant (%(reason)s)"),
+            code="invalid_variant",
+            params={"value": value, "reason": "Not a valid variant"},
         )
 
 
@@ -943,6 +957,7 @@ class Configuration(models.Model):
         choices=VARIANTS_CHOICES,
         blank=True,
         null=False,
+        validators=[validate_variant],
     )
 
     branding_logo = ConvertedImageFileField(
@@ -1010,6 +1025,7 @@ class Configuration(models.Model):
         if not author.can_brand:
             kwargs["project_name"] = settings.DEFAULT_DOMAIN
             kwargs["ssid"] = settings.DEFAULT_SSID
+            kwargs["variant"] = settings.DEFAULT_VARIANT
             for key in ("branding_logo", "branding_favicon"):
                 if key in kwargs:
                     del kwargs[key]
@@ -1149,6 +1165,7 @@ class Configuration(models.Model):
                 ("name", self.name),
                 ("ssid", self.ssid),
                 ("project_name", self.project_name),
+                ("variant", self.variant),
                 ("language", self.language),
                 ("timezone", self.timezone),
                 ("wifi_password", self.wifi_password),
