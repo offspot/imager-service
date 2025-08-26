@@ -88,7 +88,6 @@ def gen_css_from_dashboard_options(logo_url: str, colors) -> str:
 
 
 def gen_offspot_json(variant: str, version: str) -> str:
-    version = get_version(extended=False)
     human = "Kiwix Hotspot"
     if variant.strip():
         human += f" “{variant}”"
