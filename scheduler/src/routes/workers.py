@@ -121,7 +121,11 @@ def calculate_load(user: dict):
         {"status": {"$in": ["pending", "received", "building", "built", "uploading"]}},
         {"status": 1, "statuses": 1, "order": 1, "worker": 1},
     ):
-        task["units"] = Orders().find_one({"_id": task["order"]}, {"units": 1})["units"]
+        order = Orders().find_one({"_id": task["order"]}, {"units": 1})
+        if order is None:
+            print(f"[PLZ REMOVE] Creator Task {task['_id']} has no Order")
+            continue
+        task["units"] = order["units"]
         task["duration"] = get_remaining_minutes(task)
         tasks.append(task)
     nb_pending_taks = len(tasks)
