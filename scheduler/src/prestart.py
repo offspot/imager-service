@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 class Initializer:
     @staticmethod
     def start():
+        if os.getenv("SKIP_PRESTART"):  # devel
+            return
         if os.getenv("TEST_EMAIL"):
             logger.info("send test email to: {}".format(os.getenv("TEST_EMAIL")))
             send_email(
