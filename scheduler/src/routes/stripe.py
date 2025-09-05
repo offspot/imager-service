@@ -689,10 +689,6 @@ def on_checkout_suceeded():
     if event and event["type"] == "checkout.session.completed":
         session = stripe.checkout.Session.retrieve(event["data"]["object"]["id"])
 
-        StripeSession().update_one(
-            {"session_id": session.id}, {"$set": {"stripe_object": session}}
-        )
-
         customer = (
             stripe.Customer.retrieve(session.customer)
             if session.get("customer")
@@ -703,6 +699,10 @@ def on_checkout_suceeded():
         except Exception as exc:
             logger.error("Unable to update customer")
             logger.exception(exc)
+
+        StripeSession().update_one(
+            {"session_id": session.id}, {"$set": {"stripe_object": session}}
+        )
 
         try:
             handler = get_handler(session["metadata"]["product"])
