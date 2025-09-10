@@ -1058,8 +1058,10 @@ def sales_export():
     )
     writer.writeheader()
 
+    # refunds are manually set on DB
+    # .find({"stripe_object.customer_details.email": "XXX"})
     for local_session in StripeSession().find(
-        filter={"stripe_object": {"$exists": True}},
+        filter={"stripe_object": {"$exists": True}, "refunded": {"$exists": False}},
         projection={
             "session_id": 1,
             "customer_id": 1,
