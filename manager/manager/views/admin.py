@@ -131,7 +131,7 @@ def dashboard(request):
             "url": settings.BASE_IMAGE_URL,
             "rootfs_size": settings.BASE_IMAGE_ROOTFS_SIZE,
         },
-        "version": get_version(extended=True)
+        "version": get_version(extended=True),
     }
 
     forms_map = {

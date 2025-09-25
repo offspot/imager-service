@@ -565,7 +565,7 @@ def order_list(request):
     sort_dir = request.GET.get("dir", "desc")
 
     filtered_orders = Order.objects.filter(
-        organization=request.user.profile.organization  #, status=order_filter
+        organization=request.user.profile.organization  # , status=order_filter
     )
     # Apply sorting using helper function
     filtered_orders = apply_orders_sorting(filtered_orders, sort_field, sort_dir)
