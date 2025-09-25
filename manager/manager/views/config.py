@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.http import Http404, HttpResponse, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, reverse
 from django.utils.translation import gettext as _
 from offspot_config.catalog import app_catalog
 
@@ -186,19 +186,18 @@ def configuration_edit(request, config_id=None):
     context["tab"] = "general"  # default
     context["lang_filter"] = None
 
+    # allowing tab and lang_filter to be passed in URL
+    # in addition to in-form POST
+    passed_tab = request.POST.get("tab", request.GET.get("tab", "")).strip()
+    if passed_tab in ("general", "branding", "files", "zims", "apps"):
+        context["tab"] = passed_tab
+    passed_lang = request.POST.get(
+        "lang_filter", request.GET.get("lang_filter", "")
+    ).strip()
+    if passed_lang:
+        context["lang_filter"] = passed_lang[:3]
+
     if request.method == "POST":
-        if request.POST.get("tab", "").strip() in (
-            "general",
-            "branding",
-            "files",
-            "zims",
-            "apps",
-        ):
-            context["tab"] = request.POST["tab"].strip()
-
-        if request.POST.get("lang_filter", "").strip():
-            context["lang_filter"] = request.POST["lang_filter"].strip()[:3]
-
         form = ConfigurationForm(request.POST, request.FILES, instance=config)
         if form.is_valid():
             try:
@@ -223,8 +222,23 @@ def configuration_edit(request, config_id=None):
                     % {"err": exp},
                 )
             else:
+                # requested direct order, redirect there
                 if request.POST.get("order-on-success"):
-                    return redirect("configuration_order", config_id=config.id)
+                    return redirect("configuration_order", config_id=instance.id)
+
+                # this is a first-time save (creation). Use custom message
+                # and redirect so we're in clear edit mode
+                if not config_id:
+                    messages.success(request, _("Configuration Created successfuly !"))
+                    params = "?" if passed_tab or passed_lang else ""
+                    if passed_tab:
+                        params += f"&tab={passed_tab}"
+                    if passed_lang:
+                        params += f"&lang_filter={passed_lang}"
+                    return redirect(
+                        reverse("configuration_edit", kwargs={"config_id": instance.id})
+                        + params
+                    )
                 messages.success(request, _("Configuration Updated successfuly !"))
         else:
             pass
