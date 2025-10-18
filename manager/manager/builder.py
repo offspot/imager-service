@@ -125,11 +125,17 @@ def prepare_builder_for_collection(
 def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     version = get_version(extended=False)
     version = "2025-08"
+    base = BaseConfig(
+        source=settings.BASE_IMAGE_URL,
+        rootfs_size=settings.BASE_IMAGE_ROOTFS_SIZE,
+    )
+    if config.has_beta("trixie-bi"):
+      base = BaseConfig(
+          source="https://s3.eu-central-1.wasabisys.com/it-offspot-base-branches/offspot-base-arm64-trixie-4dc9629.img",
+          rootfs_size=2558525440,
+      )
     builder = ConfigBuilder(
-        base=BaseConfig(
-            source=settings.BASE_IMAGE_URL,
-            rootfs_size=settings.BASE_IMAGE_ROOTFS_SIZE,
-        ),
+        base=base,
         name=str(config.ssid),
         domain=str(config.project_name),
         welcome_domain="goto.kiwix",
@@ -248,13 +254,6 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             builder.config["oci_images"].remove(dashboard_img)
             builder.config["oci_images"].add(dashboard_img_new)
             builder.compose["services"]["home"]["image"] = dashboard_img_new.source
-
-    if config.has_beta("trixie-bi"):
-      builder.config["base"] = BaseConfig(
-          source="https://s3.eu-central-1.wasabisys.com/it-offspot-base-branches/offspot-base-arm64-trixie-4dc9629.img",
-          rootfs_size=2558525440,
-      )
-
     # if config.has_beta("image-creator-1.0"):
     #  # set special image-creator.version prop in YAML that worker understands
     #  # and will have it change imager path
