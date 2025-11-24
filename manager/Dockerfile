@@ -1,5 +1,5 @@
 FROM docker.io/library/python:3.11-slim-bookworm
-LABEL org.opencontainers.image.source https://github.com/offspot/imager-service
+LABEL="org.opencontainers.image.source https://github.com/offspot/imager-service"
 
 ARG GIT_REV
 
