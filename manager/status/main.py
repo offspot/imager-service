@@ -317,7 +317,18 @@ def get_wasabi_status() -> bool:
     """Testing the download of a specific file in our bucket that expires after 1y
 
     and serve only this specific purpose. If this starts failing, check the expiry
-    date and update it"""
+    date and update it
+
+    RENEW:
+    uv run --with kiwixstorage --with ipython ipython
+    import datetime, io, os
+    from kiwixstorage import KiwixStorage
+    bucket_name = "org-kiwix-hotspot-cardshop-download"
+    key = "status"
+    s3.upload_fileobj(bucket_name=bucket_name, key=key, fileobj=io.BytesIO(b""))
+    s3.set_object_autodelete_on(
+        key=key, datetime.datetime(2026,11,21, 23, 59), bucket_name=bucket_name)
+    """
     url = os.getenv("STATUS_S3_URL", "") + "/status"
     try:
         return (
