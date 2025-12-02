@@ -7,7 +7,7 @@ but this project **does not adhere** to Semantic Versioning.
 
 https://[api.]imager.kiwix.org are auto-deploying `main`.
 
-## [Current]
+## [2025-12] - 2025-12-02
 
 ### Added
 
@@ -18,11 +18,17 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 - [scheduler.stripe] Customer now added to CRM upon Strip webhook
 - [scheduler.stripe] New Sales CSV export endpoint.
 - [scheduler.stripe] Preppers Premium Package (H1 and OS-only)
+- [scheduler.stripe] Record StripeSession on successful transactions
+- [scheduler] `SKIP_PRESTART` dev-only ENV to skip prestart
+- [manager] Added variant support (Demo, Preppers, etc)
 
 ### Fixed
 
 - [scheduler.stripe] Webhook failing if no discount on device order
 - [scheduler.stripe] Email dates zero-padded hours and minutes
+- [scheduler.periodic_tasks] Task.get_size() used in cleanup
+- [scheduler] Skipping creator tasks without order
+- [manager] Multiple config creation instead of update (#496)
 
 ### Changed
 
@@ -50,11 +56,15 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
     - Config size now red if it cannot fit on any media
 - [manager] Current Tab (and ZIM language) now preserved upon save
 - [manager] New simpler order detail page with download buttons
-- [manager.builder] Including Kiwix macOS 3.9.0
+- [manager.builder] Including Kiwix macOS 3.11.0
+- [manager] Now running on bookwork (python 3.8)
+- [manager] Using offspot-config 2.9.0
+- [manager] Using base-image 1.4.0
 
 ### Removed
 
 - [scheduler.stripe] TED Talks Package
+- [scheduler.stripe] Shipping to US (with banner in shop)
 
 ## [2025-05] - 2025-05-07
 
