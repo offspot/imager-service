@@ -19,12 +19,12 @@ classifiers = [
 ]
 dependencies = [
   "Django==5.0.14",
-  "requests==2.32.3",
-  "werkzeug>=3.0.1",
-  "iso639-lang==2.6.0",
+  "requests==2.32.4",
+  "werkzeug>=3.0.6",
+  "iso639-lang==2.6.3",
   "xmltodict==0.13.0", # offspot-config blocking 0.14.2
   "Babel==2.17.0",
-  "phonenumbers==9.0.2",
+  "phonenumbers==9.0.19",
   "Pillow==11.1.0",
   "pycountry==24.6.1",
   "python-magic==0.4.27",
