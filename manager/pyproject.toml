@@ -19,7 +19,7 @@ classifiers = [
 ]
 dependencies = [
   "Django==5.0.14",
-  "requests==2.32.3",
+  "requests==2.32.4",
   "werkzeug>=3.0.1",
   "iso639-lang==2.6.0",
   "xmltodict==0.13.0", # offspot-config blocking 0.14.2
