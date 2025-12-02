@@ -20,6 +20,7 @@ from offspot_config.constants import INTERNAL_BRANDING_PATH
 from offspot_config.inputs.checksum import Checksum
 from offspot_config.utils.download import read_checksum_from
 from offspot_config.utils.misc import b64_encode
+from offspot_runtime.ap import PROFILES as WIFI_PROFILES
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -223,9 +224,10 @@ LANGUAGES = [
     ("fr", _lz("French")),
 ]
 
-BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL", "1.3.1")
-BASE_IMAGE_ROOTFS_SIZE = int(os.getenv("BASE_IMAGE_ROOTFS_SIZE", "2663383040"))
+BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL", "1.4.0")
+BASE_IMAGE_ROOTFS_SIZE = int(os.getenv("BASE_IMAGE_ROOTFS_SIZE", "3464495104"))
 OFFSPOT_TLD = os.getenv("OFFSPOT_TLD", "hotspot")
+WIFI_PROFILE = os.getenv("WIFI_PROFILE", WIFI_PROFILES[0])
 # should utilmately be supported by offspot-config
 OFFSPOT_LANGUAGES = [
     ("en", _lz("English")),
@@ -266,7 +268,6 @@ KIWIX_READERS = [
 BETA_FEATURES = {
     # "dashboard-1.4": "Dashboard 1.4 UI with separate Downloads and Readers option",
     # "image-creator-1.0": "Image-creator 1.0 with aria2 downloader",
-    "trixie-bi": "Trixie base image",
 }
 
 

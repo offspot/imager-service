@@ -124,22 +124,17 @@ def prepare_builder_for_collection(
 
 def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     version = get_version(extended=False)
-    version = "2025-08"
     base = BaseConfig(
         source=settings.BASE_IMAGE_URL,
         rootfs_size=settings.BASE_IMAGE_ROOTFS_SIZE,
     )
-    if config.has_beta("trixie-bi"):
-      base = BaseConfig(
-          source="https://s3.eu-central-1.wasabisys.com/it-offspot-base-branches/offspot-base-arm64-trixie-4dc9629.img",
-          rootfs_size=2558525440,
-      )
     builder = ConfigBuilder(
         base=base,
         name=str(config.ssid),
         domain=str(config.project_name),
         welcome_domain="goto.kiwix",
         tld=settings.OFFSPOT_TLD,
+        wifi_profile=settings.WIFI_PROFILE,
         ssid=str(config.ssid),
         passphrase=str(config.wifi_password) if config.wifi_password else None,
         timezone=str(config.timezone),
@@ -196,15 +191,14 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     )
 
     # dashboard links
-    links = []
-    if config.content_metrics:
-        links.append(Link("Metrics", "//metrics.${FQDN}"))
+    links = [Link("Admin", "//admin.${FQDN}")]
 
     readers = None
     if config.option_kiwix_readers:
         readers = settings.KIWIX_READERS
 
     builder.add_dashboard(allow_zim_downloads=True, readers=readers, links=links)
+    builder.add_adminui()
     builder.add_captive_portal()
     builder.add_reverseproxy()
 
@@ -238,25 +232,5 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     # post-config updates for [beta features]
     if not config.has_any_beta:
         return builder
-
-    if config.has_beta("dashboard-1.4"):
-        # change image for dashboard (download and compose)
-        dashboard_img = get_internal_image("dashboard")
-        if (
-            dashboard_img in builder.config["oci_images"]
-            and dashboard_img.oci.tag == "1.3.1"
-        ):
-            dashboard_img_new = OCIImage(
-                ident="ghcr.io/offspot/dashboard:1.4.7",
-                filesize=179865600,
-                fullsize=179749957,
-            )
-            builder.config["oci_images"].remove(dashboard_img)
-            builder.config["oci_images"].add(dashboard_img_new)
-            builder.compose["services"]["home"]["image"] = dashboard_img_new.source
-    # if config.has_beta("image-creator-1.0"):
-    #  # set special image-creator.version prop in YAML that worker understands
-    #  # and will have it change imager path
-    #  builder.config["image-creator"] = {"version": "1.1.0"}
 
     return builder
