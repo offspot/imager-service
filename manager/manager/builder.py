@@ -182,7 +182,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     del square
 
     # dashboard links
-    links = [Link("Admin", "//admin.${FQDN}")]
+    links = [Link(label="Admin", url="//admin.${FQDN}", icon="lock")]
 
     readers = None
     if config.option_kiwix_readers:
