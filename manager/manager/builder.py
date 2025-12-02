@@ -145,6 +145,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
         write_config=True,
         kiwix_zim_mirror="https://mirror.download.kiwix.org/zim/",
         public_version=version,
+        variant=str(config.variant),
     )
 
     # add branding
@@ -179,16 +180,6 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     else:
         builder.add_file(**settings.BRANDING_FILES_PAYLOADS["square-logo-light.png"])
     del square
-
-    # add offspot.json file (until offspot-config handles it directly)
-    offspot_json_text = gen_offspot_json(variant=str(config.variant), version=version)
-    builder.add_file(
-        url_or_content=offspot_json_text,
-        to=str(DATA_PART_PATH / "etc/offspot.json"),
-        via="direct",
-        size=len(offspot_json_text),
-        is_url=False,
-    )
 
     # dashboard links
     links = [Link("Admin", "//admin.${FQDN}")]
