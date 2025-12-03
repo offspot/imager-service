@@ -31,7 +31,7 @@ dependencies = [
   "humanfriendly==10.0",
   "ansi2html==1.9.2",
   "mysqlclient==2.2.7",
-  "offspot-config==2.9.0",
+  "offspot-config==2.9.1",
   # "offspot-config@git+https://github.com/offspot/offspot-config#egg=main",
   "PyYAML==6.0.1",  # offspot-config blocking 6.0.2
   "python-dateutil==2.9.0.post0",
