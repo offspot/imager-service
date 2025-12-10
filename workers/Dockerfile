@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim-trixie
 LABEL org.opencontainers.image.source=https://github.com/offspot/imager-service
 
 VOLUME /data
@@ -27,11 +27,11 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
     && curl -L -o /usr/local/bin/image-creator_0.9.8 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_0.9.8 \
     && chmod +x /usr/local/bin/image-creator_0.9.8 \
     && echo "--- dependencies version: " && image-creator_0.9.8 --version \
-    && curl -L -o /usr/local/bin/image-creator_1.1.3 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.1.4 \
+    && curl -L -o /usr/local/bin/image-creator_1.1.4 https://drive.offspot.it/image-creator/image-creator_linux-x86_64_1.1.4 \
     && chmod +x /usr/local/bin/image-creator_1.1.4 \
     && echo "--- beta version: " && image-creator_1.1.4 --version \
     # set default
-    && ln -s /usr/local/bin/image-creator_1.1.3 /usr/local/bin/image-creator
+    && ln -s /usr/local/bin/image-creator_1.1.4 /usr/local/bin/image-creator
 
 COPY requirements.txt /src/
 RUN pip install -r /src/requirements.txt
