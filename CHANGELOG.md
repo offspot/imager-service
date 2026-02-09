@@ -7,6 +7,12 @@ but this project **does not adhere** to Semantic Versioning.
 
 https://[api.]imager.kiwix.org are auto-deploying `main`.
 
+## [Unreleased]
+
+### Changed
+
+- [manager.builder] Including Kiwix macOS 3.12.0
+
 ## [2025-12] - 2025-12-02
 
 ### Added

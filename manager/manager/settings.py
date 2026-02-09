@@ -241,7 +241,7 @@ KIWIX_READERS_SOURCES = {
     "windows": "https://download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.5.1.zip",
     "android": "https://mirror.download.kiwix.org/release/kiwix-android/"
     "org.kiwix.kiwixmobile.standalone-3.14.0.apk",
-    "macos": "https://download.kiwix.org/release/kiwix-macos/kiwix-macos_3.11.0.dmg",
+    "macos": "https://download.kiwix.org/release/kiwix-macos/kiwix-macos_3.12.0.dmg",
     "linux": "https://download.kiwix.org/release/kiwix-desktop/"
     + "kiwix-desktop_x86_64_2.5.1.appimage",
 }
