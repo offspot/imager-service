@@ -176,7 +176,7 @@
 	</tr>
 	{% for image in images %}
 	<tr>
-		<th><code>{{image.slug }}</code> {{ image.config.size }}</th>
+		<td><code>{{image.slug }}</code><br />{{ image.config.size }}GB{% if image.woo_id %}<br />Product ID: <code>{{image.woo_id}}</code>{% endif %}</td>
 		<td>{{ image.contact_email }}</td>
 		<td>{{ image.status }}</td>
 		<td>{{ image.expire_on|default:"Never" }}</td>
@@ -205,14 +205,20 @@
 	<input type="hidden" name="form" value="image_form">
 	<div class="form-row visual-group">
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.slug %}{{ image_form.slug|as_widget }}</div>
+		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.woo_id %}<sup>1</sup>{{ image_form.woo_id|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.config %}{{ image_form.config|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.contact_email %}{{ image_form.contact_email|as_widget }}</div>
-		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.channel %}{{ image_form.channel|as_widget }}</div>
+		<div class="form-channel">{% include "_label_for.html" with field=image_form.channel %}{{ image_form.channel|as_widget }}</div>
 		<div class="form-group col-md-2">{% include "_label_for.html" with field=image_form.warehouse %}{{ image_form.warehouse|as_widget }}</div>
 		<div class="form-group col-md-1">{% include "_label_for.html" with field=image_form.private %}{{ image_form.private|as_widget }}</div>
 		<div class="form-group col-md-1"><label>-</label><button class="btn btn-primary form-check-input form-control">{% blocktrans %}Create{% endblocktrans %}</button></div>
 	</div>
 </form>
+<p><sup>1</sup> <em>Product ID</em> is the Product ID on the WooCommerce shop. Use <code>0</code> if the image is not sold on the shop.</p>
+{% endblock %}
+
+{% block css %}
+div.form-channel { display: none; }
 {% endblock %}
 
 {% block javascript %}

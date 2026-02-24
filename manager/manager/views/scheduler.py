@@ -184,6 +184,7 @@ class ImageForm(SchedulerForm):
         )
 
     slug = forms.CharField(label="Image ID/slug")
+    woo_id = forms.IntegerField(label="Product ID", initial=0, required=False)
     config = forms.ChoiceField(choices=[], label="Configuration")
     contact_email = forms.EmailField(label="Contact Email")
     warehouse = forms.ChoiceField(choices=get_warehouse_choices())
@@ -221,6 +222,7 @@ class ImageForm(SchedulerForm):
 
         success, autoimage_slug = func(
             slug=self.cleaned_data.get("slug"),
+            woo_id=self.cleaned_data.get("woo_id"),
             config=self.cleaned_data.get("config").to_dict(),
             config_yaml=self.cleaned_data.get("config").builder.render(),
             contact_email=self.cleaned_data.get("contact_email"),

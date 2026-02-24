@@ -426,6 +426,7 @@ def get_warehouse_choices():
 @auth_required
 def add_autoimage(
     slug,
+    woo_id,
     config,
     config_yaml,
     contact_email,
@@ -436,6 +437,7 @@ def add_autoimage(
 ):
     payload = {
         "slug": slug,
+        "woo_id": woo_id,
         "config": config,
         "config_yaml": config_yaml,
         "contact_email": contact_email,
@@ -462,6 +464,7 @@ def delete_autoimage(autoimage_slug):
 @auth_required
 def update_autoimage(
     slug,
+    woo_id,
     config,
     config_yaml,
     contact_email,
@@ -472,6 +475,7 @@ def update_autoimage(
 ):
     payload = {
         "slug": slug,
+        "woo_id": woo_id,
         "config": config,
         "config_yaml": config_yaml,
         "contact_email": contact_email,

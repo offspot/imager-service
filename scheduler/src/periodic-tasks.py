@@ -3,9 +3,12 @@
 import datetime
 import logging
 import os
+from pathlib import Path
+from urllib.parse import urlsplit
 
 import humanfriendly
 import requests
+from woocommerce import API
 
 from emailing import send_order_failed_email
 from routes.orders import create_order_from
@@ -23,8 +26,20 @@ DISABLE_PERIODIC_TASKS = bool(os.getenv("DISABLE_PERIODIC_TASKS", "") == "y")
 RECREATE_AUTO_MONTHLY = bool(os.getenv("RECREATE_AUTO_MONTHLY", "") == "y")
 AUTO_IMAGES_EXTEND_BEFORE_DAYS = int(os.getenv("AUTO_IMAGES_EXTEND_BEFORE_DAYS") or 5)
 AUTO_IMAGES_EXTEND_FOR_DAYS = int(os.getenv("AUTO_IMAGES_EXTEND_FOR_DAYS") or 10)
+SHOP_WOO_API_URL = os.getenv("SHOP_WOO_API_URL", "https://get.kiwix.org/")
+SHOP_WOO_CONSUMER_KEY = os.getenv("SHOP_WOO_CONSUMER_KEY", "not-set")
+SHOP_WOO_CONSUMER_SECRET = os.getenv("SHOP_WOO_CONSUMER_SECRET", "not-set")
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+
+def get_wc_api():
+    return API(
+        url=SHOP_WOO_API_URL,
+        consumer_key=SHOP_WOO_CONSUMER_KEY,
+        consumer_secret=SHOP_WOO_CONSUMER_SECRET,
+        version="wc/v3",
+    )
 
 
 def get_next_month():
@@ -101,6 +116,12 @@ def run_periodic_tasks():
         Orders().update_status(order["_id"], Orders.expired)
 
 
+def set_product_download_urls(product_id: int, downloads):
+    wc_api = get_wc_api()
+    resp = wc_api.put(f"products/{product_id}", data={"downloads": downloads})
+    resp.raise_for_status()
+
+
 def check_autoimages():
     # update images that were building
     logger.info("Looking for currently building images…")
@@ -119,15 +140,37 @@ def check_autoimages():
         if order["status"] in Orders.SUCCESS_STATUSES + [Orders.pending_expiry]:
             logger.info(f".. order succeeded: {order['status']}")
             torrent_url = get_public_download_torrent_url(order)
+            http_url = get_public_download_url(order)
+            magnet_url = get_magnet_for_torrent(torrent_url)
+
+            # not all images are product on the shop
+            if image.get("woo_id"):
+                downloads = [
+                    {
+                        "id": "http_url",
+                        "name": Path(urlsplit(http_url).path).name,
+                        "file": http_url,
+                    },
+                    {
+                        "id": "torrent_url",
+                        "name": Path(urlsplit(torrent_url).path).name,
+                        "file": torrent_url,
+                    }
+                ]
+                set_product_download_urls(
+                    product_id=image["woo_id"], downloads=downloads
+                )
+
             AutoImages.update_status(
                 image["slug"],
                 status="ready",
                 order=None,
-                http_url=get_public_download_url(order),
+                http_url=http_url,
                 torrent_url=torrent_url,
-                magnet_url=get_magnet_for_torrent(torrent_url),
+                magnet_url=magnet_url,
                 expire_on=get_next_month() if RECREATE_AUTO_MONTHLY else None,
             )
+
             continue
 
         logger.info(f".. order still building: {order['status']}")
