@@ -18,6 +18,7 @@ from routes import (
     users,
     warehouses,
     workers,
+    woo,
 )
 from utils.json import Encoder
 from utils.templates import amount_str, strftime
@@ -44,6 +45,7 @@ flask.register_blueprint(warehouses.blueprint)
 flask.register_blueprint(workers.blueprint)
 flask.register_blueprint(autoimages.blueprint)
 flask.register_blueprint(stripe.blueprint)
+flask.register_blueprint(woo.blueprint)
 
 errors.register_handlers(flask)
 

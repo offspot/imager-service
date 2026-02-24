@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from flask import Flask, Response, jsonify
 from jwt import exceptions as jwt_exceptions
 
@@ -20,6 +22,18 @@ def register_handlers(app: Flask):
         response.status_code = 401
         return response
 
+
+class HTTPError(Exception):
+    def __init__(self, status: HTTPStatus, message: str = ""):
+        super(self)
+        self.status = status
+        self.message = message
+
+    @staticmethod
+    def handler(e):
+        response = jsonify({"error": e.message or e.status.name, "http": f"{e.status.value}: {e.status.name}"})
+        response.status_code = e.status.value
+        return response
 
 # 400
 class BadRequest(Exception):
