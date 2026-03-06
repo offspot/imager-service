@@ -97,11 +97,16 @@ def add_customer_note(order_id: int, credentials):
             'To reset your password <a href="https://imager.kiwix.org/reset-password">click here</a>.'
         )
     elif username and password:
-        content = f"Username <code style='font-family:monospace;'>{username}</code>. Password: <code style='font-family:monospace;'>{password}</code>."
+        content = (
+            f'Username <code style="font-family:monospace;">{username}</code>.'
+            f'<br />\nPassword: <code style="font-family:monospace;">{password}</code>.'
+            f'<br />\n<a href="https://imager.kiwix.org" target="_blank">'
+            "Access imager.kiwix.org</a>."
+        )
     else:
         content = (
-            f"Username: <code style='font-family:monospace;'>{username or 'n/a'}</code>. "
-            f"Password: <code style='font-family:monospace;'>{password or 'n/a'}</code>. "
+            f"Username: <code style='font-family:monospace;'>{username or 'n/a'}</code>.<br />\n"
+            f"Password: <code style='font-family:monospace;'>{password or 'n/a'}</code>.<br />\n"
             "Something unexpected happened. Please contact us."
         )
 
