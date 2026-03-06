@@ -55,7 +55,7 @@ def is_expired(status, since, size=0):
     min_bps = int(humanfriendly.parse_size("4MiB") / 8)
 
     if status == Tasks.building:
-        return since < now - datetime.timedelta(hours=12)
+        return since < now - datetime.timedelta(hours=36)
 
     if status == Tasks.wiping_sdcard:
         return since < now - datetime.timedelta(minutes=30)
