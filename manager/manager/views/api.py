@@ -56,6 +56,7 @@ def required_size_for_config(request):
     builder = prepare_builder_for_collection(
         edupi_resources=data.get("edupi_resources", None),
         metrics=data.get("metrics", False),
+        readers=data.get("readers", False),
         zims=data.get("zims", []),
         packages=data.get("packages", []),
     )

@@ -108,6 +108,7 @@ def prepare_builder_for_collection(
     *,
     edupi_resources: str | None,
     metrics: bool,
+    readers: bool,
     zims: list[str],
     packages: list[str],
 ) -> ConfigBuilder:
@@ -117,6 +118,7 @@ def prepare_builder_for_collection(
         content_metrics=metrics,
         content_zims=zims,
         content_packages=packages,
+        option_kiwix_readers=readers,
     )
 
     return prepare_builder_for(config=config)

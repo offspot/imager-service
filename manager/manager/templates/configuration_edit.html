@@ -755,6 +755,8 @@ table.package-table td:last-child {
 		let free_space_template = "{% blocktrans %}__media_size__ <small>(__free_size__ free)</small>{% endblocktrans %}";
 		let config = {
 			edupi_resources: $('#' + edupi_resources_id).val(),
+			metrics: $('#id_content_metrics')[0].checked,
+			readers: $('#id_option_kiwix_readers')[0].checked,
 			zims: zims_idents,
 			packages: apps_idents.concat(files_idents),
 		};
