@@ -7,11 +7,30 @@ but this project **does not adhere** to Semantic Versioning.
 
 https://[api.]imager.kiwix.org are auto-deploying `main`.
 
-## [Unreleased]
+## [2026-03] - 2026-03-12
+
+### Removed
+
+- [scheduler] Stripe API as previous website was replaced
+
+### Added
+
+- [scheduler] New Woo API to handle imager-service account creation from new website
+- [scheduler] Auto-images creation now updates get.kiwix.org API with download URLs
+
+### Fixed
+
+- [manager] Size reported via API (used in config live size display) not accounting for readers.
 
 ### Changed
 
-- [manager.builder] Including Kiwix macOS 3.12.0
+- [manager] Including Kiwix macOS 3.13.0
+- [manager] Including Kiwix Windows and Linux 2.5.1
+- [manager] Using offspot-config 2.10.0
+- [manager] Using base-image 1.4.2 with Captive portal fix
+- [worker] Using image-creator 1.1.5 with OCI manifest images support (GHCR change)
+- [scheduler] Timeout orders after 36h (was 12h)
+
 
 ## [2025-12] - 2025-12-02
 
