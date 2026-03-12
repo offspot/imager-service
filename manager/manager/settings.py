@@ -225,7 +225,7 @@ LANGUAGES = [
 ]
 
 BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL", "1.4.2")
-BASE_IMAGE_ROOTFS_SIZE = int(os.getenv("BASE_IMAGE_ROOTFS_SIZE", "3472883712"))
+BASE_IMAGE_ROOTFS_SIZE = int(os.getenv("BASE_IMAGE_ROOTFS_SIZE", "3716153344"))
 OFFSPOT_TLD = os.getenv("OFFSPOT_TLD", "hotspot")
 WIFI_PROFILE = os.getenv("WIFI_PROFILE", WIFI_PROFILES[0])
 # should utilmately be supported by offspot-config
