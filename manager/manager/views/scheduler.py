@@ -311,6 +311,7 @@ def bulk_recreate_autoimages(request):
         image["slug"]: ImageForm(
             {
                 "slug": image["slug"],
+                "woo_id": image["woo_id"],
                 "config": image["config"]["id"],
                 "contact_email": image["contact_email"],
                 "periodicity": image["periodicity"],
