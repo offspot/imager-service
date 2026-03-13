@@ -26,7 +26,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 
 - [manager] Including Kiwix macOS 3.13.0
 - [manager] Including Kiwix Windows and Linux 2.5.1
-- [manager] Using offspot-config 2.10.1
+- [manager] Using offspot-config 2.10.2
 - [manager] Using base-image 1.4.2 with Captive portal fix
 - [worker] Using image-creator 1.1.5 with OCI manifest images support (GHCR change)
 - [scheduler] Timeout orders after 36h (was 12h)
