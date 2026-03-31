@@ -3,6 +3,7 @@
 import logging
 import os
 
+from babel.dates import format_datetime
 from flask import Flask
 from flask_cors import CORS
 from prestart import Initializer
@@ -13,7 +14,6 @@ from routes import (
     errors,
     home,
     orders,
-    stripe,
     tasks,
     users,
     warehouses,
@@ -21,18 +21,21 @@ from routes import (
     woo,
 )
 from utils.json import Encoder
-from utils.templates import amount_str, strftime
+from utils.templates import amount_str, strftime, country_name
+
+
+def format_dt(date, fmt="d MMMM yyyy, HH:mm", locale="en_GB"):
+    """format datetime using babel. Format optional"""
+    return format_datetime(date, fmt, locale=locale)
+
 
 logging.basicConfig(level=logging.INFO)
 
 flask = Flask(__name__)
 flask.json_encoder = Encoder
-flask.jinja_env.filters["date"] = stripe.format_dt
 flask.jinja_env.filters["amount"] = amount_str
-flask.jinja_env.filters["country"] = stripe.country_name
-flask.jinja_env.filters["nonone"] = stripe.nonone
-flask.jinja_env.filters["tracking_url"] = stripe.get_tracking_url
-flask.jinja_env.filters["product_name"] = stripe.get_product_name
+flask.jinja_env.filters["date"] = format_dt
+flask.jinja_env.filters["country"] = country_name
 CORS(flask)
 
 flask.register_blueprint(home.blueprint)
@@ -44,7 +47,6 @@ flask.register_blueprint(tasks.blueprint)
 flask.register_blueprint(warehouses.blueprint)
 flask.register_blueprint(workers.blueprint)
 flask.register_blueprint(autoimages.blueprint)
-flask.register_blueprint(stripe.blueprint)
 flask.register_blueprint(woo.blueprint)
 
 errors.register_handlers(flask)

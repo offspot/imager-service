@@ -23,27 +23,12 @@ ENV MONGODB_URI=mongo
 ENV MANAGER_ACCOUNT_PASSWORD=manager
 # to send URLs via email
 ENV PUBLIC_URL=https://imager.kiwix.org
-# to build URLs Stripe redirects to
+# to build URLs Shop redirects to
 ENV CARDSHOP_API_URL=https://api.imager.kiwix.org
 # manager API URL to create user accounts (use sloppy version)
 ENV MANAGER_API_URL=https://imager.kiwix.org/api
 # API token on manager to create user accounts
 ENV MANAGER_ACCOUNTS_API_TOKEN=dev
-# to include in shop widget
-ENV STRIPE_PUBLIC_API_KEY=-
-# to create sessions
-ENV STRIPE_API_KEY=-
-# Stripe Products
-ENV STRIPE_METHOD_WP=payment
-ENV STRIPE_METHOD_ACCESS1M=-
-ENV STRIPE_METHOD_ACCESS1Y=-
-ENV STRIPE_PRICE_WPEN=-
-ENV STRIPE_PRICE_WPFR=-
-ENV STRIPE_PRICE_WPDE=-
-ENV STRIPE_PRICE_WPES=-
-ENV STRIPE_PRICE_ACCESS1M=-
-ENV STRIPE_PRICE_ACCESS1Y=-
-# to send to Stripe as “go back” button
 ENV SHOP_PUBLIC_URL=https://www.kiwix.org/en/cardshop-access/
 # SMTP email-related (we use mailgun)
 # enctype: auto,tls,ssl,none (defaults to tls)
