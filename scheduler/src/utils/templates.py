@@ -63,29 +63,6 @@ def public_download_url_has_torrent(order):
     )
 
 
-def get_magnet_for_torrent(torrent_url):
-    try:
-        res = requests.get(torrent_url)
-        torrent = torf.Torrent.read_stream(io.BytesIO(res.content))
-        return str(torrent.magnet())
-    except Exception as exc:
-        logger.error("Unable to retrieve torrent file")
-        logger.exception(exc)
-
-
-def get_public_download_magnet_url(order):
-    if not public_download_url_has_torrent(order):
-        return
-    try:
-        res = requests.get(get_public_download_torrent_url(order))
-        torrent = torf.Torrent.read_stream(io.BytesIO(res.content))
-        return torrent.magnet()
-    except Exception as exc:
-        logger.error("Unable to retrieve torrent file")
-        logger.exception(exc)
-    return get_public_download_url(order)
-
-
 def yesno(value):
     """yes or no string from bool value"""
     return "yes" if bool(value) else "no"

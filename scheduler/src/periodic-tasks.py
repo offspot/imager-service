@@ -14,7 +14,6 @@ from emailing import send_order_failed_email
 from routes.orders import create_order_from
 from utils.mongo import AutoImages, Orders, Tasks
 from utils.templates import (
-    get_magnet_for_torrent,
     get_public_download_torrent_url,
     get_public_download_url,
 )
@@ -141,7 +140,6 @@ def check_autoimages():
             logger.info(f".. order succeeded: {order['status']}")
             torrent_url = get_public_download_torrent_url(order)
             http_url = get_public_download_url(order)
-            magnet_url = get_magnet_for_torrent(torrent_url)
 
             # not all images are product on the shop
             if image.get("woo_id"):
@@ -167,7 +165,6 @@ def check_autoimages():
                 order=None,
                 http_url=http_url,
                 torrent_url=torrent_url,
-                magnet_url=magnet_url,
                 expire_on=get_next_month() if RECREATE_AUTO_MONTHLY else None,
             )
 

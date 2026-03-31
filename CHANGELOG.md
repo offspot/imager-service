@@ -12,6 +12,7 @@ https://[api.]imager.kiwix.org are auto-deploying `main`.
 ### Removed
 
 - [scheduler] Stripe API as previous website was replaced
+- Magnet support (was not working nor used)
 
 ## [2026-03] - 2026-03-12
 

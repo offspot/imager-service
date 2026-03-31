@@ -130,7 +130,6 @@ def json_document(autoimage_slug: ObjectId, user: dict):
             "private": 1,
             "http_url": 1,
             "torrent_url": 1,
-            "magnet_url": 1,
             "expire_on": 1,
             "_id": 0,
         },
@@ -148,7 +147,7 @@ def json_document(autoimage_slug: ObjectId, user: dict):
 def redirect(autoimage_slug: ObjectId, method: str):
     """only for public images (user not forwarded)"""
 
-    if method not in ["http", "torrent", "magnet"]:
+    if method not in ["http", "torrent"]:
         raise errors.NotFound()
 
     response = json_document(autoimage_slug)
