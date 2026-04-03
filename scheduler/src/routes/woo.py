@@ -24,6 +24,7 @@ SHOP_PUBLIC_URL = os.getenv("SHOP_PUBLIC_URL", "https://get.kiwix.org/shop/")
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
 WOOCOMMERCE_ACCESS_HOOK_SECRET = os.getenv("WOOCOMMERCE_ACCESS_HOOK_SECRET", "not-set")
+WOOCOMMERCE_ACCESS_PRODUCTIDS = [int(pid) for pid in os.getenv("WOOCOMMERCE_ACCESS_PRODUCTIDS", "4759").split()]
 
 blueprint = Blueprint("woo", __name__, url_prefix="/shop/woo")
 logger = logging.getLogger(__name__)
@@ -179,7 +180,7 @@ def on_imager_access_order():
         raise HTTPError(HTTPStatus.UNAUTHORIZED, "Invalid signature")
     payload = json.loads(request.data)
 
-    # check online that order is
+    # check online that order is not a download one (auto processed)
     status = payload.get("status", "unknown")
     if status != "processing":
         return jsonify(ignored=True)
@@ -187,6 +188,17 @@ def on_imager_access_order():
     order_id = payload.get("id")
     if not order_id:
         raise HTTPError(HTTPStatus.BAD_REQUEST, "Missing Order ID")
+
+    # ensure there's an imager access product in order
+    contains_access = False
+    for item in payload.get("line_items", []):
+        if item.get("product_id") in WOOCOMMERCE_ACCESS_PRODUCTIDS:
+            contains_access = True
+            break
+
+    if not contains_access:
+        return jsonify(ignored=True)
+
     number = payload.get("number", "unknown")
     email = payload.get("billing", {}).get("email")
 
