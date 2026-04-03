@@ -99,6 +99,10 @@ class CreateTask(threading.Thread):
         return self.file_path("img")
 
     @property
+    def torrent_path(self):
+        return self.img_path.with_suffix(f"{self.img_path.suffix}.torrent")
+
+    @property
     def img_name(self):
         return self.img_path.stem
 
@@ -250,8 +254,82 @@ class CreateTask(threading.Thread):
             raise subprocess.SubprocessError("installer rc: {}".format(ps.returncode))
 
     def upload_image(self):
+        # first build torrent with expected sources
+        self._build_torrent_file()
+
+        # then upload torrent file to all sources
+        self._upload_image_to_warehouse()
+
+        # then delete torrent file
+        try:
+            self.logger.info("removing torrent file: {}".format(self.torrent_path.name))
+            self.torrent_path.unlink(missing_ok=True)
+        except Exception as exp:
+            self.logger.error("Unable to remove torrent file: {}".format(exp))
+            self.logger.exception(exp)
+
+        # then upload image files to all sources
+        upload_succeeded = self.upload_images_to_all_locations()
+
+        # remove image
+        try:
+            self.logger.info("removing image file: {}".format(self.img_path.name))
+            self.img_path.unlink()
+        except Exception as exp:
+            self.logger.error("Unable to remove image file: {}".format(exp))
+            self.logger.exception(exp)
+
+        if not upload_succeeded:
+            raise subprocess.SubprocessError("File upload failed")
+
+    def _build_torrent_file(self):
+        uploader_logger = logging.getLogger("uploader_log")
+        uploader_logger.info(f"Creating torrent file for {self.img_path.name}")
+        webseeds = []
+
+        dl_urls = urllib.parse.urlparse(self.task["download_uris"])
+        for dl_url in dl_urls:
+            parts = list(urllib.parse.urlsplit(dl_url.geturl()))
+            parts[0] = parts[0].replace("+torrent", "")
+            dl_url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
+            download_url = f"{dl_url.geturl()}/{self.img_path.name}"
+            webseeds.append(download_url)
+        
+        torrent = torf.Torrent(
+            path=self.img_path,
+            trackers=[],
+            webseeds=webseeds,
+        )
+        torrent.generate()
+        torrent.write(self.torrent_path)
+
+
+    def upload_image_to_dest(self):
+        upload_url = self.task["upload_uri"]
+
+        # add (secret) credentials to S3 URL
+        if self.task["upload_uri"].startswith("s3"):
+            upload_uri = urllib.parse.urlparse(self.task["upload_uri"])
+            qs = urllib.parse.parse_qs(upload_uri.query)
+            qs["keyId"] = [Setting.s3_access_key]
+            qs["secretAccessKey"] = [Setting.s3_secret_key]
+            upload_url = urllib.parse.SplitResult(
+                "https",
+                upload_uri.netloc,
+                upload_uri.path,
+                urllib.parse.urlencode(qs, doseq=True),
+                upload_uri.fragment,
+            ).geturl()
+
+
+
+
+
+    def _upload_image(self):
+
         if self.task["upload_uri"].startswith("s3://"):
             self.upload_image_s3()
+        elif
         else:
             self.upload_image_with_curl()
 
@@ -371,83 +449,3 @@ class CreateTask(threading.Thread):
         if not uploaded:
             raise subprocess.SubprocessError("S3 upload failed")
 
-    def upload_image_with_curl(self):
-        self.logger.info("Starting curl upload")
-
-        self.logger.info("re-authenticate to ensure token is still valid")
-        authenticate(force=True)
-
-        url = self.task["upload_uri"]
-
-        args = [
-            str(Setting.curl_binary_path),
-            "--append",
-            "--connect-timeout",
-            "60",
-            "--continue-at",
-            "-",
-            "--insecure",
-            "--ipv4",
-            "--retry-connrefused",
-            "--retry-delay",
-            "60",
-            "--retry",
-            "20",
-            "--stderr",
-            "-",
-            "--user",
-            "{user}:{passwd}".format(user=Setting.username, passwd=get_access_token()),
-            "--upload-file",
-            str(self.img_path),
-            url,
-        ]
-
-        if Setting.proxy:
-            args = args[0:1] + ["--proxy", Setting.proxy] + args[1:]
-
-        log_args = args[:-4] + ["{}:xxxxx".format(Setting.username)] + args[-3:]
-        self.logger.info("Starting {args}\n".format(args=" ".join(log_args)))
-
-        self.logs["uploader_log"] = "{args}\n".format(args=" ".join(log_args))
-        log_fd = open(str(self.uploader_log_path), "w")
-        ps = subprocess.Popen(
-            args=args,
-            stdout=log_fd,
-            stderr=subprocess.STDOUT,
-            universal_newlines=True,
-            close_fds=True,
-        )
-
-        self.logger.info("uploader started: {}".format(ps))
-        while ps.poll() is None:
-            self.logs["uploader_log"] = self.read_log(self.uploader_log_path)
-
-            # kill upon request
-            if self.canceled:
-                self.logger.info("terminating uploader…")
-                ps.terminate()
-                ps.wait(10)
-                ps.kill()
-                ps.wait(10)
-                break
-
-        ps.wait(10)
-
-        if ps.returncode == 0:
-            self.logger.info("uploader ran successfuly.")
-        else:
-            self.logger.error("uploader failed: {}".format(ps.returncode))
-
-        self.logger.info("collecting full terminated log")
-        self.logs["uploader_log"] = self.read_log(self.uploader_log_path)
-
-        # remove image
-        try:
-            self.logger.info("removing image file: {}".format(self.img_path.name))
-            self.img_path.unlink()
-        except Exception as exp:
-            self.logger.error("Unable to remove image file: {}".format(exp))
-            self.logger.exception(exp)
-
-        if ps.returncode != 0:
-            raise subprocess.SubprocessError("uploader rc: {}".format(ps.returncode))

@@ -295,3 +295,8 @@ register.filter("config_name", get_config_name_from)
 @register.filter("illus_url")
 def illustration_url_from(uuid: str):
     return get_illustration_url(uuid)
+
+
+@register.filter("multiurl")
+def explode_multi_urls(text: str) -> str:
+    return text.replace(",", "<br />")

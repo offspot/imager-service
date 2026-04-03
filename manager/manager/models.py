@@ -852,7 +852,6 @@ class BetaFeaturesListFormField(forms.MultipleChoiceField):
 
 
 class BetaFeaturesListField(models.JSONField, list):
-
     def formfield(self, **kwargs):
         defaults = {"form_class": BetaFeaturesListFormField}
         defaults.update(kwargs)
@@ -1828,10 +1827,17 @@ class Order(models.Model):
         max_length=3, verbose_name=_lz("Recipient Country Code")
     )
     warehouse_upload_uri = models.CharField(
-        max_length=255, verbose_name=_lz("Warehouse Upload URI")
+        max_length=255,
+        verbose_name=_lz(
+            "Warehouse Upload URI. URL-encoded, User comma for multiple destinations"
+        ),
     )
     warehouse_download_uri = models.CharField(
-        max_length=255, verbose_name=_lz("Warehouse Download URI")
+        max_length=255,
+        verbose_name=_lz(
+            "Warehouse Download URI. URL-encoded, Use comma for multiple sources"
+            " (index must match Upload URI)"
+        ),
     )
 
     @property
@@ -2064,6 +2070,19 @@ class Order(models.Model):
         return f"Order #{self.id}/{self.scheduler_id}"
 
     def to_payload(self):
+        upload_uris = [
+            item.strip()
+            for item in self.warehouse_upload_uri.split(",")
+            if item.strip()
+        ]
+        download_uris = [
+            item.strip()
+            for item in self.warehouse_download_uri.split(",")
+            if item.strip()
+        ]
+        if len(upload_uris) != len(download_uris):
+            raise OSError("Upload URIs and Download URIs are unbalanced")
+
         return {
             "config": self.config_json,
             "config_yaml": self.config_yaml,
@@ -2092,8 +2111,8 @@ class Order(models.Model):
             },
             "channel": self.channel,
             "warehouse": {
-                "upload_uri": self.warehouse_upload_uri,
-                "download_uri": self.warehouse_download_uri,
+                "upload_uris": upload_uris,
+                "download_uris": download_uris,
             },
         }
 

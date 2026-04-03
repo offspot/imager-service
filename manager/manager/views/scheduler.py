@@ -8,6 +8,7 @@ from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
 
@@ -87,20 +88,56 @@ class ChannelForm(SchedulerForm):
         return channel_id
 
 
-class S3URLFormField(forms.URLField):
-    default_validators = [  # noqa: RUF012
-        validators.URLValidator(
-            schemes=[
-                "http",
-                "https",
-                "ftp",
-                "ftps",
-                "s3",
-                "http+torrent",
-                "https+torrent",
-            ]
-        )
+class CommaSeparatedURLValidator(validators.RegexValidator):
+    message = _("Enter a valid URL.")
+    schemes = [
+        "http",
+        "https",
+        "ftp",
+        "ftps",
+        "s3",
+        "s3+http",
+        "s3+https",
+        "scp",
+        "sftp",
+        "http+torrent",
+        "https+torrent",
     ]
+    unsafe_chars = frozenset("\t\r\n")
+    max_length = validators.MAX_URL_LENGTH * 4
+
+    def __init__(self, schemes=None, **kwargs):
+        super().__init__(**kwargs)
+        if schemes is not None:
+            self.schemes = schemes
+
+    def __call__(self, value):
+        if not isinstance(value, str) or len(value) > self.max_length:
+            raise ValidationError(self.message, code=self.code, params={"value": value})
+
+        validator = validators.URLValidator(schemes=self.schemes)
+        parts = [part.strip() for part in value.split(",") if part.strip()]
+        for part in parts:
+            validator.__call__(part)
+
+
+class S3URLFormField(forms.CharField):
+    default_validators = [CommaSeparatedURLValidator()]
+    description = _("URL")
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault("max_length", 200)
+        super().__init__(**kwargs)
+
+    def formfield(self, **kwargs):
+        # As with CharField, this will cause URL validation to be performed
+        # twice.
+        return super().formfield(
+            **{
+                "form_class": forms.URLField,
+                **kwargs,
+            }
+        )
 
 
 class WarehouseForm(SchedulerForm):
@@ -122,6 +159,21 @@ class WarehouseForm(SchedulerForm):
     def save(self):
         if not self.is_valid():
             raise ValueError(_("%(class)s is not valid") % {"class": type(self)})
+
+        upload_uris = [
+            item.strip()
+            for item in self.cleaned_data.get("upload_uri").split(",")
+            if item.strip()
+        ]
+        download_uris = [
+            item.strip()
+            for item in self.cleaned_data.get("download_uri").split(",")
+            if item.strip()
+        ]
+        if len(upload_uris) != len(download_uris):
+            raise ValidationError(
+                _("Nb. of Upload URL and Download URL does not match"), code="invalid"
+            )
 
         success, warehouse_id = add_warehouse(
             slug=self.cleaned_data.get("slug"),
@@ -284,7 +336,11 @@ def dashboard(request):
                 res = context[form_key].save()
             except Exception as exp:
                 logger.error(exp)
-                messages.error(request, _("Error while saving… %(err)s") % {"err": exp})
+                messages.error(
+                    request,
+                    _("Error while saving… %(kind)s: %(err)s")
+                    % {"err": exp, "kind": type(exp).__name__},
+                )
             else:
                 messages.success(request, context[form_key].success_message(res))
                 return redirect("scheduler")
@@ -338,7 +394,11 @@ def bulk_recreate_autoimages(request):
             res = form.save()
         except Exception as exp:
             logger.error(exp)
-            messages.error(request, _("Error while saving… %(err)s") % {"err": exp})
+            messages.error(
+                    request,
+                    _("Error while saving… %(kind)s: %(err)s")
+                    % {"err": exp, "kind": type(exp).__name__},
+                )
         else:
             messages.success(request, form.success_message(res))
     return redirect("scheduler")

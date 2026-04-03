@@ -93,8 +93,8 @@
 	{% for warehouse in warehouses %}
 	<tr>
 		<th><code>{{warehouse.slug }}</code></th>
-		<td>{{ warehouse.upload_uri }}</td>
-		<td>{{ warehouse.download_uri }}</td>
+		<td>{{ warehouse.upload_uri|multiurl|safe }}</td>
+		<td>{{ warehouse.download_uri|multiurl|safe }}</td>
 		<td><a class="btn btn-sm btn-warning" href="{% if warehouse.active %}{% url "scheduler_disable_warehouse" warehouse.id %}{% else %}{% url "scheduler_enable_warehouse" warehouse.id %}{% endif %}">{{ warehouse.active|yesno }}: {% if warehouse.active %}{% blocktrans %}disable{% endblocktrans %}{% else %}{% blocktrans %}enable{% endblocktrans %}{% endif %}</a>
 		</td>
 		</tr>
@@ -117,6 +117,7 @@
 		<div class="form-group col-md-2"><label>-</label><button class="btn btn-primary form-check-input form-control">{% blocktrans %}Add Warehouse{% endblocktrans %}</button></div>
 	</div>
 </form>
+<p>Use URL-encoding. Supports multiple URIs joined with a comma (<code>,</code>).</p>
 
 
 <h3>{% blocktrans %}Users{% endblocktrans %}</h3>

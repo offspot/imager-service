@@ -62,7 +62,6 @@ class RefreshTokens(BaseCollection):
 
 
 class Acknowlegments(BaseCollection):
-
     idle = "idle"
     busy = "busy"
     not_starting = "not_starting"
@@ -175,7 +174,6 @@ class Warehouses(BaseCollection):
 
 
 class Orders(BaseCollection):
-
     virtual = "virtual"
     physical = "physical"
 
@@ -327,8 +325,8 @@ class Orders(BaseCollection):
             "media_duration": order["sd_card"]["duration"],
             "channel": order["channel"],
             "fname": order["fname"],
-            "upload_uri": order["warehouse"]["upload_uri"],
-            "download_uri": order["warehouse"]["download_uri"],
+            "upload_uris": order["warehouse"]["upload_uris"],
+            "download_uris": order["warehouse"]["download_uris"],
             "worker": None,
             "config": order["config"],
             "config_yaml": order.get("config_yaml", ""),
@@ -370,7 +368,7 @@ class Orders(BaseCollection):
             "order": order_id,
             "channel": order["channel"],
             "fname": order["fname"],
-            "download_uri": order["warehouse"]["download_uri"],
+            "download_uris": order["warehouse"]["download_uris"],
             "worker": None,
             "image_fname": upload_details.get("fname"),
             "image_checksum": upload_details.get("checksum"),
@@ -475,7 +473,6 @@ class Orders(BaseCollection):
 
 
 class Tasks(BaseCollection):
-
     pending = "pending"
     received = "received"
 
@@ -678,14 +675,13 @@ class Tasks(BaseCollection):
     @classmethod
     def get_size(cls, task_id):
         task = cls.get(task_id)
-        if cls in (CreatorTasks, ):
+        if cls in (CreatorTasks,):
             return humanfriendly.parse_size(task["config"]["human_size"])
         if cls in ((DownloaderTasks, WriterTasks)):
             return task["image_size"]
 
 
 class CreatorTasks(Tasks):
-
     schema = {
         "order": {"type": "string", "required": True},
         "media_type": {"type": "string", "required": True},
@@ -706,7 +702,6 @@ class CreatorTasks(Tasks):
 
 
 class DownloaderTasks(Tasks):
-
     schema = {
         "order": {"type": "string", "required": True},
         "channel": {"type": "string", "required": True, "nullable": True},
@@ -725,7 +720,6 @@ class DownloaderTasks(Tasks):
 
 
 class WriterTasks(Tasks):
-
     schema = {
         "order": {"type": "string", "required": True},
         "channel": {"type": "string", "required": True, "nullable": True},
@@ -760,7 +754,7 @@ class AutoImages(BaseCollection):
         "status": {"type": "string", "required": True, "nullable": True},
         "http_url": {"type": "string", "required": True, "nullable": True},
         "torrent_url": {"type": "string", "required": True, "nullable": True},
-        "magnet_url": {"type": "string", "required": True, "nullable": True},
+        "torrent_urls": {"type": "list"},
         "expire_on": {"type": "datetime", "required": True, "nullable": True},
         "order": {"type": "string", "required": True, "nullable": True},
     }
@@ -820,6 +814,14 @@ class AutoImages(BaseCollection):
     def create_order_payload(cls, slug):
         image = cls.get(slug)
         warehouse = Warehouses.get(image["warehouse"])
+        upload_uris = [
+            item.strip() for item in warehouse["upload_uri"].split(",") if item.strip()
+        ]
+        download_uris = [
+            item.strip()
+            for item in warehouse["download_uri"].split(",")
+            if item.strip()
+        ]
         fname = "{slug}_{period}_{rand}.img".format(
             slug=slug, period=datetime.date.today().strftime("%Y-%m"), rand="{rand}"
         )
@@ -852,8 +854,8 @@ class AutoImages(BaseCollection):
             },
             "channel": image["channel"],
             "warehouse": {
-                "upload_uri": warehouse["upload_uri"],
-                "download_uri": warehouse["download_uri"],
+                "upload_uris": upload_uris,
+                "download_uris": download_uris,
             },
         }
 
