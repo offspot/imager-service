@@ -16,7 +16,6 @@ from woocommerce import API
 
 from routes.errors import HTTPError
 
-
 SHOP_WOO_API_URL = os.getenv("SHOP_WOO_API_URL", "https://get.kiwix.org/")
 SHOP_WOO_CONSUMER_KEY = os.getenv("SHOP_WOO_CONSUMER_KEY", "not-set")
 SHOP_WOO_CONSUMER_SECRET = os.getenv("SHOP_WOO_CONSUMER_SECRET", "not-set")
@@ -24,7 +23,9 @@ SHOP_PUBLIC_URL = os.getenv("SHOP_PUBLIC_URL", "https://get.kiwix.org/shop/")
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
 WOOCOMMERCE_ACCESS_HOOK_SECRET = os.getenv("WOOCOMMERCE_ACCESS_HOOK_SECRET", "not-set")
-WOOCOMMERCE_ACCESS_PRODUCTIDS = [int(pid) for pid in os.getenv("WOOCOMMERCE_ACCESS_PRODUCTIDS", "4759").split()]
+WOOCOMMERCE_ACCESS_PRODUCTIDS = [
+    int(pid) for pid in os.getenv("WOOCOMMERCE_ACCESS_PRODUCTIDS", "4759").split()
+]
 
 blueprint = Blueprint("woo", __name__, url_prefix="/shop/woo")
 logger = logging.getLogger(__name__)
@@ -93,21 +94,21 @@ def add_customer_note(order_id: int, credentials):
     password = credentials.get("password")
     if credentials.get("existing"):
         content = (
-            f"You already have an account (Username: <code style='font-family:monospace;'>{username or 'n/a'}</code>). "
+            f"You already have an account (Username: <code style='font-family:monospace'>{username or 'n/a'}</code>). "
             "Password remains unchanged. "
             'To reset your password <a href="https://imager.kiwix.org/reset-password">click here</a>.'
         )
     elif username and password:
         content = (
-            f'Username <code style="font-family:monospace;">{username}</code>.'
-            f'<br />\nPassword: <code style="font-family:monospace;">{password}</code>.'
+            f'Username <code style="font-family:monospace">{username}</code>.'
+            f'<br />\nPassword: <code style="font-family:monospace">{password}</code>.'
             f'<br />\n<a href="https://imager.kiwix.org" target="_blank">'
             "Access imager.kiwix.org</a>."
         )
     else:
         content = (
-            f"Username: <code style='font-family:monospace;'>{username or 'n/a'}</code>.<br />\n"
-            f"Password: <code style='font-family:monospace;'>{password or 'n/a'}</code>.<br />\n"
+            f"Username: <code style='font-family:monospace'>{username or 'n/a'}</code>.<br />\n"
+            f"Password: <code style='font-family:monospace'>{password or 'n/a'}</code>.<br />\n"
             "Something unexpected happened. Please contact us."
         )
 
@@ -124,7 +125,14 @@ def add_customer_note(order_id: int, credentials):
             )
             resp.raise_for_status()
             payload = resp.json()
-            if not payload["id"] or payload["note"] != content:
+            # dont compare note content as woo doesnt necessarily keeps it equal
+            # for instance, it removes `;`.
+            if (
+                not payload["id"]
+                or not payload["note"]
+                or not payload["customer_note"]
+                or username not in payload["note"]
+            ):
                 raise OSError("Error creating note")
             return payload
         except Exception as exc:
