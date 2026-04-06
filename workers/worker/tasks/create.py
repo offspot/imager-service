@@ -2,22 +2,20 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import datetime
 import io
-import json
 import logging
 import re
 import subprocess
 import tempfile
 import threading
 import urllib.parse
+from pathlib import Path
 
 import torf
 import yaml
-from kiwixstorage import KiwixStorage
+from kiwix_uploader.api import multi_file_upload
 from utils import get_checksum
-from utils.s3 import ImageTransferHook
-from utils.scheduler import authenticate, get_access_token, update_task_status
+from utils.scheduler import update_task_status
 from utils.setting import Setting
 
 try:
@@ -254,11 +252,25 @@ class CreateTask(threading.Thread):
             raise subprocess.SubprocessError("installer rc: {}".format(ps.returncode))
 
     def upload_image(self):
+        self.logger.info("Starting Upload")
+
+        uploader_log = io.StringIO()
+        uploader_logger = logging.getLogger("uploader_log")
+        uploader_logger.propagate = True
+        uploader_logger.setLevel(logging.DEBUG)
+        uploader_logger.addHandler(logging.StreamHandler(stream=uploader_log))
+
+        delete_after = max([2, self.task["media_duration"]])
+
         # first build torrent with expected sources
-        self._build_torrent_file()
+        self.build_torrent_file(logger=uploader_log)
 
         # then upload torrent file to all sources
-        self._upload_image_to_warehouse()
+        torrent_upload_succeeded = upload_succeeded = self.upload_file_to_dest(
+            logger=uploader_log, file_path=self.torrent_path, delete_after=delete_after
+        )
+        if not torrent_upload_succeeded:
+            self.logger.error("Failed to upload torrent file")
 
         # then delete torrent file
         try:
@@ -268,168 +280,19 @@ class CreateTask(threading.Thread):
             self.logger.error("Unable to remove torrent file: {}".format(exp))
             self.logger.exception(exp)
 
-        # then upload image files to all sources
-        upload_succeeded = self.upload_images_to_all_locations()
-
-        # remove image
-        try:
-            self.logger.info("removing image file: {}".format(self.img_path.name))
-            self.img_path.unlink()
-        except Exception as exp:
-            self.logger.error("Unable to remove image file: {}".format(exp))
-            self.logger.exception(exp)
-
-        if not upload_succeeded:
-            raise subprocess.SubprocessError("File upload failed")
-
-    def _build_torrent_file(self):
-        uploader_logger = logging.getLogger("uploader_log")
-        uploader_logger.info(f"Creating torrent file for {self.img_path.name}")
-        webseeds = []
-
-        dl_urls = urllib.parse.urlparse(self.task["download_uris"])
-        for dl_url in dl_urls:
-            parts = list(urllib.parse.urlsplit(dl_url.geturl()))
-            parts[0] = parts[0].replace("+torrent", "")
-            dl_url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
-            download_url = f"{dl_url.geturl()}/{self.img_path.name}"
-            webseeds.append(download_url)
-        
-        torrent = torf.Torrent(
-            path=self.img_path,
-            trackers=[],
-            webseeds=webseeds,
-        )
-        torrent.generate()
-        torrent.write(self.torrent_path)
-
-
-    def upload_image_to_dest(self):
-        upload_url = self.task["upload_uri"]
-
-        # add (secret) credentials to S3 URL
-        if self.task["upload_uri"].startswith("s3"):
-            upload_uri = urllib.parse.urlparse(self.task["upload_uri"])
-            qs = urllib.parse.parse_qs(upload_uri.query)
-            qs["keyId"] = [Setting.s3_access_key]
-            qs["secretAccessKey"] = [Setting.s3_secret_key]
-            upload_url = urllib.parse.SplitResult(
-                "https",
-                upload_uri.netloc,
-                upload_uri.path,
-                urllib.parse.urlencode(qs, doseq=True),
-                upload_uri.fragment,
-            ).geturl()
-
-
-
-
-
-    def _upload_image(self):
-
-        if self.task["upload_uri"].startswith("s3://"):
-            self.upload_image_s3()
-        elif
-        else:
-            self.upload_image_with_curl()
-
-    def upload_image_s3(self):
-        self.logger.info("Starting S3 upload")
-
-        # add credentials to URL
-        url = urllib.parse.urlparse(self.task["upload_uri"])
-        qs = urllib.parse.parse_qs(url.query)
-        qs["keyId"] = Setting.s3_access_key
-        qs["secretAccessKey"] = Setting.s3_secret_key
-
-        # setup upload logging
-        uploader_log = io.StringIO()
-        uploader_logger = logging.getLogger("uploader_log")
-        uploader_logger.propagate = True
-        uploader_logger.setLevel(logging.DEBUG)
-        uploader_logger.addHandler(logging.StreamHandler(stream=uploader_log))
-
-        # init and test storage
-        uploader_logger.info("initializing S3")
-        s3_storage = KiwixStorage(
-            urllib.parse.SplitResult(
-                "https",
-                url.netloc,
-                url.path,
-                urllib.parse.urlencode(qs, doseq=True),
-                url.fragment,
-            ).geturl()
-        )
-        uploader_logger.debug(
-            f"S3 initialized for {s3_storage.url.netloc}/{s3_storage.bucket_name}"
-        )
-
-        # torrent
-        dl_url = urllib.parse.urlparse(self.task["download_uri"])
-        upload_torrent = "torrent" in dl_url.scheme
-
-        if upload_torrent:
-            parts = list(urllib.parse.urlsplit(dl_url.geturl()))
-            parts[0] = parts[0].replace("+torrent", "")
-            dl_url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
-
-            uploader_logger.info(f"Creating torrent file for {self.img_path.name}")
-            torrent_path = self.img_path.with_suffix(f"{self.img_path.suffix}.torrent")
-            download_url = f"{dl_url.geturl()}/{self.img_path.name}"
-            torrent = torf.Torrent(
-                path=self.img_path,
-                trackers=[
-                    "https://opentracker.xyz:443/announce",
-                    "http://torrent.nwps.ws:80/announce",
-                    "udp://tracker.open-internet.nl:6969/announce",
-                    "udp://tracker.coppersurfer.tk:6969/announce",
-                    "udp://tracker.openbittorrent.com:80/announce",
-                ],
-                webseeds=[download_url],
+        if torrent_upload_succeeded:
+            # then upload image files to all sources
+            upload_succeeded = self.upload_file_to_dest(
+                logger=uploader_log, file_path=self.img_path, delete_after=delete_after
             )
-            torrent.generate()
-            torrent.write(torrent_path)
-            uploader_logger.info(f".. created {torrent_path.name}")
 
-            uploader_logger.info(f"Uploading {torrent_path.name}")
-            s3_storage.upload_file(fpath=str(torrent_path), key=torrent_path.name)
-            uploader_logger.info(".. uploaded")
-            torrent_path.unlink()
-
-        # upload
-        uploader_logger.info(f"Uploading to {self.img_path.name}")
-        try:
-            hook = ImageTransferHook(output=uploader_log, fpath=self.img_path)
-            s3_storage.upload_file(
-                fpath=str(self.img_path), key=self.img_path.name, Callback=hook
-            )
-            uploaded = True
-        except Exception as exc:
-            uploaded = False
-            uploader_logger.error(f"uploader failed: {exc}")
-            uploader_logger.exception(exc)
-        else:
-            uploader_logger.info("uploader ran successfuly.")
-
-        # setting autodelete
-        try:
-            # make sure autodelete is above bucket's min retention (should be 1d)
-            expire_on = datetime.datetime.now() + datetime.timedelta(
-                days=max([2, self.task["media_duration"]])
-            )
-            uploader_logger.info(f"Setting autodelete to {expire_on}")
-            s3_storage.set_object_autodelete_on(key=self.img_path.name, on=expire_on)
-        except Exception as exc:
-            uploader_logger.error("Failed to set autodelete")
-            uploader_logger.exception(exc)
-
-        if upload_torrent:
+            # remove image
             try:
-                uploader_logger.info(f"Setting torrent autodelete to {expire_on}")
-                s3_storage.set_object_autodelete_on(key=torrent_path.name, on=expire_on)
-            except Exception as exc:
-                uploader_logger.error("Failed to set autodelete on torrent")
-                uploader_logger.exception(exc)
+                self.logger.info("removing image file: {}".format(self.img_path.name))
+                self.img_path.unlink()
+            except Exception as exp:
+                self.logger.error("Unable to remove image file: {}".format(exp))
+                self.logger.exception(exp)
 
         self.logger.info("collecting uploader log")
         try:
@@ -438,14 +301,72 @@ class CreateTask(threading.Thread):
         except Exception as exc:
             self.logger.error(f"Failed to collect logs: {exc}")
 
-        # remove image
+        if not upload_succeeded:
+            raise subprocess.SubprocessError("File upload failed")
+
+    def build_torrent_file(self, logger):
+        logger.info(f"Creating torrent file for {self.img_path.name}")
+        webseeds = []
+
+        for dl_url in self.task["download_uris"]:
+            parts = list(urllib.parse.urlsplit(dl_url))
+            parts[0] = parts[0].replace("+torrent", "")  # useless I think
+            dl_url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
+            download_url = f"{dl_url.geturl()}/{self.img_path.name}"
+            webseeds.append(download_url)
+
+        torrent = torf.Torrent(
+            path=self.img_path,
+            trackers=[],
+            webseeds=webseeds,
+        )
+        torrent.generate()
+        torrent.write(self.torrent_path)
+
+    def upload_file_to_dest(
+        self, logger, file_path: Path, delete_after: int = -1
+    ) -> bool:
+        upload_urls = []
+        for upload_uri in self.task["upload_uris"]:
+            if upload_uri.startswith("s3"):
+                uri = urllib.parse.urlparse(upload_uri)
+                qs = urllib.parse.parse_qs(uri.query)
+                qs["keyId"] = [Setting.s3_access_key]
+                qs["secretAccessKey"] = [Setting.s3_secret_key]
+                upload_uri = urllib.parse.SplitResult(
+                    uri.scheme.replace("s3", "").replace("+", "") or "https",
+                    upload_uri.netloc,
+                    upload_uri.path,
+                    urllib.parse.urlencode(qs, doseq=True),
+                    upload_uri.fragment,
+                ).geturl()
+            upload_urls.append(upload_uri)
+
         try:
-            self.logger.info("removing image file: {}".format(self.img_path.name))
-            self.img_path.unlink()
-        except Exception as exp:
-            self.logger.error("Unable to remove image file: {}".format(exp))
-            self.logger.exception(exp)
+            res = multi_file_upload(
+                src_path=file_path,
+                upload_urls=upload_urls,
+                private_key=Setting.ssh_key_path,
+                delete=True,
+                delete_after=delete_after,
+                attempts=3,
+                attempts_delay=60,
+            )
+        except Exception as exc:
+            logger.error(f"Exception uploading {file_path}")
+            logger.exception(exc)
+            return False
 
-        if not uploaded:
-            raise subprocess.SubprocessError("S3 upload failed")
+        if res.returncode != 0:
+            logger.error(f"Failed to upload {file_path}")
+            for result in res.results:
+                logger.error(
+                    f"rc={result.returncode}, {result.upload_url_repr}, duration={result.duration}"
+                )
+            return False
 
+        logger.info(f"Uploaded {file_path} successfuly")
+        for result in res.results:
+            logger.debug(f"{result.upload_url_repr}, duration={result.duration}")
+
+        return True

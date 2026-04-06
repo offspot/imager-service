@@ -19,6 +19,7 @@ class Setting:
 
     working_dir: Path = None
     cache_dir: Path = None
+    ssh_key_path: Path = None
 
     imager_binary_path: Path = None
     curl_binary_path: Path = None
@@ -41,6 +42,7 @@ class Setting:
         cls.curl_binary_path = Path(os.getenv("CURL_BIN_PATH", "/usr/bin/curl"))
         cls.working_dir = Path(os.getenv("WORKING_DIR", "data")).resolve(strict=True)
         cls.cache_dir = Path(os.getenv("CACHE_DIR", "cache")).resolve(strict=True)
+        cls.ssh_key_path = Path(os.getenv("PRIVATE_SSH_KEY_PATH", "/etc/ssh/imager-worker")).resolve(strict=True)
         cls.username = os.getenv("USERNAME", "")
         cls.password = os.getenv("PASSWORD", "")
         cls.api_url = os.getenv(
