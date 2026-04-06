@@ -949,3 +949,56 @@ class StripeSession(BaseCollection):
     @classmethod
     def update(cls, record_id, **update):
         cls().update_one({"_id": record_id}, {"$set": update})
+
+
+class UploadedFiles(BaseCollection):
+    pending: str = "pending"
+    confirmed: str = "confirmed"
+    schema = {
+        # pending, confirmed
+        "status": {"type": "string", "required": True},
+        "upload_url": {"type": "string", "required": True},
+        "download_url": {"type": "string", "required": True},
+        "created_on": {"type": "datetime", "required": False},
+        "confirmed_on": {"type": "datetime", "required": False},
+        "last_checked_on": {"type": "datetime", "required": False},
+        "delete_after": {"type": "datetime", "required": False},
+    }
+
+    def __init__(self):
+        super().__init__(Database(), "uploaded_files")
+
+    @classmethod
+    def create(
+        cls,
+        upload_url: str,
+        download_url: str,
+    ):
+        now = datetime.datetime.now()
+        payload = {
+            "status": cls.pending,
+            "upload_url": upload_url,
+            "download_url": download_url,
+            "created_on": now,
+            "confirmed_on": None,
+            "last_checked_on": None,
+            "delete_after": None,
+        }
+        return cls().insert_one(payload).inserted_id
+
+    @classmethod
+    def get_or_none(cls, download_url: str):
+        return cls().find_one({"download_url": download_url})
+
+    @classmethod
+    def get_or_create(cls, upload_url, download_url):
+        record = cls.get_or_none(download_url)
+        if record:
+            return record
+        else:
+            cls.create(upload_url=upload_url, download_url=download_url)
+        return cls.get_or_none(download_url)
+
+    @classmethod
+    def update(cls, record_id, **update):
+        cls().update_one({"_id": record_id}, {"$set": update})

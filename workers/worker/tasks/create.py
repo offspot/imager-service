@@ -119,15 +119,15 @@ class CreateTask(threading.Thread):
     def run(self):
         self.task, self.logger = self._args
 
-        # make sure warehouse URI is OK before we start
-        try:
-            urllib.parse.urlparse(self.task["upload_uri"])
-        except Exception as exp:
-            self.logger.error("Error: Warehouse URI could not be parsed")
-            self.logger.exception(exp)
-            self.exception = exp
-            self.report_status("failed", str(exp))
-            return
+        # record urls so there're sent with status updates
+        self.extra["urls"] = [
+            {"upload": upload_url, "download": download_url}
+            for (upload_url, download_url) in zip(
+                self.get_upload_urls(with_credentials=False),
+                self.get_download_urls(),
+                strict=True,
+            )
+        ]
 
         states = [
             ("build_image", "building", "built", "failed_to_build"),
@@ -304,21 +304,41 @@ class CreateTask(threading.Thread):
         if not upload_succeeded:
             raise subprocess.SubprocessError("File upload failed")
 
-    def build_torrent_file(self, logger):
-        logger.info(f"Creating torrent file for {self.img_path.name}")
-        webseeds = []
-
+    def get_download_urls(self) -> list[str]:
+        download_urls = []
         for dl_url in self.task["download_uris"]:
             parts = list(urllib.parse.urlsplit(dl_url))
             parts[0] = parts[0].replace("+torrent", "")  # useless I think
             dl_url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
             download_url = f"{dl_url.geturl()}/{self.img_path.name}"
-            webseeds.append(download_url)
+            download_urls.append(download_url)
+        return download_urls
+
+    def get_upload_urls(self, *, with_credentials: bool = False) -> list[str]:
+        upload_urls = []
+        for upload_uri in self.task["upload_uris"]:
+            if with_credentials and upload_uri.startswith("s3"):
+                uri = urllib.parse.urlparse(upload_uri)
+                qs = urllib.parse.parse_qs(uri.query)
+                qs["keyId"] = [Setting.s3_access_key]
+                qs["secretAccessKey"] = [Setting.s3_secret_key]
+                upload_uri = urllib.parse.SplitResult(
+                    uri.scheme,
+                    upload_uri.netloc,
+                    upload_uri.path,
+                    urllib.parse.urlencode(qs, doseq=True),
+                    upload_uri.fragment,
+                ).geturl()
+            upload_urls.append(upload_uri)
+        return upload_urls
+
+    def build_torrent_file(self, logger):
+        logger.info(f"Creating torrent file for {self.img_path.name}")
 
         torrent = torf.Torrent(
             path=self.img_path,
             trackers=[],
-            webseeds=webseeds,
+            webseeds=self.get_download_urls(),
         )
         torrent.generate()
         torrent.write(self.torrent_path)
@@ -326,26 +346,11 @@ class CreateTask(threading.Thread):
     def upload_file_to_dest(
         self, logger, file_path: Path, delete_after: int = -1
     ) -> bool:
-        upload_urls = []
-        for upload_uri in self.task["upload_uris"]:
-            if upload_uri.startswith("s3"):
-                uri = urllib.parse.urlparse(upload_uri)
-                qs = urllib.parse.parse_qs(uri.query)
-                qs["keyId"] = [Setting.s3_access_key]
-                qs["secretAccessKey"] = [Setting.s3_secret_key]
-                upload_uri = urllib.parse.SplitResult(
-                    uri.scheme.replace("s3", "").replace("+", "") or "https",
-                    upload_uri.netloc,
-                    upload_uri.path,
-                    urllib.parse.urlencode(qs, doseq=True),
-                    upload_uri.fragment,
-                ).geturl()
-            upload_urls.append(upload_uri)
 
         try:
             res = multi_file_upload(
                 src_path=file_path,
-                upload_urls=upload_urls,
+                upload_urls=self.get_upload_urls(with_credentials=True),
                 private_key=Setting.ssh_key_path,
                 delete=True,
                 delete_after=delete_after,
