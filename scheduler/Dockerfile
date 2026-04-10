@@ -54,6 +54,7 @@ ENV DEFAULT_WAREHOUSE_DOWNLOAD_URI=s3://s3.us-west-1.wasabisys.com/?bucketName=o
 ENV DEFAULT_WAREHOUSE_UPLOAD_URI=s3://s3.us-west-1.wasabisys.com/?bucketName=org-kiwix-hotspot-cardshop-warehouse
 ENV DOWNLOAD_WAREHOUSE_DOWNLOAD_URI=https+torrent://org-kiwix-hotspot-cardshop-download.s3.us-west-1.wasabisys.com
 ENV DOWNLOAD_WAREHOUSE_UPLOAD_URI=s3://s3.us-west-1.wasabisys.com/?bucketName=org-kiwix-hotspot-cardshop-download
+ENV PRIVATE_SSH_KEY_PATH=/etc/ssh/uploader.key
 
 
 RUN rm -rf /app

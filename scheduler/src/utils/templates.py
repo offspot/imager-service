@@ -42,25 +42,12 @@ def get_add_shipment_url(order):
     )
 
 
-def get_public_download_url(order):
-    url = urllib.parse.urlparse(order["warehouse"]["download_uri"])
-    if "torrent" in url.scheme:
-        parts = list(urllib.parse.urlsplit(url.geturl()))
-        parts[0] = parts[0].replace("+torrent", "")
-        url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
-    return urllib.parse.urljoin(url.geturl(), order["fname"])
+def get_public_download_urls(order):
+    return order.get("download_urls", [])
 
 
-def get_public_download_torrent_url(order):
-    return f"{get_public_download_url(order)}.torrent"
-
-
-def public_download_url_has_torrent(order):
-    return (
-        "1"
-        if "torrent" in urllib.parse.urlparse(order["warehouse"]["download_uri"]).scheme
-        else ""
-    )
+def get_public_download_torrent_urls(order):
+    return [f"{url}.torrent" for url in get_public_download_urls(order)]
 
 
 def yesno(value):

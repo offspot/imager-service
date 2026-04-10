@@ -21,11 +21,10 @@ from utils.templates import (
     get_id,
     get_insert_card_url,
     get_pub_url,
-    get_public_download_torrent_url,
-    get_public_download_url,
+    get_public_download_torrent_urls,
+    get_public_download_urls,
     language_name,
     linebreaksbr,
-    public_download_url_has_torrent,
     yesno,
 )
 from werkzeug.datastructures import MultiDict
@@ -60,9 +59,8 @@ jinja_env.filters["qrcode"] = b64qrcode
 jinja_env.filters["pub_url"] = get_pub_url
 jinja_env.filters["insert_card_url"] = get_insert_card_url
 jinja_env.filters["add_shipment_url"] = get_add_shipment_url
-jinja_env.filters["public_download_url"] = get_public_download_url
-jinja_env.filters["public_download_torrent_url"] = get_public_download_torrent_url
-jinja_env.filters["public_download_url_has_torrent"] = public_download_url_has_torrent
+jinja_env.filters["public_download_urls"] = get_public_download_urls
+jinja_env.filters["public_download_torrent_urls"] = get_public_download_torrent_urls
 jinja_env.filters["country"] = country_name
 jinja_env.filters["language"] = language_name
 jinja_env.filters["linebreaksbr"] = linebreaksbr

@@ -265,6 +265,7 @@ class Orders(BaseCollection):
         "statuses": {"type": "list", "required": False},
         "logs": {"type": "list", "required": False},
         "tasks": {"type": "dict", "required": False},
+        "download_urls": {"type": "list", "required": False},
     }
 
     def __init__(self):
@@ -297,6 +298,13 @@ class Orders(BaseCollection):
                 for task in order["tasks"].get("write", [])
             ],
         }
+
+    @classmethod
+    def get_uploaded_files(cls, order_id):
+        order = cls().get(order_id)
+        return UploadedFiles().find(
+            {"download_url": {"$in": order.get("download_urls", [])}}
+        )
 
     @classmethod
     def get_with_tasks(cls, order_id, with_logs=False):
@@ -754,6 +762,7 @@ class AutoImages(BaseCollection):
         "status": {"type": "string", "required": True, "nullable": True},
         "http_url": {"type": "string", "required": True, "nullable": True},
         "torrent_url": {"type": "string", "required": True, "nullable": True},
+        "http_urls": {"type": "list"},
         "torrent_urls": {"type": "list"},
         "expire_on": {"type": "datetime", "required": True, "nullable": True},
         "order": {"type": "string", "required": True, "nullable": True},
@@ -772,6 +781,7 @@ class AutoImages(BaseCollection):
         "periodicity": {"type": "string", "regex": "^.+$", "required": True},
         "warehouse": {"type": "dict", "required": False},
         "channel": {"type": "string", "required": True},
+        "woo_id": {"type": "integer", "required": False},
     }
 
     def __init__(self):
@@ -858,6 +868,13 @@ class AutoImages(BaseCollection):
                 "download_uris": download_uris,
             },
         }
+
+    @classmethod
+    def get_uploaded_files(cls, slug: str):
+        image = cls().get(slug)
+        return UploadedFiles().find(
+            {"download_url": {"$in": image.get("http_urls", [])}}
+        )
 
 
 class StripeCustomer(BaseCollection):
@@ -961,8 +978,6 @@ class UploadedFiles(BaseCollection):
         "download_url": {"type": "string", "required": True},
         "created_on": {"type": "datetime", "required": False},
         "confirmed_on": {"type": "datetime", "required": False},
-        "last_checked_on": {"type": "datetime", "required": False},
-        "delete_after": {"type": "datetime", "required": False},
     }
 
     def __init__(self):
@@ -981,8 +996,6 @@ class UploadedFiles(BaseCollection):
             "download_url": download_url,
             "created_on": now,
             "confirmed_on": None,
-            "last_checked_on": None,
-            "delete_after": None,
         }
         return cls().insert_one(payload).inserted_id
 

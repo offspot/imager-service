@@ -183,7 +183,15 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
         expiration = datetime.datetime.now() + datetime.timedelta(
             days=order["sd_card"]["duration"]
         )
-        Orders().update(order_id, {"sd_card.expiration": expiration})
+        Orders().update(
+            order_id,
+            {
+                "sd_card.expiration": expiration,
+                "download_urls": [
+                    url["download"] for url in urls if url.get("download")
+                ],
+            },
+        )
         send_image_uploaded_public_email(order_id)
         now = datetime.datetime.now()
         for url in urls:

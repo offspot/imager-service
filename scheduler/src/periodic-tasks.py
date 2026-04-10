@@ -8,26 +8,31 @@ from urllib.parse import urlsplit
 
 import humanfriendly
 import requests
-from woocommerce import API
-
 from emailing import send_order_failed_email
 from routes.orders import create_order_from
-from utils.mongo import AutoImages, Orders, Tasks
+from utils.files import FileChecker
+from utils.mongo import AutoImages, Orders, Tasks, UploadedFiles
 from utils.templates import (
-    get_public_download_torrent_url,
-    get_public_download_url,
+    get_public_download_torrent_urls,
+    get_public_download_urls,
 )
-from utils.wasabi import get_autodelete_date_for, update_autodelete_for
+from woocommerce import API
 
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org/api")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
 DISABLE_PERIODIC_TASKS = bool(os.getenv("DISABLE_PERIODIC_TASKS", "") == "y")
 RECREATE_AUTO_MONTHLY = bool(os.getenv("RECREATE_AUTO_MONTHLY", "") == "y")
-AUTO_IMAGES_EXTEND_BEFORE_DAYS = int(os.getenv("AUTO_IMAGES_EXTEND_BEFORE_DAYS") or 5)
-AUTO_IMAGES_EXTEND_FOR_DAYS = int(os.getenv("AUTO_IMAGES_EXTEND_FOR_DAYS") or 10)
 SHOP_WOO_API_URL = os.getenv("SHOP_WOO_API_URL", "https://get.kiwix.org/")
 SHOP_WOO_CONSUMER_KEY = os.getenv("SHOP_WOO_CONSUMER_KEY", "not-set")
 SHOP_WOO_CONSUMER_SECRET = os.getenv("SHOP_WOO_CONSUMER_SECRET", "not-set")
+LAST_CHECKED_UPLOADED_ON = datetime.datetime.now() - datetime.timedelta(
+    days=2
+)  # in past
+LAST_EXTENDED_EXPIRATIONS_ON = datetime.datetime.now() - datetime.timedelta(
+    days=2
+)  # in past
+
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -70,6 +75,10 @@ def run_periodic_tasks():
     logger.info("managing auto-images")
     check_autoimages()
 
+    extend_autoimages_expiration()
+
+    delete_expired_files()
+
     logger.info("timing out expired orders")
     for task_cls, task in Tasks.all_inprogress():
         task_id = task["_id"]
@@ -99,7 +108,7 @@ def run_periodic_tasks():
         # notify
         send_order_failed_email(order["_id"])  # TODO: forward to task/order mgmt
 
-    logger.info("removing expired donwload files")
+    logger.info("Marking orders as expired")
     now = datetime.datetime.now()
 
     for order in Orders.all_pending_expiry():
@@ -138,23 +147,34 @@ def check_autoimages():
         # order is considered successful
         if order["status"] in Orders.SUCCESS_STATUSES + [Orders.pending_expiry]:
             logger.info(f".. order succeeded: {order['status']}")
-            torrent_url = get_public_download_torrent_url(order)
-            http_url = get_public_download_url(order)
+            torrent_urls = get_public_download_torrent_urls(order)
+            http_urls = get_public_download_urls(order)
 
             # not all images are product on the shop
             if image.get("woo_id"):
-                downloads = [
-                    {
-                        "id": "http_url",
-                        "name": Path(urlsplit(http_url).path).name,
-                        "file": http_url,
-                    },
-                    {
-                        "id": "torrent_url",
-                        "name": Path(urlsplit(torrent_url).path).name,
-                        "file": torrent_url,
-                    }
-                ]
+                downloads = []
+                for index, http_url in enumerate(http_urls):
+                    downloads.append(
+                        {
+                            "id": f"http_url{index}",
+                            "name": Path(urlsplit(http_url).path).name,
+                            "file": http_url,
+                        }
+                    )
+
+                for index, torrent_url in enumerate(torrent_urls):
+                    downloads.append(
+                        {
+                            "id": f"torrent_url{index}",
+                            "name": Path(urlsplit(torrent_url).path).name,
+                            "file": torrent_url,
+                        }
+                    )
+
+                if not downloads:
+                    logger.error(f".. No download URLs for product={image['woo_id']}")
+                    continue
+
                 set_product_download_urls(
                     product_id=image["woo_id"], downloads=downloads
                 )
@@ -163,8 +183,10 @@ def check_autoimages():
                 image["slug"],
                 status="ready",
                 order=None,
-                http_url=http_url,
-                torrent_url=torrent_url,
+                http_url=http_urls[0],
+                torrent_url=torrent_urls[0],
+                http_urls=http_urls,
+                torrent_urls=torrent_urls,
                 expire_on=get_next_month() if RECREATE_AUTO_MONTHLY else None,
             )
 
@@ -199,23 +221,52 @@ def check_autoimages():
         # update with order ID and status: building
         AutoImages.update_status(image["slug"], status="building", order=order_id)
 
-    # find images that needs auto-delete grace
-    logger.info("Looking for images needing auto-delete date bump")
+
+def extend_autoimages_expiration():
+    # extended file expiration for images needing it
     now = datetime.datetime.now()
-    max_renewal_date = now + datetime.timedelta(days=AUTO_IMAGES_EXTEND_BEFORE_DAYS)
+    if now < LAST_EXTENDED_EXPIRATIONS_ON + datetime.timedelta(days=1):
+        logger.debug(
+            f"Not extending uploaded files expiration ({LAST_EXTENDED_EXPIRATIONS_ON.isoformat()})"
+        )
+        return
+
+    logger.info("Looking for files needing an expiration bump…")
+
     for image in AutoImages.all_ready():
-        auto_delete_on = get_autodelete_date_for(image["slug"])
-        if auto_delete_on <= max_renewal_date:
-            new_autodelete_on = auto_delete_on + datetime.timedelta(
-                days=AUTO_IMAGES_EXTEND_FOR_DAYS
-            )
-            logger.info(
-                f".. extending from {auto_delete_on.isoformat()} "
-                f"to {new_autodelete_on.isoformat()}"
-            )
-            update_autodelete_for(slug=image["slug"], on=new_autodelete_on)
-        else:
-            logger.debug(f".. deletion scheduled for {auto_delete_on}")
+        logger.info(f"> {image['slug']}")
+        for file in AutoImages.get_uploaded_files(image["slug"]):
+            fc = FileChecker(file)
+            if fc.extend_if_expiring_soon():
+                logger.info(
+                    f".. extended by {fc.extend_for_days} days "
+                    f"from {fc.next_expiration_on.isoformat()} "
+                    f"to {fc.next_expiration_on.isoformat()}"
+                )
+            else:
+                logger.debug(f".. deletion scheduled for {fc.expire_on.isoformat()}")
+
+
+def delete_expired_files():
+    now = datetime.datetime.now()
+    if now < LAST_CHECKED_UPLOADED_ON + datetime.timedelta(days=1):
+        logger.debug(
+            f"Not checking uploaded files ({LAST_CHECKED_UPLOADED_ON.isoformat()})"
+        )
+        return
+    logger.info("Checking Uploaded files…")
+
+    # remove entries that have been pending for a week
+    a_week_ago = now - datetime.timedelta(days=7)
+    for file in UploadedFiles().find(
+        {"status": "pending", "created_on": {"$lte": a_week_ago}}
+    ):
+        logger.info(f"Removing pending state {file['_id']!s}")
+        FileChecker(file).remove_anyway()
+
+    for file in UploadedFiles().find({"status": "confirmed"}):
+        if FileChecker(file).remove_if_expired():
+            logger.info(f"Removed expired file {file['_id']!s}")
 
 
 if __name__ == "__main__":

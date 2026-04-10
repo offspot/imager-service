@@ -182,10 +182,14 @@
 		<td>{{ image.status }}</td>
 		<td>{{ image.expire_on|default:"Never" }}</td>
 		<td>{{ image.private|yesno }}</td>
-		<td>{% if image.http_url %}
+		<td>{% if image.http_urls or image.torrent_urls %}
 			<ul>
-			<li><a href="{{ image.http_url }}" target="_blank">HTTP</a></li>
-			{% if image.torrent_url %}<li><a href="{{ image.torrent_url }}" target="_blank">{% blocktrans %}torrent{% endblocktrans %}</a></li>{% endif %}
+			{% for http_url in image.http_urls %}
+			<li><a href="{{ http_url }}" target="_blank">HTTP {{loop.index}}</a></li>
+			{% endfor %}
+			{% for torrent_url in image.torrent_urls %}
+			<li><a href="{{ torrent_url }}" target="_blank">torrent {{loop.index}}</a></li>
+			{% endfor %}
 			<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/json" target="_blank">{% blocktrans %}JSON{% endblocktrans %}</a></li>
 			{% if not image.private %}<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/redirect/http" target="_blank">{% blocktrans %}redirect{% endblocktrans %}</a></li>{% endif %}
 			</ul>

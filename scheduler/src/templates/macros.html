@@ -15,8 +15,12 @@
 </p>{%- endmacro %}
 
 {% macro button_download(order) -%}
-	<a href="{{ order|public_download_url }}" alt="{{ _('Download %(config_name)s (%(sdcard_size)sGB)')|format(config_name=order.config.name, sdcard_size=order.sd_card.size) }}" style="background-color: #f26522; border: 0; color: white; font-weight: 600; font-size: 1rem; border-radius: .35rem; padding: .8rem 3rem; cursor: pointer; text-decoration: none; width: calc(50% - 1rem); text-align: center; box-sizing: border-box;">Download</a>
-    {% if order|public_download_url_has_torrent %}
-    <a href="{{ order|public_download_torrent_url }}" style="background-color: #4ca6ff; border: 0; color: white; font-weight: 600; font-size: 1rem; border-radius: .35rem; padding: .8rem 3rem; cursor: pointer; text-decoration: none; width: calc(50% - 1rem); text-align: center; box-sizing: border-box; margin-left: 2rem;">Get Torrent</a>
-    {% endif %}
+	{% for http_url in order|public_download_urls %}
+	<a href="{{ http_url }}" alt="{{ _('Download %(config_name)s (%(sdcard_size)sGB)')|format(config_name=order.config.name, sdcard_size=order.sd_card.size) }}" style="background-color: #f26522; border: 0; color: white; font-weight: 600; font-size: 1rem; border-radius: .35rem; padding: .8rem 3rem; cursor: pointer; text-decoration: none; width: calc(50% - 1rem); text-align: center; box-sizing: border-box; margin-right: 2rem;">{% if loop.length > 1 %}HTTP #{{ loop.index }}{% else %}Download{% endif %}</a>
+	{% endfor %}
+	{% for http_url in order|public_download_urls %}
+	{% if loop.first %}
+	<a href="{{ http_url }}.torrent" style="background-color: #4ca6ff; border: 0; color: white; font-weight: 600; font-size: 1rem; border-radius: .35rem; padding: .8rem 3rem; cursor: pointer; text-decoration: none; width: calc(50% - 1rem); text-align: center; box-sizing: border-box;">Get Torrent</a>
+	{% endif %}
+	{% endfor %}
 {%- endmacro %}
