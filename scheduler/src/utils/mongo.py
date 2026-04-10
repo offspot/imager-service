@@ -62,7 +62,6 @@ class RefreshTokens(BaseCollection):
 
 
 class Acknowlegments(BaseCollection):
-
     idle = "idle"
     busy = "busy"
     not_starting = "not_starting"
@@ -175,7 +174,6 @@ class Warehouses(BaseCollection):
 
 
 class Orders(BaseCollection):
-
     virtual = "virtual"
     physical = "physical"
 
@@ -267,6 +265,7 @@ class Orders(BaseCollection):
         "statuses": {"type": "list", "required": False},
         "logs": {"type": "list", "required": False},
         "tasks": {"type": "dict", "required": False},
+        "download_urls": {"type": "list", "required": False},
     }
 
     def __init__(self):
@@ -301,6 +300,13 @@ class Orders(BaseCollection):
         }
 
     @classmethod
+    def get_uploaded_files(cls, order_id):
+        order = cls().get(order_id)
+        return UploadedFiles().find(
+            {"download_url": {"$in": order.get("download_urls", [])}}
+        )
+
+    @classmethod
     def get_with_tasks(cls, order_id, with_logs=False):
         try:
             order = cls().get(order_id, with_logs=with_logs)
@@ -327,8 +333,8 @@ class Orders(BaseCollection):
             "media_duration": order["sd_card"]["duration"],
             "channel": order["channel"],
             "fname": order["fname"],
-            "upload_uri": order["warehouse"]["upload_uri"],
-            "download_uri": order["warehouse"]["download_uri"],
+            "upload_uris": order["warehouse"]["upload_uris"],
+            "download_uris": order["warehouse"]["download_uris"],
             "worker": None,
             "config": order["config"],
             "config_yaml": order.get("config_yaml", ""),
@@ -370,7 +376,7 @@ class Orders(BaseCollection):
             "order": order_id,
             "channel": order["channel"],
             "fname": order["fname"],
-            "download_uri": order["warehouse"]["download_uri"],
+            "download_uris": order["warehouse"]["download_uris"],
             "worker": None,
             "image_fname": upload_details.get("fname"),
             "image_checksum": upload_details.get("checksum"),
@@ -475,7 +481,6 @@ class Orders(BaseCollection):
 
 
 class Tasks(BaseCollection):
-
     pending = "pending"
     received = "received"
 
@@ -678,14 +683,13 @@ class Tasks(BaseCollection):
     @classmethod
     def get_size(cls, task_id):
         task = cls.get(task_id)
-        if cls in (CreatorTasks, ):
+        if cls in (CreatorTasks,):
             return humanfriendly.parse_size(task["config"]["human_size"])
         if cls in ((DownloaderTasks, WriterTasks)):
             return task["image_size"]
 
 
 class CreatorTasks(Tasks):
-
     schema = {
         "order": {"type": "string", "required": True},
         "media_type": {"type": "string", "required": True},
@@ -706,7 +710,6 @@ class CreatorTasks(Tasks):
 
 
 class DownloaderTasks(Tasks):
-
     schema = {
         "order": {"type": "string", "required": True},
         "channel": {"type": "string", "required": True, "nullable": True},
@@ -725,7 +728,6 @@ class DownloaderTasks(Tasks):
 
 
 class WriterTasks(Tasks):
-
     schema = {
         "order": {"type": "string", "required": True},
         "channel": {"type": "string", "required": True, "nullable": True},
@@ -760,7 +762,8 @@ class AutoImages(BaseCollection):
         "status": {"type": "string", "required": True, "nullable": True},
         "http_url": {"type": "string", "required": True, "nullable": True},
         "torrent_url": {"type": "string", "required": True, "nullable": True},
-        "magnet_url": {"type": "string", "required": True, "nullable": True},
+        "http_urls": {"type": "list"},
+        "torrent_urls": {"type": "list"},
         "expire_on": {"type": "datetime", "required": True, "nullable": True},
         "order": {"type": "string", "required": True, "nullable": True},
     }
@@ -778,6 +781,7 @@ class AutoImages(BaseCollection):
         "periodicity": {"type": "string", "regex": "^.+$", "required": True},
         "warehouse": {"type": "dict", "required": False},
         "channel": {"type": "string", "required": True},
+        "woo_id": {"type": "integer", "required": False},
     }
 
     def __init__(self):
@@ -820,6 +824,14 @@ class AutoImages(BaseCollection):
     def create_order_payload(cls, slug):
         image = cls.get(slug)
         warehouse = Warehouses.get(image["warehouse"])
+        upload_uris = [
+            item.strip() for item in warehouse["upload_uri"].split(",") if item.strip()
+        ]
+        download_uris = [
+            item.strip()
+            for item in warehouse["download_uri"].split(",")
+            if item.strip()
+        ]
         fname = "{slug}_{period}_{rand}.img".format(
             slug=slug, period=datetime.date.today().strftime("%Y-%m"), rand="{rand}"
         )
@@ -852,10 +864,17 @@ class AutoImages(BaseCollection):
             },
             "channel": image["channel"],
             "warehouse": {
-                "upload_uri": warehouse["upload_uri"],
-                "download_uri": warehouse["download_uri"],
+                "upload_uris": upload_uris,
+                "download_uris": download_uris,
             },
         }
+
+    @classmethod
+    def get_uploaded_files(cls, slug: str):
+        image = cls().get(slug)
+        return UploadedFiles().find(
+            {"download_url": {"$in": image.get("http_urls", [])}}
+        )
 
 
 class StripeCustomer(BaseCollection):
@@ -943,6 +962,55 @@ class StripeSession(BaseCollection):
                 customer_id=customer_id, session_id=session_id, product=product, **extra
             )
         return cls.get_or_none(session_id)
+
+    @classmethod
+    def update(cls, record_id, **update):
+        cls().update_one({"_id": record_id}, {"$set": update})
+
+
+class UploadedFiles(BaseCollection):
+    pending: str = "pending"
+    confirmed: str = "confirmed"
+    schema = {
+        # pending, confirmed
+        "status": {"type": "string", "required": True},
+        "upload_url": {"type": "string", "required": True},
+        "download_url": {"type": "string", "required": True},
+        "created_on": {"type": "datetime", "required": False},
+        "confirmed_on": {"type": "datetime", "required": False},
+    }
+
+    def __init__(self):
+        super().__init__(Database(), "uploaded_files")
+
+    @classmethod
+    def create(
+        cls,
+        upload_url: str,
+        download_url: str,
+    ):
+        now = datetime.datetime.now()
+        payload = {
+            "status": cls.pending,
+            "upload_url": upload_url,
+            "download_url": download_url,
+            "created_on": now,
+            "confirmed_on": None,
+        }
+        return cls().insert_one(payload).inserted_id
+
+    @classmethod
+    def get_or_none(cls, download_url: str):
+        return cls().find_one({"download_url": download_url})
+
+    @classmethod
+    def get_or_create(cls, upload_url, download_url):
+        record = cls.get_or_none(download_url)
+        if record:
+            return record
+        else:
+            cls.create(upload_url=upload_url, download_url=download_url)
+        return cls.get_or_none(download_url)
 
     @classmethod
     def update(cls, record_id, **update):

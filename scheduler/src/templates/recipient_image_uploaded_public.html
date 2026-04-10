@@ -13,7 +13,7 @@
 <h2 style="margin-bottom: 1rem; color:#212529;">{{ _("Your Hotspot image %(config_name)s is now ready for download")|format(config_name=config_name_span)|safe }}</h2>
 
 <div style="background-color: #fff4e4; border-left: 5px solid #ff9800; border-radius: .25rem; padding: 1rem; color:#3b3b3a; margin-top: 2rem; margin-bottom: 2rem;">
-  {{ _("%(important_strong)s: The link will be available until %(date_strong)s and will be permanently deleted after this date.")|format(important_strong=important_strong, date_strong=date_strong)|safe }}
+  {{ _("%(important_strong)s: The link(s) will be available until %(date_strong)s and will be permanently deleted after this date.")|format(important_strong=important_strong, date_strong=date_strong)|safe }}
 </div>
 
 <div style="margin:0; padding: 0; box-sizing: border-box; margin-bottom: 2rem; flex-direction: row; display: flex;">{{ button_download(order) }}</div>
@@ -52,11 +52,9 @@
 <div style="margin-top: 2rem; background-color: #fcfcfc; border: 1px solid #edf1f3; border-radius: 1rem; padding: 1rem; color: #585858;">
   <h3 style="color: #333333;">{{ _("A little help just in case") }}</h3>
 
-  {% if order|public_download_url_has_torrent %}
   <h4 style="color: #333333;">{{ _("Torrent") }}</h4>
   <p style="">{{ _("Your image is also available as a <strong>torrent</strong>. You need a BitTorrent client (software) to retrieve the actual <strong>img</strong> file.")|safe }}</p>
   <p style="">{{ _("We recommend you use %(transmission_link)s if you don't already have one. It will allow you to easily pause and resume your download and ensure that your file is not corrupt.")|format(transmission_link=transmission_link)|safe }}</p>
-  {% endif %}
 
   <h4 style="color: #333333;">{{ _("SD-card file installation") }}</h4>
   <p style="">{{ _("To install the file onto a microSD card, we recommend using %(rpi_imager_link)s.")|format(rpi_imager_link=rpi_imager_link)|safe }} {{ _("When asked about OS customisation, answer <strong>no</strong> (it's not compatible).")|safe }}</p>

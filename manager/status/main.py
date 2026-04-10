@@ -361,8 +361,9 @@ def get_images_exists_status(autoimages: list[dict[str, Any]]) -> bool:
 
     try:
         for image in autoimages:
-            if not url_exists(image["http_url"]):
-                return False
+            for url in image["http_urls"] + image["torrent_urls"]:
+                if not url_exists(url):
+                    return False
 
     except Exception as exc:
         logger.debug(f"Unable to verify existence of auto-image: {exc}")

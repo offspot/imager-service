@@ -169,9 +169,6 @@ class CreatorWorker:
                                 and task["worker"] != Setting.username
                             ):
                                 continue
-                            # TODO: remove
-                            if not task["upload_uri"].startswith("s3://"):
-                                continue
                             if not task.get("config_yaml", ""):
                                 continue
                         except Exception:

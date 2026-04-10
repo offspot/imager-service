@@ -10,13 +10,14 @@ from emailing import (
     send_order_failed_email,
     send_order_pending_shipment_email,
 )
-from flask import Blueprint, Response, jsonify, render_template, request
+from flask import Blueprint, jsonify, render_template, request
 from utils.mongo import (
     Acknowlegments,
     CreatorTasks,
     DownloaderTasks,
     Orders,
     Tasks,
+    UploadedFiles,
     Users,
     WriterTasks,
 )
@@ -146,12 +147,14 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
     #     raise errors.BadRequest(error.message)
 
     # update task status
+    extras = request_json.get("extra", {})
+    urls = extras.pop("urls", [])
     status = request_json.get("status")
     task_cls.update_status(
         task_id,
         status=request_json.get("status"),
         payload=request_json.get("log"),
-        extra_update=request_json.get("extra"),
+        extra_update=extras,
     )
 
     # update order status based on this task
@@ -160,15 +163,47 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
     # send email if appropriate
     order_id = task["order"]
 
+    # record image files to come
+    if status == Tasks.built:
+        if not urls:
+            print(f"Image built event without {urls=}")
+        for url in urls:
+            upload_url = url.get("upload", "")
+            download_url = url.get("download", "")
+            if not upload_url or not download_url:
+                print(f"Missing URL {upload_url=}, {download_url=}")
+            uf = UploadedFiles.get_or_create(
+                upload_url=upload_url, download_url=download_url
+            )
+            print(f"Created UploadedFile {uf['_id']}")
     # create task uploaded image
-    if status == Tasks.uploaded_public:
+    elif status == Tasks.uploaded_public:
         order = Orders().get(order_id)
         # set expiration date
         expiration = datetime.datetime.now() + datetime.timedelta(
             days=order["sd_card"]["duration"]
         )
-        Orders().update(order_id, {"sd_card.expiration": expiration})
+        Orders().update(
+            order_id,
+            {
+                "sd_card.expiration": expiration,
+                "download_urls": [
+                    url["download"] for url in urls if url.get("download")
+                ],
+            },
+        )
         send_image_uploaded_public_email(order_id)
+        now = datetime.datetime.now()
+        for url in urls:
+            upload_url = url.get("upload", "")
+            download_url = url.get("download", "")
+            if not upload_url or not download_url:
+                print(f"Missing URL {upload_url=}, {download_url=}")
+            uf = UploadedFiles.get_or_create(
+                upload_url=upload_url, download_url=download_url
+            )
+            UploadedFiles.update(uf["_id"], status="confirmed", confirmed_on=now)
+
     elif status == Tasks.uploaded:
         send_image_uploaded_email(order_id)
 

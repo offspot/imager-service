@@ -3,8 +3,8 @@ from bson import ObjectId
 from flask import Blueprint, Response, jsonify, request
 from flask import redirect as flask_redirect
 from jsonschema import ValidationError, validate
+from utils.files import FileChecker
 from utils.mongo import AutoImages, Users
-from utils.wasabi import get_autodelete_date_for
 
 from routes import authenticate, ensure_user_matches_role, errors
 
@@ -85,7 +85,11 @@ def document(autoimage_slug: ObjectId, user: dict):
         if autoimage is None:
             raise errors.NotFound()
 
-        autoimage["autodelete_on"] = get_autodelete_date_for(autoimage_slug).isoformat()
+        autodelete_on = [
+            FileChecker(file).expire_on
+            for file in AutoImages.get_uploaded_files(autoimage_slug)
+        ]
+        autoimage["autodelete_on"] = min(autodelete_on).isoformat()
 
         return jsonify(autoimage)
 
@@ -130,7 +134,8 @@ def json_document(autoimage_slug: ObjectId, user: dict):
             "private": 1,
             "http_url": 1,
             "torrent_url": 1,
-            "magnet_url": 1,
+            "http_urls": 1,
+            "torrent_urls": 1,
             "expire_on": 1,
             "_id": 0,
         },
@@ -148,7 +153,7 @@ def json_document(autoimage_slug: ObjectId, user: dict):
 def redirect(autoimage_slug: ObjectId, method: str):
     """only for public images (user not forwarded)"""
 
-    if method not in ["http", "torrent", "magnet"]:
+    if method not in ["http", "torrent"]:
         raise errors.NotFound()
 
     response = json_document(autoimage_slug)
