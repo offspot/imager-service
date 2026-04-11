@@ -324,10 +324,10 @@ class CreateTask(threading.Thread):
                 qs["secretAccessKey"] = [Setting.s3_secret_key]
                 upload_uri = urllib.parse.SplitResult(
                     uri.scheme,
-                    upload_uri.netloc,
-                    upload_uri.path,
+                    uri.netloc,
+                    uri.path,
                     urllib.parse.urlencode(qs, doseq=True),
-                    upload_uri.fragment,
+                    uri.fragment,
                 ).geturl()
             upload_urls.append(upload_uri)
         return upload_urls
