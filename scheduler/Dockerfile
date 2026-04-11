@@ -14,16 +14,6 @@ ENV MANAGER_API_URL=https://imager.kiwix.org/api
 # API token on manager to create user accounts
 ENV MANAGER_ACCOUNTS_API_TOKEN=dev
 ENV SHOP_PUBLIC_URL=https://www.kiwix.org/en/cardshop-access/
-# SMTP email-related (we use mailgun)
-# enctype: auto,tls,ssl,none (defaults to tls)
-# port: based on enctype or set for local debug
-# skip_login: for local debug (without auth)
-ENV SMTP_USERNAME=SMTP_USERNAME
-ENV SMTP_PASSWORD=SMTP_PASSWORD
-ENV SMTP_HOST=smtp.gmail.com
-ENV SMTP_ENCTYPE=auto
-ENV SMTP_PORT=auto
-ENV SMTP_SKIP_LOGIN=0
 # mailgun-related (used if defined)
 # ENV MAILGUN_API_KEY
 ENV MAILGUN_API_URL=https://api.mailgun.net/v3/cardshop.hotspot.kiwix.org
