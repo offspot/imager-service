@@ -185,10 +185,10 @@
 		<td>{% if image.http_urls or image.torrent_urls %}
 			<ul>
 			{% for http_url in image.http_urls %}
-			<li><a href="{{ http_url }}" target="_blank">HTTP {{loop.index}}</a></li>
+			<li><a href="{{ http_url }}" target="_blank">HTTP {{forloop.counter}}</a></li>
 			{% endfor %}
 			{% for torrent_url in image.torrent_urls %}
-			<li><a href="{{ torrent_url }}" target="_blank">torrent {{loop.index}}</a></li>
+			<li><a href="{{ torrent_url }}" target="_blank">torrent {{forloop.counter}}</a></li>
 			{% endfor %}
 			<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/json" target="_blank">{% blocktrans %}JSON{% endblocktrans %}</a></li>
 			{% if not image.private %}<li><a href="{{ api_url }}/auto-images/{{ image.slug }}/redirect/http" target="_blank">{% blocktrans %}redirect{% endblocktrans %}</a></li>{% endif %}
