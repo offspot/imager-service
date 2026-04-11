@@ -1,6 +1,5 @@
 import datetime
 import os
-from distutils.util import strtobool
 
 import pymongo
 from bson import ObjectId
@@ -17,6 +16,22 @@ from utils.mongo import Orders, Users
 from routes import authenticate, bson_object_id, errors, only_for_roles
 
 blueprint = Blueprint("order", __name__, url_prefix="/orders")
+
+
+def strtobool(val: str) -> bool:
+    """Convert a string representation of truth to `True` or `False`.
+
+    True values are 'y', 'yes', 't', 'true', 'on', and '1'; false values
+    are 'n', 'no', 'f', 'false', 'off', and '0'.  Raises ValueError if
+    'val' is anything else.
+    """
+    val = val.lower()
+    if val in ("y", "yes", "t", "true", "on", "1"):
+        return True
+    if val in ("n", "no", "f", "false", "off", "0"):
+        return False
+    msg = f'Invalid truth value "{val}"'
+    raise ValueError(msg)
 
 
 def string_to_bool(string):
@@ -88,7 +103,6 @@ def collection(user: dict):
             {"meta": {"skip": skip, "limit": limit, "count": count}, "items": orders}
         )
     if request.method == "POST":
-
         try:
             order_id = create_order_from(request.get_json())
         except ValidationError as error:

@@ -1,18 +1,10 @@
-import base64
-import io
 import logging
 import os
 import re
-import tempfile
-import urllib.parse
 
 import langcodes
 import pycountry
-import qrcode
-import requests
-import torf
-from jinja2 import Markup
-from qrcode.image.pure import PymagingImage
+from markupsafe import Markup 
 
 logger = logging.getLogger(__name__)
 re_newlines = re.compile(r"\r\n|\r")  # Used in normalize_newlines
@@ -76,15 +68,6 @@ def linebreaksbr(value, autoescape=True):
     """convert all newlines to <br /> tags"""
     value = normalize_newlines(value)
     return Markup(value.replace("\n", "<br />"))
-
-
-def b64qrcode(text):
-    """encodes the text in PNG QRCode then return its base64 repr"""
-    img = qrcode.make(text, image_factory=PymagingImage)
-    with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as qfile:
-        img.save(qfile)
-        qfile.seek(0)
-        return base64.b64encode(qfile.read()).decode("utf-8")
 
 
 def amount_str(amount):

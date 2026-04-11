@@ -1,21 +1,5 @@
-FROM rgaudin/uwsgi-nginx:python3.8-bookworm
+FROM ghcr.io/rgaudin/uwsgi-nginx:python3.13-trixie
 LABEL org.opencontainers.image.source=https://github.com/offspot/imager-service
-
-RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
-RUN echo "UTC" > /etc/timezone
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends cron curl xfonts-75dpi xfonts-base ca-certificates && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-RUN curl -k -O -L https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb && \
-    apt-get install -y --no-install-recommends ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb && \
-    rm ./wkhtmltox_0.12.6.1-3.bookworm_amd64.deb
-RUN wkhtmltopdf --version
-RUN mkdir -p /usr/share/fonts/truetype/dmsans \
-    && curl -o /usr/share/fonts/truetype/dmsans/DMSans-Regular.ttf -L https://github.com/googlefonts/dm-fonts/raw/refs/heads/main/Sans/fonts/ttf/DMSans-Regular.ttf \
-    && curl -o /usr/share/fonts/truetype/dmsans/DMSans-Medium.ttf -L https://github.com/googlefonts/dm-fonts/raw/refs/heads/main/Sans/fonts/ttf/DMSans-Medium.ttf \
-    && chmod -R 644 /usr/share/fonts/truetype/dmsans \
-    && fc-cache -r
 
 # connect to DB
 ENV MONGODB_URI=mongo
@@ -56,27 +40,32 @@ ENV DOWNLOAD_WAREHOUSE_DOWNLOAD_URI=https+torrent://org-kiwix-hotspot-cardshop-d
 ENV DOWNLOAD_WAREHOUSE_UPLOAD_URI=s3://s3.us-west-1.wasabisys.com/?bucketName=org-kiwix-hotspot-cardshop-download
 ENV PRIVATE_SSH_KEY_PATH=/etc/ssh/uploader.key
 
+ENV UWSGI_INI=/app/uwsgi.ini
+EXPOSE 80 443
 
-RUN rm -rf /app
+RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
+    && echo "UTC" > /etc/timezone \
+    && apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+        cron curl ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    # remove demo app from base image
+    && rm -rf /app
+
 COPY src /app
 COPY src/entrypoint.sh /scheduler-entrypoint.sh
-
-RUN chmod 755 /scheduler-entrypoint.sh
-
-RUN pip install -r /app/requirements.txt
-
-ENV UWSGI_INI=/app/uwsgi.ini
-WORKDIR /app
-
-RUN touch /container.env
 COPY crontab /etc/cron.d/scheduler-cron
-RUN chmod +x /etc/cron.d/scheduler-cron
-RUN crontab /etc/cron.d/scheduler-cron
+RUN pip install -r /app/requirements.txt \
+    && touch /container.env\
+    && touch $PRIVATE_SSH_KEY_PATH \
+    && chmod 755 /scheduler-entrypoint.sh \
+    && chmod +x /etc/cron.d/scheduler-cron \
+    && crontab /etc/cron.d/scheduler-cron \
+    && rm -rf /lib/systemd/system/supervisor.service \
+    && update-rc.d -f supervisor remove \
+    && rm -f /etc/init.d/supervisor
 
-RUN rm -rf /lib/systemd/system/supervisor.service
-RUN update-rc.d -f supervisor remove
-RUN rm -f /etc/init.d/supervisor
-
+WORKDIR /app
 ENTRYPOINT ["/scheduler-entrypoint.sh"]
-EXPOSE 80 443
 CMD ["/usr/bin/supervisord"]

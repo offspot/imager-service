@@ -1,8 +1,8 @@
 from datetime import datetime
+from json import JSONEncoder
 from uuid import UUID
 
 from bson.objectid import ObjectId
-from flask.json import JSONEncoder
 
 
 class Encoder(JSONEncoder):

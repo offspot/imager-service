@@ -6,16 +6,13 @@ from collections.abc import Sequence
 from contextlib import contextmanager
 from typing import Optional
 
-import pdfkit
 import requests
-import yagmail
 import yaml
 from babel.dates import format_datetime
 from babel.support import Translations
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from utils.mongo import Acknowlegments, Channels, Orders, Users, WriterTasks
 from utils.templates import (
-    b64qrcode,
     country_name,
     get_add_shipment_url,
     get_id,
@@ -34,7 +31,7 @@ try:
     from yaml import CSafeLoader as SafeLoader
 except ImportError:
     # we don't NEED cython ext but it's faster so use it if avail.
-    from yaml import Dumper, SafeLoader
+    from yaml import SafeLoader
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +40,7 @@ locale_dir = pathlib.Path(__file__).parent.joinpath("locale")
 jinja_env = Environment(
     loader=FileSystemLoader("templates"),
     autoescape=select_autoescape(["html", "xml", "txt"]),
-    extensions=["jinja2.ext.i18n", "jinja2.ext.autoescape", "jinja2.ext.with_"],
+    extensions=["jinja2.ext.i18n"],  #  "jinja2.ext.autoescape", "jinja2.ext.with_"
 )
 
 
@@ -55,7 +52,6 @@ def format_dt(date, fmt="long", locale=None):
 
 jinja_env.filters["id"] = get_id
 jinja_env.filters["yesno"] = yesno
-jinja_env.filters["qrcode"] = b64qrcode
 jinja_env.filters["pub_url"] = get_pub_url
 jinja_env.filters["insert_card_url"] = get_insert_card_url
 jinja_env.filters["add_shipment_url"] = get_add_shipment_url
@@ -94,39 +90,6 @@ def localized_for(lang, *args, **kwargs):
     finally:
         jinja_env.uninstall_gettext_translations(translations)
         jinja_env._locale = "en_GB"
-
-
-def get_sender():
-    enctype = os.getenv("SMTP_ENCTYPE", "tls").lower()
-    port = os.getenv("SMTP_PORT", "auto").lower()
-    return yagmail.SMTP(
-        user=os.getenv("SMTP_USERNAME"),
-        password=os.getenv("SMTP_PASSWORD"),
-        host=os.getenv("SMTP_HOST", "smtp.gmail.com"),
-        port=None if port == "auto" else int(port),
-        smtp_starttls=enctype in ("tls", "auto"),
-        smtp_ssl=enctype == "ssl",
-        smtp_set_debuglevel=0,
-        smtp_skip_login=bool(os.getenv("SMTP_SKIP_LOGIN", False)),
-    )
-
-
-def send_email_via_smtp(
-    to,
-    subject,
-    contents,
-    cc: Optional[Sequence] = None,
-    bcc: Optional[Sequence] = None,
-    headers: Optional[dict] = None,
-    attachments: Optional[Sequence] = None,
-    on: Optional[datetime.datetime] = None,
-):
-    yag = get_sender()
-    if attachments:
-        if not isinstance(contents, list):
-            contents = [contents]
-        contents += attachments
-    yag.send(to=to, cc=cc, bcc=bcc, headers=headers, subject=subject, contents=contents)
 
 
 def send_email_via_api(
@@ -195,16 +158,14 @@ def send_email(
         bcc.append(os.getenv("SUPPORT_EMAIL"))
 
     logger.info(f"sending --{subject}-- to --{to}--/--{attachments}")
-    func = (
-        send_email_via_api
-        if os.getenv("MAILGUN_API_KEY", False)
-        else send_email_via_smtp
-    )
+    if not os.getenv("MAILGUN_API_KEY", False):
+        raise OSError("Missing MAILGUN_API_KEY")
+
     # make sure we don't send message to same address twice
     cc = [a for a in cc if a not in to]
     bcc = [a for a in bcc if a not in to and a not in cc]
     try:
-        return func(
+        return send_email_via_api(
             to=to,
             subject=subject,
             contents=contents,
@@ -349,7 +310,6 @@ def send_order_failed_email(order_id):
         WriterTasks.failed_to_download,
         WriterTasks.failed_to_write,
     ):
-
         send_order_email_for(
             order_id, "subject_order_failed", "operator_order_failed", "operator"
         )
@@ -462,5 +422,5 @@ def build_shipping_document(order_id):
         "no-outline": None,
         "viewport-size": "1280x1024",
     }
-    pdfkit.from_string(content, fpath, options=options)
+    # pdfkit.from_string(content, fpath, options=options)
     return fpath

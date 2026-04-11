@@ -10,7 +10,7 @@ def register_handlers(app: Flask):
     app.errorhandler(NotFound)(NotFound.handler)
     app.errorhandler(InternalError)(InternalError.handler)
 
-    @app.errorhandler(jwt_exceptions.ExpiredSignature)
+    @app.errorhandler(jwt_exceptions.ExpiredSignatureError)
     def handler_expired(_):
         response = jsonify({"error": "token expired"})
         response.status_code = 401
