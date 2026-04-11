@@ -17,11 +17,11 @@ from routes import (
     tasks,
     users,
     warehouses,
-    workers,
     woo,
+    workers,
 )
-from utils.json import Encoder
-from utils.templates import amount_str, strftime, country_name
+from utils.json import SchedulerJSONProvider
+from utils.templates import amount_str, country_name
 
 
 def format_dt(date, fmt="d MMMM yyyy, HH:mm", locale="en_GB"):
@@ -31,8 +31,10 @@ def format_dt(date, fmt="d MMMM yyyy, HH:mm", locale="en_GB"):
 
 logging.basicConfig(level=logging.INFO)
 
+logging.getLogger("pymongo").setLevel(logging.INFO)
+
 flask = Flask(__name__)
-flask.json_encoder = Encoder
+flask.json = SchedulerJSONProvider(flask)
 flask.jinja_env.filters["amount"] = amount_str
 flask.jinja_env.filters["date"] = format_dt
 flask.jinja_env.filters["country"] = country_name

@@ -89,7 +89,8 @@ def document(autoimage_slug: ObjectId, user: dict):
             FileChecker(file).expire_on
             for file in AutoImages.get_uploaded_files(autoimage_slug)
         ]
-        autoimage["autodelete_on"] = min(autodelete_on).isoformat()
+        if autodelete_on:
+            autoimage["autodelete_on"] = min(autodelete_on).isoformat()
 
         return jsonify(autoimage)
 

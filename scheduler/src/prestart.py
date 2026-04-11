@@ -10,7 +10,7 @@ from pymongo import ASCENDING
 from utils import mongo
 from werkzeug.security import generate_password_hash
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

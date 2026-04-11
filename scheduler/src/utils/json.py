@@ -1,20 +1,20 @@
 from datetime import datetime
-from json import JSONEncoder
 from uuid import UUID
 
 from bson.objectid import ObjectId
+from flask.json.provider import DefaultJSONProvider
 
 
-class Encoder(JSONEncoder):
-    def default(self, o):
+class SchedulerJSONProvider(DefaultJSONProvider):
+    @staticmethod
+    def default(o):
         if isinstance(o, datetime):
             return o.isoformat() + "Z"
         elif isinstance(o, UUID):
             return str(o)
         elif isinstance(o, ObjectId):
             return str(o)
-        else:
-            super().default(o)
+        return DefaultJSONProvider.default(o)
 
 
 def ensure_objectid(object_id):

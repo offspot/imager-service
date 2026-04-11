@@ -8,9 +8,9 @@ from emailing import (
     send_order_failed_email,
     send_order_shipped_email,
 )
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, render_template, request
 from jsonschema import ValidationError, validate
-from utils.json import ensure_objectid
+from utils.json import ensure_objectid, jsonify
 from utils.mongo import Orders, Users
 
 from routes import authenticate, bson_object_id, errors, only_for_roles

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from uuid import UUID, uuid4
 
+import bson
 from flask import Blueprint, Response, jsonify, request
 from utils.mongo import RefreshTokens, Users
 from utils.token import AccessToken
@@ -19,7 +20,10 @@ def authorize():
     """
 
     # get username and password from request header
-    if request.content_type and "application/x-www-form-urlencoded" in request.content_type:
+    if (
+        request.content_type
+        and "application/x-www-form-urlencoded" in request.content_type
+    ):
         username = request.form.get("username")
         password = request.form.get("password")
     else:
@@ -50,7 +54,7 @@ def authorize():
     # store refresh token in database
     RefreshTokens().insert_one(
         {
-            "token": refresh_token,
+            "token": bson.Binary.from_uuid(refresh_token),
             "user_id": user["_id"],
             "expire_time": datetime.now() + timedelta(days=30),
         }
@@ -80,7 +84,8 @@ def token():
     # check token exists in database and get expire time and user id
     collection = RefreshTokens()
     old_token_document = collection.find_one(
-        {"token": UUID(old_token)}, {"expire_time": 1, "user_id": 1}
+        {"token": bson.Binary.from_uuid(UUID(old_token))},
+        {"expire_time": 1, "user_id": 1},
     )
     if old_token_document is None:
         raise Unauthorized()
@@ -103,14 +108,14 @@ def token():
     # store refresh token in database
     RefreshTokens().insert_one(
         {
-            "token": refresh_token,
+            "token": bson.Binary.from_uuid(refresh_token),
             "user_id": user["_id"],
             "expire_time": datetime.now() + timedelta(days=30),
         }
     )
 
     # delete old refresh token from database
-    collection.delete_one({"token": UUID(old_token)})
+    collection.delete_one({"token": bson.Binary.from_uuid(UUID(old_token))})
     collection.delete_many({"expire_time": {"$lte": datetime.now()}})
 
     # send response

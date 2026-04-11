@@ -31,9 +31,15 @@ class HTTPError(Exception):
 
     @staticmethod
     def handler(e):
-        response = jsonify({"error": e.message or e.status.name, "http": f"{e.status.value}: {e.status.name}"})
+        response = jsonify(
+            {
+                "error": e.message or e.status.name,
+                "http": f"{e.status.value}: {e.status.name}",
+            }
+        )
         response.status_code = e.status.value
         return response
+
 
 # 400
 class BadRequest(Exception):
