@@ -263,11 +263,11 @@ class CreateTask(threading.Thread):
         delete_after = max([2, self.task["media_duration"]])
 
         # first build torrent with expected sources
-        self.build_torrent_file(logger=uploader_log)
+        self.build_torrent_file(uploader_logger)
 
         # then upload torrent file to all sources
         torrent_upload_succeeded = upload_succeeded = self.upload_file_to_dest(
-            logger=uploader_log, file_path=self.torrent_path, delete_after=delete_after
+            uploader_logger, file_path=self.torrent_path, delete_after=delete_after
         )
         if not torrent_upload_succeeded:
             self.logger.error("Failed to upload torrent file")
@@ -283,7 +283,7 @@ class CreateTask(threading.Thread):
         if torrent_upload_succeeded:
             # then upload image files to all sources
             upload_succeeded = self.upload_file_to_dest(
-                logger=uploader_log, file_path=self.img_path, delete_after=delete_after
+                uploader_logger, file_path=self.img_path, delete_after=delete_after
             )
 
             # remove image
