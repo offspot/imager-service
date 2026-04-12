@@ -1885,17 +1885,19 @@ class Order(models.Model):
             raise
 
     @property
-    def http_download_url(self):
+    def http_download_urls(self):
+        if "download_urls" in self.data:
+            return self.data["download_urls"]
         url = urllib.parse.urlparse(self.data["warehouse"]["download_uri"])
         if "torrent" in url.scheme:
             parts = list(urllib.parse.urlsplit(url.geturl()))
             parts[0] = parts[0].replace("+torrent", "")
             url = urllib.parse.urlparse(urllib.parse.urlunsplit(parts))
-        return urllib.parse.urljoin(url.geturl(), self.data["fname"])
+        return [urllib.parse.urljoin(url.geturl(), self.data["fname"])]
 
     @property
     def torrent_download_url(self):
-        return f"{self.http_download_url}.torrent"
+        return f"{self.http_download_urls[0]}.torrent"
 
     @classmethod
     def fetch_and_get(cls, order_id):

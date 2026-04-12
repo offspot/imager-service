@@ -114,8 +114,10 @@ section.statuses {
 <section class="summary">
 	{% if order.active %}<a data-toggle="confirmation" data-title="Are you sure you want to cancel this Order?" href="{% url "order_cancel" order_min_id=order.min_id %}" class="btn-sm btn btn-danger float-right">{% blocktrans %}Cancel Order{% endblocktrans %}</a>{% endif %}
 	{% if order.can_download %}
-	<a href="{{ order.http_download_url }}" download class="btn-sm btn btn-secondary float-right" title="Download via HTTP"><i class="fa-brands fa-internet-explorer"></i> {% blocktrans %}Download{% endblocktrans %}</a>
-	<a href="{{ order.torrent_download_url }}" download class="btn-sm btn btn-primary float-right" title="Download via Torrent"><i class="fa-solid fa-magnet"></i> {% blocktrans %}Download{% endblocktrans %}</a>
+	{% for http_download_url in order.http_download_urls %}
+	<a href="{{ http_download_url }}" download class="btn-sm btn btn-secondary float-right" title="Download via HTTP"><i class="fa-brands fa-internet-explorer"></i> {% blocktrans with forloop.counter as counter %}HTTP {{ counter }}{% endblocktrans %}</a> 
+	{% endfor %}
+	<a href="{{ order.torrent_download_url }}" download class="btn-sm btn btn-primary float-right" title="Download via Torrent"><i class="fa-solid fa-magnet"></i> {% blocktrans %}Torrent{% endblocktrans %}</a>
 	{% endif %}
 
 	<h4>Order Summary</h4>
