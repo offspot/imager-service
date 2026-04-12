@@ -57,7 +57,7 @@ def collection(user: dict):
         except ValidationError as error:
             raise errors.BadRequest(str(error))
 
-        if Channels().count({"slug": request_json["slug"]}):
+        if Channels().count_documents({"slug": request_json["slug"]}):
             raise errors.BadRequest("Channel with this slug exists.")
 
         channel_id = Channels().insert_one(request_json).inserted_id

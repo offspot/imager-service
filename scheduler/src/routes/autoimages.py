@@ -64,7 +64,7 @@ def collection(user: dict):
         except ValidationError as error:
             raise errors.BadRequest(str(error))
 
-        if AutoImages().count({"slug": request_json["slug"]}):
+        if AutoImages().count_documents({"slug": request_json["slug"]}):
             raise errors.BadRequest("autoimage with this slug exists.")
 
         AutoImages().insert_one(request_json)

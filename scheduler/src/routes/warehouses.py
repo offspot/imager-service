@@ -60,7 +60,7 @@ def collection(user: dict):
         except ValidationError as error:
             raise errors.BadRequest(error.message)
 
-        if Warehouses().count({"slug": request_json["slug"]}):
+        if Warehouses().count_documents({"slug": request_json["slug"]}):
             raise errors.BadRequest("Warehouse with this slug exists.")
 
         warehouse_id = Warehouses().insert_one(request_json).inserted_id
