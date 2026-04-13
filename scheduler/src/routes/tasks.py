@@ -175,7 +175,12 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
             uf = UploadedFiles.get_or_create(
                 upload_url=upload_url, download_url=download_url
             )
-            print(f"Created UploadedFile {uf['_id']}")
+            print(f"Created UploadedFile {uf['_id']} for image")
+            # add torrent file as well
+            uf = UploadedFiles.get_or_create(
+                upload_url=upload_url, download_url=f"{download_url}.torrent"
+            )
+            print(f"Created UploadedFile {uf['_id']} for torrent")
     # create task uploaded image
     elif status == Tasks.uploaded_public:
         order = Orders().get(order_id)
