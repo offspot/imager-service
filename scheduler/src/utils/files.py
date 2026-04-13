@@ -90,10 +90,20 @@ class FileChecker:
         """date to expire at based on previous expiration and constant (nb days)"""
         return datetime.datetime.now() + datetime.timedelta(days=self.extend_for_days)
 
-    def extend_if_expiring_soon(self):
+    @property
+    def expire_on(self) -> datetime.datetime:
+        if not hasattr(self, "_expire_on"):
+            self._expire_on = self.get_expiry()
+        return self._expire_on
+
+    @expire_on.setter
+    def expire_on(self, on: datetime.datetime):
+        self._expire_on = on
+
+    def extend_if_expiring_soon(self) -> bool:
         """extend expiration date if it's close to expiration"""
         try:
-            self.expire_on = self.get_expiry()
+            self.expire_on
         except (MarkerNotFound, InvalidExpirationDate):
             # set in past so considered expired
             self.expire_on = datetime.datetime.now() - datetime.timedelta(
@@ -104,13 +114,13 @@ class FileChecker:
             logger.error(
                 f"Failed to check {self.file['_id']},{self.file['download_url']}: {exc!s}"
             )
-            return
+            return False
 
         if self.expire_on <= self.max_renewal_date:
             return self.update_marker_with(days_from_now=self.extend_for_days)
         return False
 
-    def update_marker_with(self, days_from_now: int):
+    def update_marker_with(self, days_from_now: int) -> bool:
         """Upload a marker with the new datetime."""
         upload_url = (
             get_credentials_s3_url(self.file["upload_url"])
@@ -127,12 +137,12 @@ class FileChecker:
             == 0
         )
 
-    def remove_if_expired(self):
+    def remove_if_expired(self) -> bool:
         """remove file both from storage and DB is it expired"""
         try:
-            self.expire_on = self.get_expiry()
+            self.expire_on
         except (MarkerNotFound, InvalidExpirationDate):
-            self.remove_file_and_entry()
+            return self.remove_file_and_entry()
         except Exception as exc:
             # network error? log
             logger.error(
