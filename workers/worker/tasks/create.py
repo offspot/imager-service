@@ -317,18 +317,21 @@ class CreateTask(threading.Thread):
     def get_upload_urls(self, *, with_credentials: bool = False) -> list[str]:
         upload_urls = []
         for upload_uri in self.task["upload_uris"]:
+
+            uri = urllib.parse.urlparse(upload_uri)
+            qs = urllib.parse.parse_qs(uri.query)
+
             if with_credentials and upload_uri.startswith("s3"):
-                uri = urllib.parse.urlparse(upload_uri)
-                qs = urllib.parse.parse_qs(uri.query)
                 qs["keyId"] = [Setting.s3_access_key]
                 qs["secretAccessKey"] = [Setting.s3_secret_key]
-                upload_uri = urllib.parse.SplitResult(
-                    uri.scheme,
-                    uri.netloc,
-                    uri.path,
-                    urllib.parse.urlencode(qs, doseq=True),
-                    uri.fragment,
-                ).geturl()
+
+            upload_uri = urllib.parse.SplitResult(
+                uri.scheme,
+                uri.netloc,
+                str(Path(uri.path).joinpath(self.img_path.name)),
+                urllib.parse.urlencode(qs, doseq=True),
+                uri.fragment,
+            ).geturl()
             upload_urls.append(upload_uri)
         return upload_urls
 
