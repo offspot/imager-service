@@ -240,7 +240,7 @@ def extend_autoimages_expiration():
             if fc.extend_if_expiring_soon():
                 logger.info(
                     f".. extended by {fc.extend_for_days} days "
-                    f"from {fc.next_expiration_on.isoformat()} "
+                    f"from {fc.expire_on} "
                     f"to {fc.next_expiration_on.isoformat()}"
                 )
             else:
