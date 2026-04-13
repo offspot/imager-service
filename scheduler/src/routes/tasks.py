@@ -208,6 +208,11 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
                 upload_url=upload_url, download_url=download_url
             )
             UploadedFiles.update(uf["_id"], status="confirmed", confirmed_on=now)
+            # confirm torrent file as well
+            uf = UploadedFiles.get_or_create(
+                upload_url=upload_url, download_url=f"{download_url}.torrent"
+            )
+            UploadedFiles.update(uf["_id"], status="confirmed", confirmed_on=now)
 
     elif status == Tasks.uploaded:
         send_image_uploaded_email(order_id)
