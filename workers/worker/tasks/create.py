@@ -123,7 +123,7 @@ class CreateTask(threading.Thread):
         self.extra["urls"] = [
             {"upload": upload_url, "download": download_url}
             for (upload_url, download_url) in zip(
-                self.get_upload_urls(with_credentials=False),
+                self.get_upload_urls(with_credentials=False, with_fname=True),
                 self.get_download_urls(),
                 strict=True,
             )
@@ -314,10 +314,11 @@ class CreateTask(threading.Thread):
             download_urls.append(download_url)
         return download_urls
 
-    def get_upload_urls(self, *, with_credentials: bool = False) -> list[str]:
+    def get_upload_urls(
+        self, *, with_credentials: bool = False, with_fname: bool = False
+    ) -> list[str]:
         upload_urls = []
         for upload_uri in self.task["upload_uris"]:
-
             uri = urllib.parse.urlparse(upload_uri)
             qs = urllib.parse.parse_qs(uri.query)
 
@@ -325,10 +326,16 @@ class CreateTask(threading.Thread):
                 qs["keyId"] = [Setting.s3_access_key]
                 qs["secretAccessKey"] = [Setting.s3_secret_key]
 
+            target_path = (
+                str(Path(uri.path).joinpath(self.img_path.name))
+                if with_fname
+                else uri.path
+            )
+
             upload_uri = urllib.parse.SplitResult(
                 uri.scheme,
                 uri.netloc,
-                str(Path(uri.path).joinpath(self.img_path.name)),
+                target_path,
                 urllib.parse.urlencode(qs, doseq=True),
                 uri.fragment,
             ).geturl()
@@ -353,7 +360,7 @@ class CreateTask(threading.Thread):
         try:
             res = multi_file_upload(
                 src_path=file_path,
-                upload_urls=self.get_upload_urls(with_credentials=True),
+                upload_urls=self.get_upload_urls(with_credentials=True, with_fname=False),
                 private_key=Setting.ssh_key_path,
                 delete=True,
                 delete_after=delete_after,
