@@ -1265,7 +1265,7 @@ class Organization(models.Model):
     public_warehouse = models.CharField(
         max_length=50,
         choices=get_warehouse_choices(),
-        default="download",
+        default="users",
         verbose_name=_("Pub WH"),
     )
     email = models.EmailField(verbose_name=_lz("Email"))

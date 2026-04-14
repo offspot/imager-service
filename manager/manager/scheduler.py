@@ -415,7 +415,7 @@ def get_warehouse_choices():
 
     warehouses = as_items_or_none(*get_warehouses_list())
     if warehouses is None:
-        return [("kiwix", "download")]
+        return [("kiwix", "download", "users")]
     return [
         (warehouse.get("slug"), warehouse.get("slug"))
         for warehouse in warehouses
