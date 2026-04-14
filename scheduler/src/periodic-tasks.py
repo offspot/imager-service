@@ -170,6 +170,8 @@ def check_autoimages():
                             "file": torrent_url,
                         }
                     )
+                    # we only need one torrent in the shop
+                    break
 
                 if not downloads:
                     logger.error(f".. No download URLs for product={image['woo_id']}")
