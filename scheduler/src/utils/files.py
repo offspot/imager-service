@@ -30,7 +30,7 @@ def get_credentials_s3_url(s3_url: str) -> str:
     qs["keyId"] = [S3_ACCESS_KEY]
     qs["secretAccessKey"] = [S3_SECRET_KEY]
     return SplitResult(
-        "https",
+        "s3",
         url.netloc,
         url.path,
         urlencode(qs, doseq=True),
