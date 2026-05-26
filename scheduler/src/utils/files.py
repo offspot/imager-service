@@ -195,6 +195,8 @@ class FileChecker:
         if resp.status_code == HTTPStatus.NOT_FOUND:
             raise MarkerNotFound()
 
+        resp.raise_for_status()
+
         try:
             return datetime.datetime.fromisoformat(resp.text)
         except Exception:
