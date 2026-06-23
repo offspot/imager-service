@@ -44,7 +44,6 @@ COPY pyproject.toml README.md /app/
 COPY manage.py /app/manage.py
 COPY manager /app/manager
 COPY locale /app/locale
-COPY contents.json /app/contents.json
 COPY uwsgi-manager.ini /etc/uwsgi/apps/manager.ini
 RUN mkdir -p /app/.git/refs/heads \
     && mkdir -p /app/.git/objects/info \

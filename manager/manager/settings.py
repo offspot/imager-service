@@ -208,7 +208,6 @@ MAILGUN_API_URL = os.getenv(
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY", "")
 # used for sending reset password links in emails
 CARDSHOP_PUBLIC_URL = os.getenv("CARDSHOP_PUBLIC_URL", "https://imager.kiwix.org")
-CONTENTS_FILE = os.path.join(BASE_DIR, "contents.json")
 
 CACHES = {
     "default": {
