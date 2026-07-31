@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-20 11:44+0000\n"
-"PO-Revision-Date: 2025-02-20 12:34+0000\n"
+"POT-Creation-Date: 2026-07-31 17:03+0000\n"
+"PO-Revision-Date: 2026-07-31 17:27+0000\n"
 "Last-Translator: reg <rgaudin@gmail.com>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Language: fr\n"
@@ -17,13 +17,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Generated-By: Babel 2.9.1\n"
-"X-Generator: Poedit 3.1\n"
+"X-Generator: Poedit 3.9\n"
 
-#: src/templates/email_base.html:15
+#: src/templates/email_base.html:17
 msgid "Enjoy going offline!"
 msgstr "Déconnectez et profitez !"
 
-#: src/templates/email_base.html:16
+#: src/templates/email_base.html:17
 msgid "The Kiwix team"
 msgstr "L’Équipe Kiwix"
 
@@ -45,8 +45,8 @@ msgid "Size"
 msgstr "Taille"
 
 #: src/templates/email_order_base.html:16
-#: src/templates/recipient_image_uploaded_public.html:27
-#: src/templates/recipient_order_created.html:14
+#: src/templates/recipient_image_uploaded_public.html:35
+#: src/templates/recipient_order_created.html:22
 #: src/templates/recipient_order_failed.html:15
 #: src/templates/recipient_order_shipped.html:14
 #, python-format
@@ -84,14 +84,14 @@ msgid ""
 "Confirm <strong>%(sdcard_name)s</strong> SD-card inserted into <strong>%(slot)s</"
 "strong>"
 msgstr ""
-"Confirmez <strong>%(sdcard_name)s</strong> carte SD insérée dans <strong>"
-"%(slot)s</strong>"
+"Confirmez <strong>%(sdcard_name)s</strong> carte SD insérée dans "
+"<strong>%(slot)s</strong>"
 
 #: src/templates/macros.html:13
 msgid "Add Shipping Details"
 msgstr "Ajouter les détails d’expédition"
 
-#: src/templates/macros.html:18
+#: src/templates/macros.html:19
 #, python-format
 msgid "Download %(config_name)s (%(sdcard_size)sGB)"
 msgstr "Télécharger %(config_name)s (%(sdcard_size)sGo)"
@@ -123,8 +123,8 @@ msgstr ""
 msgid ""
 "You can now <strong>remove SD-Card from slot <code>%(slot)s</code></strong>."
 msgstr ""
-"Vous pouvez maintenant <strong>retirer la carte SD de l’emplacement <code>"
-"%(slot)s</code></strong>."
+"Vous pouvez maintenant <strong>retirer la carte SD de l’emplacement "
+"<code>%(slot)s</code></strong>."
 
 #: src/templates/operator_insert_card.html:5
 #, python-format
@@ -132,8 +132,8 @@ msgid ""
 "Please insert <strong>%(sdcard_name)s</strong> onto slot <strong>%(slot)s</"
 "strong>"
 msgstr ""
-"Veuillez insérer <strong>%(sdcard_name)s</strong> dans l’emplacement <strong>"
-"%(slot)s</strong>"
+"Veuillez insérer <strong>%(sdcard_name)s</strong> dans l’emplacement "
+"<strong>%(slot)s</strong>"
 
 #: src/templates/operator_order_failed.html:6
 msgid "Order Writing Failed !"
@@ -149,8 +149,8 @@ msgstr "Cher opérateur de %(worker)s,"
 msgid ""
 "<code>WriterTask #%(task_id)s</code> failed with status <code>%(status)s</code>."
 msgstr ""
-"La <code>WriterTask #%(task_id)s</code> a échouée avec le statut <code>"
-"%(status)s</code>."
+"La <code>WriterTask #%(task_id)s</code> a échouée avec le statut "
+"<code>%(status)s</code>."
 
 #: src/templates/operator_order_failed.html:10
 #, python-format
@@ -158,8 +158,8 @@ msgid ""
 "Please investigate and contact this order's contact <em>%(client_name)s</em> at "
 "%(contact_link)s."
 msgstr ""
-"Veuillez enquêter et contacter le responsable de cette commande <em>"
-"%(client_name)s</em> à %(contact_link)s."
+"Veuillez enquêter et contacter le responsable de cette commande "
+"<em>%(client_name)s</em> à %(contact_link)s."
 
 #: src/templates/operator_ship_card.html:5
 #, python-format
@@ -193,20 +193,29 @@ msgstr ""
 msgid "troubleshooting checklist"
 msgstr "liste des choses à contrôler"
 
+#: src/templates/recipient_image_uploaded_public.html:10
+msgid "IMPORTANT"
+msgstr "IMPORTANT"
+
 #: src/templates/recipient_image_uploaded_public.html:11
 #, python-format
-msgid "Your Hotspot image %(config_name)s is now ready for download!"
-msgstr ""
-"Votre image Hotspot « %(config_name)s » est maintenant prête à être téléchargée !"
+msgid "%(expiration_date)s"
+msgstr "%(expiration_date)s"
 
 #: src/templates/recipient_image_uploaded_public.html:13
 #, python-format
-msgid ""
-"<strong>IMPORTANT</strong>: The link will be available until <strong>"
-"%(expiration_date)s</strong> and will be permanently deleted after this date."
+msgid "Your Hotspot image %(config_name)s is now ready for download"
 msgstr ""
-"<strong>IMPORTANT</strong> : Le lien sera disponible jusqu’au <strong>"
-"%(expiration_date)s</strong> et sera définitivement supprimé après cette date."
+"Votre image Hotspot « %(config_name)s » est maintenant prête à être téléchargée"
+
+#: src/templates/recipient_image_uploaded_public.html:16
+#, python-format
+msgid ""
+"%(important_strong)s: The link(s) will be available until %(date_strong)s and "
+"will be permanently deleted after this date."
+msgstr ""
+"%(important_strong)s : Le lien sera disponible jusqu’au %(date_strong)s et sera "
+"définitivement supprimé après cette date."
 
 #: src/templates/recipient_image_uploaded_public.html:25
 #: src/templates/recipient_order_created.html:12
@@ -215,23 +224,24 @@ msgstr ""
 msgid "Your Order"
 msgstr "Votre commande"
 
-#: src/templates/recipient_image_uploaded_public.html:43
+#: src/templates/recipient_image_uploaded_public.html:53
 msgid "A little help just in case"
 msgstr "Un petit d’aide, au cas où"
 
-#: src/templates/recipient_image_uploaded_public.html:46
+#: src/templates/recipient_image_uploaded_public.html:55
 msgid "Torrent"
 msgstr "Torrent"
 
-#: src/templates/recipient_image_uploaded_public.html:47
+#: src/templates/recipient_image_uploaded_public.html:56
 msgid ""
-"Your image is also available as a <em>torrent</em>. You need a BitTorrent client "
-"(software) to retrieve the actual <em>img</em> file."
+"Your image is also available as a <strong>torrent</strong>. You need a "
+"BitTorrent client (software) to retrieve the actual <strong>img</strong> file."
 msgstr ""
-"Votre image est également disponible sous forme de <em>torrent</em>. Vous avez "
-"besoin d’un logiciel BitTorrent pour récupérer le fichier <em>img</em> réel."
+"Votre image est également disponible sous forme de <strong>torrent</strong>. "
+"Vous avez besoin d’un logiciel BitTorrent pour récupérer le fichier <strong>img</"
+"strong> final."
 
-#: src/templates/recipient_image_uploaded_public.html:48
+#: src/templates/recipient_image_uploaded_public.html:57
 #, python-format
 msgid ""
 "We recommend you use %(transmission_link)s if you don't already have one. It "
@@ -242,11 +252,11 @@ msgstr ""
 "déjà un. Il vous permettra de mettre en pause et de reprendre facilement votre "
 "téléchargement et de vous assurer que votre fichier n’est pas corrompu."
 
-#: src/templates/recipient_image_uploaded_public.html:51
+#: src/templates/recipient_image_uploaded_public.html:59
 msgid "SD-card file installation"
 msgstr "Installation du fichier sur carte SD"
 
-#: src/templates/recipient_image_uploaded_public.html:52
+#: src/templates/recipient_image_uploaded_public.html:60
 #, python-format
 msgid ""
 "To install the file onto a microSD card, we recommend using %(rpi_imager_link)s."
@@ -254,30 +264,30 @@ msgstr ""
 "Pour installer le fichier sur une carte microSD, nous vous recommandons "
 "d’utiliser %(rpi_imager_link)s."
 
-#: src/templates/recipient_image_uploaded_public.html:52
+#: src/templates/recipient_image_uploaded_public.html:60
 msgid ""
-"When asked about <em>OS customisation</em>, answer <strong>no</strong> (it's not "
+"When asked about OS customisation, answer <strong>no</strong> (it's not "
 "compatible)."
 msgstr ""
 "Lorsqu’il vous sera demandé si vous souhaitez la <em>personnalisation de l’OS</"
 "em>, répondez <strong>non</strong> (ce n’est pas compatible)."
 
-#: src/templates/recipient_image_uploaded_public.html:54
+#: src/templates/recipient_image_uploaded_public.html:62
 msgid "Raspberry Pi installation"
 msgstr "Installation du Raspberry Pi"
 
-#: src/templates/recipient_image_uploaded_public.html:55
+#: src/templates/recipient_image_uploaded_public.html:63
 #, python-format
 msgid ""
 "You do not need to connect your Raspberry to a screen. Simply connect to the "
 "Hotspot by typing %(hotspot_url)s in your browser's address bar (be mindful to "
-"use <em>http</em> and not https)."
+"use <strong>http</strong> and not https)."
 msgstr ""
 "Vous n’avez pas besoin de connecter votre Raspberry à un écran. Connectez-vous "
 "simplement au Hotspot en tapant %(hotspot_url)s dans la barre d’adresse de votre "
-"navigateur (attention à utiliser <em>http</em> et non https)."
+"navigateur (attention à utiliser <strong>http</strong> et non https)."
 
-#: src/templates/recipient_image_uploaded_public.html:56
+#: src/templates/recipient_image_uploaded_public.html:64
 #, python-format
 msgid ""
 "If you encounter any issue, check out our %(faq_link)s before reaching out by "
@@ -293,33 +303,40 @@ msgstr ""
 "Votre commande Hotspot pour «%(config_name)s» est maintenant prête à être "
 "téléchargée"
 
-#: src/templates/recipient_order_created.html:31
+#: src/templates/recipient_order_created.html:42
 #, python-format
 msgid ""
-"Your order of <strong>%(quantity)s x %(sd_name)s</strong> with the <strong>"
-"%(config_name)s</strong> configuration on it has been accepted by the system."
+"Your %(quantity)s x %(sd_name)s with the <strong>%(config_name)s</strong> "
+"configuration"
 msgstr ""
 "Votre commande de <strong>%(quantity)s x %(sd_name)s</strong> avec la "
-"configuration <strong>%(config_name)s</strong> a été acceptée par le système."
+"configuration <strong>%(config_name)s</strong> a été expédiée"
 
-#: src/templates/recipient_order_created.html:32
+#: src/templates/recipient_order_created.html:43
+msgid "Your order has been accepted by the system."
+msgstr "Votre commande a été accepté par le système."
+
+#: src/templates/recipient_order_created.html:44
 msgid "You will be notified when it is shipped to your address."
 msgstr "Vous serez averti lorsqu’il sera expédié à votre adresse."
 
-#: src/templates/recipient_order_created.html:34
+#: src/templates/recipient_order_created.html:46
+#, python-format
+msgid "Your download order with the <strong>%(config_name)s</strong> configuration"
+msgstr ""
+"Votre commande de la configuration <strong>%(config_name)s</strong> a échouée"
+
+#: src/templates/recipient_order_created.html:47
 #, python-format
 msgid ""
-"Your <strong>%(sd_size)sGB</strong> download order with the <strong>"
-"%(config_name)s</strong> configuration on it has been accepted by the system. "
-"Work duration depends on current server load, but your image should be ready "
-"within 24 hours at most."
+"Your order has been accepted by the system. Work duration depends on current "
+"server load, but your image should be ready within 24 hours at most."
 msgstr ""
-"Votre commande de téléchargement <strong>%(sd_size)sGB</strong> avec la "
-"configuration <strong>%(config_name)s</strong> a été acceptée par le système. La "
-"durée de préparation dépend de la taille de l'image et de la charge du serveur, "
-"mais votre commande devrait être prête dans les 24 heures au plus tard."
+"Votre commande a été acceptée par le système. La durée de préparation dépend de "
+"la taille de l'image et de la charge du serveur, mais votre commande devrait "
+"être prête dans les 24 heures au plus tard."
 
-#: src/templates/recipient_order_created.html:35
+#: src/templates/recipient_order_created.html:48
 msgid "You will be notified when it is ready for download."
 msgstr "Vous serez averti(e) lorsqu’elle sera prête à être téléchargée."
 
@@ -336,8 +353,8 @@ msgstr "Votre commande de <strong>%(quantity)s x %(sdcard_name)s</strong> carte(
 #: src/templates/recipient_order_failed.html:34
 #, python-format
 msgid ""
-"Your <strong>%(sdcard_size)sGB</strong> download order with the <strong>"
-"%(config_name)s</strong> configuration has failed to complete."
+"Your <strong>%(sdcard_size)sGB</strong> download order with the "
+"<strong>%(config_name)s</strong> configuration has failed to complete."
 msgstr ""
 "Votre commande de <strong>%(sdcard_size)sGB</strong> avec la configuration "
 "<strong>%(config_name)s</strong> a échouée."
@@ -363,8 +380,8 @@ msgstr "«%(config_name)s» expédiée !"
 #: src/templates/recipient_order_shipped.html:30
 #, python-format
 msgid ""
-"Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> with the <strong>"
-"%(config_name)s</strong> configuration on it has been shipped."
+"Your order of <strong>%(quantity)s x %(sdcard_name)s</strong> with the "
+"<strong>%(config_name)s</strong> configuration on it has been shipped."
 msgstr ""
 "Votre commande de <strong>%(quantity)s x %(sdcard_name)s</strong> avec la "
 "configuration <strong>%(config_name)s</strong> a été expédiée."
@@ -432,8 +449,8 @@ msgstr "«%(config_name)s» en échec !"
 
 #: src/templates/subject_order_new.txt:1
 #, python-format
-msgid "“%(config_name)s” has been created!"
-msgstr "«%(config_name)s» en cours de création !"
+msgid "“%(config_name)s” order confirmation"
+msgstr "Confirmation de commande pour «%(config_name)s»"
 
 #: src/templates/subject_order_shipped.txt:1
 #, python-format
@@ -493,3 +510,13 @@ msgstr "SOS depuis votre emplacement %(slot)s"
 
 #~ msgid "Your order has shipped!"
 #~ msgstr "Votre commande a été expédiée!"
+
+#~ msgid ""
+#~ "Your order of <strong>%(quantity)s x %(sd_name)s</strong> with the <strong>%"
+#~ "(config_name)s</strong> configuration on it has been accepted by the system."
+#~ msgstr ""
+#~ "Votre commande de <strong>%(quantity)s x %(sd_name)s</strong> avec la "
+#~ "configuration <strong>%(config_name)s</strong> a été acceptée par le système."
+
+#~ msgid "“%(config_name)s” has been created!"
+#~ msgstr "«%(config_name)s» en cours de création !"
