@@ -174,7 +174,7 @@ def on_imager_access_order():
     if (
         event != "created"
         or resource != "order"
-        or topic != "order.created"
+        or topic not in ("order.created", "order.updated")
         or not source.startswith(SHOP_WOO_API_URL)
     ):
         return jsonify(ignored=True)
