@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import datetime
 import logging
 import os
@@ -8,6 +6,8 @@ from urllib.parse import urlsplit
 
 import humanfriendly
 import requests
+from woocommerce import API
+
 from emailing import send_order_failed_email
 from routes.orders import create_order_from
 from utils.files import FileChecker
@@ -16,7 +16,6 @@ from utils.templates import (
     get_public_download_torrent_urls,
     get_public_download_urls,
 )
-from woocommerce import API
 
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org/api")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
@@ -25,12 +24,12 @@ RECREATE_AUTO_MONTHLY = bool(os.getenv("RECREATE_AUTO_MONTHLY", "") == "y")
 SHOP_WOO_API_URL = os.getenv("SHOP_WOO_API_URL", "https://get.kiwix.org/")
 SHOP_WOO_CONSUMER_KEY = os.getenv("SHOP_WOO_CONSUMER_KEY", "not-set")
 SHOP_WOO_CONSUMER_SECRET = os.getenv("SHOP_WOO_CONSUMER_SECRET", "not-set")
-LAST_CHECKED_UPLOADED_ON = datetime.datetime.now() - datetime.timedelta(
-    days=2
-)  # in past
-LAST_EXTENDED_EXPIRATIONS_ON = datetime.datetime.now() - datetime.timedelta(
-    days=2
-)  # in past
+LAST_CHECKED_UPLOADED_ON = datetime.datetime.now(
+    tz=datetime.timezone.utc
+) - datetime.timedelta(days=2)  # in past
+LAST_EXTENDED_EXPIRATIONS_ON = datetime.datetime.now(
+    tz=datetime.timezone.utc
+) - datetime.timedelta(days=2)  # in past
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -48,14 +47,18 @@ def get_wc_api():
 
 def get_next_month():
     """get next month's 1st day at 08:00"""
-    start_of_month = datetime.date(*datetime.date.today().timetuple()[:2], 1)
+    start_of_month =datetime.date(*datetime.datetime.now(tz=datetime.timezone.utc).date().timetuple()[:2], 1)
     return datetime.datetime(
-        *(start_of_month + datetime.timedelta(days=31)).timetuple()[:2], 1, 8, 0
+        *(start_of_month + datetime.timedelta(days=31)).timetuple()[:2],
+        1,
+        8,
+        0,
+        tzinfo=datetime.timezone.utc,
     )
 
 
 def is_expired(status, since, size=0):
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=datetime.timezone.utc)
     min_bps = int(humanfriendly.parse_size("4MiB") / 8)
 
     if status == Tasks.building:
@@ -85,10 +88,10 @@ def run_periodic_tasks():
         ls = task["statuses"][-1]
 
         if not is_expired(ls["status"], ls["on"], task_cls.get_size(task_id)):
-            logger.info("skipping non-expired task #{}".format(task_id))
+            logger.info(f"skipping non-expired task #{task_id}")
             continue
 
-        logger.info("timing out task #{}".format(task_id))
+        logger.info(f"timing out task #{task_id}")
 
         order = Orders().get_with_tasks(task["order"])
 
@@ -109,12 +112,12 @@ def run_periodic_tasks():
         send_order_failed_email(order["_id"])  # TODO: forward to task/order mgmt
 
     logger.info("Marking orders as expired")
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=datetime.timezone.utc)
 
     for order in Orders.all_pending_expiry():
         ls = order["statuses"][-1]
 
-        if not ls["status"] == Orders.pending_expiry:
+        if ls["status"] != Orders.pending_expiry:
             continue  # wrong timing
 
         if not order["sd_card"]["expiration"] < now:
@@ -216,7 +219,7 @@ def check_autoimages():
             order_id = create_order_from(payload)
         except Exception as exc:
             logger.error(f"Error creating image `{image['slug']}`: {exc}")
-            logger.exception(exc)
+            logger.exception("Error creating image")
             AutoImages.update_status(image["slug"], status="failed")
             continue
 
@@ -226,7 +229,7 @@ def check_autoimages():
 
 def extend_autoimages_expiration():
     # extended file expiration for images needing it
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=datetime.timezone.utc)
     if now < LAST_EXTENDED_EXPIRATIONS_ON + datetime.timedelta(days=1):
         logger.debug(
             f"Not extending uploaded files expiration ({LAST_EXTENDED_EXPIRATIONS_ON.isoformat()})"
@@ -250,7 +253,7 @@ def extend_autoimages_expiration():
 
 
 def delete_expired_files():
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=datetime.timezone.utc)
     if now < LAST_CHECKED_UPLOADED_ON + datetime.timedelta(days=1):
         logger.debug(
             f"Not checking uploaded files ({LAST_CHECKED_UPLOADED_ON.isoformat()})"
