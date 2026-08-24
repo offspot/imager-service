@@ -229,9 +229,10 @@ def check_autoimages():
 
 
 def extend_autoimages_expiration():
+    global LAST_EXTENDED_EXPIRATIONS_ON
     # extended file expiration for images needing it
     now = datetime.datetime.now(tz=datetime.timezone.utc)
-    if now < LAST_EXTENDED_EXPIRATIONS_ON + datetime.timedelta(days=1):
+    if now < (LAST_EXTENDED_EXPIRATIONS_ON + datetime.timedelta(days=1)):
         logger.debug(
             f"Not extending uploaded files expiration ({LAST_EXTENDED_EXPIRATIONS_ON.isoformat()})"
         )
@@ -252,6 +253,8 @@ def extend_autoimages_expiration():
                 )
             else:
                 logger.debug(f".. deletion scheduled for {fc.expire_on.isoformat()}")
+
+    LAST_EXTENDED_EXPIRATIONS_ON = now
 
 
 def delete_expired_files():
