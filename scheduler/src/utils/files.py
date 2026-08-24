@@ -121,7 +121,7 @@ class FileChecker:
     def extend_if_expiring_soon(self) -> bool:
         """extend expiration date if it's close to expiration"""
         try:
-            self.expire_on
+            self.reload_expiry()
         except (MarkerNotFound, InvalidExpirationDate):
             # missing or not invalid?
             logger.error(f"Missing or invalid marker for {self.file['download_url']}")
@@ -157,9 +157,10 @@ class FileChecker:
     def remove_if_expired(self) -> bool:
         """remove file both from storage and DB is it expired"""
         try:
-            self.expire_on
+            self.reload_expiry()
         except (MarkerNotFound, InvalidExpirationDate):
-            return self.remove_file_and_entry()
+            logger.error(f"Missing or invalid marker for {self.file['download_url']}")
+            return False
         except Exception as exc:
             # network error? log
             logger.error(
