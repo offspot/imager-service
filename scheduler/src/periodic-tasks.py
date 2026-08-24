@@ -242,6 +242,7 @@ def extend_autoimages_expiration():
     for image in AutoImages.all_ready():
         logger.info(f"> {image['slug']}")
         for file in AutoImages.get_uploaded_files(image["slug"]):
+            logger.info(f">> {file['_id']} – {file['download_url']}")
             fc = FileChecker(file)
             if fc.extend_if_expiring_soon():
                 logger.info(

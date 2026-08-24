@@ -1,3 +1,23 @@
+"""AutoImage auto-delete feature
+
+When an image is built, a `.delete_on` mark is created alonside.
+It contains a datetime of expiration (usually two weeks from upload date)
+The Image URL(s) are stored in UploadedFiles
+
+Periodic tasks lists UploadedFiles and check the `.delete_on` for each.
+If a date is in the past, the file is removed from the backend and the UploadedFiles
+entry is removed as well.
+
+Autoimages, we want them around until a new version comes in.
+Periodic tasks, for each auto-image, find the related UploadedFiles and extend the expiration:
+- If the expiration date is under a threshold (max_renewable = 40d)
+- Then the expiration date is bumped by extend_for_days = 10d
+
+When a new auto-image is built, the previous UploadedFiles won't be referenced in that
+previous step and thus won't be extended anymore.
+At some point, expiration date will be reached and files+db entries will be removed.
+"""
+
 import datetime
 import logging
 import os
@@ -81,14 +101,17 @@ class FileChecker:
     @property
     def max_renewal_date(self):
         """date in the future after which expiration extension is required"""
-        return datetime.datetime.now() + datetime.timedelta(
+        return datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(
             days=self.extend_before_days
         )
 
     @property
     def next_expiration_on(self):
         """date to expire at based on previous expiration and constant (nb days)"""
-        return datetime.datetime.now() + datetime.timedelta(days=self.extend_for_days)
+        try:
+            return self.expire_on + datetime.timedelta(days=self.extend_for_days)
+        except Exception:
+            return self.max_renewal_date + datetime.timedelta(days=self.extend_for_days)
 
     @property
     def expire_on(self) -> datetime.datetime:
@@ -106,9 +129,9 @@ class FileChecker:
             self.expire_on
         except (MarkerNotFound, InvalidExpirationDate):
             # set in past so considered expired
-            self.expire_on = datetime.datetime.now() - datetime.timedelta(
-                days=self.extend_before_days, minutes=1
-            )
+            self.expire_on = datetime.datetime.now(
+                tz=datetime.timezone.utc
+            ) - datetime.timedelta(days=self.extend_before_days, minutes=1)
         except Exception as exc:
             # network error? log
             logger.error(
@@ -150,7 +173,8 @@ class FileChecker:
             )
             return False
 
-        if self.expire_on < datetime.datetime.now():
+        if self.expire_on < datetime.datetime.now(tz=datetime.timezone.utc):
+            logger.debug(f"{self.expire_on=} is in the past. removing.")
             return self.remove_file_and_entry()
 
         return False
@@ -198,6 +222,8 @@ class FileChecker:
         resp.raise_for_status()
 
         try:
-            return datetime.datetime.fromisoformat(resp.text)
+            return datetime.datetime.fromisoformat(resp.text).astimezone(
+                tz=datetime.timezone.utc
+            )
         except Exception:
             raise InvalidExpirationDate()
