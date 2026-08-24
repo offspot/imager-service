@@ -65,18 +65,18 @@ def is_expired(status, since, size=0):
     min_bps = int(humanfriendly.parse_size("4MiB") / 8)
 
     if status == Tasks.building:
-        return since.astimezone(tz=datetime.timezone.utc) < now - datetime.timedelta(
-            hours=36
+        return since.astimezone(tz=datetime.timezone.utc) < (
+            now - datetime.timedelta(hours=36)
         )
 
     if status == Tasks.wiping_sdcard:
-        return since.astimezone(tz=datetime.timezone.utc) < now - datetime.timedelta(
-            minutes=30
+        return since.astimezone(tz=datetime.timezone.utc) < (
+            now - datetime.timedelta(minutes=30)
         )
 
     if status in (Tasks.uploading, Tasks.downloading, Tasks.writing):
-        return since.astimezone(tz=datetime.timezone.utc) < now - datetime.timedelta(
-            seconds=int(size / min_bps)
+        return since.astimezone(tz=datetime.timezone.utc) < (
+            now - datetime.timedelta(seconds=int(size / min_bps))
         )
 
 
@@ -129,7 +129,7 @@ def run_periodic_tasks():
         if ls["status"] != Orders.pending_expiry:
             continue  # wrong timing
 
-        if not order["sd_card"]["expiration"] < now:
+        if not order["sd_card"]["expiration"].astimezone(datetime.timezone.utc) < now:
             continue  # expiration not reached
 
         logger.info("Order #{} has reach expiration.".format(order["_id"]))
