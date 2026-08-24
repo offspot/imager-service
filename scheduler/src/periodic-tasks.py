@@ -254,8 +254,9 @@ def extend_autoimages_expiration():
 
 
 def delete_expired_files():
+    global LAST_CHECKED_UPLOADED_ON
     now = datetime.datetime.now(tz=datetime.timezone.utc)
-    if now < LAST_CHECKED_UPLOADED_ON + datetime.timedelta(days=1):
+    if now < (LAST_CHECKED_UPLOADED_ON + datetime.timedelta(days=1)):
         logger.debug(
             f"Not checking uploaded files ({LAST_CHECKED_UPLOADED_ON.isoformat()})"
         )
@@ -273,6 +274,8 @@ def delete_expired_files():
     for file in UploadedFiles().find({"status": "confirmed"}):
         if FileChecker(file).remove_if_expired():
             logger.info(f"Removed expired file {file['_id']!s}")
+
+    LAST_CHECKED_UPLOADED_ON = now
 
 
 if __name__ == "__main__":
