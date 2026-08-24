@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import tempfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -24,17 +25,47 @@ RECREATE_AUTO_MONTHLY = bool(os.getenv("RECREATE_AUTO_MONTHLY", "") == "y")
 SHOP_WOO_API_URL = os.getenv("SHOP_WOO_API_URL", "https://get.kiwix.org/")
 SHOP_WOO_CONSUMER_KEY = os.getenv("SHOP_WOO_CONSUMER_KEY", "not-set")
 SHOP_WOO_CONSUMER_SECRET = os.getenv("SHOP_WOO_CONSUMER_SECRET", "not-set")
-LAST_CHECKED_UPLOADED_ON = datetime.datetime.now(
-    tz=datetime.timezone.utc
-) - datetime.timedelta(days=2)  # in past
-LAST_EXTENDED_EXPIRATIONS_ON = datetime.datetime.now(
-    tz=datetime.timezone.utc
-) - datetime.timedelta(days=2)  # in past
-
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("periodic-tasks")
 logger.setLevel(logging.DEBUG)
+
+
+class DateRecorder:
+    def __init__(self, name: str, fallback: datetime.datetime):
+        self.name = name
+        self.value = None
+        self.fallback = fallback
+
+    def get(self) -> datetime.datetime:
+        if self.value:
+            return self.value
+        fpath = Path(tempfile.gettempdir()).joinpath(self.name)
+        try:
+            self.value = datetime.datetime.fromisoformat(
+                fpath.read_text().strip()
+            ).astimezone(tz=datetime.timezone.utc)
+        except Exception as exc:
+            logger.warning(f"Failed to read {fpath}: {exc}")
+            return self.fallback
+        return self.value
+
+    def set(self, value: datetime.datetime):
+        fpath = Path(tempfile.gettempdir()).joinpath(self.name)
+        try:
+            fpath.write_text(value.isoformat())
+        except Exception as exc:
+            logger.error(f"Failed to write {fpath}: {exc}")
+        self.value = value
+
+
+now = datetime.datetime.now(tz=datetime.timezone.utc)
+LAST_CHECKED_UPLOADED_ON: DateRecorder = DateRecorder(
+    "LAST_CHECKED_UPLOADED_ON", now - datetime.timedelta(days=1)
+)
+LAST_EXTENDED_EXPIRATIONS_ON = DateRecorder(
+    "LAST_EXTENDED_EXPIRATIONS_ON", now - datetime.timedelta(days=1)
+)
 
 
 def get_wc_api():
@@ -237,12 +268,11 @@ def check_autoimages():
 
 
 def extend_autoimages_expiration():
-    global LAST_EXTENDED_EXPIRATIONS_ON
     # extended file expiration for images needing it
     now = datetime.datetime.now(tz=datetime.timezone.utc)
-    if now < (LAST_EXTENDED_EXPIRATIONS_ON + datetime.timedelta(days=1)):
+    if now < (LAST_EXTENDED_EXPIRATIONS_ON.get() + datetime.timedelta(days=1)):
         logger.debug(
-            f"Not extending uploaded files expiration ({LAST_EXTENDED_EXPIRATIONS_ON.isoformat()})"
+            f"Not extending uploaded files expiration ({LAST_EXTENDED_EXPIRATIONS_ON.get().isoformat()})"
         )
         return
 
@@ -262,15 +292,14 @@ def extend_autoimages_expiration():
             else:
                 logger.debug(f".. deletion scheduled for {fc.expire_on.isoformat()}")
 
-    LAST_EXTENDED_EXPIRATIONS_ON = now
+    LAST_EXTENDED_EXPIRATIONS_ON.set(now)
 
 
 def delete_expired_files():
-    global LAST_CHECKED_UPLOADED_ON
     now = datetime.datetime.now(tz=datetime.timezone.utc)
-    if now < (LAST_CHECKED_UPLOADED_ON + datetime.timedelta(days=1)):
+    if now < (LAST_CHECKED_UPLOADED_ON.get() + datetime.timedelta(days=1)):
         logger.debug(
-            f"Not checking uploaded files ({LAST_CHECKED_UPLOADED_ON.isoformat()})"
+            f"Not checking uploaded files ({LAST_CHECKED_UPLOADED_ON.get().isoformat()})"
         )
         return
     logger.info("Checking Uploaded files…")
@@ -287,7 +316,7 @@ def delete_expired_files():
         if FileChecker(file).remove_if_expired():
             logger.info(f"Removed expired file {file['_id']!s}")
 
-    LAST_CHECKED_UPLOADED_ON = now
+    LAST_CHECKED_UPLOADED_ON.set(now)
 
 
 if __name__ == "__main__":
