@@ -33,7 +33,8 @@ LAST_EXTENDED_EXPIRATIONS_ON = datetime.datetime.now(
 
 
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("periodic-tasks")
+logger.setLevel(logging.DEBUG)
 
 
 def get_wc_api():
