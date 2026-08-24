@@ -48,7 +48,9 @@ def get_wc_api():
 
 def get_next_month():
     """get next month's 1st day at 08:00"""
-    start_of_month =datetime.date(*datetime.datetime.now(tz=datetime.timezone.utc).date().timetuple()[:2], 1)
+    start_of_month = datetime.date(
+        *datetime.datetime.now(tz=datetime.timezone.utc).date().timetuple()[:2], 1
+    )
     return datetime.datetime(
         *(start_of_month + datetime.timedelta(days=31)).timetuple()[:2],
         1,
@@ -63,13 +65,19 @@ def is_expired(status, since, size=0):
     min_bps = int(humanfriendly.parse_size("4MiB") / 8)
 
     if status == Tasks.building:
-        return since < now - datetime.timedelta(hours=36)
+        return since.astimezone(tz=datetime.timezone.utc) < now - datetime.timedelta(
+            hours=36
+        )
 
     if status == Tasks.wiping_sdcard:
-        return since < now - datetime.timedelta(minutes=30)
+        return since.astimezone(tz=datetime.timezone.utc) < now - datetime.timedelta(
+            minutes=30
+        )
 
     if status in (Tasks.uploading, Tasks.downloading, Tasks.writing):
-        return since < now - datetime.timedelta(seconds=int(size / min_bps))
+        return since.astimezone(tz=datetime.timezone.utc) < now - datetime.timedelta(
+            seconds=int(size / min_bps)
+        )
 
 
 def run_periodic_tasks():
