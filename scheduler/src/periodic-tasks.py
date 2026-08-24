@@ -283,11 +283,10 @@ def extend_autoimages_expiration():
         for file in AutoImages.get_uploaded_files(image["slug"]):
             logger.info(f">> {file['_id']} – {file['download_url']}")
             fc = FileChecker(file)
+            logger.debug(f">>> {fc.expire_on.isoformat()}")
             if fc.extend_if_expiring_soon():
                 logger.info(
-                    f".. extended by {fc.extend_for_days} days "
-                    f"from {fc.expire_on} "
-                    f"to {fc.next_expiration_on.isoformat()}"
+                    f".. extended by {fc.extend_for_days} days from {fc.expire_on}"
                 )
             else:
                 logger.debug(f".. deletion scheduled for {fc.expire_on.isoformat()}")
@@ -309,12 +308,15 @@ def delete_expired_files():
     for file in UploadedFiles().find(
         {"status": "pending", "created_on": {"$lte": a_week_ago}}
     ):
-        logger.info(f"Removing pending state {file['_id']!s}")
+        logger.info(f"Removing pending state {file['_id']!s} -- {file['download_url']}")
         FileChecker(file).remove_anyway()
 
     for file in UploadedFiles().find({"status": "confirmed"}):
-        if FileChecker(file).remove_if_expired():
+        fc = FileChecker(file)
+        if fc.remove_if_expired():
             logger.info(f"Removed expired file {file['_id']!s}")
+        else:
+            logger.debug(f"{file['_id']!s} expires on {fc.expire_on.isoformat()}")
 
     LAST_CHECKED_UPLOADED_ON.set(now)
 

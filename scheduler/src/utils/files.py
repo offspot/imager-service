@@ -10,8 +10,8 @@ entry is removed as well.
 
 Autoimages, we want them around until a new version comes in.
 Periodic tasks, for each auto-image, find the related UploadedFiles and extend the expiration:
-- If the expiration date is under a threshold (max_renewable = 40d)
-- Then the expiration date is bumped by extend_for_days = 10d
+- If the expiration date is under a threshold (max_renewable = 5d)
+- Then the expiration date is set to now + extend_for_days = 10d
 
 When a new auto-image is built, the previous UploadedFiles won't be referenced in that
 previous step and thus won't be extended anymore.
@@ -106,18 +106,13 @@ class FileChecker:
         )
 
     @property
-    def next_expiration_on(self):
-        """date to expire at based on previous expiration and constant (nb days)"""
-        try:
-            return self.expire_on + datetime.timedelta(days=self.extend_for_days)
-        except Exception:
-            return self.max_renewal_date + datetime.timedelta(days=self.extend_for_days)
-
-    @property
     def expire_on(self) -> datetime.datetime:
         if not hasattr(self, "_expire_on"):
-            self._expire_on = self.get_expiry()
+            self.reload_expiry()
         return self._expire_on
+
+    def reload_expiry(self):
+        self._expire_on = self.get_expiry()
 
     @expire_on.setter
     def expire_on(self, on: datetime.datetime):
