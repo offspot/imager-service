@@ -128,10 +128,9 @@ class FileChecker:
         try:
             self.expire_on
         except (MarkerNotFound, InvalidExpirationDate):
-            # set in past so considered expired
-            self.expire_on = datetime.datetime.now(
-                tz=datetime.timezone.utc
-            ) - datetime.timedelta(days=self.extend_before_days, minutes=1)
+            # missing or not invalid?
+            logger.error(f"Missing or invalid marker for {self.file['download_url']}")
+            return False
         except Exception as exc:
             # network error? log
             logger.error(
