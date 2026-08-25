@@ -27,7 +27,7 @@ files:
       check_after: 90d
       eviction: lru
     # offspot drive (support files) follow a strict publishing policy (no overrides)
-    - pattern: ^https://drive.(offspot.it|farm.openzim.org)/
+    - pattern: ^https://drive.(hotspot.kiwix.org|offspot.it|farm.openzim.org)/
       check_after: 30d
       eviction: lru
     # dont cache other files (file-manager support files, branding, etc)
