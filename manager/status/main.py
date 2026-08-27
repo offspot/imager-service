@@ -237,7 +237,9 @@ def get_worker_status(workers_list: list[dict[str, Any]] | None) -> bool:
     - authenticates to the API
     - retrieves the list of workers
     - ensures at least one has been seen in last 15mn"""
-    fifteen_ago = datetime.datetime.now() - datetime.timedelta(minutes=15)
+    fifteen_ago = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(
+        minutes=15
+    )
     if not workers_list:
         return False
     try:
@@ -245,7 +247,9 @@ def get_worker_status(workers_list: list[dict[str, Any]] | None) -> bool:
             [
                 worker
                 for worker in workers_list
-                if datetime.datetime.fromisoformat(worker["on"].replace("Z", ""))
+                if datetime.datetime.fromisoformat(
+                    worker["on"].replace("Z", "")
+                ).astimezone(datetime.UTC)
                 >= fifteen_ago
             ]
         )
@@ -381,10 +385,11 @@ def get_images_deletion_status(
 
     url = os.getenv("STATUS_CARDSHOP_API_URL", "")
 
+    fail_from = datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(
+        days=FAIL_AUTOIMAGES_IF_DELETING_IN_DAYS
+    )
+
     try:
-        fail_from = datetime.datetime.now() + datetime.timedelta(
-            days=FAIL_AUTOIMAGES_IF_DELETING_IN_DAYS
-        )
         for image in autoimages:
             resp = requests.get(
                 f"{url}/auto-images/{image['slug']}",
@@ -395,7 +400,9 @@ def get_images_deletion_status(
                 timeout=WASABI_HTTP_TIMEOUT,
             )
             resp.raise_for_status()
-            delete_on = datetime.datetime.fromisoformat(resp.json()["autodelete_on"])
+            delete_on = datetime.datetime.fromisoformat(
+                resp.json()["autodelete_on"]
+            ).astimezone(datetime.UTC)
             if delete_on <= fail_from:
                 return False
 
@@ -426,8 +433,10 @@ def get_creatorload_status(access_token: str) -> bool:
             return False
         completes_on = datetime.datetime.fromisoformat(
             load["estimated_completion"].replace("Z", "")
-        )
-        return (completes_on - datetime.datetime.now()).total_seconds() <= two_days
+        ).astimezone(datetime.UTC)
+        return (
+            completes_on - datetime.datetime.now(tz=datetime.UTC)
+        ).total_seconds() <= two_days
     except Exception as exc:
         logger.debug(f"Unable to get creators load: {exc}")
         return False
