@@ -3,7 +3,6 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from urllib.parse import urlsplit
 
 import humanfriendly
 import requests
@@ -196,25 +195,28 @@ def check_autoimages():
             # not all images are product on the shop
             if image.get("woo_id"):
                 downloads = []
-                for index, http_url in enumerate(http_urls):
-                    downloads.append(
-                        {
-                            "id": f"http_url{index}",
-                            "name": Path(urlsplit(http_url).path).name,
-                            "file": http_url,
-                        }
-                    )
 
                 for index, torrent_url in enumerate(torrent_urls):
                     downloads.append(
                         {
                             "id": f"torrent_url{index}",
-                            "name": Path(urlsplit(torrent_url).path).name,
+                            "name": "Torrent",
+                            # "name": Path(urlsplit(torrent_url).path).name,
                             "file": torrent_url,
                         }
                     )
                     # we only need one torrent in the shop
                     break
+
+                for index, http_url in enumerate(http_urls):
+                    downloads.append(
+                        {
+                            "id": f"http_url{index}",
+                            "name": f"HTTP {index}",
+                            # "name": Path(urlsplit(http_url).path).name,
+                            "file": http_url,
+                        }
+                    )
 
                 if not downloads:
                     logger.error(f".. No download URLs for product={image['woo_id']}")
