@@ -2,17 +2,23 @@ FROM docker.io/library/python:3.11-slim-bookworm
 LABEL org.opencontainers.image.source=https://github.com/offspot/imager-service
 
 ARG GIT_REV
+ARG TARGETPLATFORM
 
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN echo "UTC" > /etc/timezone
-RUN apt-get update -y \
+RUN echo "TARGETPLATFORM: $TARGETPLATFORM" && \
+    if [ "$TARGETPLATFORM" = "linux/arm64/v8" \
+        -o "$TARGETPLATFORM" = "linux/arm64" ]; then ARCH="arm64"; \
+    else ARCH="amd64"; fi \
+    # linux/arm64/v8 points to linux/arm64 \
+    && apt-get update -y \
     && apt-get -y --no-install-recommends install \
         curl git-core \
-        python3-dev default-libmysqlclient-dev build-essential pkg-config \
+        python3-dev default-libmysqlclient-dev build-essential pkg-config libpcre3-dev \
         cron libmagic1 \
         supervisor \
-    && curl -o /tmp/caddy_2.7.4_linux_amd64.deb -L https://github.com/caddyserver/caddy/releases/download/v2.7.4/caddy_2.7.4_linux_amd64.deb \
-    && dpkg -i /tmp/caddy_2.7.4_linux_amd64.deb \
+    && curl -o /tmp/caddy_2.7.4_linux_${ARCH}.deb -L https://github.com/caddyserver/caddy/releases/download/v2.7.4/caddy_2.7.4_linux_${ARCH}.deb \
+    && dpkg -i /tmp/caddy_2.7.4_linux_${ARCH}.deb \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /lib/systemd/system/supervisor.service \
@@ -26,6 +32,7 @@ RUN apt-get update -y \
 RUN curl -L -O https://files.pythonhosted.org/packages/a7/4e/c4d5559b3504bb65175a759392b03cac04b8771e9a9b14811adf1151f02f/uwsgi-2.0.22.tar.gz \
     && tar xf uwsgi-2.0.22.tar.gz \
     && cd uwsgi-2.0.22 \
+    && python uwsgiconfig.py --build \
     && python uwsgiconfig.py -p plugins/http \
     && python uwsgiconfig.py -p plugins/python \
     && mkdir -p /usr/local/lib/uwsgi \
