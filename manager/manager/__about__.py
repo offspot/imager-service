@@ -18,7 +18,7 @@ def get_git_ident() -> str | None:
     return None
 
 
-__version__ = "2026-032"
+__version__ = "2026-09"
 __tech_version__ = get_git_ident()
 
 
