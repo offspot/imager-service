@@ -125,3 +125,10 @@ dev_cont_db/
 media
 
 .reg/
+
+run.sh
+*.key
+known_hosts
+testemail.py
+testwebhook.py
+user_stats.py
