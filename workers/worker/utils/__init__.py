@@ -1,16 +1,15 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import io
-import re
-import sys
-import logging
-import subprocess
-
 import hashlib
+import io
+import logging
+import re
+import subprocess
+import sys
 
 import requests
+from .setting import Setting
 
 ONE_KiB = 2**10
 ONE_MiB = 2**20
@@ -67,6 +66,7 @@ def stream(url, write_to=None, callback=None, block_size=1024):
 
     # prepare adapter so it retries on failure
     session = requests.Session()
+    session.headers.update({"User-Agent": Setting.user_agent})
     # retries up-to FAILURE_RETRIES whichever kind of listed error
     retries = requests.packages.urllib3.util.retry.Retry(
         total=FAILURE_RETRIES,  # total number of retries
@@ -102,9 +102,7 @@ def stream(url, write_to=None, callback=None, block_size=1024):
 
     if total_size != 0 and total_downloaded != total_size:
         raise AssertionError(
-            "Downloaded size is different than expected ({} vs {})".format(
-                total_downloaded, total_size
-            )
+            f"Downloaded size is different than expected ({total_downloaded} vs {total_size})"
         )
 
     return total_downloaded, write_to if write_to else fd

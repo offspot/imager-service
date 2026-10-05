@@ -30,6 +30,8 @@ class Setting:
     s3_access_key = None
     s3_secret_key = None
 
+    user_agent = "kiwix-bot/1.0.0 (hotspot-imager-worker)"
+
     @classmethod
     def get_timer(cls, interval):
         return list(range(0, interval))

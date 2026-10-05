@@ -1,6 +1,6 @@
+import datetime
 import json
 import logging
-import datetime
 
 import requests
 
@@ -17,6 +17,8 @@ REFRESH_TOKEN_EXPIRY = None
 WORKER_TYPE = "creator"
 
 logger = logging.getLogger(__name__)
+session = requests.Session()
+session.headers.update({"User-Agent": Setting.user_agent})
 
 
 class SchedulerAPIError(Exception):
@@ -33,7 +35,7 @@ def get_access_token():
 
 
 def get_token(username, password):
-    req = requests.post(
+    req = session.post(
         url=get_url("/auth/authorize"),
         headers={
             "username": username,
@@ -56,7 +58,7 @@ def authenticate(force=False):
     ):
         return
 
-    logger.debug("authenticate() with force={}".format(force))
+    logger.debug(f"authenticate() with force={force}")
 
     try:
         access_token, refresh_token = get_token(
@@ -86,7 +88,7 @@ def get_token_headers():
 @auth_required
 def query_api(method, path, payload=None):
     try:
-        req = getattr(requests, method.lower(), requests.get)(
+        req = getattr(session, method.lower(), session.get)(
             url=get_url(path),
             headers=get_token_headers(),
             json=payload,
@@ -96,7 +98,7 @@ def query_api(method, path, payload=None):
         import traceback
 
         print(traceback.format_exc())
-        return (False, "ConnectionError", "ConnectionErrorL -- {}".format(exp))
+        return (False, "ConnectionError", f"ConnectionErrorL -- {exp}")
 
     try:
         resp = req.json() if req.text else {}
@@ -104,13 +106,13 @@ def query_api(method, path, payload=None):
         return (
             False,
             req.status_code,
-            "ResponseError (not JSON): -- {}".format(req.text),
+            f"ResponseError (not JSON): -- {req.text}",
         )
     except Exception as exp:
         return (
             False,
             req.status_code,
-            "ResponseError -- {} -- {}".format(str(exp), req.text),
+            f"ResponseError -- {exp!s} -- {req.text}",
         )
 
     if req.status_code in (200, 201):
@@ -130,22 +132,20 @@ def test_connection():
 
 @auth_required
 def get_available_tasks(slot=None):
-    success, code, response = query_api(GET, "/tasks/{}".format(WORKER_TYPE))
+    success, code, response = query_api(GET, f"/tasks/{WORKER_TYPE}")
     return success, response
 
 
 @auth_required
 def get_task(task_id):
-    success, code, response = query_api(
-        GET, "/tasks/{type}/{id}".format(type=WORKER_TYPE, id=task_id)
-    )
+    success, code, response = query_api(GET, f"/tasks/{WORKER_TYPE}/{task_id}")
     return success, response
 
 
 @auth_required
 def request_task(task_id):
     success, code, response = query_api(
-        PATCH, "/tasks/{type}/{id}/request".format(type=WORKER_TYPE, id=task_id)
+        PATCH, f"/tasks/{WORKER_TYPE}/{task_id}/request"
     )
     return success, response
 
@@ -155,7 +155,7 @@ def update_task_status(task_id, status, log=None, extra={}):
     payload = {"status": status, "log": log, "extra": extra}
     success, code, response = query_api(
         PATCH,
-        "/tasks/{type}/{id}/status".format(type=WORKER_TYPE, id=task_id),
+        f"/tasks/{WORKER_TYPE}/{task_id}/status",
         payload=payload,
     )
     return success, response
@@ -169,7 +169,7 @@ def upload_logs(task_id, logs={}):
 
     success, code, response = query_api(
         POST,
-        "/tasks/{type}/{id}/logs".format(type=WORKER_TYPE, id=task_id),
+        f"/tasks/{WORKER_TYPE}/{task_id}/logs",
         payload=logs,
     )
     return success, response
