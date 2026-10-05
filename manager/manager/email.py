@@ -9,6 +9,8 @@ import requests
 from django.conf import settings
 from werkzeug.datastructures import MultiDict
 
+from manager.http import session
+
 logger = logging.getLogger(__name__)
 
 
@@ -31,7 +33,7 @@ def send_mailgun_email(
     values += [("bcc", bcc if isinstance(bcc, list | tuple) else [bcc])]
     data = MultiDict(values)
 
-    resp = requests.post(
+    resp = session.post(
         url=f"{settings.MAILGUN_API_URL}/messages",
         auth=("api", settings.MAILGUN_API_KEY),
         data=data,

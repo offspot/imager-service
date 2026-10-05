@@ -20,6 +20,8 @@ import xmltodict
 from offspot_config.inputs.checksum import Checksum
 from offspot_config.zim import ZimPackage
 
+from manager.http import session
+
 CATALOG_URL = os.getenv("CATALOG_URL", "https://opds.library.kiwix.org")
 UPDATE_EVERY_SECONDS: int = int(os.getenv("UPDATE_EVERY_SECONDS", "3600"))
 RE_ILLUS_UUID = re.compile(
@@ -231,7 +233,7 @@ class Catalog:
         books: dict[str, Book] = {}
         langs: dict[str, list[str]] = {}
         try:
-            resp = requests.get(
+            resp = session.get(
                 f"{CATALOG_URL}/v2/entries",
                 params={"count": "-1"},
                 timeout=30,

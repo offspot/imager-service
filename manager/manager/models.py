@@ -46,6 +46,7 @@ except ImportError:
     # we don't NEED cython ext but it's faster so use it if avail.
     from yaml import SafeLoader
 
+from manager.http import session
 from manager.kiwix_library import catalog
 from manager.scheduler import (
     SchedulerAPIError,
@@ -745,7 +746,7 @@ def validate_admin_pwd(value):
 
 def validate_fileresources_url(value):
     try:
-        resp = requests.get(value, stream=True, timeout=5)
+        resp = session.get(value, stream=True, timeout=5)
     except Exception as exc:
         raise ValidationError(
             _("%(value)s is not a reachable URL"),

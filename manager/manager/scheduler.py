@@ -9,6 +9,8 @@ import logging
 import requests
 from django.conf import settings
 
+from manager.http import session
+
 GET = "GET"
 POST = "POST"
 PATCH = "PATCH"
@@ -46,7 +48,7 @@ def get_url(path):
 
 
 def get_token(username, password):
-    req = requests.post(
+    req = session.post(
         url=get_url("/auth/authorize"),
         headers={
             "username": username,
@@ -97,7 +99,7 @@ def get_token_headers():
 @auth_required
 def query_api(method, path, payload=None, params=None):
     try:
-        req = getattr(requests, method.lower(), requests.get)(
+        req = getattr(session, method.lower(), session.get)(
             url=get_url(path), headers=get_token_headers(), json=payload, params=params
         )
     except Exception as exp:
@@ -161,7 +163,13 @@ def get_user_detail(user_id):
 
 @auth_required
 def add_user(
-    username, email, password, role, channel, *, is_admin=False  # noqa: ARG001
+    username,
+    email,
+    password,
+    role,
+    channel,
+    *,
+    is_admin=False,  # noqa: ARG001
 ):
     payload = {
         "username": username,
