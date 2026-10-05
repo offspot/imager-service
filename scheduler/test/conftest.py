@@ -1,5 +1,5 @@
 import pytest
-import requests
+from utils.http import session
 
 
 @pytest.fixture(scope="module")
@@ -9,7 +9,7 @@ def root() -> str:
 
 @pytest.fixture(scope="class")
 def authorize(root):
-    response = requests.post(
+    response = session.post(
         url=root + "/auth/authorize",
         headers={"username": "admin", "password": "admin_pass"},
     )

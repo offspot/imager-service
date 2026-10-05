@@ -4,13 +4,12 @@ import os
 import pathlib
 from collections.abc import Sequence
 from contextlib import contextmanager
-from typing import Optional
 
-import requests
 import yaml
 from babel.dates import format_datetime
 from babel.support import Translations
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from utils.http import session
 from utils.mongo import Acknowlegments, Channels, Orders, Users, WriterTasks
 from utils.templates import (
     country_name,
@@ -96,11 +95,11 @@ def send_email_via_api(
     to,
     subject,
     contents,
-    cc: Optional[Sequence] = None,
-    bcc: Optional[Sequence] = None,
-    headers: Optional[dict] = None,
-    attachments: Optional[Sequence] = None,
-    on: Optional[datetime.datetime] = None,
+    cc: Sequence | None = None,
+    bcc: Sequence | None = None,
+    headers: dict | None = None,
+    attachments: Sequence | None = None,
+    on: datetime.datetime | None = None,
 ):
     values = [
         ("from", os.getenv("MAIL_FROM", "imager@kiwix.org")),
@@ -120,7 +119,7 @@ def send_email_via_api(
         values += [("o:deliverytime", on.strftime("%a, %d %b %Y %H:%M:%S -0000"))]
     data = MultiDict(values)
 
-    resp = requests.post(
+    resp = session.post(
         url=os.getenv("MAILGUN_API_URL") + "/messages",
         auth=("api", os.getenv("MAILGUN_API_KEY")),
         data=data,
@@ -141,11 +140,11 @@ def send_email(
     to,
     subject,
     contents,
-    cc: Optional[Sequence] = None,
-    bcc: Optional[Sequence] = None,
-    headers: Optional[dict] = None,
-    attachments: Optional[Sequence] = None,
-    on: Optional[datetime.datetime] = None,
+    cc: Sequence | None = None,
+    bcc: Sequence | None = None,
+    headers: dict | None = None,
+    attachments: Sequence | None = None,
+    on: datetime.datetime | None = None,
     copy_support=True,
 ):
 
@@ -176,11 +175,11 @@ def send_email(
             on=on,
         )
     except Exception as exp:
-        logger.error("Unable to send email: {}".format(exp))
+        logger.error(f"Unable to send email: {exp}")
         logger.exception(exp)
 
 
-def get_full_context(order_id, extra: Optional[dict] = None):
+def get_full_context(order_id, extra: dict | None = None):
     order = Orders().get_with_tasks(order_id, {"logs": 0})
     order.update(
         {
@@ -196,12 +195,12 @@ def get_full_context(order_id, extra: Optional[dict] = None):
 
 
 def get_order_status_update_template(status):
-    return "email_order_{}.html".format(status)
+    return f"email_order_{status}.html"
 
 
 def get_email_for(order_id, kind, formatted=True):
     def _fmt(name, email):
-        return "{name} <{email}>".format(name=name, email=email)
+        return f"{name} <{email}>"
 
     if kind not in ("client", "recipient", "operator", "error-manager"):
         return None, "en_GB"
@@ -250,11 +249,11 @@ def send_order_email_for(
     subject_tmpl,
     content_tmpl,
     to,
-    cc: Optional[Sequence] = None,
-    bcc: Optional[Sequence] = None,
-    attachments: Optional[Sequence] = None,
-    extra: Optional[dict] = None,
-    on: Optional[datetime.datetime] = None,
+    cc: Sequence | None = None,
+    bcc: Sequence | None = None,
+    attachments: Sequence | None = None,
+    extra: dict | None = None,
+    on: datetime.datetime | None = None,
 ):
     to, lang = get_email_for(order_id, kind=to)
     with localized_for(lang):
@@ -266,12 +265,8 @@ def send_order_email_for(
         except:
             context["order_entries"] = context["order"]["config"]["content"]["zims"]
 
-        subject = jinja_env.get_template("{}.txt".format(subject_tmpl)).render(
-            **context
-        )
-        content = jinja_env.get_template("{}.html".format(content_tmpl)).render(
-            **context
-        )
+        subject = jinja_env.get_template(f"{subject_tmpl}.txt").render(**context)
+        content = jinja_env.get_template(f"{content_tmpl}.html").render(**context)
 
     cc = ([cc] if isinstance(cc, str) else cc) or []
     bcc = ([bcc] if isinstance(bcc, str) else bcc) or []

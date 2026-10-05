@@ -16,6 +16,7 @@ from utils.templates import (
     get_public_download_torrent_urls,
     get_public_download_urls,
 )
+from utils.http import session
 
 MANAGER_API_URL = os.getenv("MANAGER_API_URL", "https://imager.kiwix.org/api")
 MANAGER_ACCOUNTS_API_TOKEN = os.getenv("MANAGER_ACCOUNTS_API_TOKEN")
@@ -249,7 +250,7 @@ def check_autoimages():
         payload = AutoImages.create_order_payload(image["slug"])
         try:
             # retrieve up-to-date YAML from stored JSON config
-            resp = requests.post(
+            resp = session.post(
                 f"{MANAGER_API_URL}/json-to-yaml",
                 headers={"Token": MANAGER_ACCOUNTS_API_TOKEN},
                 json=payload["config"],

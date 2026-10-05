@@ -10,8 +10,8 @@ import os
 from http import HTTPStatus
 
 import flask
-import requests
 from flask import Blueprint, jsonify, request
+from utils.http import session
 from woocommerce import API
 
 from routes.errors import HTTPError
@@ -42,7 +42,7 @@ def get_wc_api():
 
 def create_manager_account(email: str, expire_on: datetime.datetime):
     """create a user account on manager for email and expire datetime using API"""
-    resp = requests.post(
+    resp = session.post(
         f"{MANAGER_API_URL}/accounts/create",
         headers={"Token": MANAGER_ACCOUNTS_API_TOKEN},
         json={"email": email, "expire_on": expire_on.isoformat(), "limited": False},

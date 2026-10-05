@@ -25,9 +25,9 @@ from http import HTTPStatus
 from pathlib import Path
 from urllib.parse import SplitResult, parse_qs, urlencode, urlparse
 
-import requests
 from kiwix_uploader.api import remove_file_retrying, set_marker_retrying
 
+from utils.http import session
 from utils.mongo import UploadedFiles
 
 AUTO_IMAGES_EXTEND_BEFORE_DAYS = int(os.getenv("AUTO_IMAGES_EXTEND_BEFORE_DAYS") or 5)
@@ -75,7 +75,7 @@ class FileChecker:
 
     def _file_exists(self, fname_suffix: str) -> bool:
         """whether the file (or marker using correct suffix) exists (HTTP check)"""
-        resp = requests.get(
+        resp = session.get(
             f"{self.file['download_url']}{fname_suffix}",
             allow_redirects=True,
             timeout=self.http_timeout,
@@ -206,7 +206,7 @@ class FileChecker:
 
     def get_expiry(self) -> datetime.datetime:
         """expiration date as specified in marker file (fetch via HTTP)"""
-        resp = requests.get(
+        resp = session.get(
             f"{self.file['download_url']}{self.marker_suffix}",
             allow_redirects=True,
             timeout=self.http_timeout,
