@@ -26,6 +26,8 @@ WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 2.5  # seconds
 FAIL_AUTOIMAGES_IF_DELETING_IN_DAYS = int(
     os.getenv("FAIL_AUTOIMAGES_IF_DELETING_IN_DAYS") or "4"
 )
+session: requests.Session = requests.Session()
+session.headers.update({"User-Agent": "kiwix-bot/1.0.0 (hotspot-imager-status)"})
 
 
 @app.template_filter("status_text")
@@ -154,7 +156,7 @@ def collect_statuses_sequential() -> dict[str, str | bool]:
 
 
 def _get_scheduler_token(url: str, username: str, password: str):
-    req = requests.post(
+    req = session.post(
         url=f"{url}/auth/authorize",
         headers={
             "username": username,
@@ -189,7 +191,7 @@ def get_scheduler_workers_list(access_token: str) -> list[dict[str, Any]]:
     url = os.getenv("STATUS_CARDSHOP_API_URL", "")
 
     try:
-        resp = requests.get(
+        resp = session.get(
             f"{url}/workers/",
             headers={
                 "token": access_token,
@@ -206,7 +208,7 @@ def get_scheduler_workers_list(access_token: str) -> list[dict[str, Any]]:
 def get_autoimages_list(access_token: str) -> list[dict[str, Any]]:
     url = os.getenv("STATUS_CARDSHOP_API_URL", "")
     try:
-        resp = requests.get(
+        resp = session.get(
             f"{url}/auto-images",
             headers={
                 "token": access_token,
@@ -271,11 +273,12 @@ def get_manager_status() -> bool:
         "next": "/configurations/",
     }
     try:
-        with requests.Session() as session:
-            resp = session.get(url, timeout=HTTP_TIMEOUT)
+        with requests.Session() as logged_session:
+            resp = logged_session.get(url, timeout=HTTP_TIMEOUT)
+            logged_session.headers.update({"User-Agent": "kiwix-bot/1.0.0 (hotspot-imager-status)"})
             html = BeautifulSoup(resp.text, "html.parser")
             payload["csrfmiddlewaretoken"] = html.find("input").attrs["value"]
-            resp = session.post(url, data=payload, headers={"Referer": url})
+            resp = logged_session.post(url, data=payload, headers={"Referer": url})
             return resp.status_code == http.HTTPStatus.OK
     except Exception as exc:
         logger.debug(f"Unable to connect to manager: {exc}")
@@ -305,7 +308,7 @@ def get_images_status() -> bool:
     url = os.getenv("STATUS_CARDSHOP_API_URL", "")
     try:
         return (
-            requests.head(
+            session.head(
                 f"{url}/auto-images/demo/redirect/http",
                 allow_redirects=True,
                 timeout=HTTP_TIMEOUT,
@@ -336,7 +339,7 @@ def get_wasabi_status() -> bool:
     url = os.getenv("STATUS_S3_URL", "") + "/status"
     try:
         return (
-            requests.head(
+            session.head(
                 url, allow_redirects=True, timeout=WASABI_HTTP_TIMEOUT
             ).status_code
             == http.HTTPStatus.OK
@@ -349,7 +352,7 @@ def get_wasabi_status() -> bool:
 def url_exists(url: str) -> bool:
     """Whether URL leads to 200"""
     return (
-        requests.head(
+        session.head(
             url,
             allow_redirects=True,
             timeout=HTTP_TIMEOUT,
@@ -391,7 +394,7 @@ def get_images_deletion_status(
 
     try:
         for image in autoimages:
-            resp = requests.get(
+            resp = session.get(
                 f"{url}/auto-images/{image['slug']}",
                 headers={
                     "token": access_token,
@@ -418,7 +421,7 @@ def get_creatorload_status(access_token: str) -> bool:
     two_days = 60 * 60 * 48
 
     try:
-        resp = requests.get(
+        resp = session.get(
             f"{url}/workers/load",
             headers={
                 "token": access_token,
