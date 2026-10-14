@@ -519,6 +519,7 @@ KH_TIMEZONES_CHOICES = [(tz, tz) for tz in KH_TIMEZONES]
 
 VARIANTS = [
     "",
+    "Blank",
     "Demo",
     "Preppers",
     "Preppers Premium",
