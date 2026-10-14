@@ -198,6 +198,11 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
     for zim_ident in config.content_zims:
         builder.add_zim(catalog.get(zim_ident).get_zim_package())
 
+    # there is zero ZIM but we still want the ZIM stack
+    if not config.content_zims:
+        builder.add_zim(next(catalog.all_books).get_zim_package())
+        builder.config["files"].pop()
+
     for package_ident in config.content_packages:
         package = app_catalog[package_ident]
         if isinstance(package, AppPackage):
