@@ -370,7 +370,7 @@ table.package-table td:last-child {
 			  	<tbody>
 			  		{% for book in form.content_zims.value|books_from_json %}
 			  		<tr id="selected-zim-row-{{ book.ident }}" data-order="{{ forloop.counter0 }}" data-name="{{ book.title }}" data-size="{{ book.size }}">
-			  			<td><img src="{{ book.illustration_url }}" loading="lazy" /></td>
+			  			<td><a title="{% blocktrans %}Browse online{% endblocktrans %}" href="{{ DEMO_URL }}/{{ book.ident|libkiwixpath }}" target="_blank"><img src="{{ book.illustration_url }}" loading="lazy" /></a></td>
 			  			<td><strong>{{ book.title }}</strong><p><em>{{ book.description }}</em>{% if book.flavour %}<br /><span class="badge badge-pill badge-secondary package-tag">{{ book.flavour }}</span>{% endif %}</p></td>
 			  			<td class="v-middle">{{ book.size|human_size:True }}</td>
 			  			<td class="v-middle"><a href="#" class="remove-zim" data-book-ident="{{ book.ident }}"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{ book.ident }}" class="fa-solid fa-xmark danger"></i></a></td>
@@ -402,6 +402,7 @@ table.package-table td:last-child {
 	var file_manager_ident = "file-manager.offspot.kiwix.org";
 	var content_filter_ident = "contentfilter.offspot.kiwix.org";
 	var language_field_id = "{{ form.language.id_for_label }}";
+	var browseOnlineText = "{% blocktrans %}Browse online{% endblocktrans %}";
 
   function sortByNameAsc(a, b) {
     a = a.getAttribute('data-name').toLowerCase();
@@ -674,7 +675,7 @@ table.package-table td:last-child {
 						}
 
 						let row = $('<tr id="catalog-zim-row-'+ book.ident +'" data-name="' + book.title + '" data-size="' + book.size + '">');
-						let img_td = '<a title="Voir en ligne" href="' + getDemoUrl(book) + '" target="_blank"><img src="' + getIllusUrl(book) + '" loading="lazy" /></a>';
+						let img_td = '<a title="' + browseOnlineText +'" href="' + getDemoUrl(book) + '" target="_blank"><img src="' + getIllusUrl(book) + '" loading="lazy" /></a>';
 						let main_td = '<strong>' + book.title + '</strong> <p><em>' + book.description + '</em></p><p>' + tags.html() + '</p>';
 						let add_td = '<a href="#" class="add-zim" data-book-ident="'+ book.ident +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ book.ident +'" class="fa-solid fa-plus"></i></a>';
 						row.append($('<td>').html(img_td));
@@ -859,7 +860,7 @@ table.package-table td:last-child {
 		let actionClasses = (action == "add") ? "fa-solid fa-plus" : "fa-solid fa-xmark danger";
 		let tags = $('<span>');
 		let row = $('<tr data-ident="'+ package.ident +'" data-name="' + package.title + '" data-size="' + package.size + '">');
-		let img_td = '<img src="' + package.icon_url + '" loading="lazy" /></a>';
+		let img_td = '<img src="' + package.icon_url + '" loading="lazy" />';
 		let main_td = '<strong>' + package.title + '</strong> <p><em>' + package.description + '</em></p><p>' + tags.html() + '</p>';
 		let add_td = '<a href="#" class="' + action + '-' + kind + '" data-ident="'+ package.ident +'"><i data-container="body" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="'+ package.ident +'" class="' + actionClasses + '"></i></a>';
 		row.append($('<td>').html(img_td));

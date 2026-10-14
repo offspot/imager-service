@@ -300,3 +300,10 @@ def illustration_url_from(uuid: str):
 @register.filter("multiurl")
 def explode_multi_urls(text: str) -> str:
     return text.replace(",", "<br />")
+
+@register.filter("libkiwixpath")
+def libkiwixpath(ident: str) -> str:
+    _, name, flavour = ident.split(":", 3)
+    if flavour.strip():
+      flavour = f"_{flavour}"
+    return f"{name}{flavour}"
