@@ -200,8 +200,14 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
 
     # there is zero ZIM but we still want the ZIM stack
     if not config.content_zims:
-        builder.add_zim(next(catalog.all_books).get_zim_package())
-        builder.config["files"].pop()
+        # add a random ZIM to enable stack
+        package = next(catalog.all_books).get_zim_package()
+        builder.add_zim(package)
+        # remove ZIM from builder (dashboard and file)
+        builder.dashboard_entries.remove(package)
+        builder.config["files"] = list(
+            filter(lambda file: not file.to.endswith(".zim"), builder.config["files"])
+        )
 
     for package_ident in config.content_packages:
         package = app_catalog[package_ident]
