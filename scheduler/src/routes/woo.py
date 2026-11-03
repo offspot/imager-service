@@ -216,7 +216,14 @@ def on_imager_access_order():
     # inform admin, retry or disable
     credentials = handle_credentials_creation(email=email)
     add_customer_note(order_id=order_id, credentials=credentials)
-    mark_order_as_completed(order_id=order_id)
+
+    # ATM, there are three kinds of products:
+    # - downloads, handled entirely in Woo, processed immediately
+    # - imager-service access that is virtual product, handled by this webhook
+    # - H1 devices that are shipped and thus require manual completion
+    # Here we assume we can mark completed any order that does not require shipping.
+    if payload.get("needs_payment") == False and not payload.get("shipping_lines", []):
+        mark_order_as_completed(order_id=order_id)
     return jsonify(success=True)
 
 
