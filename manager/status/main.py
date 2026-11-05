@@ -22,7 +22,7 @@ app = Flask(__name__)
 
 HTTP_TIMEOUT = 10  # seconds
 CREATOR_HTTP_TIMEOUT = HTTP_TIMEOUT * 2.5  # seconds
-WASABI_HTTP_TIMEOUT = HTTP_TIMEOUT * 2.5  # seconds
+IMAGES_HTTP_TIMEOUT = HTTP_TIMEOUT * 2.5  # seconds
 FAIL_AUTOIMAGES_IF_DELETING_IN_DAYS = int(
     os.getenv("FAIL_AUTOIMAGES_IF_DELETING_IN_DAYS") or "4"
 )
@@ -91,7 +91,6 @@ async def collect_statuses():
         loop.run_in_executor(None, wrap, "manager_status", get_manager_status),
         loop.run_in_executor(None, wrap, "database_status", get_database_status),
         loop.run_in_executor(None, wrap, "images_status", get_images_status),
-        loop.run_in_executor(None, wrap, "wasabi_status", get_wasabi_status),
         loop.run_in_executor(
             None, wrap, "images_exists", get_images_exists_status, autoimages_list
         ),
@@ -124,7 +123,6 @@ def collect_statuses_sequential() -> dict[str, str | bool]:
     manager_status = get_manager_status()
     database_status = get_database_status()
     images_status = get_images_status()
-    wasabi_status = get_wasabi_status()
     images_exists = get_images_exists_status(autoimages_list)
     images_deletion = get_images_deletion_status(autoimages_list, scheduler_token)
     creatorload_status = get_creatorload_status(scheduler_token)
@@ -135,7 +133,6 @@ def collect_statuses_sequential() -> dict[str, str | bool]:
             manager_status,
             database_status,
             images_status,
-            wasabi_status,
             images_exists,
             images_deletion,
             creatorload_status,
@@ -147,7 +144,6 @@ def collect_statuses_sequential() -> dict[str, str | bool]:
         "manager_status": manager_status,
         "database_status": database_status,
         "images_status": images_status,
-        "wasabi_status": wasabi_status,
         "images_exists": images_exists,
         "images_deletion": images_deletion,
         "creatorload_status": creatorload_status,
@@ -320,35 +316,6 @@ def get_images_status() -> bool:
         return False
 
 
-def get_wasabi_status() -> bool:
-    """Testing the download of a specific file in our bucket that expires after 1y
-
-    and serve only this specific purpose. If this starts failing, check the expiry
-    date and update it
-
-    RENEW:
-    uv run --with kiwixstorage --with ipython ipython
-    import datetime, io, os
-    from kiwixstorage import KiwixStorage
-    bucket_name = "org-kiwix-hotspot-cardshop-download"
-    key = "status"
-    s3.upload_fileobj(bucket_name=bucket_name, key=key, fileobj=io.BytesIO(b""))
-    s3.set_object_autodelete_on(
-        key=key, datetime.datetime(2026,11,21, 23, 59), bucket_name=bucket_name)
-    """
-    url = os.getenv("STATUS_S3_URL", "") + "/status"
-    try:
-        return (
-            session.head(
-                url, allow_redirects=True, timeout=WASABI_HTTP_TIMEOUT
-            ).status_code
-            == http.HTTPStatus.OK
-        )
-    except Exception as exc:
-        logger.debug(f"Unable to get Wasabi status: {exc}")
-        return False
-
-
 def url_exists(url: str) -> bool:
     """Whether URL leads to 200"""
     return (
@@ -400,7 +367,7 @@ def get_images_deletion_status(
                     "token": access_token,
                     "Content-type": "application/json",
                 },
-                timeout=WASABI_HTTP_TIMEOUT,
+                timeout=IMAGES_HTTP_TIMEOUT,
             )
             resp.raise_for_status()
             delete_on = datetime.datetime.fromisoformat(
