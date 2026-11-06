@@ -146,9 +146,7 @@ class Book:
             tags=self.tags,
             flavour=self.flavour,
             download_size=self.size,
-            download_url=self.url.replace("//lbo.", "//mirror.").replace(
-                "//lb.", "//mirror."
-            ),
+            download_url=self.url,
             download_checksum=self.checksum,
             icon_url=self.illustration_url,
             version=self.version,

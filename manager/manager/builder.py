@@ -145,7 +145,7 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
             "ADMIN_PASSWORD": str(config.admin_password),
         },
         write_config=True,
-        kiwix_zim_mirror="https://mirror.download.kiwix.org/zim/",
+        # kiwix_zim_mirror="https://mirror.download.kiwix.org/zim/",
         public_version=version,
         variant=str(config.variant),
     )
