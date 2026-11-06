@@ -97,7 +97,7 @@ def is_expired(status, since, size=0):
 
     if status == Tasks.building:
         return since.astimezone(tz=datetime.timezone.utc) < (
-            now - datetime.timedelta(hours=36)
+            now - datetime.timedelta(hours=48)
         )
 
     if status == Tasks.wiping_sdcard:
