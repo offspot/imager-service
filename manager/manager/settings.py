@@ -237,20 +237,19 @@ OFFSPOT_LANGUAGES = [
 # All of them will be added to the builder if use selects the appr. option
 # must be manually updated from time to time
 KIWIX_READERS_SOURCES = {
-    "windows": "https://download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.5.1.zip",
+    "windows": "https://mirror.download.kiwix.org/release/kiwix-desktop/kiwix-desktop_windows_x64_2.5.1.zip",
     "android": "https://mirror.download.kiwix.org/release/kiwix-android/"
     "org.kiwix.kiwixmobile.standalone-3.14.0.apk",
-    "macos": "https://download.kiwix.org/release/kiwix-macos/kiwix-macos_3.18.0.dmg",
-    "linux": "https://download.kiwix.org/release/kiwix-desktop/"
+    "macos": "https://mirror.download.kiwix.org/release/kiwix-macos/kiwix-macos_3.18.0.dmg",
+    "linux": "https://mirror.download.kiwix.org/release/kiwix-desktop/"
     + "kiwix-desktop_x86_64_2.5.1.appimage",
 }
 
 
 def get_reader_from(platform: str, url: str):
     uri = urllib.parse.urlsplit(url)
-    if uri.netloc == "download.kiwix.org":
+    if uri.netloc == "mirror.download.kiwix.org":
         checksum = Checksum(algo="md5", value=read_checksum_from(f"{url}.md5"))
-        url = uri._replace(netloc="mirror.download.kiwix.org").geturl()
     else:
         checksum = None
     return Reader.using(platform=platform, download_url=url, checksum=checksum)
