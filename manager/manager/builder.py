@@ -130,6 +130,11 @@ def prepare_builder_for(config: Configuration | ConfigLike) -> ConfigBuilder:
         source=settings.BASE_IMAGE_URL,
         rootfs_size=settings.BASE_IMAGE_ROOTFS_SIZE,
     )
+    if "nov-update" in config.beta_features:
+        base = BaseConfig(
+            source="https://s3.eu-central-1.wasabisys.com/it-offspot-base-branches/offspot-base-arm64-e0a0bce.img",
+            rootfs_size=3699376128,
+        )
     builder = ConfigBuilder(
         base=base,
         name=str(config.ssid),
