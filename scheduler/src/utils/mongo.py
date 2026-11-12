@@ -302,9 +302,11 @@ class Orders(BaseCollection):
     @classmethod
     def get_uploaded_files(cls, order_id):
         order = cls().get(order_id)
-        return UploadedFiles().find(
-            {"download_url": {"$in": order.get("download_urls", [])}}
-        )
+        download_urls = order.get("download_urls", [])
+        for url in list(download_urls):
+            if not url.endswith(".torrent"):
+                download_urls.append(f"{url}.torrent")
+        return UploadedFiles().find({"download_url": {"$in": download_urls}})
 
     @classmethod
     def get_with_tasks(cls, order_id, with_logs=False):
@@ -873,7 +875,11 @@ class AutoImages(BaseCollection):
     def get_uploaded_files(cls, slug: str):
         image = cls().get(slug)
         return UploadedFiles().find(
-            {"download_url": {"$in": image.get("http_urls", [])}}
+            {
+                "download_url": {
+                    "$in": image.get("http_urls", []) + image.get("torrent_urls", [])
+                }
+            }
         )
 
 

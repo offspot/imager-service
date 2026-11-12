@@ -210,7 +210,7 @@ def update_status(task_id: ObjectId, task_type: str, user: dict):
             UploadedFiles.update(uf["_id"], status="confirmed", confirmed_on=now)
             # confirm torrent file as well
             uf = UploadedFiles.get_or_create(
-                upload_url=upload_url, download_url=f"{download_url}.torrent"
+                upload_url=f"{upload_url}.torrent", download_url=f"{download_url}.torrent"
             )
             UploadedFiles.update(uf["_id"], status="confirmed", confirmed_on=now)
 
