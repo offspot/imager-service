@@ -108,7 +108,7 @@ class Acknowlegments(BaseCollection):
             worker_type=worker_type,
             slot=slot,
             status=cls.busy,
-            payload="task #{}".format(task_id),
+            payload=f"task #{task_id}",
         )
 
     @classmethod
@@ -125,7 +125,7 @@ class Acknowlegments(BaseCollection):
     def get(cls, aid):
         ack = cls().find_one({"_id": aid})
         if ack is None:
-            raise ValueError("Unable to retrieve ack with id `{}`".format(aid))
+            raise ValueError(f"Unable to retrieve ack with id `{aid}`")
         return ack
 
 
@@ -150,7 +150,7 @@ class Channels(BaseCollection):
     def get(cls, slug):
         channel = cls().find_one({"slug": slug})
         if channel is None:
-            raise ValueError("Unable to retrieve channel with slug `{}`".format(slug))
+            raise ValueError(f"Unable to retrieve channel with slug `{slug}`")
         return channel
 
 
@@ -278,9 +278,7 @@ class Orders(BaseCollection):
             projection={"logs": 0} if not with_logs else None,
         )
         if order is None:
-            raise ValueError(
-                "Unable to find/retrieve object with ID {}".format(order_id)
-            )
+            raise ValueError(f"Unable to find/retrieve object with ID {order_id}")
         return order
 
     @classmethod
@@ -327,7 +325,7 @@ class Orders(BaseCollection):
     def create_creator_task(cls, order_id):
         order = cls.get(order_id)
         if order is None:
-            raise ValueError("Order #{} not exists. can't create task".format(order_id))
+            raise ValueError(f"Order #{order_id} not exists. can't create task")
 
         payload = {
             "order": order_id,
@@ -372,7 +370,7 @@ class Orders(BaseCollection):
     def create_downloader_task(cls, order_id, upload_details):
         order = cls.get(order_id)
         if order is None:
-            raise ValueError("Order #{} not exists. can't create task".format(order_id))
+            raise ValueError(f"Order #{order_id} not exists. can't create task")
 
         payload = {
             "order": order_id,
@@ -402,7 +400,7 @@ class Orders(BaseCollection):
     def create_writer_tasks(cls, order_id):
         order = cls.get_with_tasks(order_id)
         if order is None:
-            raise ValueError("Order #{} not exists. can't create task".format(order_id))
+            raise ValueError(f"Order #{order_id} not exists. can't create task")
 
         payload = {
             "order": order_id,
@@ -420,7 +418,7 @@ class Orders(BaseCollection):
         }
 
         task_ids = []
-        for _ in range(0, order["quantity"]):
+        for _ in range(order["quantity"]):
             task_ids.append(WriterTasks().insert_one(payload).inserted_id)
 
         # add task_id to order
@@ -793,7 +791,7 @@ class AutoImages(BaseCollection):
     def get(cls, slug):
         image = cls().find_one({"slug": slug})
         if image is None:
-            raise ValueError("Unable to retrieve image with slug `{}`".format(slug))
+            raise ValueError(f"Unable to retrieve image with slug `{slug}`")
         return image
 
     @classmethod

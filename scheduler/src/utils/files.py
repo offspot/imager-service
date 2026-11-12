@@ -42,6 +42,7 @@ S3_SECRET_KEY = os.getenv("S3_SECRET_KEY") or ""
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def get_credentials_s3_url(s3_url: str) -> str:
